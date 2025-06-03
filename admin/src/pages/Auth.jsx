@@ -1,108 +1,193 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { useDispatch } from 'react-redux';
-import { login } from '../lib/redux/authSlice';
-import axios from '../lib/axios/axiosInstance';
+// src/pages/Auth.jsx
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 
-const Auth = () => {
-  const [activeTab, setActiveTab] = useState('login');
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-
+export default function Auth() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-  const handleLoginChange = (e) =>
-    setLoginData({ ...loginData, [e.target.name]: e.target.value });
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [stage, setStage] = useState('login');
+  const [showPassword, setShowPassword] = useState(false);
+  const onChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  
-
-  const handleLoginSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    try {
-      const { data } = await axios.post('/users/login', loginData);
-      dispatch(login({ success: true, data: data.user }));
-      navigate('/dashboard'); // or wherever you want to redirect after login
-    } catch (error) {
-      console.error(
-        'Login failed:',
-        error.response?.data?.message || error.message,
-      );
-      alert(error.response?.data?.message || 'Login failed');
-    }
+
+    const ok =
+      form.email === 'admin@lzycrazy.com' && form.password === 'admin123';
+
+    setStage(ok ? 'verified' : 'error');
   };
 
+  const goDashboard = () => navigate('/admin');
+  const closeError = () => setStage('login');
+
+  const handleShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-gray-100 via-white to-gray-200 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl">
-        {/* Tab Navigation */}
-        <div className="mb-6 flex border-b border-gray-200">
-          <button
-            className="flex-1 py-3 text-center text-sm font-medium border-b-2 border-blue-600 text-blue-600 hover:text-gray-700"
-          >
-            Sign In
-          </button>
-        
+    <div className="relative flex min-h-screen items-center justify-center bg-[#f4f5fe]">
+      <img
+        src="/decor-tree.svg"
+        alt=""
+        className="pointer-events-none absolute bottom-0 left-6 hidden sm:block"
+      />
+      <img
+        src="/decor-leaf.svg"
+        alt=""
+        className="pointer-events-none absolute right-6 bottom-0 hidden sm:block"
+      />
+
+      <div className="flex w-full max-w-6xl flex-col items-center justify-between px-4 lg:flex-row">
+        {/* ------------ brand / illustration (left) ------------ */}
+        <div className="mx-auto mt-12 hidden shrink-0 select-none lg:block">
+          <img
+            src="./Logo.jpg"
+            alt="Lzycrazy logo"
+            className="h-80 w-100 bg-transparent"
+          />
         </div>
 
-        {/* Login Form */}
-        {activeTab === 'login' && (
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
-            {/* Email */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={loginData.email}
-                onChange={handleLoginChange}
-                required
-                placeholder="ajeet@example.com"
-                className="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              />
-            </div>
+        {/* --------------- form container (right) --------------- */}
+        <div className="w-full max-w-md rounded-[20px] bg-white px-8 py-10 shadow-md">
+          <h1 className="text-center text-[32px] font-bold tracking-tight text-gray-800">
+            Login
+          </h1>
 
-            {/* Password */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Password
-              </label>
+          <p className="mt-3 text-2xl font-semibold text-gray-800">
+            Welcome to Lzycrazy!
+          </p>
+          <p className="mb-8 text-xs text-gray-500">
+            Please sign-in to your account and start the adventure
+          </p>
+
+          {/* ------------------- FORM ------------------- */}
+          <form onSubmit={onSubmit} className="space-y-5">
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              required
+              value={form.email}
+              onChange={onChange}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+            />
+
+            <div className="relative">
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 name="password"
-                value={loginData.password}
-                onChange={handleLoginChange}
+                placeholder="Password"
                 required
-                placeholder="••••••••"
-                className="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                value={form.password}
+                onChange={onChange}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
               />
+
+              {/* 👁 password-toggle icon slot (optional) */}
+              {!showPassword ? (
+                <Eye
+                  className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-gray-400"
+                  onClick={handleShowPassword}
+                />
+              ) : (
+                <EyeOff
+                  className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-gray-400"
+                  onClick={handleShowPassword}
+                />
+              )}
             </div>
 
-            {/* Forgot Password */}
-            <div className="text-right">
-              <a
-                href="#forgot-password"
-                className="text-xs text-blue-600 hover:underline"
+            <div className="flex justify-end text-xs">
+              <button
+                type="button"
+                className="text-blue-600 hover:underline"
+                onClick={() => alert('TODO: forgot-password flow')}
               >
-                Forgot Password?
-              </a>
+                Forgot Password…?
+              </button>
             </div>
 
-            {/* Login Button */}
             <button
               type="submit"
-              className="w-full rounded bg-blue-600 py-2 font-semibold text-white transition duration-300 hover:bg-blue-700"
+              className="w-full rounded-lg bg-blue-600 py-[10px] text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-[.98]"
             >
-              Sign In
+              Login
             </button>
           </form>
-        )}
-        
+        </div>
+      </div>
+
+      {/* ========================== VERIFIED POPUP ====================== */}
+
+      {stage === 'verified' && (
+        <Modal>
+          <h2 className="mb-6 text-2xl font-bold">Verified</h2>
+
+          <div className="mb-8 flex items-center justify-center">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-green-600">
+              {/* checkmark */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-14 w-14 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="3"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <button
+            onClick={goDashboard}
+            className="rounded bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-[.97]"
+          >
+            NEXT
+          </button>
+        </Modal>
+      )}
+
+      {/* ================================================================ */}
+      {/* =========================== ERROR POPUP ======================== */}
+      {/* ================================================================ */}
+      {stage === 'error' && (
+        <Modal>
+          <h2 className="mb-4 text-2xl font-bold text-red-600">Login Failed</h2>
+          <p className="mb-8 text-sm text-gray-600">
+            Invalid email or password.
+            <br />
+            Please try again.
+          </p>
+          <button
+            onClick={closeError}
+            className="rounded bg-red-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-red-600 active:scale-[.97]"
+          >
+            CLOSE
+          </button>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------- */
+/*  Tiny reusable modal component                                       */
+/* -------------------------------------------------------------------- */
+function Modal({ children }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm backdrop-brightness-75">
+      <div className="w-full max-w-xs rounded-[28px] bg-white px-8 py-10 text-center shadow-xl">
+        {children}
       </div>
     </div>
   );
-};
-
-export default Auth;
+}
