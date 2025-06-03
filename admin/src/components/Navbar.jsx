@@ -209,7 +209,7 @@ const Navbar = () => {
             <li>
               <button
                 className="flex w-full items-center rounded-lg p-2 text-left text-gray-700 hover:bg-gray-100"
-                onClick={(e) => {
+                onClick={() => {
                   setIsProfileDropdownOpen(false);
                   handleLogout();
                 }}
@@ -394,7 +394,7 @@ const Navbar = () => {
                       Profile
                     </Link>
                     <button
-                      onClick={(e) => {
+                      onClick={() => {
                         setIsProfileDropdownOpen(false);
                         handleLogout();
                       }}

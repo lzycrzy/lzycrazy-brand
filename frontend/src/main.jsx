@@ -5,6 +5,7 @@ import App from './App.jsx';
 import { BrowserRouter } from 'react-router';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import '../src/components/i18n.jsx';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
