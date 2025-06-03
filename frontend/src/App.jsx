@@ -11,6 +11,7 @@ import Auth from './pages/Auth';
 import store from './lib/redux/store';
 import { Provider } from 'react-redux';
 import Home from './components/Home';
+import Searchbar from './components/Searchbar';
 
 // Protected route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -47,6 +48,7 @@ const App = () => {
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Route>
          <Route path="test" element={<Home/>} />
+          <Route paht="searchbar" element={<Searchbar />}
       </Routes>
     </Provider>
   );
