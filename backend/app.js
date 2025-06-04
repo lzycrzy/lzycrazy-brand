@@ -7,6 +7,7 @@ import { errorMiddleware } from './middlewares/error.middleware.js';
 
 // import routes
 import userRoutes from './router/user.route.js';
+import firebaseAuthRoutes from './router/firebase.auth.route.js';
 
 dotenv.config(); //--
 
@@ -16,7 +17,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL],
+    origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL, 'http://localhost:8080', 'http://127.0.0.1:8080'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   }),
@@ -33,6 +34,7 @@ app.use(express.urlencoded({ extended: true })); //--
 
 //--
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/auth/firebase', firebaseAuthRoutes);
 
 dbConnection(); //--
 app.use(errorMiddleware); //--

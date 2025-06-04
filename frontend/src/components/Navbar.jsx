@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { logout } from '../lib/redux/authSlice';
 import axios from '../lib/axios/axiosInstance';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation, Link } from 'react-router';
 
-const Navbar = () => {
+const Navbar = ({ setIsSidebarOpen }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const location = useLocation();
   const profileDropdownRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
+  // Get user data from Redux store
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   // Map paths to page names
   const getPageName = (path) => {
@@ -63,6 +66,9 @@ const Navbar = () => {
       navigate('/auth'); // redirect to login page
     } catch (error) {
       console.error('Logout error:', error);
+      // Even if the API call fails, still clear the local state and redirect
+      dispatch(logout());
+      navigate('/auth');
     }
   };
 
@@ -191,17 +197,42 @@ const Navbar = () => {
                 <span>Information</span>
               </button>
             </li>
+            {/* User profile section */}
+            <li className="border-b border-gray-200 mb-2 pb-2">
+              <div className="flex items-center p-2">
+                <div className="mr-3 h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border-2 border-purple-400">
+                  <img
+                    src={user?.image || "https://ui-avatars.com/api/?name=" + (user?.fullName || "User") + "&background=4747ED&color=fff"}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">{user?.fullName || "User"}</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email || "user@example.com"}</p>
+                </div>
+              </div>
+            </li>
+            
             <li>
               <Link
                 to="/profile"
                 className="flex w-full items-center rounded-lg p-2 text-left text-gray-700 hover:bg-gray-100"
               >
-                <div className="mr-3 h-5 w-5 flex-shrink-0 overflow-hidden rounded-full">
-                  <img
-                    src="https://randomuser.me/api/portraits/men/32.jpg"
-                    alt="Profile"
-                    className="h-full w-full object-cover"
-                  />
+                <div className="mr-3 h-5 w-5 flex-shrink-0 text-gray-500">
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    ></path>
+                  </svg>
                 </div>
                 <span>Profile</span>
               </Link>
@@ -254,7 +285,7 @@ const Navbar = () => {
           {/* Mobile menu button - only visible on smallest screens */}
           <button
             className="absolute top-4 right-4 text-gray-500 sm:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => setIsSidebarOpen(true)}
           >
             <svg
               className="h-6 w-6"
@@ -357,13 +388,13 @@ const Navbar = () => {
               {/* Profile Avatar with Dropdown */}
               <div className="relative" ref={profileDropdownRef}>
                 <button
-                  className="ml-1 h-8 w-8 overflow-hidden rounded-full focus:outline-none"
+                  className="ml-1 h-8 w-8 overflow-hidden rounded-full focus:outline-none border-2 border-purple-400"
                   onClick={() =>
                     setIsProfileDropdownOpen(!isProfileDropdownOpen)
                   }
                 >
                   <img
-                    src="https://randomuser.me/api/portraits/men/32.jpg"
+                    src={user?.image || "https://ui-avatars.com/api/?name=" + (user?.fullName || "User") + "&background=4747ED&color=fff"}
                     alt="Profile"
                     className="h-full w-full object-cover"
                   />
@@ -371,7 +402,25 @@ const Navbar = () => {
 
                 {/* Profile Dropdown */}
                 {isProfileDropdownOpen && (
-                  <div className="absolute right-0 z-50 mt-4 w-48 rounded-md bg-white py-1 shadow-lg">
+                  <div className="absolute right-0 z-50 mt-4 w-72 rounded-md bg-white py-1 shadow-lg">
+                    {/* User Info Section */}
+                    <div className="border-b border-gray-200 px-4 py-3">
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
+                          <img
+                            src={user?.image || "https://ui-avatars.com/api/?name=" + (user?.fullName || "User") + "&background=4747ED&color=fff"}
+                            alt="Profile"
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-gray-900">{user?.fullName || "User"}</p>
+                          <p className="text-xs text-gray-500 truncate">{user?.email || "user@example.com"}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Menu Items */}
                     <Link
                       to="/profile"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -398,7 +447,7 @@ const Navbar = () => {
                         setIsProfileDropdownOpen(false);
                         handleLogout();
                       }}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       <svg
                         className="mr-3 h-5 w-5 text-gray-500"

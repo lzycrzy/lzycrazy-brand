@@ -8,6 +8,7 @@ import {
 } from 'react-router';
 import Layout from './components/Layout';
 import Auth from './pages/Auth';
+import Dashboard from './pages/Dashboard';
 import store from './lib/redux/store';
 import { Provider } from 'react-redux';
 
@@ -35,14 +36,17 @@ const App = () => {
           <Route path="auth" element={<Auth />} />
 
           {/* Protected routes - require login */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          
           <Route
-            path="/"
+            path="dashboard"
             element={
-              // <ProtectedRoute>
-              <Navigate to="/dashboard" replace />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
             }
           />
+          
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Route>
       </Routes>

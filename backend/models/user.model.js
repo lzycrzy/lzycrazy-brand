@@ -15,12 +15,23 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: [true, 'Phone Number required'],
+    required: function() {
+      // Only required for direct email authentication, not for other auth providers
+      return this.authProvider === 'email';
+    },
+    default: '',
+  },
+  
+  country: {
+    type: String,
+    default: '',
   },
 
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: function() {
+      return this.authProvider === 'email'; // Only required for email authentication
+    },
     minlength: [8, 'Password must contain at least 8 characters'],
     select: false, //--for getting user password
   },
@@ -42,11 +53,21 @@ const userSchema = new mongoose.Schema({
     type: Date,
     select: false,
   },
+  authProvider: {
+    type: String,
+    enum: ['email', 'google', 'facebook'],
+    default: 'email',
+  },
+  firebaseUID: {
+    type: String,
+    select: false,
+  },
 });
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next(); //--
+  // Skip password hashing for social login users or if password hasn't changed
+  if (!this.isModified('password') || this.authProvider !== 'email') return next(); //--
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
