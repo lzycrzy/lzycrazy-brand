@@ -13,13 +13,7 @@ const Searchbar = () => {
     if (query.trim()) {
       console.log('Search Query:', query, '| Filter:', activeTab);
 
-      // ✅ TODO: Call your search API here
-      // Example (pseudo-code):
-      // const response = await fetch(`https://api.example.com/search?q=${query}&filter=${activeTab}`);
-      // const data = await response.json();
-      // setResults(data);
-
-      // Right now, you are just logging to console
+      // TODO: Call your search API here
     }
   };
 
@@ -32,10 +26,11 @@ const Searchbar = () => {
   const filters = ['All', 'Images', 'Videos', 'News', 'Shopping'];
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
-      {/* 🖼️ Logo Section */}
-      <div className="flex flex-col items-center">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-white">
+      {/* 🖼️ Logo Section with white overlay */}
+      <div className="relative flex flex-col items-center">
         <img src={logo} alt="LzyCrazy Logo" className="mb-2 w-40 md:w-60" />
+        <div className="absolute inset-0 bg-white opacity-30 rounded-md pointer-events-none"></div>
       </div>
 
       {/* 🔍 Search Input */}
