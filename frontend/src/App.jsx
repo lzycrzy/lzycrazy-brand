@@ -48,7 +48,7 @@ const App = () => {
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Route>
          <Route path="test" element={<Home/>} />
-          <Route paht="searchbar" element={<Searchbar />}
+          <Route paht="searchbar" element={<Searchbar />}/>
       </Routes>
     </Provider>
   );

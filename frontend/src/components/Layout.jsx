@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useLocation } from 'react-router';
-import { Sidebar } from './Sidebar';
+import  Sidebar  from './Sidebar';
 import Navbar from './Navbar';
 
 const Layout = () => {
