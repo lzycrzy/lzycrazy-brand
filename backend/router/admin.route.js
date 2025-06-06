@@ -1,16 +1,16 @@
 import express from 'express';
 import {
   registerAdmin,
-  loginAdmin,
-  logoutAdmin,
-  getAdminProfile,
-  getAdminDashboard,
-  updateAdminProfile,
-  updateAdminPassword,
-  forgotAdminPassword,
-  resetAdminPassword,
-  getAllUsersList,
-  deleteSingleUser
+  // loginAdmin,
+  // logoutAdmin,
+  // getAdminProfile,
+  // getAdminDashboard,
+  // updateAdminProfile,
+  // updateAdminPassword,
+  // forgotAdminPassword,
+  // resetAdminPassword,
+  // getAllUsersList,
+  // deleteSingleUser
 } from '../controllers/admin.controller.js';
 import {
   isAuthenticatedAdmin,
@@ -22,11 +22,8 @@ const router = express.Router();
 
 // Public routes
 // This route is for registering a new admin
-// authorizeRoles("Admin")
 router.post(
   '/register',
-  isAuthenticatedAdmin,
-  authorizeRolesAdimin('Admin'),
   upload.single('image'),
   registerAdmin,
 );
