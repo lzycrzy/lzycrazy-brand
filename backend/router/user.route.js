@@ -3,6 +3,8 @@ import {
   registerUser,
   loginUser,
   logoutUser,
+  loginWithGoogle,
+  loginWithFacebook,
   getMyProfile,
   getAdminDashboard,
   getSuperAdminDashboard,
@@ -10,6 +12,7 @@ import {
   updateUser,
   updatePassword,
   forgotPassword,
+  
   resetPassword,
 } from '../controllers/user.controller.js';
 import {
@@ -17,6 +20,9 @@ import {
   authorizeRoles,
 } from '../middlewares/auth.middleware.js';
 import upload from '../middlewares/multer.middleware.js';
+import multer from 'multer';
+
+// multer setup (example: storing files in 'uploads/' folder with original name)
 
 const router = express.Router();
 
@@ -24,14 +30,18 @@ const router = express.Router();
 // authorizeRoles("superAdmin")
 router.post(
   '/register',
-  isAuthenticated,
-  authorizeRoles('superAdmin'),
-  upload.single('image'),
+  // isAuthenticated,  // uncomment if you want auth middleware
+  // authorizeRoles('superAdmin'),
+  upload.single('profileImage'),  // Use 'profileImage' to match frontend
   registerUser,
 );
+
 router.post('/login', loginUser);
 
 router.get('/logout', logoutUser);
+router.post('/google-login', loginWithGoogle);
+router.post('/facebook-login', loginWithFacebook);
+
 
 // Protected routes (any logged in user)
 router.get('/me', isAuthenticated, getMyProfile);

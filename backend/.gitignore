@@ -1,3 +1,5 @@
 node_modules
+backend/dataBase/service.json
+*.json
 
 .env

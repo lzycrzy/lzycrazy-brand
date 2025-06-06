@@ -13,8 +13,15 @@ import adminRoutes from './router/admin.route.js';
 dotenv.config(); 
 
 const app = express();
-
+import './utils/cloudinary.js';
 //--
+import helmet from 'helmet';
+
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: false // disables the COOP header
+  })
+);
 
 app.use(
   cors({
@@ -25,7 +32,7 @@ app.use(
 );
 
 app.use(cookieParser()); //--for accessing cokkies--
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json());
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.urlencoded({ extended: true })); //--
 
@@ -34,6 +41,7 @@ app.use(express.urlencoded({ extended: true })); //--
 //--
 
 //--
+
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/admin', adminRoutes);
 

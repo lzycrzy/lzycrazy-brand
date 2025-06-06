@@ -8,7 +8,7 @@ const Layout = () => {
   const isAuthPage = location.pathname === '/auth';
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen m-0 bg-gray-50">
       {!isAuthPage && <Sidebar />}
       <div
         className={`flex flex-col ${
@@ -18,7 +18,7 @@ const Layout = () => {
         {!isAuthPage && <Navbar />}
         <main
           className={`${
-            !isAuthPage ? 'flex-1 overflow-y-auto p-6' : 'h-full w-full'
+            !isAuthPage ? 'flex-1 overflow-y-auto ' : 'h-full w-full'
           }`}
         >
           <Outlet />
