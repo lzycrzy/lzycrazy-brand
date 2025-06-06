@@ -33,7 +33,7 @@ const Auth = () => {
     country: '',
     email: '',
     password: '',
-    confirmPassword: '',
+    
   });
 
   const navigate = useNavigate(); // For navigation

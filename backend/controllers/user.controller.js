@@ -41,6 +41,7 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
 // Login User
 export const loginUser = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
+  console.log(req.body); 
 
   if (!email || !password) {
     return next(new ErrorHandler('Please provide email and password', 400));
@@ -54,7 +55,27 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
 
   generateToken(user, 'User Logged In Successfully', 200, res);
 });
+export const loginWithGoogle = catchAsyncErrors(async (req, res, next) => {
+  const { email, name, uid, photo, provider } = req.body;
 
+  if (!email || !uid || provider !== 'google') {
+    return next(new ErrorHandler('Invalid Google login data', 400));
+  }
+
+  let user = await userModel.findOne({ email });
+
+  if (!user) {
+    user = await userModel.create({
+      name,
+      email,
+      photo,
+      googleId: uid,
+      provider: 'google'
+    });
+  }
+
+  generateToken(user, 'Google login successful', 200, res);
+});
 //Logout User
 export const logoutUser = catchAsyncErrors(async (req, res, next) => {
   res

@@ -8,11 +8,19 @@ import { errorMiddleware } from './middlewares/error.middleware.js';
 // import routes
 import userRoutes from './router/user.route.js';
 
+
 dotenv.config(); //--
 
 const app = express();
 
 //--
+import helmet from 'helmet';
+
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: false // disables the COOP header
+  })
+);
 
 app.use(
   cors({
@@ -32,6 +40,7 @@ app.use(express.urlencoded({ extended: true })); //--
 //--
 
 //--
+
 app.use('/api/v1/users', userRoutes);
 
 dbConnection(); //--

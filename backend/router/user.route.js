@@ -3,6 +3,7 @@ import {
   registerUser,
   loginUser,
   logoutUser,
+  loginWithGoogle,
   getMyProfile,
   getAdminDashboard,
   getSuperAdminDashboard,
@@ -10,6 +11,7 @@ import {
   updateUser,
   updatePassword,
   forgotPassword,
+  
   resetPassword,
 } from '../controllers/user.controller.js';
 import {
@@ -32,6 +34,7 @@ router.post(
 router.post('/login', loginUser);
 
 router.get('/logout', logoutUser);
+router.post('/google-login', loginWithGoogle);
 
 // Protected routes (any logged in user)
 router.get('/me', isAuthenticated, getMyProfile);

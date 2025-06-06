@@ -72,17 +72,18 @@ const SidebarLink = ({ icon: Icon, label, to }) => (
 
 const Sidebar = () => {
   return (
-    <div className="hidden md:block p-4 w-[275px]">
-      <div className="space-y-2">
-        <SidebarLink icon={FaUserCircle} label="Lzy Crazy" to="/profile" />
-        <SidebarLink icon={FaFileAlt} label="My Ads" to="/my-ads" />
-        <SidebarLink icon={LuBox} label="My Order" to="/my-orders" />
-        <SidebarLink icon={FaShoppingCart} label="Market" to="/market" />
-        <SidebarLink icon={FaUsers} label="My Group" to="/my-groups" />
-        <SidebarLink icon={BiSolidMoviePlay} label="Movies" to="/movies" />
-        <SidebarLink icon={FaStar} label="Saved" to="/saved" />
-      </div>
-    </div>
+    // <div className="hidden md:block z-60 mt-20 fixed top-16 h-ful p-4 w-[275px]">
+    //   <div className="space-y-2">
+    //     <SidebarLink icon={FaUserCircle} label="Lzy Crazy" to="/profile" />
+    //     <SidebarLink icon={FaFileAlt} label="My Ads" to="/my-ads" />
+    //     <SidebarLink icon={LuBox} label="My Order" to="/my-orders" />
+    //     <SidebarLink icon={FaShoppingCart} label="Market" to="/market" />
+    //     <SidebarLink icon={FaUsers} label="My Group" to="/my-groups" />
+    //     <SidebarLink icon={BiSolidMoviePlay} label="Movies" to="/movies" />
+    //     <SidebarLink icon={FaStar} label="Saved" to="/saved" />
+    //   </div>
+    // </div>
+    <div></div>
   );
 };
 
