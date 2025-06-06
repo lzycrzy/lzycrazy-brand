@@ -28,12 +28,13 @@ const Auth = () => {
 
   // State to hold register form data, added country now
   const [registerData, setRegisterData] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
+    phone: '',
     country: '',
     email: '',
     password: '',
-    confirmPassword: '',
+    profileImage: null, // new field
+    role: 'user',
   });
 
   const navigate = useNavigate(); // For navigation
@@ -49,21 +50,27 @@ const Auth = () => {
 
   // Handles login form submission
   const handleLoginSubmit = async (e) => {
-    e.preventDefault(); // prevent form default reload
+    e.preventDefault();
     try {
       // Call backend API with login data
       const { data } = await axios.post('/v1/users/login', loginData);
 
+      // Store token and user info safely in localStorage
+      if (data?.token) {
+        localStorage.setItem('token', data.token);
+      }
+
+      if (data?.user) {
+        localStorage.setItem('user', JSON.stringify(data.user)); // ✅ Safe JSON
+      }
+
       // Dispatch redux login action with user data on success
-      dispatch(login({ success: true, data: data.user }));
+      dispatch(login({ success: true, data: data.user, token: data.token }));
 
       // Navigate to dashboard after successful login
       navigate('/dashboard');
     } catch (error) {
-      // Show alert only when user tries to login and fails
       alert(error.response?.data?.message || 'Login failed');
-
-      // Also log error to console for debugging
       console.error(
         'Login failed:',
         error.response?.data?.message || error.message,
@@ -73,13 +80,43 @@ const Auth = () => {
 
   // Handles register form submission
   // Currently this just logs data and sets localStorage to true (mock)
-  const handleRegisterSubmit = (e) => {
-    e.preventDefault();
-    console.log('Register data:', registerData);
+  // const handleRegisterSubmit = (e) => {
+  //   e.preventDefault();
+  //   console.log('Register data:', registerData);
 
-    // Mock login state on register success
-    localStorage.setItem('isLoggedIn', 'true');
-    navigate('/dashboard');
+  //   // Mock login state on register success
+  //   localStorage.setItem('isLoggedIn', 'true');
+  //   navigate('/dashboard');
+  // };
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const formData = new FormData();
+      formData.append('fullName', registerData.fullName);
+
+      formData.append('email', registerData.email);
+      formData.append('password', registerData.password);
+      formData.append('country', registerData.country);
+      formData.append('role', registerData.role);
+      formData.append('phone', registerData.phone);
+
+      if (registerData.profileImage) {
+        formData.append('profileImage', registerData.profileImage);
+      }
+
+      const response = await axios.post('/v1/users/register', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const { user, token } = response.data;
+      console.log(token);
+      localStorage.setItem('token', token);
+      dispatch(login({ success: true, data: response.data.user, token }));
+      navigate('/dashboard');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Registration failed');
+      console.error('Registration error:', error);
+    }
   };
 
   // Handles Google login via Firebase popup
@@ -87,40 +124,73 @@ const Auth = () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-
-      // Log user info for debugging or further processing
-      console.log('User Info:', {
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL,
-        uid: user.uid,
+  
+      // Get Firebase ID token for backend verification
+      const idToken = await user.getIdToken();
+  
+      // Send token to your backend for login/register
+      const response = await axios.post('/v1/users/google-login', {
+        idToken,
       });
-
-      // You may want to dispatch login here or send user info to your backend
+  
+      const { token, user: backendUser } = response.data;
+  
+      // Store token and user info safely in localStorage
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+  
+      if (backendUser) {
+        localStorage.setItem('user', JSON.stringify(backendUser));
+      }
+  
+      // Dispatch redux login action
+      dispatch(login({ success: true, data: backendUser, token }));
+  
+      // Navigate to dashboard after successful login
+      navigate('/dashboard');
     } catch (error) {
       console.error('Google login error:', error);
-      // No alert here to avoid auto popup, but you could add one if you want:
-      // alert('Google login failed');
+      alert(error.response?.data?.message || 'Google login failed');
     }
   };
+  
 
   // Handles Facebook login via Firebase popup
   const handleFacebookLogin = async () => {
     try {
       facebookProvider.addScope('email');
+  
       const result = await signInWithPopup(auth, facebookProvider);
       const user = result.user;
-
-      // Dispatch redux login with firebase user data on success
-      dispatch(login({ success: true, data: user }));
-
-      // Navigate to dashboard
+  
+      // Get Firebase ID token
+      const idToken = await user.getIdToken();
+  
+      // Send token to your backend
+      const response = await axios.post('/v1/users/facebook-login', {
+        idToken,
+      });
+  
+      const { token, user: backendUser } = response.data;
+  
+      // Store token and user info
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+      if (backendUser) {
+        localStorage.setItem('user', JSON.stringify(backendUser));
+      }
+  
+      dispatch(login({ success: true, data: backendUser, token }));
+  
       navigate('/dashboard');
     } catch (error) {
-      alert('Facebook login failed'); // alert only on user action failure
-      console.error(error);
+      alert(error.response?.data?.message || 'Facebook login failed');
+      console.error('Facebook login error:', error);
     }
   };
+  
 
   // Shared input class with grey border and outline
   const inputClass =
@@ -140,7 +210,7 @@ const Auth = () => {
         {/* Right side - Authentication form */}
         <div
           className="mr-8 flex flex-col items-center justify-center bg-white p-8 shadow-lg"
-          style={{ width: 452, height: 540 }}
+          style={{ width: 452,  }}
         >
           {/* Tabs to toggle between Login and Register */}
           <div className="mb-6 flex w-full overflow-hidden rounded-2xl border border-gray-200">
@@ -169,8 +239,8 @@ const Auth = () => {
           <div className="flex h-full w-full max-w-md flex-col justify-between">
             <h2 className="mb-4 text-center text-xl font-semibold text-gray-800">
               {activeTab === 'login'
-                ? 'Login to your account'
-                : 'Create a new account'}
+                ? 'Login '
+                : 'Signup'}
             </h2>
 
             {/* Login form */}
@@ -218,12 +288,12 @@ const Auth = () => {
                 </div>
                 <button
                   type="submit"
-                  className="mb-3 w-full rounded bg-blue-600 py-2 font-semibold text-white hover:bg-blue-700"
+                  className=" w-full rounded mt-3.6 bg-blue-600 py-2 font-semibold text-white hover:bg-blue-700"
                 >
-                  Sign In
+                  Login
                 </button>
 
-                <div className="my-4 flex items-center gap-4 py-2.5 text-sm text-gray-500">
+                <div className="my-4 flex items-center gap-4 py-5.5 text-sm text-gray-500">
                   <div className="h-px flex-1 bg-gray-300" />
                   <span className="whitespace-nowrap">or continue with</span>
                   <div className="h-px flex-1 bg-gray-300" />
@@ -248,11 +318,7 @@ const Auth = () => {
                     onClick={handleFacebookLogin}
                     className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 py-2 font-medium text-black shadow-sm shadow-gray-300 outline-none hover:bg-[#155DC0] focus:outline-none"
                   >
-                    <img
-                      src={fb}
-                      alt="Facebook"
-                      className="h-5 w-5"
-                    />
+                    <img src={fb} alt="Facebook" className="h-5 w-5" />
                     Facebook
                   </button>
                 </div>
@@ -266,41 +332,27 @@ const Auth = () => {
                 className="flex h-full flex-col justify-start"
               >
                 {/* Name inputs - first and last name */}
-                <div className="mb-3 flex gap-4">
-                  <div className="relative w-1/2">
-                    <img
-                      src={identity}
-                      className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
-                      alt="user"
-                    />
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={registerData.firstName}
-                      onChange={handleRegisterChange}
-                      placeholder="First Name"
-                      required
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="relative w-1/2">
-                    <img
-                      src={identity}
-                      className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
-                      alt="user"
-                    />
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={registerData.lastName}
-                      onChange={handleRegisterChange}
-                      placeholder="Last Name"
-                      required
-                      className={inputClass}
-                    />
-                  </div>
+                <div className="relative mb-3">
+                  <img
+                    src={identity}
+                    className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                    alt="user"
+                  />
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={registerData.fullName}
+                    onChange={(e) =>
+                      setRegisterData({
+                        ...registerData,
+                        fullName: e.target.value,
+                      })
+                    }
+                    placeholder="Full Name"
+                    required
+                    className={inputClass}
+                  />
                 </div>
-
                 {/* Country select with grey bg and left padding for icon */}
                 <div className="relative mb-3">
                   {/* Your icon goes here, e.g. <YourIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-500" /> */}
@@ -320,6 +372,18 @@ const Auth = () => {
                     <option value="Canada">Canada</option>
                     <option value="Australia">Australia</option>
                   </select>
+                </div>
+                {/* Phone input */}
+                <div className="relative mb-3">
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={registerData.phone}
+                    onChange={handleRegisterChange}
+                    placeholder="Phone Number"
+                    required
+                    className={inputClass}
+                  />
                 </div>
 
                 {/* Email input */}
@@ -357,7 +421,19 @@ const Auth = () => {
                     className={inputClass}
                   />
                 </div>
-
+                <div className="relative mb-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setRegisterData({
+                        ...registerData,
+                        profileImage: e.target.files[0],
+                      })
+                    }
+                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 placeholder-gray-500 focus:border-gray-400 focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                  />
+                </div>
                 {/* Confirm password input */}
 
                 {/* Two spans stacked vertically with some gap */}
