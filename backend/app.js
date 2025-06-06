@@ -7,8 +7,10 @@ import { errorMiddleware } from './middlewares/error.middleware.js';
 
 // import routes
 import userRoutes from './router/user.route.js';
+import adminRoutes from './router/admin.route.js';
 
-dotenv.config(); //--
+//--env file configuration
+dotenv.config(); 
 
 const app = express();
 
@@ -33,6 +35,7 @@ app.use(express.urlencoded({ extended: true })); //--
 
 //--
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 dbConnection(); //--
 app.use(errorMiddleware); //--
