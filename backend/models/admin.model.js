@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-const userSchema = new mongoose.Schema({
+const adminSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: [true, 'Full Name required'],
@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    unique: true,
     required: [true, 'Email required'],
   },
   phone: {
@@ -28,8 +27,8 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: [true, 'Role is required'],
-    enum: ['user', 'admin', 'superAdmin'],
-    default: 'user',
+    enum: ['admin'],
+    default: 'admin',
   },
   image: {
     type: String, // image file name or URL
@@ -46,7 +45,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // Hash password before saving
-userSchema.pre('save', async function (next) {
+adminSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next(); //--
 
   const salt = await bcrypt.genSalt(10);
@@ -55,12 +54,12 @@ userSchema.pre('save', async function (next) {
 });
 
 // Compare password
-userSchema.methods.comparePassword = async function (enteredPassword) {
+adminSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
 // Generate JWT
-userSchema.methods.generateJsonWebToken = function () {
+adminSchema.methods.generateJsonWebToken = function () {
   const token = jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES,
   });
@@ -68,7 +67,7 @@ userSchema.methods.generateJsonWebToken = function () {
 };
 
 // Generate Reset Password Token
-userSchema.methods.getResetPasswordToken = function () {
+adminSchema.methods.getResetPasswordToken = function () {
   const resetToken = crypto.randomBytes(20).toString('hex');
   this.resetPasswordToken = crypto
     .createHash('sha256')
@@ -79,4 +78,4 @@ userSchema.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
-export const userModel = mongoose.model('User', userSchema);
+export const adminModel = mongoose.model('Admin', adminSchema);

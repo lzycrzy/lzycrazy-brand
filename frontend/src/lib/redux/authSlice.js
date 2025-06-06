@@ -1,10 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// Safe parse user from localStorage
+let user = null;
+try {
+  const userData = localStorage.getItem('user');
+  if (userData && userData !== 'undefined') {
+    user = JSON.parse(userData);
+  }
+} catch (error) {
+  console.error('Invalid user JSON in localStorage:', error);
+  localStorage.removeItem('user'); // Optional: Clean up corrupted value
+}
+
 const initialState = {
   isAuthenticated: localStorage.getItem('isAuthenticated') === 'true',
-  user: localStorage.getItem('user')
-    ? JSON.parse(localStorage.getItem('user'))
-    : null,
+  user: user,
 };
 
 const authSlice = createSlice({
@@ -12,11 +22,21 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      state.isAuthenticated = action.payload.success;
-      localStorage.setItem('isAuthenticated', action.payload.success);
-      state.user = action.payload.data;
-      localStorage.setItem('user', JSON.stringify(action.payload.data));
+      const isAuthenticated = action.payload.success;
+      const userData = action.payload.data || null;
+
+      state.isAuthenticated = isAuthenticated;
+      state.user = userData;
+
+      localStorage.setItem('isAuthenticated', isAuthenticated);
+
+      if (userData) {
+        localStorage.setItem('user', JSON.stringify(userData));
+      } else {
+        localStorage.removeItem('user');
+      }
     },
+
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;

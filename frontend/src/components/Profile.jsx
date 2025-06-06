@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
-import { FaCog } from 'react-icons/fa';
 import { FaCamera } from 'react-icons/fa';
 import PostCreateBox from './PostCreateBox';
 import PostCard from './PostCard';
 import Intro from './Intro';
 import Friends from './Friends';
 import SettingMenu from './Setting';
-const Profile = () => {
+
+const Profile = ({ user }) => {
+  // If user prop not passed, fallback to defaults
+  const [profilePic, setProfilePic] = useState(user?.photoURL || '');
+  const [displayName, setDisplayName] = useState(user?.name || 'User Name');
   const [activeTab, setActiveTab] = useState('posts');
-  const [profilePic, setProfilePic] = useState('');
+
+  useEffect(() => {
+    // Update if user prop changes
+    if (user) {
+      setProfilePic(user.photoURL || '');
+      setDisplayName(user.name || 'User Name');
+    }
+  }, [user]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -17,9 +27,10 @@ const Profile = () => {
       setProfilePic(URL.createObjectURL(file));
     }
   };
+
   const myPosts = [
     {
-      user: 'Alice Johnson',
+      user: displayName,
       time: '1 hour ago',
       content: 'Loving this new community!',
       image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e',
@@ -28,7 +39,7 @@ const Profile = () => {
       share: 1,
     },
     {
-      user: 'Bob Smith',
+      user: displayName,
       time: '3 hours ago',
       content: 'Check out my latest project!',
       image: 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d',
@@ -37,6 +48,7 @@ const Profile = () => {
       share: 3,
     },
   ];
+
   const friendsData = [
     {
       name: "Alice Johnson",
@@ -54,22 +66,18 @@ const Profile = () => {
       name: "David Miller",
       image: "https://randomuser.me/api/portraits/men/45.jpg",
     },
-    // add more friends as needed
   ];
 
   return (
     <div className="w-full">
       <Header />
-      {/* Full-width Blue Header */}
       <div className="h-80 w-full bg-blue-900 text-white shadow-md">
-        {/* Centered Content Inside the Blue Section */}
         <div className="mx-auto max-w-5xl px-6 py-28">
-          {/* Profile Info and Buttons */}
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="relative h-24 w-24">
                 <img
-                  src={profilePic}
+                  src={profilePic || '/default-profile.png'} // fallback default image path
                   alt="Profile"
                   className="h-full w-full rounded-full border-4 border-white object-cover"
                 />
@@ -87,13 +95,12 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <h2 className="text-2xl font-semibold">Bikash Sharma</h2>
+                <h2 className="text-2xl font-semibold">{displayName}</h2>
                 <p className="text-sm text-gray-200">Full Stack Developer</p>
                 <p className="mt-1 text-sm">Total Friends: 120</p>
               </div>
             </div>
 
-            {/* Right Side Buttons */}
             <div className="space-x-3">
               <button className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100">
                 Edit Story
@@ -104,9 +111,7 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Tabs */}
           <div className="flex items-center justify-between border-t pt-4">
-            {/* Tabs on the left */}
             <div className="flex space-x-4">
               {[
                 'posts',
@@ -131,18 +136,14 @@ const Profile = () => {
               ))}
             </div>
 
-            {/* Settings icon on the right */}
-
             <SettingMenu activeTab={activeTab} setActiveTab={setActiveTab} />
           </div>
         </div>
       </div>
 
-      {/* Centered Tab Content Below Header */}
       <div className="mx-auto mt-6 max-w-5xl rounded-xl bg-white p-6 text-center shadow-inner">
         {activeTab === 'posts' && (
           <div className="flex flex-col gap-6 text-left lg:flex-row">
-            {/* Left - Posts (2/3 width on large screens) */}
             <div className="w-full space-y-4 lg:w-2/3">
               <PostCreateBox />
               {myPosts.map((post, idx) => (
@@ -150,10 +151,9 @@ const Profile = () => {
               ))}
             </div>
 
-            {/* Right - Intro (1/3 width on large screens) */}
             <div className="w-full lg:w-1/3">
               <Intro />
-              <Friends friends={friendsData}/>
+              <Friends friends={friendsData} />
             </div>
           </div>
         )}

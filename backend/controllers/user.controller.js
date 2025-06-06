@@ -4,27 +4,38 @@ import ErrorHandler from '../middlewares/error.middleware.js';
 import { userModel } from '../models/user.model.js';
 import { generateToken } from '../utils/jwtToken.js';
 import { sendEmail } from '../utils/sendEmail.js';
+import admin from '../config/firebaseAdmin.js';
+
+import { uploadToCloudinary } from '../utils/cloudinary.js';
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
-  const { fullName, email, phone, password, role } = req.body;
+  const { fullName, email, phone, password,role  } = req.body;
+  console.log('req.body:', req.body);
+  console.log('req.file:', req.file); // Add this line
+  
   if (!req.file) {
     return next(new ErrorHandler('Image is required', 400));
   }
   let imageUrl = '';
-
+  const existingUser = await userModel.findOne({ email });
+  if (existingUser) {
+    return next(new ErrorHandler('Email already exists', 400));
+  }
   try {
     imageUrl = await uploadToCloudinary(req.file.path);
     if (!imageUrl) {
       return next(new ErrorHandler('Failed to upload image', 400));
     }
 
+
+    const userRole = role || 'user';
     const createdUser = await userModel.create({
       fullName,
       email,
       phone,
       password,
-      role,
+      role:userRole,
       image: imageUrl,
     });
 
@@ -34,9 +45,14 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
 
     generateToken(createdUser, 'User Registered Successfully', 201, res);
   } catch (err) {
+    console.error('Registration error:', err);
     res.status(500).json({ error: err.message });
   }
 });
+
+
+
+
 
 // Login User
 export const loginUser = catchAsyncErrors(async (req, res, next) => {
@@ -55,27 +71,91 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
 
   generateToken(user, 'User Logged In Successfully', 200, res);
 });
-export const loginWithGoogle = catchAsyncErrors(async (req, res, next) => {
-  const { email, name, uid, photo, provider } = req.body;
 
-  if (!email || !uid || provider !== 'google') {
-    return next(new ErrorHandler('Invalid Google login data', 400));
-  }
 
-  let user = await userModel.findOne({ email });
 
-  if (!user) {
-    user = await userModel.create({
-      name,
-      email,
-      photo,
-      googleId: uid,
-      provider: 'google'
+export const loginWithFacebook = async (req, res) => {
+  const { idToken } = req.body;
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const { name, email, picture, uid } = decodedToken;
+
+    let user = await userModel.findOne({ email });
+
+    if (!user) {
+      user = await userModel.create({
+        fullName: name,
+        email,
+        password: email + process.env.JWT_SECRET, // dummy password
+        image: picture,
+        phone: '0000000000',
+        role: 'user',
+      });
+    }
+
+    const token = user.generateJsonWebToken();
+
+    res.status(200).json({
+      success: true,
+      token,
+      user,
     });
+  } catch (error) {
+    console.error('Facebook login error:', error.message);
+    res.status(401).json({ success: false, message: 'Facebook login failed' });
   }
+};
+export const loginWithGoogle = async (req, res) => {
+  try {
+    const { idToken } = req.body;
 
-  generateToken(user, 'Google login successful', 200, res);
-});
+    if (!idToken) {
+      return res.status(400).json({ message: 'Firebase ID token required' });
+    }
+
+    // Verify Firebase ID token
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const { uid, email, name, picture } = decodedToken;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email not found in token' });
+    }
+
+    let user = await userModel.findOne({ email });
+
+    if (!user) {
+      const dummyPassword = uid + crypto.randomBytes(5).toString('hex');
+
+      user = await userModel.create({
+        fullName: name || 'Google User',
+        email,
+        phone: '0000000000', // default value
+        password: dummyPassword,
+        image: picture || '',
+        role: 'user',
+      });
+    }
+
+    const token = user.generateJsonWebToken();
+
+    res.status(200).json({
+      message: 'Login successful',
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        image: user.image,
+      },
+      token,
+    });
+  } catch (error) {
+    console.error('Google login failed:', error);
+    res.status(500).json({ message: 'Google login failed', error: error.message });
+  }
+};
+
 //Logout User
 export const logoutUser = catchAsyncErrors(async (req, res, next) => {
   res

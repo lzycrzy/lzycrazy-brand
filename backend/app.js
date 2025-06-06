@@ -7,12 +7,13 @@ import { errorMiddleware } from './middlewares/error.middleware.js';
 
 // import routes
 import userRoutes from './router/user.route.js';
+import adminRoutes from './router/admin.route.js';
 
-
-dotenv.config(); //--
+//--env file configuration
+dotenv.config(); 
 
 const app = express();
-
+import './utils/cloudinary.js';
 //--
 import helmet from 'helmet';
 
@@ -31,7 +32,7 @@ app.use(
 );
 
 app.use(cookieParser()); //--for accessing cokkies--
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json());
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.urlencoded({ extended: true })); //--
 
@@ -42,6 +43,7 @@ app.use(express.urlencoded({ extended: true })); //--
 //--
 
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 dbConnection(); //--
 app.use(errorMiddleware); //--

@@ -55,6 +55,10 @@
 // };
 
 // export default App;
+
+
+
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router';
 import Layout from './components/Layout';
@@ -64,26 +68,51 @@ import { Provider } from 'react-redux';
 import Home from './components/Home';
 import Profile from './components/Profile';
 import Searchbar from './components/Searchbar';
+import PrivateRoute from './components/PrivateRoute';
+import AuthRedirect from './components/AuthRedirect';
 
 const App = () => {
   return (
     <Provider store={store}>
       <Routes>
         <Route path="/" element={<Layout />}>
-          {/* Auth route - accessible without login */}
-          <Route path="auth" element={<Auth />} />
+          {/* 👇 Auth route - accessible only if NOT logged in */}
+          <Route
+            path="auth"
+            element={
+              <AuthRedirect>
+                <Auth />
+              </AuthRedirect>
+            }
+          />
 
-          {/* Dashboard/Home route - currently not protected */}
-          <Route path="dashboard" element={<Home />} />
+          {/* 👇 Protected routes */}
+          <Route
+            path="dashboard"
+            element={
+              <PrivateRoute>
+                <Home />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
 
           {/* Redirect base "/" to dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/profile" element={<Profile/>} />
+
           {/* Fallback route */}
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Route>
 
-        {/* Standalone routes */}
+        {/* Standalone test routes */}
         <Route path="test" element={<Home />} />
         <Route path="searchbar" element={<Searchbar />} />
       </Routes>
@@ -92,4 +121,3 @@ const App = () => {
 };
 
 export default App;
-
