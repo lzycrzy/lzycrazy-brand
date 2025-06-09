@@ -1,33 +1,60 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';  // Import axios
 import Header from './Header';
 import { FaCamera } from 'react-icons/fa';
 import PostCreateBox from './PostCreateBox';
 import PostCard from './PostCard';
 import Intro from './Intro';
+import About from './About';
 import Friends from './Friends';
 import SettingMenu from './Setting';
+import EditProfile from './EditProfile';
 
-const Profile = ({ user }) => {
-  // If user prop not passed, fallback to defaults
-  const [profilePic, setProfilePic] = useState(user?.photoURL || '');
-  const [displayName, setDisplayName] = useState(user?.name || 'User Name');
+const Profile = () => {
+  const [user, setUser] = useState(null);
+  const [profilePic, setProfilePic] = useState('');
+  const [displayName, setDisplayName] = useState('User Name');
   const [activeTab, setActiveTab] = useState('posts');
+  const [isEditing, setIsEditing] = useState(false);
+const [newImage, setNewImage] = useState(null);
 
+  // Fetch profile data from backend on mount
   useEffect(() => {
-    // Update if user prop changes
-    if (user) {
-      setProfilePic(user.photoURL || '');
-      setDisplayName(user.name || 'User Name');
-    }
-  }, [user]);
+    const fetchProfile = async () => {
+      const token = localStorage.getItem('token'); 
+      try {
+        const token = localStorage.getItem('token'); // get token from localStorage
+        if (!token) {
+          console.error('No auth token found');
+          return;
+        }
+
+        console.log(token);
+        const res = await axios.get('http://localhost:4000/api/v1/users/me', {
+         
+          withCredentials: true, // optional, only if you use cookies
+        });
+        const data = res.data;
+        console.log(data);
+        setUser(data);
+        setDisplayName(data.name);
+        setProfilePic(data.photoURL);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProfilePic(URL.createObjectURL(file));
+      setNewImage(file);
+      setProfilePic(URL.createObjectURL(file)); // For preview
     }
   };
-
+  
+  // Sample posts and friends, you can replace with real data if you have
   const myPosts = [
     {
       user: displayName,
@@ -50,23 +77,13 @@ const Profile = ({ user }) => {
   ];
 
   const friendsData = [
-    {
-      name: "Alice Johnson",
-      image: "https://randomuser.me/api/portraits/women/68.jpg",
-    },
-    {
-      name: "Bob Smith",
-      image: "https://randomuser.me/api/portraits/men/75.jpg",
-    },
-    {
-      name: "Carol Lee",
-      image: "https://randomuser.me/api/portraits/women/32.jpg",
-    },
-    {
-      name: "David Miller",
-      image: "https://randomuser.me/api/portraits/men/45.jpg",
-    },
+    { name: 'Alice Johnson', image: 'https://randomuser.me/api/portraits/women/68.jpg' },
+    { name: 'Bob Smith', image: 'https://randomuser.me/api/portraits/men/75.jpg' },
+    { name: 'Carol Lee', image: 'https://randomuser.me/api/portraits/women/32.jpg' },
+    { name: 'David Miller', image: 'https://randomuser.me/api/portraits/men/45.jpg' },
   ];
+
+  if (!user) return <div>Loading profile...</div>;
 
   return (
     <div className="w-full">
@@ -77,7 +94,7 @@ const Profile = ({ user }) => {
             <div className="flex items-center space-x-4">
               <div className="relative h-24 w-24">
                 <img
-                  src={profilePic || '/default-profile.png'} // fallback default image path
+                  src={profilePic || '/default-profile.png'}
                   alt="Profile"
                   className="h-full w-full rounded-full border-4 border-white object-cover"
                 />
@@ -105,7 +122,7 @@ const Profile = ({ user }) => {
               <button className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100">
                 Edit Story
               </button>
-              <button className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100">
+              <button onClick={() => setIsEditing(true)} className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100">
                 Edit Profile
               </button>
             </div>
@@ -136,7 +153,7 @@ const Profile = ({ user }) => {
               ))}
             </div>
 
-            <SettingMenu activeTab={activeTab} setActiveTab={setActiveTab} />
+            <SettingMenu activeTab={activeTab} />
           </div>
         </div>
       </div>
@@ -157,9 +174,64 @@ const Profile = ({ user }) => {
             </div>
           </div>
         )}
-        {activeTab === 'about' && <div>👤 About the user goes here.</div>}
+        {activeTab === 'about' && (
+          <div className="text-left">
+            <About user={user} />
+          </div>
+        )}
         {activeTab === 'friends' && <div>👥 List of friends goes here.</div>}
       </div>
+      {isEditing && (
+  <EditProfile
+    profilePic={profilePic}
+    currentName={displayName}
+    onClose={() => setIsEditing(false)}
+    onSave={async (newName) => {
+      try {
+        const token = localStorage.getItem('token');
+    
+        // Convert image to Base64 (if any)
+        let base64Image = null;
+        if (newImage) {
+          const reader = new FileReader();
+          reader.onloadend = async () => {
+            base64Image = reader.result;
+    
+            const payload = {
+              fullName: newName,
+              image: base64Image,
+            };
+    
+            const res = await axios.put('http://localhost:4000/api/v1/users/updateMe', payload, {
+              withCredentials: true 
+            });
+    
+            setDisplayName(newName);
+            if (base64Image) setProfilePic(base64Image); // Preview
+            setIsEditing(false);
+          };
+    
+          reader.readAsDataURL(newImage); // This triggers the .onloadend above
+        } else {
+          // No image selected, send just name
+          const payload = { fullName: newName };
+    
+          const res = await axios.put('http://localhost:4000/api/v1/users/updateMe', payload, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    
+          setDisplayName(newName);
+          setIsEditing(false);
+        }
+      } catch (err) {
+        console.error('Error updating profile:', err);
+      }
+    }}
+    onImageChange={handleImageChange}
+  />
+)}
     </div>
   );
 };

@@ -70,6 +70,8 @@ import Profile from './components/Profile';
 import Searchbar from './components/Searchbar';
 import PrivateRoute from './components/PrivateRoute';
 import AuthRedirect from './components/AuthRedirect';
+import ResetPassword from "./components/ResetPassword";
+import ForgotPassword from "./components/ForgotPassword";
 
 const App = () => {
   return (
@@ -85,6 +87,8 @@ const App = () => {
               </AuthRedirect>
             }
           />
+          <Route path="/password/forgot" element={<ForgotPassword />} />
+          <Route path="/password/reset/:token" element={<ResetPassword />} />
 
           {/* 👇 Protected routes */}
           <Route

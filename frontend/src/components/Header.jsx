@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import axios from 'axios'; 
 import {
   FaHome,
   FaBell,
@@ -14,6 +15,8 @@ import { BsCameraReels } from 'react-icons/bs';
 import { MdOutlineChat } from 'react-icons/md';
 import { CiSettings } from 'react-icons/ci';
 import logo from '../assets/logo.png';
+import { auth } from '../lib/firebase/firebase';
+import { signOut } from 'firebase/auth';
 import { logout } from '../lib/redux/authSlice'; // <-- Import logout action
 
 const Header = () => {
@@ -30,9 +33,28 @@ const Header = () => {
       return null;
     }
   };
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/auth');
+  const handleLogout = async () => {
+    try {
+
+
+      // Call backend logout endpoint to clear cookie
+      await axios.post('http://localhost:4000/api/v1/users/logout', { withCredentials: true });
+    
+      // Firebase sign out
+      await signOut(auth);
+      localStorage.clear();
+      // Clear local storage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+  
+      // Dispatch logout action in Redux or Context
+      dispatch(logout());
+  
+      // Redirect to login page
+      navigate('/auth');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
   const storedUser = getStoredUser();
 

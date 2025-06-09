@@ -6,6 +6,7 @@ import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { generateToken } from '../utils/jwtToken.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import admin from '../config/firebaseAdmin.js';
+import UserAbout from '../models/user.about.js';
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -132,7 +133,7 @@ export const loginWithGoogle = async (req, res) => {
       user = await userModel.create({
         fullName: name || 'Google User',
         email,
-        phone: '0000000000', // default value
+        phone: '0000000000',
         password: dummyPassword,
         image: picture || '',
         role: 'user',
@@ -140,6 +141,14 @@ export const loginWithGoogle = async (req, res) => {
     }
 
     const token = user.generateJsonWebToken();
+
+    // ✅ Set cookie so backend middleware can read it
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
     res.status(200).json({
       message: 'Login successful',
@@ -150,7 +159,7 @@ export const loginWithGoogle = async (req, res) => {
         role: user.role,
         image: user.image,
       },
-      token,
+      token, // still useful for frontend state, like Redux or localStorage
     });
   } catch (error) {
     console.error('Google login failed:', error);
@@ -163,7 +172,7 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
   res
     .status(200)
     .cookie('token', '', {
-      expires: new Date(Date.now()),
+      expires: new Date(0),
       httpOnly: true,
       sameSite: 'None',
       secure: true,
@@ -175,13 +184,42 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Get My Profile
-export const getMyProfile = catchAsyncErrors(async (req, res, next) => {
-  const user = await userModel.findById(req.user.id);
-  if (!user) {
-    return next(new ErrorHandler('User not found', 404));
+export const getMyProfile = catchAsyncErrors(async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Fetch user basic info (name, email, photoURL, etc)
+    const user = await userModel.findById(userId).select('fullName email image');
+
+    // Fetch user about info
+    let about = await UserAbout.findOne({ userId });
+
+    // If about not found, return empty or default values
+    if (!about) {
+      about = {
+        bio: '',
+        location: '',
+        website: '',
+        // Add any default about fields you have
+      };
+    }
+
+    // Compose a single profile object to send
+    const profileData = {
+      id: userId,
+      name: user?.fullName || 'User Name',
+      email: user?.email || '',
+      photoURL: user?.image || '',
+      about,
+      // add more user-related data here if needed
+    };
+
+    res.json(profileData);
+  } catch (err) {
+    console.error('Profile fetch error:', err);
+    res.status(500).json({ message: 'Server error fetching profile' });
   }
-  res.status(200).json({ success: true, user });
-});
+});;
 
 // Get All Users
 export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
@@ -219,7 +257,8 @@ export const updateUser = catchAsyncErrors(async (req, res, next) => {
     phone: req.body.phone,
   };
 
-  if (req.body.image) {
+  // Handle base64 image upload (optional)
+  if (req.body.image && req.body.image.startsWith('data:image')) {
     const uploaded = await cloudinary.uploader.upload(req.body.image, {
       folder: 'avatars',
       width: 150,
@@ -227,14 +266,14 @@ export const updateUser = catchAsyncErrors(async (req, res, next) => {
     });
     updateData.image = uploaded.secure_url;
   }
-
+  console.log(req.body);
   const updatedUser = await userModel.findByIdAndUpdate(
     req.user.id,
     updateData,
     {
       new: true,
       runValidators: true,
-    },
+    }
   );
 
   res.status(200).json({
@@ -243,6 +282,7 @@ export const updateUser = catchAsyncErrors(async (req, res, next) => {
     user: updatedUser,
   });
 });
+
 
 // Update Password
 export const updatePassword = catchAsyncErrors(async (req, res, next) => {
@@ -278,7 +318,7 @@ export const updatePassword = catchAsyncErrors(async (req, res, next) => {
 // Forgot Password
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   const user = await userModel.findOne({ email: req.body.email });
-
+   console.log(user);
   if (!user) {
     return next(new ErrorHandler('User not Found', 404));
   }
@@ -286,10 +326,11 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   const resetToken = user.getResetPasswordToken();
   await user.save({ validateBeforeSave: false });
 
-  const resetURL = `${process.env.DASHBOARD_URL}/password/reset/${resetToken}`;
+  const resetURL = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
   const message = `Your password reset link is: \n\n ${resetURL} \n\n If you did not request this, please ignore this email.`;
 
   try {
+    console.log("Sending email with link:", message);
     await sendEmail({
       email: user.email,
       subject: 'Password Recovery',
@@ -312,6 +353,7 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
 export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   const { token } = req.params;
   const { password, confirmPassword } = req.body;
+  console.log(password);
 
   const resetPasswordToken = crypto
     .createHash('sha256')

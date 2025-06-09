@@ -8,7 +8,7 @@ import {
   googleProvider,
   facebookProvider,
 } from '../lib/firebase/firebase'; // firebase auth & providers
-import { signInWithPopup } from 'firebase/auth'; // firebase auth popup signin
+import { GoogleAuthProvider,signInWithPopup } from 'firebase/auth'; // firebase auth popup signin
 import { FcGoogle } from 'react-icons/fc'; // Google icon (colorful)
 import { FaFacebookF } from 'react-icons/fa'; // Facebook icon (fontawesome)
 import googleLogo from '../assets/image3.png';
@@ -18,6 +18,10 @@ import lock from '../assets/lock.png';
 import identity from '../assets/identity.png';
 import country from '../assets/cntry.png';
 import Searchbar from '../components/Searchbar';
+
+
+
+
 
 const Auth = () => {
   // State to toggle between login and register tabs
@@ -37,6 +41,12 @@ const Auth = () => {
     role: 'user',
   });
 
+
+
+  const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: 'select_account', // Force account chooser on each login
+});
   const navigate = useNavigate(); // For navigation
   const dispatch = useDispatch(); // For redux dispatch
 
@@ -143,7 +153,7 @@ const Auth = () => {
       if (backendUser) {
         localStorage.setItem('user', JSON.stringify(backendUser));
       }
-  
+      console.log("reach dispatch login")
       // Dispatch redux login action
       dispatch(login({ success: true, data: backendUser, token }));
   
@@ -282,7 +292,7 @@ const Auth = () => {
                   />
                 </div>
                 <div className="mb-3 text-right">
-                  <a href="#" className="text-xs text-blue-600 hover:underline">
+                  <a href="/password/forgot" className="text-xs text-blue-600 hover:underline">
                     Forgot Password?
                   </a>
                 </div>
