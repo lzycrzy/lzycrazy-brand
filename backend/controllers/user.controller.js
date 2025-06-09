@@ -2,26 +2,28 @@ import crypto from 'crypto';
 import { catchAsyncErrors } from '../middlewares/catchAsyncErrors.middleware.js';
 import ErrorHandler from '../middlewares/error.middleware.js';
 import { userModel } from '../models/user.model.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { generateToken } from '../utils/jwtToken.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import admin from '../config/firebaseAdmin.js';
 
-import { uploadToCloudinary } from '../utils/cloudinary.js';
-
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
-  const { fullName, email, phone, password,role  } = req.body;
+  const { fullName, email, phone, password, role  } = req.body;
   console.log('req.body:', req.body);
   console.log('req.file:', req.file); // Add this line
   
   if (!req.file) {
     return next(new ErrorHandler('Image is required', 400));
   }
+
   let imageUrl = '';
+
   const existingUser = await userModel.findOne({ email });
   if (existingUser) {
     return next(new ErrorHandler('Email already exists', 400));
   }
+  
   try {
     imageUrl = await uploadToCloudinary(req.file.path);
     if (!imageUrl) {
