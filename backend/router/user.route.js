@@ -12,6 +12,7 @@ import {
   updateUser,
   updatePassword,
   forgotPassword,
+  updateMe,
   
   resetPassword,
 } from '../controllers/user.controller.js';
@@ -42,7 +43,7 @@ router.post('/logout', logoutUser);
 router.post('/google-login',isAuthenticated, loginWithGoogle);
 router.post('/facebook-login',isAuthenticated, loginWithFacebook);
 
-router.put('/updateMe', isAuthenticated, upload.single('photo'), updateUser);
+
 // Protected routes (any logged in user)
 router.get('/me', isAuthenticated, getMyProfile);
 
@@ -73,7 +74,7 @@ router.get(
   authorizeRoles('superAdmin'),
   getAllUsers,
 );
-
+router.put('/updateMe', isAuthenticated, upload.single('photo'), updateMe);
 // Protected routes (require authentication)
 router.put('/update', isAuthenticated, updateUser);
 router.put('/password/update', isAuthenticated, updatePassword);

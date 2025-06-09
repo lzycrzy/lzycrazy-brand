@@ -9,7 +9,7 @@ import { errorMiddleware } from './middlewares/error.middleware.js';
 import userRoutes from './router/user.route.js';
 import aboutRoutes from './router/user.about.js';
 
-import adminRoutes from './router/admin.route.js';
+// import adminRoutes from './router/admin.route.js';
 
 //--env file configuration
 dotenv.config(); 
@@ -46,7 +46,7 @@ app.use(express.urlencoded({ extended: true })); //--
 
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/users/about', aboutRoutes);
-app.use('/api/v1/admin', adminRoutes);
+// app.use('/api/v1/admin', adminRoutes);
 
 dbConnection(); //--
 app.use(errorMiddleware); //--
