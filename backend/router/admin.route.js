@@ -12,11 +12,11 @@ import {
   // getAllUsersList,
   // deleteSingleUser
 } from '../controllers/admin.controller.js';
-import {
-  isAuthenticatedAdmin,
-  authorizeRolesAdimin,
-} from '../middlewares/auth.middleware.admin.js';
-import upload from '../middlewares/multer.middleware.js';
+// import {
+//   isAuthenticatedAdmin,
+//   authorizeRolesAdimin,
+// } from '../middlewares/auth.middleware.admin.js';
+// import upload from '../middlewares/multer.middleware.js';
 
 const router = express.Router();
 
