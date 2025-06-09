@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-import { adminModel } from '../models/admin.model';
+import { adminModel } from '../models/admin.model.js';
 
 
 export const isAuthenticatedAdmin = async (req, res, next) => {
