@@ -2,11 +2,11 @@
 
 
 
-import Header from './Header';
-import Sidebar from './Sidebar1';
-import MainFeed from './MainFeed';
-import RightSidebar from './RightSidebar';
-import ChatSidebar from './ChatSidebar'; // Coming soon
+import Header from '../components/Header';
+import Sidebar from '../components/Sidebar1';
+import MainFeed from '../components/MainFeed';
+import RightSidebar from '../components/RightSidebar';
+import ChatSidebar from '../components/ChatSidebar'; // Coming soon
 
 const Home = () => {
   const posts = [
