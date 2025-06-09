@@ -10,29 +10,34 @@ import UserAbout from '../models/user.about.js';
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
+
   const { fullName, email, phone, password, role  } = req.body;
   console.log('req.body:', req.body);
   console.log('req.file:', req.file); // Add this line
   
+  //file upload check
   if (!req.file) {
     return next(new ErrorHandler('Image is required', 400));
   }
 
-  let imageUrl = '';
+  let imageUrl = ''; // Initialize imageUrl
 
-  const existingUser = await userModel.findOne({ email });
+  // Check if user already exists
+  const existingUser = await userModel.findOne({ email }); 
   if (existingUser) {
     return next(new ErrorHandler('Email already exists', 400));
   }
   
+  // image upload to cloudinary
   try {
     imageUrl = await uploadToCloudinary(req.file.path);
     if (!imageUrl) {
-      return next(new ErrorHandler('Failed to upload image', 400));
+      return next(new ErrorHandler('Failed to upload image', 400)); 
     }
 
-
+    // If role is not provided, default to 'user'
     const userRole = role || 'user';
+    // Create new user
     const createdUser = await userModel.create({
       fullName,
       email,
@@ -42,20 +47,19 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
       image: imageUrl,
     });
 
+    // If user creation fails
     if (!createdUser) {
       return next(new ErrorHandler('User creation failed', 400));
     }
 
+    // Generate JWT token and send response
     generateToken(createdUser, 'User Registered Successfully', 201, res);
+
   } catch (err) {
-    console.error('Registration error:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Registration error:', err); // Log the error for debugging
+    res.status(500).json({ error: err.message }); //
   }
 });
-
-
-
-
 
 // Login User
 export const loginUser = catchAsyncErrors(async (req, res, next) => {
@@ -75,8 +79,7 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
   generateToken(user, 'User Logged In Successfully', 200, res);
 });
 
-
-
+// Login with Facebook
 export const loginWithFacebook = async (req, res) => {
   const { idToken } = req.body;
 
@@ -109,6 +112,8 @@ export const loginWithFacebook = async (req, res) => {
     res.status(401).json({ success: false, message: 'Facebook login failed' });
   }
 };
+
+// Login with Google
 export const loginWithGoogle = async (req, res) => {
   try {
     const { idToken } = req.body;
@@ -282,7 +287,6 @@ export const updateUser = catchAsyncErrors(async (req, res, next) => {
     user: updatedUser,
   });
 });
-
 
 // Update Password
 export const updatePassword = catchAsyncErrors(async (req, res, next) => {
