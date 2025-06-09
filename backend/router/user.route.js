@@ -38,11 +38,11 @@ router.post(
 
 router.post('/login', loginUser);
 
-router.get('/logout', logoutUser);
-router.post('/google-login', loginWithGoogle);
-router.post('/facebook-login', loginWithFacebook);
+router.post('/logout', logoutUser);
+router.post('/google-login',isAuthenticated, loginWithGoogle);
+router.post('/facebook-login',isAuthenticated, loginWithFacebook);
 
-
+router.put('/updateMe', isAuthenticated, upload.single('photo'), updateUser);
 // Protected routes (any logged in user)
 router.get('/me', isAuthenticated, getMyProfile);
 
@@ -80,6 +80,10 @@ router.put('/password/update', isAuthenticated, updatePassword);
 
 // Password reset routes
 router.post('/password/forgot', forgotPassword);
-router.put('/password/reset/:token', resetPassword);
+router.post('/password/reset/:token', resetPassword);
+
+
+
+
 
 export default router;

@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
+import fs from 'fs/promises'; 
 
 dotenv.config();
 cloudinary.config({
@@ -16,7 +17,9 @@ console.log('API secret:', process.env.CLOUDINARY_API_SECRET);
     const result = await cloudinary.uploader.upload(filePath, {
       folder: 'your_folder_name', // optional
     });
+    await fs.unlink(filePath);
     return result.secure_url;
+
   } catch (error) {
     console.error('Cloudinary upload error:', error);
     throw error;
