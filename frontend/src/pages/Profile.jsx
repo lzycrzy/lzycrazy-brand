@@ -95,6 +95,9 @@ const Profile = () => {
     },
   ];
 
+
+  
+
   if (!user) return <div>Loading profile...</div>;
 
   return (

@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import axios from 'axios'; 
+import axios from 'axios';
 import {
   FaHome,
   FaBell,
@@ -13,17 +13,17 @@ import {
 import { SiCoinmarketcap } from 'react-icons/si';
 import { BsCameraReels } from 'react-icons/bs';
 import { MdOutlineChat } from 'react-icons/md';
-import { CiSettings } from 'react-icons/ci';
 import logo from '../assets/logo.png';
 import { auth } from '../lib/firebase/firebase';
 import { signOut } from 'firebase/auth';
-import { logout } from '../lib/redux/authSlice'; // <-- Import logout action
+import { logout } from '../lib/redux/authSlice';
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const getStoredUser = () => {
     try {
       const userString = localStorage.getItem('user');
@@ -33,41 +33,40 @@ const Header = () => {
       return null;
     }
   };
+
+  const storedUser = getStoredUser();
+
   const handleLogout = async () => {
     try {
+      await axios.post('http://localhost:4000/api/v1/users/logout', {
+        withCredentials: true,
+      });
 
-
-      // Call backend logout endpoint to clear cookie
-      await axios.post('http://localhost:4000/api/v1/users/logout', { withCredentials: true });
-    
-      // Firebase sign out
       await signOut(auth);
       localStorage.clear();
-      // Clear local storage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-  
-      // Dispatch logout action in Redux or Context
       dispatch(logout());
-  
-      // Redirect to login page
       navigate('/auth');
     } catch (error) {
       console.error('Logout failed:', error);
     }
   };
-  const storedUser = getStoredUser();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className="sticky top-0 left-0 z-[100] w-full bg-white px-4 py-2 shadow-sm">
       <div className="relative mx-auto flex items-center justify-between">
         {/* Left - Logo */}
         <div className="flex-shrink-0">
-          <img
-            src={logo}
-            alt="Logo"
-            className="h-[40px] w-[100px] object-contain"
-          />
+          <img src={logo} alt="Logo" className="h-[40px] w-[100px] object-contain" />
         </div>
 
         {/* Center - Tabs */}
@@ -95,17 +94,27 @@ const Header = () => {
           <HeaderIcon icon={FaBell} to="/notifications" />
           <HeaderIcon icon={FaPlus} to="/add" />
 
-          {/* Settings */}
+          {/* Profile */}
           <button
-            onClick={toggleDropdown}
-            className="group rounded-full p-2 text-gray-700 transition hover:bg-gray-100"
+            onClick={() => {
+              setIsDropdownOpen((prev) => !prev);
+              navigate('/profile'); // Navigate to profile
+            }}
+            className="relative h-9 w-9 overflow-hidden rounded-full border border-gray-300"
           >
-            <CiSettings className="text-[22px] group-hover:text-blue-600" />
+            <img
+              src={storedUser?.image || 'https://via.placeholder.com/150'}
+              alt="Profile"
+              className="h-full w-full object-cover"
+            />
           </button>
 
           {/* Dropdown */}
           {isDropdownOpen && (
-            <div className="absolute top-16 right-4 z-50 mt-2 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow-md">
+            <div
+              ref={dropdownRef}
+              className="absolute top-16 right-4 z-50 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow-md"
+            >
               <div className="px-4 py-3">
                 <p className="text-sm font-semibold text-gray-900">
                   {storedUser?.fullName || 'User'}
@@ -114,12 +123,12 @@ const Header = () => {
                   {storedUser?.email || 'user@example.com'}
                 </p>
               </div>
-              <div className="py-3">
+              <div className="py-2 hover:bg-gray-100">
                 <button
                   onClick={handleLogout}
-                  className="block w-full px-4 py-2 text-left text-sm text-red-700 hover:bg-gray-100"
+                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-700"
                 >
-                  <FaSignOutAlt className="mr-2 inline" /> Sign out
+                  <FaSignOutAlt /> Sign out
                 </button>
               </div>
             </div>
