@@ -15,6 +15,7 @@ export const uploadToCloudinary = async (filePath) => {
 console.log('API key:', process.env.CLOUDINARY_API_KEY);
 console.log('API secret:', process.env.CLOUDINARY_API_SECRET);
     const result = await cloudinary.uploader.upload(filePath, {
+      resource_type: 'auto',
       folder: 'your_folder_name', // optional
     });
     await fs.unlink(filePath);

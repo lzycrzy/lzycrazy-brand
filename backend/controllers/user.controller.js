@@ -6,8 +6,9 @@ import { generateToken } from '../utils/jwtToken.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import admin from '../config/firebaseAdmin.js';
 import UserAbout from '../models/user.about.js';
-
-
+import {Post} from '../models/user.post.js';
+import {Story} from '../models/user.story.js';
+import fs from "fs";
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 
 // Register User with Image Upload
@@ -218,39 +219,195 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // Fetch user basic info (name, email, photoURL, etc)
+    // Fetch user basic info
     const user = await userModel.findById(userId).select('fullName email image');
 
     // Fetch user about info
     let about = await UserAbout.findOne({ userId });
 
-    // If about not found, return empty or default values
     if (!about) {
       about = {
         bio: '',
         location: '',
         website: '',
-        // Add any default about fields you have
+        // add other default about fields if needed
       };
     }
 
-    // Compose a single profile object to send
+    // Fetch posts by user with likes, comments, shares populated
+    const posts = await Post.find({ user: userId })
+      .populate('user', 'fullName email image')      // Post owner info
+      .populate('likes', 'fullName image')           // Users who liked
+      .populate({
+        path: 'comments.user',
+        select: 'fullName image',
+      })
+      .populate('shares.user', 'fullName image')
+      .sort({ createdAt: -1 });
+
+    // Compose full profile response
     const profileData = {
       id: userId,
       name: user?.fullName || 'User Name',
       email: user?.email || '',
       photoURL: user?.image || '',
       about,
-      // add more user-related data here if needed
+      posts,
     };
 
-    res.json(profileData);
+    res.status(200).json({ success: true, profile: profileData });
   } catch (err) {
     console.error('Profile fetch error:', err);
-    res.status(500).json({ message: 'Server error fetching profile' });
+    res.status(500).json({ success: false, message: 'Server error fetching profile' });
   }
-});;
+});
 
+export const getPosts= catchAsyncErrors( async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ createdAt: -1 }).populate('user', 'fullName image');
+    res.status(200).json({ posts });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load posts' });
+  }
+});
+//post by user
+// export const createPost = async (req, res) => {
+//   try {
+//     const { text } = req.body;
+//     let mediaUrl = null;
+//     let mediaType = null;
+
+//     if (req.file) {
+//       const result = await uploadToCloudinary(req.file.path);
+//       mediaUrl = result;
+//       mediaType = req.file.mimetype.startsWith('video') ? 'video' : 'image';
+//     }
+
+//     const newPost = await Post.create({
+//       text,
+//       mediaUrl,
+//       mediaType,
+//       user: req.user.id, // from auth middleware
+//     });
+
+//     res.status(201).json({
+//       message: 'Post created',
+//       post: newPost,
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: 'Failed to create post' });
+//   }
+// };
+
+
+//post bu user
+export const createPost = async (req, res) => {
+  try {
+    const { text } = req.body;
+    let mediaUrl = null;
+    let mediaType = null;
+
+    if (req.file) {
+      // Assume you upload file to Cloudinary and get secure_url & type here
+      const result = await uploadToCloudinary(req.file.path,{resource_type: 'auto',});
+      mediaUrl = result;
+      
+      mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+    }
+
+    const post = new Post({
+      user: req.user._id,
+      text,
+      mediaUrl,
+      mediaType,
+    });
+
+    await post.save();
+
+    // Optionally update user posts array
+    await userModel.findByIdAndUpdate(req.user._id, {
+      $push: { posts: post._id },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Post created',
+      post,
+    });
+  } catch (error) {
+    console.error('Create Post Error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+//likes of post
+export const likePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.user._id;
+
+    const post = await postModel.findById(postId);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
+    // If already liked, remove like (toggle)
+    if (post.likes.includes(userId)) {
+      post.likes.pull(userId);
+    } else {
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    res.status(200).json({ success: true, likesCount: post.likes.length });
+  } catch (error) {
+    console.error('Like Post Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+//comment bu user
+export const addComment = async (req, res) => {
+  try {
+    const { text } = req.body;
+    const postId = req.params.postId;
+    const userId = req.user._id;
+
+    if (!text) return res.status(400).json({ message: 'Comment text is required' });
+
+    const post = await postModel.findById(postId);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
+    post.comments.push({ user: userId, text });
+    await post.save();
+
+    res.status(201).json({ success: true, comments: post.comments });
+  } catch (error) {
+    console.error('Add Comment Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+// share by user
+export const sharePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.user._id;
+
+    const post = await postModel.findById(postId);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
+    if (!post.shares.includes(userId)) {
+      post.shares.push(userId);
+      post.shareCount += 1;
+      await post.save();
+    }
+
+    res.status(200).json({ success: true, shareCount: post.shareCount });
+  } catch (error) {
+    console.error('Share Post Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 
 // Get All Users
@@ -409,3 +566,57 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
   generateToken(user, 'Reset Password Successfully!', 200, res); //--
 });
+
+
+
+
+// Upload story
+export const uploadStory = async (req, res) => {
+  try {
+    // Validate that multer uploaded a file
+    if (!req.file) {
+      return res.status(400).json({ message: "Image file is required" });
+    }
+
+    console.log("Received file:", req.file);
+
+    // Upload file to Cloudinary
+    const result = await uploadToCloudinary(req.file.path, {
+      
+      resource_type: "auto", // supports image/video
+    });
+
+    console.log("Cloudinary result:", result);
+
+    // Save to MongoDB
+    const story = await Story.create({
+      user: req.user._id,
+      image: result,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+    });
+    console.log("Saved story:", story);
+
+    // Delete file from temp folder
+    fs.unlink(req.file.path, () => {});
+
+    res.status(201).json(story);
+  } catch (err) {
+    console.error("Upload story error:", err);
+    res.status(500).json({ message: "Failed to upload story" });
+  }
+};
+
+// Get all recent stories
+export const getStories = async (req, res) => {
+  try {
+    const stories = await Story.find({ expiresAt: { $gt: new Date() } })
+      .populate("user", "fullName image") // include user name and profile image
+      .sort({ createdAt: -1 });
+     console.log(stories)
+    res.json(stories);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch stories" });
+  }
+};

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import axios from 'axios';
 import {
   FaHome,
   FaBell,
@@ -13,38 +12,26 @@ import {
 import { SiCoinmarketcap } from 'react-icons/si';
 import { BsCameraReels } from 'react-icons/bs';
 import { MdOutlineChat } from 'react-icons/md';
+
 import logo from '../assets/logo.png';
 import { auth } from '../lib/firebase/firebase';
 import { signOut } from 'firebase/auth';
 import { logout } from '../lib/redux/authSlice';
+import { useUser } from '../context/UserContext'; // ✅ context hook
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const getStoredUser = () => {
-    try {
-      const userString = localStorage.getItem('user');
-      if (!userString || userString === 'undefined') return null;
-      return JSON.parse(userString);
-    } catch {
-      return null;
-    }
-  };
-
-  const storedUser = getStoredUser();
+  const { user, setUser } = useUser(); // ✅ access context
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:4000/api/v1/users/logout', {
-        withCredentials: true,
-      });
-
       await signOut(auth);
       localStorage.clear();
       dispatch(logout());
+      setUser(null); // ✅ clear context
       navigate('/auth');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -66,7 +53,13 @@ const Header = () => {
       <div className="relative mx-auto flex items-center justify-between">
         {/* Left - Logo */}
         <div className="flex-shrink-0">
-          <img src={logo} alt="Logo" className="h-[40px] w-[100px] object-contain" />
+          <Link to="/">
+            <img
+              src={logo}
+              alt="Logo"
+              className="h-[40px] w-[100px] cursor-pointer object-contain"
+            />
+          </Link>
         </div>
 
         {/* Center - Tabs */}
@@ -80,7 +73,6 @@ const Header = () => {
 
         {/* Right - Search + Icons */}
         <div className="flex items-center gap-3">
-          {/* Search */}
           <div className="mr-2 hidden w-[250px] items-center rounded-full bg-gray-100 px-4 py-2 md:flex">
             <FaSearch className="text-lg text-gray-500" />
             <input
@@ -94,16 +86,16 @@ const Header = () => {
           <HeaderIcon icon={FaBell} to="/notifications" />
           <HeaderIcon icon={FaPlus} to="/add" />
 
-          {/* Profile */}
+          {/* Profile Button */}
           <button
             onClick={() => {
               setIsDropdownOpen((prev) => !prev);
-              navigate('/profile'); // Navigate to profile
+              navigate('/profile');
             }}
             className="relative h-9 w-9 overflow-hidden rounded-full border border-gray-300"
           >
             <img
-              src={storedUser?.image || 'https://via.placeholder.com/150'}
+              src={user?.photoURL || 'https://via.placeholder.com/150'}
               alt="Profile"
               className="h-full w-full object-cover"
             />
@@ -117,10 +109,10 @@ const Header = () => {
             >
               <div className="px-4 py-3">
                 <p className="text-sm font-semibold text-gray-900">
-                  {storedUser?.fullName || 'User'}
+                  {user?.name || 'User'}
                 </p>
                 <p className="truncate text-sm text-gray-600">
-                  {storedUser?.email || 'user@example.com'}
+                  {user?.email || 'user@example.com'}
                 </p>
               </div>
               <div className="py-2 hover:bg-gray-100">
