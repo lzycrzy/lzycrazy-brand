@@ -13,7 +13,10 @@ import {
   updatePassword,
   forgotPassword,
   updateMe,
-  
+  createPost,
+  getPosts,
+  getStories,
+  uploadStory,
   resetPassword,
 } from '../controllers/user.controller.js';
 import {
@@ -21,7 +24,7 @@ import {
   authorizeRoles,
 } from '../middlewares/auth.middleware.js';
 import upload from '../middlewares/multer.middleware.js';
-import multer from 'multer';
+
 
 // multer setup (example: storing files in 'uploads/' folder with original name)
 
@@ -38,15 +41,23 @@ router.post(
 );
 
 router.post('/login', loginUser);
+router.post('/post', isAuthenticated, upload.single('media'), createPost);
 
 router.post('/logout', logoutUser);
 router.post('/google-login',isAuthenticated, loginWithGoogle);
 router.post('/facebook-login',isAuthenticated, loginWithFacebook);
 
 
+//get posts
+router.get('/posts', isAuthenticated, getPosts);
+
 // Protected routes (any logged in user)
 router.get('/me', isAuthenticated, getMyProfile);
 
+
+//story
+router.get('/story', isAuthenticated, getStories);
+router.post('/story',isAuthenticated,upload.single('image'), uploadStory);
 // Admin-only routes
 router.get(
   '/admin/dashboard',

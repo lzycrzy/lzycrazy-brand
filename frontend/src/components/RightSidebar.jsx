@@ -1,5 +1,5 @@
 const RightSidebar = ({ people }) => (
-    <div className="hidden w-full max-w-xs lg:block">
+    <div className="hidden w-full max-w-[220px]  lg:block">
       {/* Box 1: People You May Know */}
       <div className="bg-white rounded-lg p-5 shadow-md">
         <h3 className="mb-4 text-lg font-semibold text-gray-800">People You May Know</h3>
