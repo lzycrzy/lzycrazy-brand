@@ -188,6 +188,37 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
+
+//updateMe
+export const updateMe = async (req, res) => {
+  try {
+    const updates = { fullName: req.body.name };
+
+    console.log("🟡 Received name:", req.body.name);
+    console.log("🟡 Received file:", req.file?.originalname);
+
+    if (req.file) {
+      const photoURL = await uploadToCloudinary(req.file.path, req.user.id);
+      updates.image = photoURL;
+    }
+
+    const updatedUser = await userModel.findByIdAndUpdate(req.user._id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    console.log("✅ User updated:", updatedUser.fullName, updatedUser.image);
+
+    res.status(200).json({
+      status: 'success',
+      user: updatedUser,
+    });
+  } catch (err) {
+    console.error('❌ Error updating profile:', err);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
 // Get My Profile
 export const getMyProfile = catchAsyncErrors(async (req, res) => {
   try {
@@ -225,6 +256,8 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
     res.status(500).json({ message: 'Server error fetching profile' });
   }
 });;
+
+
 
 // Get All Users
 export const getAllUsers = catchAsyncErrors(async (req, res, next) => {

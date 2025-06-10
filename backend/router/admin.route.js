@@ -1,29 +1,32 @@
-import express from 'express';
-import {
-  // registerAdmin,
-  // loginAdmin,
-  // logoutAdmin,
-  // getAdminProfile,
-  // getAdminDashboard,
-  // updateAdminProfile,
-  // updateAdminPassword,
-  // forgotAdminPassword,
-  // resetAdminPassword,
-  // getAllUsersList,
-  // deleteSingleUser
-} from '../controllers/admin.controller.js';
+// import express from 'express';
+// import {
+//   registerAdmin,
+//   loginAdmin,
+//   logoutAdmin,
+//   getAdminProfile,
+//   getAdminDashboard,
+//   updateAdminProfile,
+//   updateAdminPassword,
+//   forgotAdminPassword,
+//   resetAdminPassword,
+//   getAllUsersList,
+//   deleteSingleUser
+// } from '../controllers/admin.controller.js';
 // import {
 //   isAuthenticatedAdmin,
 //   authorizeRolesAdimin,
 // } from '../middlewares/auth.middleware.admin.js';
 // import upload from '../middlewares/multer.middleware.js';
 
-const router = express.Router();
+// const router = express.Router();
 
 // // Public routes
 // // This route is for registering a new admin
+// // authorizeRoles("Admin")
 // router.post(
 //   '/register',
+//   isAuthenticatedAdmin,
+//   authorizeRolesAdimin('Admin'),
 //   upload.single('image'),
 //   registerAdmin,
 // );
@@ -63,4 +66,4 @@ const router = express.Router();
 // router.post('/password/forgot', forgotAdminPassword);
 // router.put('/password/reset/:token', resetAdminPassword);
 
-export default router;
+// export default router;

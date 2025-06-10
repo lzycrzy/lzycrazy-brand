@@ -33,6 +33,7 @@ router.post('/logout', logoutUser);
 router.post('/google-login',isAuthenticated, loginWithGoogle);
 router.post('/facebook-login',isAuthenticated, loginWithFacebook);
 
+
 // Protected routes (require authentication)
 // Update user profile
 router.put('/updateMe', isAuthenticated, upload.single('photo'), updateUser);

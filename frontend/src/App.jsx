@@ -1,72 +1,11 @@
-// import React, { useEffect } from 'react';
-// import {
-//   Routes,
-//   Route,
-//   Navigate,
-//   useLocation,
-//   useNavigate,
-// } from 'react-router';
-// import Layout from './components/Layout';
-// import Auth from './pages/Auth';
-// import store from './lib/redux/store';
-// import { Provider } from 'react-redux';
-// import Home from './components/Home';
-// import Searchbar from './components/Searchbar';
-
-// // Protected route wrapper component
-// const ProtectedRoute = ({ children }) => {
-//   const navigate = useNavigate();
-//   const location = useLocation();
-//   const isLoggedIn = localStorage.getItem('isAuthenticated') === 'true';
-
-//   useEffect(() => {
-//     if (!isLoggedIn && location.pathname !== '/auth') {
-//       navigate('/auth');
-//     }
-//   }, [isLoggedIn, navigate, location.pathname]);
-
-//   return isLoggedIn ? children : null;
-// };
-
-// const App = () => {
-//   return (
-//     <Provider store={store}>
-//       <Routes>
-//         <Route path="/" element={<Layout />}>
-//           {/* Auth route - accessible without login */}
-//           <Route path="auth" element={<Auth />} />
-
-//           {/* Protected routes - require login */}
-//           <Route
-//             path="/"
-//             element={
-//               // <ProtectedRoute>
-//               <Navigate to="/dashboard" replace />
-//               // </ProtectedRoute>
-//             }
-//           />
-//           <Route path="*" element={<Navigate to="/auth" replace />} />
-//         </Route>
-//          <Route path="test" element={<Home/>} />
-//           <Route paht="searchbar" element={<Searchbar />}/>
-//       </Routes>
-//     </Provider>
-//   );
-// };
-
-// export default App;
-
-
-
-
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router';
-import Layout from './components/Layout';
+
 import Auth from './pages/Auth';
 import store from './lib/redux/store';
 import { Provider } from 'react-redux';
-import Home from './components/Home';
-import Profile from './components/Profile';
+import Home from './pages/Home';
+import Profile from './pages/Profile';
 import Searchbar from './components/Searchbar';
 import PrivateRoute from './components/PrivateRoute';
 import AuthRedirect from './components/AuthRedirect';
@@ -77,46 +16,47 @@ const App = () => {
   return (
     <Provider store={store}>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          {/* 👇 Auth route - accessible only if NOT logged in */}
-          <Route
-            path="auth"
-            element={
-              <AuthRedirect>
-                <Auth />
-              </AuthRedirect>
-            }
-          />
-          <Route path="/password/forgot" element={<ForgotPassword />} />
-          <Route path="/password/reset/:token" element={<ResetPassword />} />
+        {/* Routes restricted to unauthenticated users only (e.g., login/register) */}
+        <Route
+          path="auth"
+          element={
+            <AuthRedirect>
+              <Auth />
+            </AuthRedirect>
+          }
+        />
 
-          {/* 👇 Protected routes */}
-          <Route
-            path="dashboard"
-            element={
-              <PrivateRoute>
-                <Home />
-              </PrivateRoute>
-            }
-          />
+        {/* Password recovery flow (accessible without login) */}
+        <Route path="/password/forgot" element={<ForgotPassword />} />
+        <Route path="/password/reset/:token" element={<ResetPassword />} />
 
-          <Route
-            path="profile"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
+        {/* ✅ Authenticated user dashboard (only accessible after login) */}
+        <Route
+          path="dashboard"
+          element={
+            <PrivateRoute>
+              <Home />
+            </PrivateRoute>
+          }
+        />
 
-          {/* Redirect base "/" to dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        {/* 👤 Profile page (protected route, requires authentication) */}
+        <Route
+          path="profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
 
-          {/* Fallback route */}
-          <Route path="*" element={<Navigate to="/auth" replace />} />
-        </Route>
+        {/*  Redirect root URL to dashboard for logged-in users */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        {/* Standalone test routes */}
+        {/*  Catch-all route: redirect any unknown path to auth page */}
+        <Route path="*" element={<Navigate to="/auth" replace />} />
+
+        {/*  Dev/test routes (used during development, not protected) */}
         <Route path="test" element={<Home />} />
         <Route path="searchbar" element={<Searchbar />} />
       </Routes>

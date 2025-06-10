@@ -53,9 +53,8 @@ app.use('/api/v1/users/about', aboutRoutes); //--user about routes
 app.use('/api/v1/admin', adminRoutes);  //--admin routes
 
 //--connecting to the database
-dbConnection();
+dbConnection(); //--
 
-//--error handling middleware
-app.use(errorMiddleware);
+app.use(errorMiddleware); //--error handling middleware
 
 export default app;
