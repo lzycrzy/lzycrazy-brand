@@ -7,17 +7,18 @@ const adminSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: [true, 'Full Name required'],
-    minlength: [4, 'Full Name must contain at least 2 characters'],
+    minlength: [4, 'Full Name must contain at least 4 characters'],
   },
   email: {
     type: String,
     required: [true, 'Email required'],
+    unique: true,
   },
   phone: {
     type: String,
     required: [true, 'Phone Number required'],
+    unique: true,
   },
-
   password: {
     type: String,
     required: [true, 'Password is required'],
@@ -42,11 +43,15 @@ const adminSchema = new mongoose.Schema({
     type: Date,
     select: false,
   },
+  lastLoginToken: {
+    type: String,
+    select: false,  // security ke liye by default hide
+  },
 });
 
 // Hash password before saving
 adminSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next(); //--
+  if (!this.isModified('password')) return next();
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
