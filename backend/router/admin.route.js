@@ -22,11 +22,8 @@
 
 // // Public routes
 // // This route is for registering a new admin
-// // authorizeRoles("Admin")
 // router.post(
 //   '/register',
-//   isAuthenticatedAdmin,
-//   authorizeRolesAdimin('Admin'),
 //   upload.single('image'),
 //   registerAdmin,
 // );
@@ -45,12 +42,14 @@
 //   authorizeRolesAdimin('admin'),
 //   getAdminDashboard,
 // );
+
 // router.get(
 //   '/admin/userslist',
 //   isAuthenticatedAdmin,
 //   authorizeRolesAdimin('admin'),
 //   getAllUsersList,
 // );
+
 // router.delete(
 //   '/admin/user/delete/:id',
 //   isAuthenticatedAdmin,

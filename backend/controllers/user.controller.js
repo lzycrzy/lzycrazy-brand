@@ -5,8 +5,9 @@ import { userModel } from '../models/user.model.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { generateToken } from '../utils/jwtToken.js';
 import { sendEmail } from '../utils/sendEmail.js';
-import admin from '../config/firebaseAdmin.js';
+import firebaseadmin from '../config/firebaseAdmin.js';
 import UserAbout from '../models/user.about.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';// Import the uploadToCloudinary function 
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -84,7 +85,7 @@ export const loginWithFacebook = async (req, res) => {
   const { idToken } = req.body;
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const decodedToken = await firebaseadmin.auth().verifyIdToken(idToken);
     const { name, email, picture, uid } = decodedToken;
 
     let user = await userModel.findOne({ email });
@@ -123,7 +124,7 @@ export const loginWithGoogle = async (req, res) => {
     }
 
     // Verify Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const decodedToken = await firebaseadmin.auth().verifyIdToken(idToken);
     const { uid, email, name, picture } = decodedToken;
 
     if (!email) {
@@ -172,7 +173,7 @@ export const loginWithGoogle = async (req, res) => {
   }
 };
 
-//Logout User
+// Logout User
 export const logoutUser = catchAsyncErrors(async (req, res, next) => {
   res
     .status(200)
@@ -189,7 +190,7 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 
-//updateMe
+// updateMe
 export const updateMe = async (req, res) => {
   try {
     const updates = { fullName: req.body.name };
@@ -255,37 +256,7 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
     console.error('Profile fetch error:', err);
     res.status(500).json({ message: 'Server error fetching profile' });
   }
-});;
-
-
-
-// Get All Users
-export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
-  const users = await userModel.find();
-  res.status(200).json({ success: true, users });
 });
-
-// Admin Dashboard
-export const getAdminDashboard = catchAsyncErrors(async (req, res, next) => {
-  const totalUsers = await userModel.countDocuments();
-  res.status(200).json({
-    success: true,
-    message: 'Admin Dashboard Data',
-    data: { totalUsers },
-  });
-});
-
-// SuperAdmin Dashboard
-export const getSuperAdminDashboard = catchAsyncErrors(
-  async (req, res, next) => {
-    const totalUsers = await userModel.countDocuments();
-    res.status(200).json({
-      success: true,
-      message: 'SuperAdmin Dashboard Data',
-      data: { totalUsers },
-    });
-  },
-);
 
 // Update User Profile (with optional image)
 export const updateUser = catchAsyncErrors(async (req, res, next) => {
@@ -414,3 +385,34 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
   generateToken(user, 'Reset Password Successfully!', 200, res); //--
 });
+
+
+// // Get All Users
+// export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
+//   const users = await userModel.find();
+//   res.status(200).json({ success: true, users });
+// });
+
+// // Admin Dashboard
+// export const getAdminDashboard = catchAsyncErrors(async (req, res, next) => {
+//   const totalUsers = await userModel.countDocuments();
+//   res.status(200).json({
+//     success: true,
+//     message: 'Admin Dashboard Data',
+//     data: { totalUsers },
+//   });
+// });
+
+// // SuperAdmin Dashboard
+// export const getSuperAdminDashboard = catchAsyncErrors(
+//   async (req, res, next) => {
+//     const totalUsers = await userModel.countDocuments();
+//     res.status(200).json({
+//       success: true,
+//       message: 'SuperAdmin Dashboard Data',
+//       data: { totalUsers },
+//     });
+//   },
+// );
+
+
