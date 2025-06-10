@@ -20,16 +20,14 @@
 
 // const router = express.Router();
 
-// // Public routes
-// // This route is for registering a new admin
-// // authorizeRoles("Admin")
-// router.post(
-//   '/register',
-//   isAuthenticatedAdmin,
-//   authorizeRolesAdimin('Admin'),
-//   upload.single('image'),
-//   registerAdmin,
-// );
+// Public routes
+// This route is for registering a new admin
+// authorizeRoles("Admin")
+router.post(
+  '/register',
+  upload.single('image'),
+  registerAdmin,
+);
 
 // // Admin routes
 // router.post('/login', loginAdmin);
@@ -45,12 +43,14 @@
 //   authorizeRolesAdimin('admin'),
 //   getAdminDashboard,
 // );
+
 // router.get(
 //   '/admin/userslist',
 //   isAuthenticatedAdmin,
 //   authorizeRolesAdimin('admin'),
 //   getAllUsersList,
 // );
+
 // router.delete(
 //   '/admin/user/delete/:id',
 //   isAuthenticatedAdmin,

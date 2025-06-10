@@ -4,7 +4,7 @@ import ErrorHandler from '../middlewares/error.middleware.js';
 import { userModel } from '../models/user.model.js';
 import { generateToken } from '../utils/jwtToken.js';
 import { sendEmail } from '../utils/sendEmail.js';
-import admin from '../config/firebaseAdmin.js';
+import firebaseadmin from '../config/firebaseAdmin.js';
 import UserAbout from '../models/user.about.js';
 import {Post} from '../models/user.post.js';
 import {Story} from '../models/user.story.js';
@@ -30,7 +30,7 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
     if (!imageUrl) {
       return next(new ErrorHandler('Failed to upload image', 400));
     }
-
+    fs.unlinkSync(req.file.path);
 
     const userRole = role || 'user';
     const createdUser = await userModel.create({
@@ -53,10 +53,6 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-
-
-
-
 // Login User
 export const loginUser = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
@@ -75,13 +71,12 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
   generateToken(user, 'User Logged In Successfully', 200, res);
 });
 
-
-
+// Login with Facebook
 export const loginWithFacebook = async (req, res) => {
   const { idToken } = req.body;
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const decodedToken = await firebaseadmin.auth().verifyIdToken(idToken);
     const { name, email, picture, uid } = decodedToken;
 
     let user = await userModel.findOne({ email });
@@ -109,6 +104,8 @@ export const loginWithFacebook = async (req, res) => {
     res.status(401).json({ success: false, message: 'Facebook login failed' });
   }
 };
+
+// Login with Google
 export const loginWithGoogle = async (req, res) => {
   try {
     const { idToken } = req.body;
@@ -118,7 +115,7 @@ export const loginWithGoogle = async (req, res) => {
     }
 
     // Verify Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const decodedToken = await firebaseadmin.auth().verifyIdToken(idToken);
     const { uid, email, name, picture } = decodedToken;
 
     if (!email) {
@@ -167,7 +164,7 @@ export const loginWithGoogle = async (req, res) => {
   }
 };
 
-//Logout User
+// Logout User
 export const logoutUser = catchAsyncErrors(async (req, res, next) => {
   res
     .status(200)
@@ -184,7 +181,7 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 
-//updateMe
+// updateMe
 export const updateMe = async (req, res) => {
   try {
     const updates = { fullName: req.body.name };
@@ -416,28 +413,6 @@ export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true, users });
 });
 
-// Admin Dashboard
-export const getAdminDashboard = catchAsyncErrors(async (req, res, next) => {
-  const totalUsers = await userModel.countDocuments();
-  res.status(200).json({
-    success: true,
-    message: 'Admin Dashboard Data',
-    data: { totalUsers },
-  });
-});
-
-// SuperAdmin Dashboard
-export const getSuperAdminDashboard = catchAsyncErrors(
-  async (req, res, next) => {
-    const totalUsers = await userModel.countDocuments();
-    res.status(200).json({
-      success: true,
-      message: 'SuperAdmin Dashboard Data',
-      data: { totalUsers },
-    });
-  },
-);
-
 // Update User Profile (with optional image)
 export const updateUser = catchAsyncErrors(async (req, res, next) => {
   const updateData = {
@@ -471,7 +446,6 @@ export const updateUser = catchAsyncErrors(async (req, res, next) => {
     user: updatedUser,
   });
 });
-
 
 // Update Password
 export const updatePassword = catchAsyncErrors(async (req, res, next) => {
