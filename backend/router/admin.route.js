@@ -20,13 +20,14 @@
 
 // const router = express.Router();
 
-// // Public routes
-// // This route is for registering a new admin
-// router.post(
-//   '/register',
-//   upload.single('image'),
-//   registerAdmin,
-// );
+// Public routes
+// This route is for registering a new admin
+// authorizeRoles("Admin")
+router.post(
+  '/register',
+  upload.single('image'),
+  registerAdmin,
+);
 
 // // Admin routes
 // router.post('/login', loginAdmin);
