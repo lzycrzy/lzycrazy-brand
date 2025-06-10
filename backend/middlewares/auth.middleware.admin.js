@@ -1,36 +1,36 @@
 import jwt from 'jsonwebtoken';
-
 import { adminModel } from '../models/admin.model.js';
-
 
 export const isAuthenticatedAdmin = async (req, res, next) => {
   try {
-    const { token } = req.cookies;
+    const token = req.cookies.token || req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
-      return res
-        .status(401)
-        .json({ message: 'Please login to access this resource' });
+      return res.status(401).json({ message: 'Please login to access this resource' });
     }
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'defaultSecret',
-    );
-    req.admin = await adminModel.findById(decoded.id).select('-password'); // password exclude kiya
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'defaultSecret');
 
-    if (!req.admin) {
+    const admin = await adminModel.findById(decoded.id).select('+password +lastLoginToken');
+
+    if (!admin) {
       return res.status(401).json({ message: 'Admin not found, invalid token' });
     }
 
-    console.log("isAuthenticated middleware called");
-    console.log("Authenticated user:", req.admin);
+    // Check if token matches lastLoginToken in DB
+    if (admin.lastLoginToken !== token) {
+      return res.status(401).json({ message: 'Token invalidated, please login again' });
+    }
+
+    req.admin = admin;
     next();
   } catch (error) {
     return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
 
+
+// Role-based auth
 export const authorizeRolesAdimin = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.admin.role)) {

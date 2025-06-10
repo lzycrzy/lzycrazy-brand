@@ -25,8 +25,6 @@ const router = express.Router();
 // authorizeRoles("Admin")
 router.post(
   '/register',
-  isAuthenticatedAdmin,
-  authorizeRolesAdimin('Admin'),
   upload.single('image'),
   registerAdmin,
 );
