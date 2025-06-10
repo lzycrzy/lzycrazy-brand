@@ -1,6 +1,9 @@
-//--
-export const generateTokenAdmin = (admin, message, statusCode, res) => {
+export const generateTokenAdmin = async (admin, message, statusCode, res) => {
   const token = admin.generateJsonWebToken();
+
+  // Update lastLoginToken in DB
+  admin.lastLoginToken = token;
+  await admin.save({ validateBeforeSave: false });
 
   const { password, ...adminSafe } = admin.toObject(); // remove password
 
