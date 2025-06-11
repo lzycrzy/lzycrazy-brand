@@ -11,6 +11,8 @@ import Auth from './pages/Auth';
 import store from './lib/redux/store';
 import { Provider } from 'react-redux';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import UserTable from './pages/Usertable';
+
 
 // Protected route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -46,6 +48,15 @@ const App = () => {
           />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Route>
+      <Route
+  path="/dashboard/users"
+  element={
+    <ProtectedRoute>
+      <UserTable />
+    </ProtectedRoute>
+  }
+/>
+
         <Route path="/admin" element={<SuperAdminDashboard />} />
       </Routes>
     </Provider>
