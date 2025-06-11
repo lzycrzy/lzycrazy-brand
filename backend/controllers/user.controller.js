@@ -10,7 +10,6 @@ import UserAbout from '../models/user.about.js';
 import {Post} from '../models/user.post.js';
 import {Story} from '../models/user.story.js';
 import fs from 'fs-extra';
-import { uploadToCloudinary } from '../utils/cloudinary.js';
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
