@@ -1,7 +1,7 @@
 import express from 'express';
 import {
-  registerUser,
-  loginUser,
+  registerUser, 
+  loginUser, 
   logoutUser,
   loginWithGoogle,
   loginWithFacebook,
@@ -11,10 +11,6 @@ import {
   forgotPassword,
   updateMe,
   resetPassword,
-
-  // getAdminDashboard,
-  // getSuperAdminDashboard,
-  // getAllUsers,
 } from '../controllers/user.controller.js';
 import {
   isAuthenticated
@@ -59,33 +55,5 @@ router.put('/password/update', isAuthenticated, updatePassword);
 router.post('/password/forgot', forgotPassword);
 // Reset password route
 router.post('/password/reset/:token', resetPassword);
-
-// // SuperAdmin-only routes
-// router.get(
-//   '/superadmin/dashboard',
-//   isAuthenticated,
-//   authorizeRoles('superAdmin'),
-//   getSuperAdminDashboard,
-// );
-// router.get(
-//   '/superadmin/users',
-//   isAuthenticated,
-//   authorizeRoles('superAdmin'),
-//   getAllUsers,
-// );
-
-// // Admin-only routes
-// router.get(
-//   '/admin/dashboard',
-//   isAuthenticated,
-//   authorizeRoles('admin'),
-//   getAdminDashboard,
-// );
-// router.get(
-//   '/admin/users',
-//   isAuthenticated,
-//   authorizeRoles('admin'),
-//   getAllUsers,
-// );
 
 export default router;

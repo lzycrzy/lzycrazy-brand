@@ -1,13 +1,12 @@
 import crypto from 'crypto';
 import { catchAsyncErrors } from '../middlewares/catchAsyncErrors.middleware.js';
 import ErrorHandler from '../middlewares/error.middleware.js';
-import { userModel } from '../models/user.model.js';
-import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { generateToken } from '../utils/jwtToken.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';// Import the uploadToCloudinary function 
 import { sendEmail } from '../utils/sendEmail.js';
+import { userModel } from '../models/user.model.js';
 import firebaseadmin from '../config/firebaseAdmin.js';
 import UserAbout from '../models/user.about.js';
-import { uploadToCloudinary } from '../utils/cloudinary.js';// Import the uploadToCloudinary function 
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
