@@ -32,7 +32,7 @@ export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
   generateTokenAdmin(newAdmin, "Admin registered successfully", 201, res);
 });
 
-//Login
+// Login ADMIN
 export const loginAdmin = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
 
