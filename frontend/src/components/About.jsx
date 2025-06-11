@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../lib/axios/axiosInstance';
 import {
   FaUser,
   FaEnvelope,
@@ -57,7 +57,7 @@ const AboutPage = () => {
   useEffect(() => {
     const fetchUserAbout = async () => {
       try {
-        const res = await axios.get('http://localhost:4000/api/v1/users/about',
+        const res = await axios.get('/v1/users/about',
             {withCredentials: true,}
         );
         // Format dateOfBirth to yyyy-MM-dd for input[type=date]
@@ -107,7 +107,7 @@ const AboutPage = () => {
       });
 
       const res = await axios.put(
-        'http://localhost:4000/api/v1/users/about',
+        '/v1/users/about',
         trimmedData,
         {withCredentials: true,},
         

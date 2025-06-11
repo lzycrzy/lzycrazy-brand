@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaCamera, FaFileAlt } from 'react-icons/fa';
-import axios from 'axios';
+import axios from '../lib/axios/axiosInstance';
 import { useUser } from '../context/UserContext';
 const PostCreateBox = ({ onPostCreated }) => {
   const [text, setText] = useState('');
@@ -19,7 +19,7 @@ const PostCreateBox = ({ onPostCreated }) => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const res = await axios.get('http://localhost:4000/api/v1/users/me', {
+        const res = await axios.get('/v1/users/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -49,7 +49,7 @@ const PostCreateBox = ({ onPostCreated }) => {
       if (file) formData.append('media', file);
 
       const response = await axios.post(
-        'http://localhost:4000/api/v1/users/post',
+        '/v1/users/post',
         formData,
         {
           headers: {

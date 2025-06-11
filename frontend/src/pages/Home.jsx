@@ -1,7 +1,5 @@
-
-
 import React, { useState ,useEffect} from 'react';
-import axios from 'axios';
+import axios from '../lib/axios/axiosInstance';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar1';
 import MainFeed from '../components/MainFeed';
@@ -61,7 +59,7 @@ const Home = () => {
   useEffect(() => {
     const fetchAllPosts = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/v1/users/posts',{withCredentials:"true"});
+        const response = await axios.get('/v1/users/posts',{withCredentials:"true"});
         console.log(response)
         setPosts(response.data.posts); // Ensure your backend returns { posts: [...] }
       } catch (err) {

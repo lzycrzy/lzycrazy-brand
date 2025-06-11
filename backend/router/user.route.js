@@ -1,7 +1,7 @@
 import express from 'express';
 import {
-  registerUser,
-  loginUser,
+  registerUser, 
+  loginUser, 
   logoutUser,
   loginWithGoogle,
   loginWithFacebook,
@@ -22,16 +22,17 @@ import {
   getFriendsList,
   getPendingRequests,
   searchUsers,
+
   storyView,
   getUserStories
   // getAdminDashboard,
   // getSuperAdminDashboard,
   // getAllUsers,
+
 } from '../controllers/user.controller.js';
 
 import {
-  isAuthenticated,
-  authorizeRoles,
+  isAuthenticated
 } from '../middlewares/auth.middleware.js';
 import upload from '../middlewares/multer.middleware.js';
 
