@@ -19,7 +19,7 @@ import {
     <div className="hidden p-4 md:block">
       <div className="space-y-2">
         {links.map((item, i) => (
-          <div key={i} className="flex h-[49px] w-[275px] items-center rounded-md bg-white px-4 shadow">
+          <div key={i} className="flex h-[49px] w-[250px] items-center rounded-md bg-white px-4 shadow">
             <SidebarLink icon={item.icon} label={item.label} />
           </div>
         ))}

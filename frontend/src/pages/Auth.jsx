@@ -18,6 +18,7 @@ import email from '../assets/mail.png';
 import lock from '../assets/lock.png';
 import identity from '../assets/identity.png';
 import country from '../assets/cntry.png';
+import ForgotPassword from '../components/ForgotPassword';
 
 import Searchbar from '../components/Searchbar';
 import countryList from '../data/countries.json';
@@ -25,12 +26,14 @@ import CountryCodes from '../data/CountryCodes.json';
 import Loader from '../components/Spinner';
 import { useTranslation } from 'react-i18next'; // Add this at the top
 
+
 const Auth = () => {
   const [activeTab, setActiveTab] = useState('login');
   const [loading, setLoading] = useState(false);
   // Inside your component (near the top)
   const { t, i18n } = useTranslation();
   const changeLanguage = (lng) => i18n.changeLanguage(lng);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({
@@ -220,12 +223,16 @@ const Auth = () => {
                   </div>
 
                   <div className="mb-3 text-right">
-                    <a
-                      href="/password/forgot"
-                      className="text-xs text-blue-600 hover:underline"
-                    >
-                      Forgot Password?
-                    </a>
+                  <button
+        onClick={() => setShowForgotModal(true)}
+        className="text-sm text-blue-600 hover:underline"
+      >
+        Forgot Password?
+      </button>
+
+      {showForgotModal && (
+        <ForgotPassword onClose={() => setShowForgotModal(false)} />
+      )}
                   </div>
 
                   <button

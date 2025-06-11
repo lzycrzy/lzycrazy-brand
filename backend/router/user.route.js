@@ -1,7 +1,7 @@
 import express from 'express';
 import {
-  registerUser,
-  loginUser,
+  registerUser, 
+  loginUser, 
   logoutUser,
   loginWithGoogle,
   loginWithFacebook,
@@ -30,8 +30,7 @@ import {
 } from '../controllers/user.controller.js';
 
 import {
-  isAuthenticated,
-  authorizeRoles,
+  isAuthenticated
 } from '../middlewares/auth.middleware.js';
 import upload from '../middlewares/multer.middleware.js';
 
