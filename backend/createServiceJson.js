@@ -1,10 +1,18 @@
-import fs from 'fs';
-import path from 'path';
+import { writeFileSync, mkdirSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-const filePath = path.join(__dirname, 'dataBase', 'service.json');
+// Re-create __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-fs.mkdirSync(path.dirname(filePath), { recursive: true });
+// Build the full path to service.json
+const filePath = join(__dirname, 'dataBase', 'service.json');
 
-fs.writeFileSync(filePath, process.env.GCLOUD_SERVICE_JSON);
+// Ensure the directory exists
+mkdirSync(dirname(filePath), { recursive: true });
 
-console.log('✅ service.json file created.');
+// Write the file from the environment variable
+writeFileSync(filePath, process.env.GCLOUD_SERVICE_JSON);
+
+console.log('✅ service.json file created successfully.');
