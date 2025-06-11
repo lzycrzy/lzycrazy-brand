@@ -21,11 +21,11 @@ export const uploadToCloudinary = async (filePath) => {
 
     // Check if the file exists
     const result = await cloudinary.uploader.upload(filePath, {
+      resource_type: 'auto',
       folder: 'your_folder_name', // optional
     });
-
-    await fs.unlink(filePath); // Delete the file after upload
-    return result.secure_url; // Return the secure URL of the uploaded file
+    
+    return result.secure_url;
 
   } catch (error) {
     console.error('Cloudinary upload error:', error);
