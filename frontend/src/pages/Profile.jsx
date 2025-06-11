@@ -1,5 +1,8 @@
+
+
+
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Import axios
+import axios from 'axios';
 import Header from '../components/Header';
 import { FaCamera } from 'react-icons/fa';
 import PostCreateBox from '../components/PostCreateBox';
@@ -10,99 +13,58 @@ import Friends from '../components/Friends';
 import SettingMenu from '../components/Setting';
 import EditProfile from '../components/EditProfile';
 import FriendsTab from '../components/FriendsTab';
+import { useUser } from '../context/UserContext';
+import ManageFriends from '../components/ManageFriends';
+
+import Loader from '../components/Spinner';
+
 
 const Profile = () => {
-  const [user, setUser] = useState(null);
-  const [profilePic, setProfilePic] = useState('');
-  const [displayName, setDisplayName] = useState('User Name');
+  const { user, profilePic, displayName, fetchUser, updateUser } = useUser();
+
   const [activeTab, setActiveTab] = useState('posts');
   const [isEditing, setIsEditing] = useState(false);
   const [newImage, setNewImage] = useState(null);
-  const fetchProfile = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const token = localStorage.getItem('token'); // get token from localStorage
-      if (!token) {
-        console.error('No auth token found');
-        return;
-      }
+  const [activeTab1, setActiveTab1] = useState('');
+  const [posts, setPosts] = useState([]);
+  const [loadingPosts, setLoadingPosts] = useState(false);
 
-      console.log(token);
-      const res = await axios.get('http://localhost:4000/api/v1/users/me', {
-        withCredentials: true, // optional, only if you use cookies
-      });
-      const data = res.data;
-      console.log(data);
-      setUser(data);
-      setDisplayName(data.name);
-      setProfilePic(`${data.photoURL}?t=${Date.now()}`);
+  const fetchProfile = async () => {
+    try {
+      await fetchUser();
     } catch (err) {
-      console.error(err);
+      console.error('Error refreshing profile:', err);
     }
   };
 
-  // Fetch profile data from backend on mount
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    if (user?.profile?.posts) {
+      setPosts(Array.isArray(user.profile.posts) ? user.profile.posts : []);
+    }
+  }, [user]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setNewImage(file);
-      setProfilePic(URL.createObjectURL(file)); // For preview
+      updateUser({ photoURL: URL.createObjectURL(file) });
+      e.target.value = '';
     }
   };
 
-  // Sample posts and friends, you can replace with real data if you have
-  const myPosts = [
-    {
-      user: displayName,
-      time: '1 hour ago',
-      content: 'Loving this new community!',
-      image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e',
-      likes: 15,
-      comments: 4,
-      share: 1,
-    },
-    {
-      user: displayName,
-      time: '3 hours ago',
-      content: 'Check out my latest project!',
-      image: 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d',
-      likes: 28,
-      comments: 7,
-      share: 3,
-    },
-  ];
-
-  const friendsData = [
-    {
-      name: 'Alice Johnson',
-      image: 'https://randomuser.me/api/portraits/women/68.jpg',
-    },
-    {
-      name: 'Bob Smith',
-      image: 'https://randomuser.me/api/portraits/men/75.jpg',
-    },
-    {
-      name: 'Carol Lee',
-      image: 'https://randomuser.me/api/portraits/women/32.jpg',
-    },
-    {
-      name: 'David Miller',
-      image: 'https://randomuser.me/api/portraits/men/45.jpg',
-    },
-  ];
-
-
-  
-
-  if (!user) return <div>Loading profile...</div>;
+  if (!user) return(
+   <Loader/>
+  )
 
   return (
-    <div className="w-full">
+    <div className="min-h-screen w-full bg-gray-50">
       <Header />
+
+      {/* Profile Header */}
       <div className="h-80 w-full bg-blue-900 text-white shadow-md">
         <div className="mx-auto max-w-5xl px-6 py-28">
           <div className="mb-4 flex items-center justify-between">
@@ -129,7 +91,9 @@ const Profile = () => {
               <div>
                 <h2 className="text-2xl font-semibold">{displayName}</h2>
                 <p className="text-sm text-gray-200">Full Stack Developer</p>
-                <p className="mt-1 text-sm">Total Friends: 120</p>
+                <p className="mt-1 text-sm">
+                  Total Friends: {user.friendsCount || 120}
+                </p>
               </div>
             </div>
 
@@ -146,21 +110,14 @@ const Profile = () => {
             </div>
           </div>
 
+          {/* Tabs */}
           <div className="flex items-center justify-between border-t pt-4">
-            <div className="flex space-x-4">
-              {[
-                'posts',
-                'about',
-                'friends',
-                'photos',
-                'videos',
-                'my Ads',
-                'more',
-              ].map((tab) => (
+            <div className="scrollbar-hide flex space-x-4 overflow-x-auto">
+              {['posts', 'about', 'friends', 'photos', 'videos', 'my Ads', 'more'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`rounded-md px-4 py-2 capitalize transition ${
+                  className={`rounded-md px-4 py-2 whitespace-nowrap capitalize transition ${
                     activeTab === tab
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -170,35 +127,72 @@ const Profile = () => {
                 </button>
               ))}
             </div>
+            <div className="flex gap-6">
+      <SettingMenu activeTab={activeTab1} setActiveTab={setActiveTab1}   />
 
-            <SettingMenu activeTab={activeTab} />
+      <div className="flex-1">
+        {activeTab1 === 'manageFriends' && <ManageFriends />}
+        {/* You can conditionally render other tabs here */}
+      </div>
+    </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto mt-6 max-w-5xl rounded-xl bg-white p-6 text-center shadow-inner">
+      {/* Main Content */}
+      <div className="mx-auto mt-6 min-h-[600px] max-w-5xl rounded-xl bg-white p-6 shadow-inner">
         {activeTab === 'posts' && (
           <div className="flex flex-col gap-6 text-left lg:flex-row">
             <div className="w-full space-y-4 lg:w-2/3">
-              <PostCreateBox />
-              {myPosts.map((post, idx) => (
-                <PostCard key={idx} post={post} />
-              ))}
+              <PostCreateBox onPostCreated={(newPost) => setPosts(prev => [newPost, ...prev])} />
+              {loadingPosts ? (
+                <div className="py-10 text-center text-gray-500">Loading posts...</div>
+              ) : posts.length === 0 ? (
+                <div className="py-10 text-center text-gray-500">No posts yet.</div>
+              ) : (
+                posts.map((post) => <PostCard key={post._id} post={post} />)
+              )}
             </div>
-
             <div className="w-full lg:w-1/3">
               <Intro />
-              <Friends friends={friendsData} />
+              <Friends friends={user.friends || []} />
             </div>
           </div>
         )}
-        {activeTab === 'about' && (
-          <div className="text-left">
-            <About user={user} />
+
+        {activeTab === 'about' && <About user={user} />}
+        {activeTab === 'friends' && <FriendsTab />}
+        {activeTab === 'photos' && (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            {posts
+              .filter((post) => post.mediaUrl?.match(/\.(jpg|jpeg|png|gif|webp)$/i))
+              .map((post) => (
+                <img
+                  key={post._id}
+                  src={post.mediaUrl}
+                  alt="User upload"
+                  className="h-64 w-full rounded-lg object-cover"
+                />
+              ))}
           </div>
         )}
-        {activeTab === 'friends' && <FriendsTab />}
+        {activeTab === 'videos' && (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {posts
+              .filter((post) => post.mediaUrl?.match(/\.(mp4|webm|ogg)$/i))
+              .map((post) => (
+                <video
+                  key={post._id}
+                  src={post.mediaUrl}
+                  controls
+                  className="max-h-80 w-full rounded-lg object-cover"
+                />
+              ))}
+          </div>
+        )}
       </div>
+
+      {/* Edit Profile Modal */}
       {isEditing && (
         <EditProfile
           profilePic={profilePic}
@@ -211,7 +205,7 @@ const Profile = () => {
               formData.append('name', newName);
               if (newImage) formData.append('photo', newImage);
 
-              await axios.put(
+              const res = await axios.put(
                 'http://localhost:4000/api/v1/users/updateMe',
                 formData,
                 {
@@ -220,13 +214,22 @@ const Profile = () => {
                     'Content-Type': 'multipart/form-data',
                   },
                   withCredentials: true,
-                },
+                }
               );
 
-              await fetchProfile(); // load updated user info from server
+              const updated = res.data?.updatedUser;
+              if (updated) {
+                updateUser({
+                  name: updated.profile?.name,
+                  photoURL: updated.profile?.photoURL,
+                });
+              }
+
+              await fetchProfile();
               setIsEditing(false);
+              setNewImage(null);
             } catch (err) {
-              console.error(' Error updating profile:', err);
+              console.error('Error updating profile:', err);
             }
           }}
           onImageChange={handleImageChange}

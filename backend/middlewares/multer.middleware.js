@@ -17,10 +17,12 @@ const storage = diskStorage({
 
 const fileFilter = (req, file, cb) => {
   const ext = extname(file.originalname).toLowerCase();
-  if (['.jpg', '.jpeg', '.png'].includes(ext)) {
+  const allowedExts = ['.jpg', '.jpeg', '.png', '.mp4', '.mov', '.avi', '.mkv', '.webm'];
+
+  if (allowedExts.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new Error('Only images are allowed'));
+    cb(new Error('Only images and videos are allowed'));
   }
 };
 
