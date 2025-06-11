@@ -12,6 +12,7 @@ import Searchbar from './components/Searchbar';
 import PrivateRoute from './components/PrivateRoute';
 import AuthRedirect from './components/AuthRedirect';
 import ResetPassword from './components/ResetPassword';
+import AboutUs from './components/About2';
 import ForgotPassword from './components/ForgotPassword';
 
 const App = () => {
@@ -25,6 +26,14 @@ const App = () => {
             element={
               <AuthRedirect>
                 <Auth />
+              </AuthRedirect>
+            }
+          />
+           <Route
+            path="/about"
+            element={
+              <AuthRedirect>
+                <AboutUs />
               </AuthRedirect>
             }
           />

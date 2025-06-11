@@ -14,10 +14,10 @@ const userSchema = new mongoose.Schema({
     unique: true,
     required: [true, 'Email required'],
   },
-  phone: {
-    type: String,
-    required: [true, 'Phone Number required'],
-  },
+  // phone: {
+  //   type: String,
+  //   required: [true, 'Phone Number required'],
+  // },
 
   password: {
     type: String,
@@ -84,8 +84,13 @@ const userSchema = new mongoose.Schema({
       ref: 'Post',
     },
   ],
+  stories: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Story'
+  }]
 
 });
+
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
