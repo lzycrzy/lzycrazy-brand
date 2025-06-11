@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../lib/axios/axiosInstance';
 
 const UserContext = createContext();
 
@@ -14,7 +14,7 @@ export const UserProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
-      const res = await axios.get('http://localhost:4000/api/v1/users/me', {
+      const res = await axios.get('/v1/users/me', {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
