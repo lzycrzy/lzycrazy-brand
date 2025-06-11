@@ -11,6 +11,10 @@ import {Post} from '../models/user.post.js';
 import {Story} from '../models/user.story.js';
 import fs from 'fs-extra';
 
+import { uploadToCloudinary } from '../utils/cloudinary.js';
+import mongoose from "mongoose";
+
+
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
 
@@ -315,15 +319,16 @@ export const createPost = async (req, res) => {
     const { text } = req.body;
     let mediaUrl = null;
     let mediaType = null;
+    const filePath=req.file.path;
 
     if (req.file) {
       // Assume you upload file to Cloudinary and get secure_url & type here
-      const result = await uploadToCloudinary(req.file.path,{resource_type: 'auto',});
+      const result = await uploadToCloudinary(filePath,{resource_type: 'auto',});
       mediaUrl = result;
       
       mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
     }
-
+    await fs.remove(filePath);
     const post = new Post({
       user: req.user._id,
       text,
@@ -337,7 +342,7 @@ export const createPost = async (req, res) => {
     await userModel.findByIdAndUpdate(req.user._id, {
       $push: { posts: post._id },
     });
-
+    
     res.status(201).json({
       success: true,
       message: 'Post created',
@@ -555,34 +560,30 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 
 
-// Upload story
 export const uploadStory = async (req, res) => {
   try {
-    // Validate that multer uploaded a file
     if (!req.file) {
       return res.status(400).json({ message: "Image file is required" });
     }
 
-    console.log("Received file:", req.file);
-
-    // Upload file to Cloudinary
-    const result = await uploadToCloudinary(req.file.path, {
-      
-      resource_type: "auto", // supports image/video
+    const imageUrl = await uploadToCloudinary(req.file.path, {
+      resource_type: "auto",
     });
+    
 
-    console.log("Cloudinary result:", result);
+  
+    
 
-    // Save to MongoDB
+    
+    
     const story = await Story.create({
       user: req.user._id,
-      image: result,
+      image:imageUrl,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      views: [],
     });
-    console.log("Saved story:", story);
 
-    // Delete file from temp folder
     fs.unlink(req.file.path, () => {});
 
     res.status(201).json(story);
@@ -595,17 +596,65 @@ export const uploadStory = async (req, res) => {
 // Get all recent stories
 export const getStories = async (req, res) => {
   try {
-    const stories = await Story.find({ expiresAt: { $gt: new Date() } })
-      .populate("user", "fullName image") // include user name and profile image
-      .sort({ createdAt: -1 });
-     console.log(stories)
+    // Fetch all non-expired stories grouped by user
+    const stories = await Story.aggregate([
+      { $match: { expiresAt: { $gt: new Date() } } },
+      { $sort: { createdAt: -1 } },
+      {
+        $group: {
+          _id: "$user",
+          story: { $first: "$$ROOT" }, // get most recent story per user
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      { $unwind: "$user" },
+      {
+        $project: {
+          _id: "$story._id",
+          user: "$user",
+          image: "$story.image",
+          createdAt: "$story.createdAt",
+          expiresAt: "$story.expiresAt",
+          storyCount: "$count"
+        }
+      }
+    ]);
     res.json(stories);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to fetch stories" });
+  } catch (err) {
+    console.error("Error fetching stories for slider:", err);
+    res.status(500).json({ message: "Failed to fetch stories" });
   }
 };
 
+export const recordStoryView = async (req, res) => {
+  const storyId = req.params.storyId;
+  const viewerId = req.user._id;
+
+  try {
+    const story = await Story.findById(storyId);
+    if (!story) return res.status(404).json({ message: "Story not found" });
+
+    // Check if user already viewed this story
+    const alreadyViewed = story.views.some(v => v.user.toString() === viewerId.toString());
+    if (!alreadyViewed) {
+      story.views.push({ user: viewerId, viewedAt: new Date() });
+      await story.save();
+    }
+
+    res.json({ message: "View recorded" });
+  } catch (err) {
+    console.error("Error recording story view:", err);
+    res.status(500).json({ message: "Failed to record story view" });
+  }
+};
 
 
 
@@ -730,4 +779,44 @@ export const searchUsers = async (req, res) => {
   });
 
   res.json(enhanced);
+};
+
+
+
+export const storyView = async (req, res) => {
+  const storyId = req.params.storyId;
+  const viewerId = req.user._id;
+
+  try {
+    const story = await Story.findById(storyId);
+    if (!story) return res.status(404).json({ message: "Story not found" });
+
+    // Check if user already viewed this story
+    const alreadyViewed = story.views.some(v => v.user.toString() === viewerId.toString());
+    if (!alreadyViewed) {
+      story.views.push({ user: viewerId, viewedAt: new Date() });
+      await story.save();
+    }
+
+    res.json({ message: "View recorded" });
+  } catch (err) {
+    console.error("Error recording story view:", err);
+    res.status(500).json({ message: "Failed to record story view" });
+  }
+};
+export const getUserStories = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const stories = await Story.find({ user: userId }).sort({ createdAt: -1 });
+
+    if (!stories || stories.length === 0) {
+      return res.status(404).json({ message: 'No stories found for this user.' });
+    }
+
+    res.status(200).json(stories);
+  } catch (err) {
+    console.error('Error fetching user stories:', err);
+    res.status(500).json({ message: 'Failed to fetch user stories.' });
+  }
 };
