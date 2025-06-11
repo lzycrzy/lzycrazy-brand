@@ -2,17 +2,18 @@ import { writeFileSync, mkdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-// Re-create __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Build the full path to service.json
 const filePath = join(__dirname, 'dataBase', 'service.json');
 
-// Ensure the directory exists
+const jsonContent = process.env.GCLOUD_SERVICE_JSON;
+
+if (!jsonContent) {
+  console.error("❌ Environment variable GCLOUD_SERVICE_JSON is not defined!");
+  process.exit(1); // Exit with failure
+}
+
 mkdirSync(dirname(filePath), { recursive: true });
-
-// Write the file from the environment variable
-writeFileSync(filePath, process.env.GCLOUD_SERVICE_JSON);
-
+writeFileSync(filePath, jsonContent);
 console.log('✅ service.json file created successfully.');
