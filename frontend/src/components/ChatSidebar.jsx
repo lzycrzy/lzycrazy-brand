@@ -88,7 +88,7 @@ const ChatSidebar = () => {
   };
 
   return (
-    <div className="w-80 bg-white border border-gray-300 flex flex-col">
+    <div className="max-w-[240px] w-full bg-white border border-gray-300 flex flex-col">
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-300 font-semibold text-gray-700 flex flex-col">
         <div className="text-lg mb-2">Chat</div>
