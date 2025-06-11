@@ -2,9 +2,9 @@ import crypto from 'crypto';
 import { catchAsyncErrors } from '../middlewares/catchAsyncErrors.middleware.js';
 import ErrorHandler from '../middlewares/error.middleware.js';
 import { adminModel } from '../models/admin.model.js';
+import { userModel } from '../models/user.model.js';
 import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
-import cloudinary from 'cloudinary';
 
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
@@ -32,7 +32,7 @@ export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
   generateTokenAdmin(newAdmin, "Admin registered successfully", 201, res);
 });
 
-
+// Login ADMIN
 export const loginAdmin = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -59,7 +59,6 @@ export const loginAdmin = catchAsyncErrors(async (req, res, next) => {
   generateTokenAdmin(admin, "Admin logged in successfully", 200, res);
 });
 
-
 // LOGOUT ADMIN
 export const logoutAdmin = (req, res) => {
   res.cookie('token', null, {
@@ -71,7 +70,6 @@ export const logoutAdmin = (req, res) => {
     message: 'Logged out successfully',
   });
 };
-
 
 // GET ADMIN PROFILE
 export const getAdminProfile = catchAsyncErrors(async (req, res, next) => {
@@ -156,23 +154,152 @@ export const resetAdminPassword = catchAsyncErrors(async (req, res, next) => {
   generateTokenAdmin(admin, 200, res);
 });
 
-// GET ADMIN DASHBOARD DATA
+// GET ADMIN DASHBOARD DATA WITH STATISTICS
 export const getAdminDashboard = catchAsyncErrors(async (req, res, next) => {
-  // Static response or connect with analytics logic
-  res.status(200).json({ success: true, message: 'Admin dashboard data' });
+  try {
+    const currentDate = new Date();
+    const startOfToday = new Date(currentDate.setHours(0, 0, 0, 0));
+    const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+
+    const totalUsers = await userModel.countDocuments();
+    const totalAdmins = await adminModel.countDocuments({ role: 'admin' });
+    
+    // Active users 
+    const activeUsers = await userModel.countDocuments({ 
+      isActive: true 
+    });
+
+    // Recent registrations
+    const todayRegistrations = await userModel.countDocuments({
+      createdAt: { $gte: startOfToday }
+    });
+
+    const weeklyRegistrations = await userModel.countDocuments({
+      createdAt: { $gte: startOfWeek }
+    });
+
+    const monthlyRegistrations = await userModel.countDocuments({
+      createdAt: { $gte: startOfMonth }
+    });
+
+    // User status breakdown
+    const usersByStatus = await userModel.aggregate([
+      {
+        $group: {
+          _id: '$status', 
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Recent users (last 10)
+    const recentUsers = await userModel
+      .find()
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .select('fullName email createdAt status');
+
+    // Monthly user growth
+    const monthlyGrowth = await userModel.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startOfYear }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { '_id.year': 1, '_id.month': 1 }
+      }
+    ]);
+
+    const dashboardData = {
+      success: true,
+      message: 'Admin dashboard data retrieved successfully',
+      data: {
+        overview: {
+          totalUsers,
+          totalAdmins,
+          activeUsers,
+          inactiveUsers: totalUsers - activeUsers
+        },
+        registrations: {
+          today: todayRegistrations,
+          thisWeek: weeklyRegistrations,
+          thisMonth: monthlyRegistrations
+        },
+        userStats: {
+          byStatus: usersByStatus,
+          recentUsers,
+          monthlyGrowth
+        },
+        systemInfo: {
+          serverTime: new Date().toISOString(),
+          lastUpdated: new Date().toISOString()
+        }
+      }
+    };
+
+    res.status(200).json(dashboardData);
+
+  } catch (error) {
+    return next(new ErrorHandler('Error fetching dashboard data', 500));
+  }
 });
 
-// GET ALL USERS LIST
+// GET ALL USERS LIST WITH PAGINATION AND FILTERS
 export const getAllUsersList = catchAsyncErrors(async (req, res, next) => {
-  const users = await adminModel.find({ role: 'user' }); // depends on your model
-  res.status(200).json({ success: true, users });
+  const { page = 1, limit = 10, search, status, sortBy = 'createdAt' } = req.query;
+  const skip = (page - 1) * limit;
+  let query = {};
+  if (search) {
+    query = {
+      $or: [
+        { fullName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ]
+    };
+  }
+  if (status) {
+    query.status = status;
+  }
+  // Get users with pagination
+  const users = await userModel
+    .find(query)
+    .sort({ [sortBy]: -1 })
+    .skip(skip)
+    .limit(parseInt(limit))
+    .select('-password');
+  const totalUsers = await userModel.countDocuments(query);
+  const totalPages = Math.ceil(totalUsers / limit);
+
+  res.status(200).json({ 
+    success: true, 
+    users,
+    pagination: {
+      currentPage: parseInt(page),
+      totalPages,
+      totalUsers,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1
+    }
+  });
 });
 
 // DELETE SINGLE USER
 export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
-  const user = await adminModel.findById(req.params.id);
+  const user = await userModel.findById(req.params.id);
   if (!user) return next(new ErrorHandler('User not found', 404));
 
-  await user.remove();
+  await user.deleteOne();
   res.status(200).json({ success: true, message: 'User deleted successfully' });
 });

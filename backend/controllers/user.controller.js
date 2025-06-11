@@ -173,7 +173,6 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
-
 // updateMe
 export const updateMe = async (req, res) => {
   try {
