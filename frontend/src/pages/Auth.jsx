@@ -9,6 +9,8 @@ import {
   facebookProvider,
 } from '../lib/firebase/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 import googleLogo from '../assets/image3.png';
 import fb from '../assets/image5.png';
@@ -19,6 +21,7 @@ import country from '../assets/cntry.png';
 
 import Searchbar from '../components/Searchbar';
 import countryList from '../data/countries.json';
+import CountryCodes from '../data/CountryCodes.json';
 import Loader from '../components/Spinner';
 import { useTranslation } from 'react-i18next'; // Add this at the top
 
@@ -33,7 +36,7 @@ const Auth = () => {
   const [registerData, setRegisterData] = useState({
     fullName: '',
     phone: '',
-    country: '',
+
     email: '',
     password: '',
     role: 'user',
@@ -72,8 +75,7 @@ const Auth = () => {
       !registerData.email ||
       !registerData.password ||
       !registerData.phone ||
-      !registerData.fullName ||
-      !registerData.country
+      !registerData.fullName
     ) {
       alert('Please fill in all the required fields');
       return;
@@ -131,14 +133,13 @@ const Auth = () => {
   };
 
   const inputClass =
-    'w-full rounded border border-gray-300 py-2 pr-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400';
+    'w-full rounded border border-gray-300 py-3 pr-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400';
 
   if (loading) return <Loader />;
 
   return (
     <>
-     <div className="flex min-h-screen w-full flex-col items-center bg-[#ebf3fe] px-4 pb-8 md:pb-12">
-       
+      <div className="flex max-h-screen w-full flex-col items-center overflow-y-hidden bg-[#ebf3fe] px-4 pb-8 md:pb-12">
         <div className="flex w-full max-w-7xl flex-col md:flex-row md:items-center md:justify-center">
           {/* Left - Branding */}
           <div className="ml-8 flex w-full -translate-y-10 items-center justify-start bg-[#ebf3fe] p-8 md:w-3/4">
@@ -152,7 +153,7 @@ const Auth = () => {
             className="mr-8 flex flex-col items-center justify-center bg-white p-8 shadow-lg"
             style={{ width: 452 }}
           >
-            <div className="mb-6 flex w-full overflow-hidden rounded-2xl border border-gray-200">
+            {/* <div className="mb-6 flex w-full overflow-hidden rounded-2xl border border-gray-200">
               <button
                 className={`flex flex-1 items-center justify-center py-3 text-sm font-medium transition ${
                   activeTab === 'login'
@@ -173,11 +174,13 @@ const Auth = () => {
               >
                 Signup
               </button>
-            </div>
+            </div> */}
 
             <div className="flex h-full w-full max-w-md flex-col justify-between">
               <h2 className="mb-4 text-center text-xl font-semibold text-gray-800">
-                {activeTab === 'login' ? 'Login' : 'Signup'}
+                {/* {activeTab === 'login'
+                  ? 'Login to Your Account'
+                  : 'Create a New Account'} */}
               </h2>
 
               {activeTab === 'login' && (
@@ -227,13 +230,12 @@ const Auth = () => {
 
                   <button
                     type="submit"
-                    className="mt-3.5 w-full rounded  py-2 font-semibold text-white bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)]"
-                   
+                    className="mt-3.5 w-full rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white"
                   >
                     Login
                   </button>
 
-                  <div className="my-4 flex items-center gap-4 py-5.5 text-sm text-gray-500">
+                  <div className="my-4 flex items-center gap-4 py-3 text-sm text-gray-500">
                     <div className="h-px flex-1 bg-gray-300" />
                     <span className="whitespace-nowrap">or continue with</span>
                     <div className="h-px flex-1 bg-gray-300" />
@@ -261,6 +263,19 @@ const Auth = () => {
                       Facebook
                     </button>
                   </div>
+                  <p className="mt-4 text-center text-sm text-gray-600">
+                    <button
+                      type="button"
+                      className={`mt-3.5 w-1/2 rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white ${
+                        activeTab === 'register'
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-400 text-white'
+                          : 'bg-gray-100'
+                      }`}
+                      onClick={() => setActiveTab('register')}
+                    >
+                      Create New Account
+                    </button>
+                  </p>
                 </form>
               )}
 
@@ -283,7 +298,7 @@ const Auth = () => {
                     />
                   </div>
 
-                  <div className="relative mb-3">
+                  {/* <div className="relative mb-3">
                     <img
                       src={country}
                       className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
@@ -305,9 +320,9 @@ const Auth = () => {
                         </option>
                       ))}
                     </select>
-                  </div>
+                  </div> */}
 
-                  <div className="relative mb-3">
+                  {/* <div className="relative mb-3">
                     <input
                       type="tel"
                       name="phone"
@@ -316,6 +331,34 @@ const Auth = () => {
                       placeholder="Phone Number"
                       required
                       className={inputClass}
+                    />
+                  </div> */}
+                  <div className="relative mb-3">
+                    <PhoneInput
+                      country={'in'}
+                      value={registerData.phone}
+                      onChange={(phone) =>
+                        setRegisterData((prev) => ({ ...prev, phone }))
+                      }
+                      placeholder="Phone Number"
+                      enableSearch={true}
+                      inputStyle={{
+                        width: '100%',
+                        paddingLeft: '48px',
+                        paddingTop: '12px',
+                        paddingBottom: '12px',
+                        paddingRight: '12px',
+                        borderRadius: '0.375rem',
+                        border: '1px solid #d1d5db', // Tailwind border-gray-300
+                        fontSize: '0.875rem',
+                      }}
+                      buttonStyle={{
+                        borderRight: '1px solid #d1d5db',
+                        backgroundColor: '#f9fafb',
+                      }}
+                      containerStyle={{
+                        width: '100%',
+                      }}
                     />
                   </div>
 
@@ -374,17 +417,24 @@ const Auth = () => {
                       <span className="cursor-pointer text-blue-600">
                         Cookies Policy
                       </span>
-                      
                     </span>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full rounded  py-2 font-semibold bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] text-white "
-                   
+                    className="w-full rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white"
                   >
                     Signup
                   </button>
+                  <p className="mt-4 text-center text-sm text-gray-600">
+                    <button
+                      type="button"
+                      className="text-blue-600 hover:underline"
+                      onClick={() => setActiveTab('login')}
+                    >
+                      Already have an account?{' '}
+                    </button>
+                  </p>
                 </form>
               )}
             </div>
@@ -393,50 +443,47 @@ const Auth = () => {
       </div>
 
       {/* 🌍 Google-style Footer */}
-      <footer className=" w-full border-t border-gray-200 bg-[#ebf3fe] py-4 text-sm text-gray-600">
-  <div className="flex flex-wrap items-center justify-between px-4 sm:px-20">
-    {/* Left Side - Location + LzyCrazy + Languages */}
-    <div className="flex flex-wrap items-center gap-2">
-      <div>India</div>
-      <div className="ml-2">|</div> {/* Separator */}
-      <div>LzyCrazy offered in:</div>
+      <footer className="absolute bottom-0 w-full border-t border-gray-200 bg-[#ebf3fe] py-4 text-sm text-gray-600">
+        <div className="flex flex-wrap items-center justify-between px-4 sm:px-20">
+          {/* Left Side - Location + LzyCrazy + Languages */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div>India</div>
+            <div className="ml-2">|</div> {/* Separator */}
+            <div>LzyCrazy offered in:</div>
+            {/* Language buttons with spacing */}
+            <button
+              onClick={() => i18n.changeLanguage('hi')}
+              className="ml-2 text-blue-600 hover:underline"
+            >
+              हिन्दी
+            </button>
+            <button
+              onClick={() => i18n.changeLanguage('en')}
+              className="ml-2 text-blue-600 hover:underline"
+            >
+              English
+            </button>
+            <button
+              onClick={() => i18n.changeLanguage('bn')}
+              className="ml-2 text-blue-600 hover:underline"
+            >
+              বাংলা
+            </button>
+            <button
+              onClick={() => i18n.changeLanguage('ar')}
+              className="ml-2 text-blue-600 hover:underline"
+            >
+              العربية
+            </button>
+          </div>
 
-      {/* Language buttons with spacing */}
-      <button
-        onClick={() => i18n.changeLanguage('hi')}
-        className="ml-2 text-blue-600 hover:underline"
-      >
-        हिन्दी
-      </button>
-      <button
-        onClick={() => i18n.changeLanguage('en')}
-        className="ml-2 text-blue-600 hover:underline"
-      >
-        English
-      </button>
-      <button
-        onClick={() => i18n.changeLanguage('bn')}
-        className="ml-2 text-blue-600 hover:underline"
-      >
-        বাংলা
-      </button>
-      <button
-        onClick={() => i18n.changeLanguage('ar')}
-        className="ml-2 text-blue-600 hover:underline"
-      >
-        العربية
-      </button>
-    </div>
-
-    {/* Right Side - Links */}
-    <div className="flex gap-6">
-      <span className="cursor-pointer hover:underline">Privacy</span>
-      <span className="cursor-pointer hover:underline">Terms</span>
-      <span className="cursor-pointer hover:underline">Settings</span>
-    </div>
-  </div>
-</footer>
-
+          {/* Right Side - Links */}
+          <div className="flex gap-6">
+            <span className="cursor-pointer hover:underline">Privacy</span>
+            <span className="cursor-pointer hover:underline">Terms</span>
+          </div>
+        </div>
+      </footer>
     </>
   );
 };
