@@ -1,8 +1,5 @@
-
-
-
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../lib/axios/axiosInstance';
 import Header from '../components/Header';
 import { FaCamera } from 'react-icons/fa';
 import PostCreateBox from '../components/PostCreateBox';

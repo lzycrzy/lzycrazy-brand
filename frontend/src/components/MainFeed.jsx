@@ -6,7 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 
 const MainFeed = ({ posts }) => {
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto p-4">
+    <div className="flex flex-1 flex-col  p-6">
       <Stories />
       <PostCreateBox />
 
@@ -28,7 +28,7 @@ const MainFeed = ({ posts }) => {
         const isVideo = mediaUrl?.match(/\.(mp4|webm|ogg)$/i);
 
         return (
-          <div key={idx} className="mb-6 rounded-xl bg-white p-5 shadow-sm">
+          <div key={idx} className="mb-6 overflow-y-auto scroll-hidden rounded-xl bg-white p-5 shadow-sm">
             <div className="mb-2 flex items-center">
               <img
                 src={userImage}

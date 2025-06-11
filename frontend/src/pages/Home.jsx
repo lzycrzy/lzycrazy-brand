@@ -1,7 +1,5 @@
-
-
 import React, { useState ,useEffect} from 'react';
-import axios from 'axios';
+import axios from '../lib/axios/axiosInstance';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar1';
 import MainFeed from '../components/MainFeed';
@@ -61,7 +59,7 @@ const Home = () => {
   useEffect(() => {
     const fetchAllPosts = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/v1/users/posts',{withCredentials:"true"});
+        const response = await axios.get('/v1/users/posts',{withCredentials:"true"});
         console.log(response)
         setPosts(response.data.posts); // Ensure your backend returns { posts: [...] }
       } catch (err) {
@@ -74,12 +72,12 @@ const Home = () => {
   
 
   return (
-    <div className="h-screen w-screen mt-0 top-0  gap-4 flex flex-col bg-gray-100 font-sans overflow-hidden m-0 p-0">
+    <div className="h-screen w-screen mt-0 top-0 gap-x-4  gap-6 flex flex-col bg-gray-100 font-sans overflow-hidden m-0 p-0">
       <Header />
       <div className="flex flex-1 overflow-hidden gap-4 px-4">
         <Sidebar />
         
-        <div className="flex-1 overflow-y-auto no-scrollbar">
+        <div className="flex-1 overflow-y-auto scroll-hidden">
           <MainFeed posts={posts} />
         </div>
 

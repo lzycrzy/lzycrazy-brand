@@ -1,20 +1,22 @@
 import crypto from 'crypto';
 import { catchAsyncErrors } from '../middlewares/catchAsyncErrors.middleware.js';
 import ErrorHandler from '../middlewares/error.middleware.js';
-import { userModel } from '../models/user.model.js';
 import { generateToken } from '../utils/jwtToken.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';// Import the uploadToCloudinary function 
 import { sendEmail } from '../utils/sendEmail.js';
+import { userModel } from '../models/user.model.js';
 import firebaseadmin from '../config/firebaseAdmin.js';
 import UserAbout from '../models/user.about.js';
 import {Post} from '../models/user.post.js';
 import {Story} from '../models/user.story.js';
 import fs from 'fs-extra';
-import { uploadToCloudinary } from '../utils/cloudinary.js';
+
 import mongoose from "mongoose";
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
-  const { fullName, email, phone, password,role  } = req.body;
+
+  const { fullName, email, phone, password, role  } = req.body;
   console.log('req.body:', req.body);
   // Add this line
   
@@ -23,10 +25,13 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
   if (existingUser) {
     return next(new ErrorHandler('Email already exists', 400));
   }
+  
+  // image upload to cloudinary
   try {
     
 
     const userRole = role || 'user';
+    // Create new user
     const createdUser = await userModel.create({
       fullName,
       email,
@@ -36,14 +41,17 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
       
     });
 
+    // If user creation fails
     if (!createdUser) {
       return next(new ErrorHandler('User creation failed', 400));
     }
 
+    // Generate JWT token and send response
     generateToken(createdUser, 'User Registered Successfully', 201, res);
+
   } catch (err) {
-    console.error('Registration error:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Registration error:', err); // Log the error for debugging
+    res.status(500).json({ error: err.message }); //
   }
 });
 
