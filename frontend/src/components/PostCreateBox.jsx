@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaCamera, FaFileAlt } from 'react-icons/fa';
 import axios from 'axios';
-
+import { useUser } from '../context/UserContext';
 const PostCreateBox = ({ onPostCreated }) => {
   const [text, setText] = useState('');
   const [file, setFile] = useState(null);
@@ -11,6 +11,7 @@ const PostCreateBox = ({ onPostCreated }) => {
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
+  const {  profilePic, displayName, fetchUser, updateUser } = useUser();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -25,7 +26,7 @@ const PostCreateBox = ({ onPostCreated }) => {
           withCredentials: true,
         });
 
-        setUser(res.data.profile); // Update user state
+        setUser(res.data.profile);
       } catch (error) {
         console.error('Error fetching user profile:', error);
       }
@@ -62,7 +63,10 @@ const PostCreateBox = ({ onPostCreated }) => {
       setText('');
       setFile(null);
 
-      if (onPostCreated) onPostCreated(response.data.post);
+      // 🧠 Notify parent (Profile) to add new post to UI
+      if (typeof onPostCreated === 'function') {
+        onPostCreated(response.data.post);
+      }
     } catch (error) {
       console.error('Failed to create post:', error);
       alert('Failed to create post');
@@ -76,7 +80,7 @@ const PostCreateBox = ({ onPostCreated }) => {
       <div className="flex items-start space-x-4">
         <img
           src={
-            user?.photoURL ||
+            profilePic ||
             'https://flowbite.com/docs/images/people/profile-picture-5.jpg'
           }
           alt="User"

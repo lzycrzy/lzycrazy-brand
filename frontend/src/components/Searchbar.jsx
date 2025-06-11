@@ -7,52 +7,62 @@ const Searchbar = () => {
   const [activeTab, setActiveTab] = useState('All');
   const { t, i18n } = useTranslation();
 
-  // 🔍 Handle form submission
   const handleSearch = async (e) => {
     e.preventDefault();
     if (query.trim()) {
-      console.log('Search Query:', query, '| Filter:', activeTab);
-
-      // TODO: Call your search API here
+      console.log('Search Query:', query, '| Category:', activeTab);
+      // TODO: API call here
     }
   };
 
-  // 🌐 Change site language
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
   };
 
-  // 🔖 Available filter tabs
-  const filters = ['All', 'Images', 'Videos', 'News', 'Shopping'];
+  const categories = [
+    'Direct By Farm',
+    'Self Made',
+    'Rental Items',
+    'Real Estate',
+    'Vehicle',
+    'Mobiles',
+    'Furniture',
+    'Fashion',
+    'Electronics',
+    'Coming Soon',
+    'Coming Soon',
+  ];
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-white">
-      {/* 🖼️ Logo Section with white overlay */}
-      <div className="relative flex flex-col items-center">
-        <img src={logo} alt="LzyCrazy Logo" className="mb-2 w-40 md:w-60" />
-        <div className="absolute inset-0 bg-white opacity-30 rounded-md pointer-events-none"></div>
+    <div className="flex min-h-screen flex-col items-center pt-20 bg-[#ebf3fe] pb-4">
+      {/* Logo */}
+      <div className="mb-8 mt-4">
+        <img src={logo} alt="LzyCrazy Logo" className="w-44 md:w-60 mix-blend-multiply opacity-90" />
       </div>
 
-      {/* 🔍 Search Input */}
-      <form onSubmit={handleSearch} className="relative mt-8 w-full max-w-xl">
+      {/* Search Box */}
+      <form
+        onSubmit={handleSearch}
+        className="relative w-full max-w-2xl transition"
+      >
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={t('searchPlaceholder')}
-          className="w-full rounded-full border border-gray-300 px-12 py-3 shadow-md focus:ring-2 focus:ring-purple-500 focus:outline-none"
+          placeholder="Search here..."
+          className="w-full rounded-full border border-gray-300 px-14 py-4 shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
         <button
           type="submit"
-          className="absolute top-1/2 left-4 -translate-y-1/2 transform text-lg text-purple-500"
+          className="absolute left-5 top-1/2 -translate-y-[45%] text-xl text-purple-500"
         >
           🔍
         </button>
       </form>
 
-      {/* 🧭 Filter Tabs */}
+      {/* Tabs */}
       <div className="mt-6 flex flex-wrap justify-center gap-3">
-        {filters.map((tab) => (
+        {categories.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -67,25 +77,7 @@ const Searchbar = () => {
         ))}
       </div>
 
-      {/* 💼 Hiring Banner */}
-      <div className="mt-4">
-        <button className="rounded-full border border-gray-300 bg-white px-5 py-2 text-sm text-gray-800 shadow-sm transition hover:bg-gray-100">
-          {t('weAreHiring')}
-        </button>
-      </div>
-
-      {/* 📊 Search Results Summary */}
-      {query && (
-        <div className="mt-8 text-center text-lg text-gray-700">
-          {t('resultFor')}: <span className="font-semibold">{query}</span>
-          <br />
-          <span className="text-sm text-purple-600">
-            {t('filter')}: {activeTab}
-          </span>
-        </div>
-      )}
-
-      {/* 🌐 Language Selector */}
+      {/* Language Selector
       <footer className="mt-16 text-center text-sm text-gray-500">
         <span className="font-semibold">LzyCrazy</span> {t('offeredIn')}
         <div className="mt-2 flex justify-center gap-3">
@@ -93,7 +85,7 @@ const Searchbar = () => {
             { code: 'hi', label: 'Hindi' },
             { code: 'en', label: 'English' },
             { code: 'bn', label: 'Bengali' },
-            { code: 'ar', label: 'Arbi' },
+            { code: 'ar', label: 'Arabic' },
           ].map((lang) => (
             <button
               key={lang.code}
@@ -104,7 +96,17 @@ const Searchbar = () => {
             </button>
           ))}
         </div>
-      </footer>
+      </footer> */}
+
+      {/* Optional: Display active search */}
+      {query && (
+        <div className="mt-10 text-center text-gray-600">
+          <p>
+            Showing results for: <span className="font-medium">{query}</span>
+          </p>
+          <p className="text-sm text-purple-600">Category: {activeTab}</p>
+        </div>
+      )}
     </div>
   );
 };

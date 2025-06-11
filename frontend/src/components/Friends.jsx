@@ -1,6 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from '../lib/axios/axiosInstance';
 
-const FriendsList = ({ friends }) => {
+const FriendsList = () => {
+  const [friends, setFriends] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const res = await axios.get(`/v1/users/friends/list`);
+        console.log("friends", res.data);
+        setFriends(res.data || []);
+      } catch (err) {
+        console.error('Error fetching friends:', err);
+        setError('Failed to load friends');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFriends();
+  }, []);
+
   return (
     <div className="w-full bg-white shadow-md rounded-lg mt-4 p-6">
       {/* Top Line: Title + Link */}
@@ -17,29 +39,35 @@ const FriendsList = ({ friends }) => {
 
       {/* Second Line: Total Friends */}
       <div className="text-sm text-gray-600 mb-4">
-        Total friends: {friends.length}
+        {loading
+          ? 'Loading friends...'
+          : error
+          ? error
+          : `Total friends: ${friends.length}`}
       </div>
 
       {/* Responsive Grid of Friends */}
-      <div className="grid  grid-cols-2 sm:grid-cols-3 min-h-0 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-2 gap-4">
-        {friends.map((friend, index) => (
-          <div
-            key={index}
-            className="flex w-26 flex-col items-center text-center"
-          >
-            <div className="w-full aspect-square">
-              <img
-                src={friend.image}
-                alt={friend.name}
-                className="w-full h-full object-cover rounded-md"
-              />
+      {!loading && !error && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 min-h-0 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-2 gap-4">
+          {friends.map((friend) => (
+            <div
+              key={friend._id}
+              className="flex w-26 flex-col items-center text-center"
+            >
+              <div className="w-full aspect-square">
+                <img
+                  src={friend.image}
+                  alt={friend.fullName}
+                  className="w-full h-full object-cover rounded-md"
+                />
+              </div>
+              <span className="text-sm text-gray-800 mt-2 break-words w-full">
+                {friend.fullName}
+              </span>
             </div>
-            <span className="text-sm text-gray-800 mt-2 break-words w-full">
-              {friend.name}
-            </span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

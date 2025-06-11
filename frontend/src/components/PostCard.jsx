@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaThumbsUp, FaCommentAlt, FaShare } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
+import { useUser } from '../context/UserContext';
 
 const PostCard = ({ post }) => {
   const {
@@ -12,7 +13,7 @@ const PostCard = ({ post }) => {
     commentsCount,
     sharesCount,
   } = post;
-
+  const {  profilePic, displayName, fetchUser, updateUser } = useUser();
   const userImage = user?.image || 'https://flowbite.com/docs/images/people/profile-picture-5.jpg';
   const userName = user?.fullName || 'Unknown User';
 
@@ -24,7 +25,7 @@ const PostCard = ({ post }) => {
       {/* Header */}
       <div className="mb-3 flex items-center">
         <img
-          src={userImage}
+          src={profilePic}
           alt={userName}
           className="mr-3 h-12 w-12 rounded-full object-cover"
         />
