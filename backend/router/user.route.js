@@ -22,6 +22,13 @@ import {
   getFriendsList,
   getPendingRequests,
   searchUsers,
+
+  storyView,
+  getUserStories
+  // getAdminDashboard,
+  // getSuperAdminDashboard,
+  // getAllUsers,
+
 } from '../controllers/user.controller.js';
 
 import {
@@ -84,4 +91,8 @@ router.put('/password/update', isAuthenticated, updatePassword);
 router.post('/password/forgot', forgotPassword);
 // Reset password route
 router.post('/password/reset/:token', resetPassword);
+
+//story
+router.post('/story/view/:storyId', isAuthenticated,storyView )
+router.get('/story/view/:userId', isAuthenticated,getUserStories )
 export default router;
