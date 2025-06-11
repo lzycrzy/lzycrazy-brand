@@ -15,11 +15,18 @@ import {
   getStories,
   uploadStory,
   resetPassword,
-
+  sendFriendRequest,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  unfriendUser,
+  getFriendsList,
+  getPendingRequests,
+  searchUsers,
   // getAdminDashboard,
   // getSuperAdminDashboard,
   // getAllUsers,
 } from '../controllers/user.controller.js';
+
 import {
   isAuthenticated,
   authorizeRoles,
@@ -31,10 +38,19 @@ import upload from '../middlewares/multer.middleware.js';
 
 const router = express.Router();
 
+//friends
+router.post('/friends/send/:targetId',  isAuthenticated, sendFriendRequest);
+router.post('/friends/accept/:targetId',  isAuthenticated, acceptFriendRequest);
+router.post('/friends/reject/:targetId',  isAuthenticated, rejectFriendRequest);
+router.post('/friends/unfriend/:targetId',  isAuthenticated, unfriendUser);
+router.get('/friends/list',  isAuthenticated, getFriendsList);
+router.get('/friends/pending',  isAuthenticated, getPendingRequests);
+router.get('/friends/search',  isAuthenticated, searchUsers);
+
 // Public routes
 router.post(
   '/register',
-  upload.single('profileImage'),  // Use 'profileImage' to match frontend
+   // Use 'profileImage' to match frontend
   registerUser,
 );
 

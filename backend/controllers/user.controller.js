@@ -8,29 +8,22 @@ import firebaseadmin from '../config/firebaseAdmin.js';
 import UserAbout from '../models/user.about.js';
 import {Post} from '../models/user.post.js';
 import {Story} from '../models/user.story.js';
-import fs from "fs";
+import fs from 'fs-extra';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
   const { fullName, email, phone, password,role  } = req.body;
   console.log('req.body:', req.body);
-  console.log('req.file:', req.file); // Add this line
+  // Add this line
   
-  if (!req.file) {
-    return next(new ErrorHandler('Image is required', 400));
-  }
-  let imageUrl = '';
+ 
   const existingUser = await userModel.findOne({ email });
   if (existingUser) {
     return next(new ErrorHandler('Email already exists', 400));
   }
   try {
-    imageUrl = await uploadToCloudinary(req.file.path);
-    if (!imageUrl) {
-      return next(new ErrorHandler('Failed to upload image', 400));
-    }
-    fs.unlinkSync(req.file.path);
+    
 
     const userRole = role || 'user';
     const createdUser = await userModel.create({
@@ -39,7 +32,7 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
       phone,
       password,
       role:userRole,
-      image: imageUrl,
+      
     });
 
     if (!createdUser) {
@@ -188,9 +181,10 @@ export const updateMe = async (req, res) => {
 
     console.log("🟡 Received name:", req.body.name);
     console.log("🟡 Received file:", req.file?.originalname);
+    const filePath=req.file.path;
 
     if (req.file) {
-      const photoURL = await uploadToCloudinary(req.file.path, req.user.id);
+      const photoURL = await uploadToCloudinary(filePath, req.user.id);
       updates.image = photoURL;
     }
 
@@ -198,7 +192,7 @@ export const updateMe = async (req, res) => {
       new: true,
       runValidators: true,
     });
-
+    await fs.remove(filePath);
     console.log("✅ User updated:", updatedUser.fullName, updatedUser.image);
 
     res.status(200).json({
@@ -216,8 +210,13 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // Fetch user basic info
-    const user = await userModel.findById(userId).select('fullName email image');
+    // Fetch full user info including relationships
+    const user = await userModel.findById(userId)
+      .select('fullName email image friends friendRequestsSent friendRequestsReceived phone role');
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
     // Fetch user about info
     let about = await UserAbout.findOne({ userId });
@@ -227,14 +226,14 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
         bio: '',
         location: '',
         website: '',
-        // add other default about fields if needed
+        // other default fields can go here
       };
     }
 
-    // Fetch posts by user with likes, comments, shares populated
+    // Fetch user's posts with populated likes, comments, and shares
     const posts = await Post.find({ user: userId })
-      .populate('user', 'fullName email image')      // Post owner info
-      .populate('likes', 'fullName image')           // Users who liked
+      .populate('user', 'fullName email image')
+      .populate('likes', 'fullName image')
       .populate({
         path: 'comments.user',
         select: 'fullName image',
@@ -242,14 +241,19 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
       .populate('shares.user', 'fullName image')
       .sort({ createdAt: -1 });
 
-    // Compose full profile response
+    // Compose the full profile response
     const profileData = {
       id: userId,
-      name: user?.fullName || 'User Name',
-      email: user?.email || '',
-      photoURL: user?.image || '',
+      name: user.fullName,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      photoURL: user.image,
       about,
       posts,
+      friends: user.friends,
+      friendRequestsSent: user.friendRequestsSent,
+      friendRequestsReceived: user.friendRequestsReceived,
     };
 
     res.status(200).json({ success: true, profile: profileData });
@@ -258,6 +262,7 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error fetching profile' });
   }
 });
+
 
 export const getPosts= catchAsyncErrors( async (req, res) => {
   try {
@@ -593,4 +598,130 @@ export const getStories = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch stories" });
   }
+};
+
+
+
+
+
+//friends
+
+
+
+
+// Send Friend Request
+export const sendFriendRequest = async (req, res) => {
+  const { targetId } = req.params;
+  const currentUser = await userModel.findById(req.user.id);
+  const targetUser = await userModel.findById(targetId);
+
+  if (!currentUser || !targetUser) return res.status(404).json({ msg: 'User not found' });
+  if (currentUser.friends.includes(targetId)) return res.status(400).json({ msg: 'Already friends' });
+
+  if (!currentUser.friendRequestsSent.includes(targetId)) {
+    currentUser.friendRequestsSent.push(targetId);
+    targetUser.friendRequestsReceived.push(req.user.id);
+    await currentUser.save();
+    await targetUser.save();
+  }
+
+  res.json({ msg: 'Friend request sent' });
+};
+
+// Accept Friend Request
+export const acceptFriendRequest = async (req, res) => {
+  const { targetId } = req.params;
+  const currentUser = await userModel.findById(req.user.id);
+  const targetUser = await userModel.findById(targetId);
+
+  if (!currentUser.friendRequestsReceived.includes(targetId)) {
+    return res.status(400).json({ msg: 'No friend request from this user' });
+  }
+
+  currentUser.friends.push(targetId);
+  targetUser.friends.push(req.user.id);
+
+  currentUser.friendRequestsReceived = currentUser.friendRequestsReceived.filter(id => id.toString() !== targetId);
+  targetUser.friendRequestsSent = targetUser.friendRequestsSent.filter(id => id.toString() !== req.user.id);
+
+  await currentUser.save();
+  await targetUser.save();
+
+  res.json({ msg: 'Friend request accepted' });
+};
+
+// Reject Friend Request
+export const rejectFriendRequest = async (req, res) => {
+  const { targetId } = req.params;
+  const currentUser = await userModel.findById(req.user.id);
+  const targetUser = await userModel.findById(targetId);
+
+  currentUser.friendRequestsReceived = currentUser.friendRequestsReceived.filter(id => id.toString() !== targetId);
+  targetUser.friendRequestsSent = targetUser.friendRequestsSent.filter(id => id.toString() !== req.user.id);
+
+  await currentUser.save();
+  await targetUser.save();
+
+  res.json({ msg: 'Friend request rejected' });
+};
+
+// Unfriend
+export const unfriendUser = async (req, res) => {
+  const { targetId } = req.params;
+  const currentUser = await userModel.findById(req.user.id);
+  const targetUser = await userModel.findById(targetId);
+
+  currentUser.friends = currentUser.friends.filter(id => id.toString() !== targetId);
+  targetUser.friends = targetUser.friends.filter(id => id.toString() !== req.user.id);
+
+  await currentUser.save();
+  await targetUser.save();
+
+  res.json({ msg: 'Unfriended successfully' });
+};
+
+// Get Friends List
+export const getFriendsList = async (req, res) => {
+  const user = await userModel.findById(req.user.id).populate('friends', 'fullName email image');
+  res.json(user.friends);
+};
+
+// Get Pending Requests (sent & received)
+export const getPendingRequests = async (req, res) => {
+  const user = await userModel.findById(req.user.id)
+    .populate('friendRequestsReceived', 'fullName email image')
+    .populate('friendRequestsSent', 'fullName email image');
+
+  res.json({
+    received: user.friendRequestsReceived,
+    sent: user.friendRequestsSent,
+  });
+};
+
+// Search Users and include relationship status
+export const searchUsers = async (req, res) => {
+  const user = await userModel.findById(req.user.id);
+  const { q } = req.query;
+
+  const users = await userModel.find({
+    fullName: { $regex: q, $options: 'i' },
+    _id: { $ne: req.user.id },
+  }).select('fullName email image');
+
+  const enhanced = users.map(u => {
+    let status = 'none';
+    if (user.friends.includes(u._id)) status = 'friends';
+    else if (user.friendRequestsSent.includes(u._id)) status = 'sent';
+    else if (user.friendRequestsReceived.includes(u._id)) status = 'incoming';
+
+    return {
+      _id: u._id,
+      fullName: u.fullName,
+      email: u.email,
+      image: u.image,
+      status,
+    };
+  });
+
+  res.json(enhanced);
 };
