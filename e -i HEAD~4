@@ -1,0 +1,32 @@
+[33mbb2bf5c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mBikash[m[33m, [m[1;31morigin/Bikash[m[33m)[m fixed header profile icon toggle,images to story
+[33m09fe9f2[m Merge branch 'main' of https://github.com/lzycrzy/lzycrazy-brand into Bikash :wq
+[33m680ce74[m added json file for contry ,added friend page integrate backend to update profile
+[33mf82ec3f[m[33m ([m[1;31morigin/main[m[33m)[m Merge pull request #8 from lzycrzy/Bikash
+[33m41d6515[m fix:image upload and upadate user profile with about page
+[33m13303fe[m deleted images from temp
+[33m849d1a7[m Update admin.controller.js
+[33m8ccb4e9[m Merge pull request #7 from lzycrzy/Bikash
+[33m56127f9[m Merge branch 'main' into Bikash
+[33m2a43e52[m feat: connected auth of frontend woth backend and ui of profile and main  page
+[33md068e93[m feat: connected auth of frontend woth backend and ui of profile and main  page
+[33me474c6e[m WIP: work in progress before pulling main
+[33m403af4c[m Merge pull request #6 from lzycrzy/israr
+[33m928b171[m[33m ([m[1;32mmain[m[33m)[m Merge pull request #6 from lzycrzy/israr
+[33m56866f1[m added In backend Admin- Schema, routes, model, controller,jwt,admin-middleware
+[33mdea9873[m added In backend Admin- Schema, routes, model, controller,jwt,admin-middleware
+[33m94ce8f2[m Merge pull request #5 from lzycrzy/Bikash
+[33md7ea4a1[m Merge pull request #5 from lzycrzy/Bikash
+[33m61cd17d[m Setup Firebase env config and update UI components
+[33mcbe8e85[m Setup Firebase env config and update UI components
+[33m183dc89[m Merge pull request #3 from lzycrzy/anjali
+[33m70a9766[m Merge pull request #3 from lzycrzy/anjali
+[33m79ed208[m Merge branch 'main' into anjali
+[33mef50e0d[m[33m ([m[1;32manjali[m[33m)[m Merge branch 'main' into anjali
+[33mc272863[m Merge pull request #2 from lzycrzy/Ajeet
+[33mf687d0e[m Merge pull request #2 from lzycrzy/Ajeet
+[33m095734b[m Merge pull request #1 from lzycrzy/Prem
+[33m883818c[m Merge pull request #1 from lzycrzy/Prem
+[33maed444c[m[33m ([m[1;32mPrem[m[33m)[m admin Auth Page and Dashboard
+[33m1fee9e4[m your message
+[33m09c4a34[m[33m ([m[1;32mAjeet[m[33m)[m SearchBar is done
+[33md035d18[m initial setup

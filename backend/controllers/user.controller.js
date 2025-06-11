@@ -7,35 +7,28 @@ import { sendEmail } from '../utils/sendEmail.js';
 import { userModel } from '../models/user.model.js';
 import firebaseadmin from '../config/firebaseAdmin.js';
 import UserAbout from '../models/user.about.js';
+import {Post} from '../models/user.post.js';
+import {Story} from '../models/user.story.js';
+import fs from 'fs-extra';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
 
   const { fullName, email, phone, password, role  } = req.body;
   console.log('req.body:', req.body);
-  console.log('req.file:', req.file); // Add this line
+  // Add this line
   
-  //file upload check
-  if (!req.file) {
-    return next(new ErrorHandler('Image is required', 400));
-  }
-
-  let imageUrl = ''; // Initialize imageUrl
-
-  // Check if user already exists
-  const existingUser = await userModel.findOne({ email }); 
+ 
+  const existingUser = await userModel.findOne({ email });
   if (existingUser) {
     return next(new ErrorHandler('Email already exists', 400));
   }
   
   // image upload to cloudinary
   try {
-    imageUrl = await uploadToCloudinary(req.file.path);
-    if (!imageUrl) {
-      return next(new ErrorHandler('Failed to upload image', 400)); 
-    }
+    
 
-    // If role is not provided, default to 'user'
     const userRole = role || 'user';
     // Create new user
     const createdUser = await userModel.create({
@@ -44,7 +37,7 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
       phone,
       password,
       role:userRole,
-      image: imageUrl,
+      
     });
 
     // If user creation fails
@@ -195,9 +188,10 @@ export const updateMe = async (req, res) => {
 
     console.log("🟡 Received name:", req.body.name);
     console.log("🟡 Received file:", req.file?.originalname);
+    const filePath=req.file.path;
 
     if (req.file) {
-      const photoURL = await uploadToCloudinary(req.file.path, req.user.id);
+      const photoURL = await uploadToCloudinary(filePath, req.user.id);
       updates.image = photoURL;
     }
 
@@ -205,7 +199,7 @@ export const updateMe = async (req, res) => {
       new: true,
       runValidators: true,
     });
-
+    await fs.remove(filePath);
     console.log("✅ User updated:", updatedUser.fullName, updatedUser.image);
 
     res.status(200).json({
@@ -223,37 +217,212 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // Fetch user basic info (name, email, photoURL, etc)
-    const user = await userModel.findById(userId).select('fullName email image');
+    // Fetch full user info including relationships
+    const user = await userModel.findById(userId)
+      .select('fullName email image friends friendRequestsSent friendRequestsReceived phone role');
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
     // Fetch user about info
     let about = await UserAbout.findOne({ userId });
 
-    // If about not found, return empty or default values
     if (!about) {
       about = {
         bio: '',
         location: '',
         website: '',
-        // Add any default about fields you have
+        // other default fields can go here
       };
     }
 
-    // Compose a single profile object to send
+    // Fetch user's posts with populated likes, comments, and shares
+    const posts = await Post.find({ user: userId })
+      .populate('user', 'fullName email image')
+      .populate('likes', 'fullName image')
+      .populate({
+        path: 'comments.user',
+        select: 'fullName image',
+      })
+      .populate('shares.user', 'fullName image')
+      .sort({ createdAt: -1 });
+
+    // Compose the full profile response
     const profileData = {
       id: userId,
-      name: user?.fullName || 'User Name',
-      email: user?.email || '',
-      photoURL: user?.image || '',
+      name: user.fullName,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      photoURL: user.image,
       about,
-      // add more user-related data here if needed
+      posts,
+      friends: user.friends,
+      friendRequestsSent: user.friendRequestsSent,
+      friendRequestsReceived: user.friendRequestsReceived,
     };
 
-    res.json(profileData);
+    res.status(200).json({ success: true, profile: profileData });
   } catch (err) {
     console.error('Profile fetch error:', err);
-    res.status(500).json({ message: 'Server error fetching profile' });
+    res.status(500).json({ success: false, message: 'Server error fetching profile' });
   }
+});
+
+
+export const getPosts= catchAsyncErrors( async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ createdAt: -1 }).populate('user', 'fullName image');
+    res.status(200).json({ posts });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load posts' });
+  }
+});
+//post by user
+// export const createPost = async (req, res) => {
+//   try {
+//     const { text } = req.body;
+//     let mediaUrl = null;
+//     let mediaType = null;
+
+//     if (req.file) {
+//       const result = await uploadToCloudinary(req.file.path);
+//       mediaUrl = result;
+//       mediaType = req.file.mimetype.startsWith('video') ? 'video' : 'image';
+//     }
+
+//     const newPost = await Post.create({
+//       text,
+//       mediaUrl,
+//       mediaType,
+//       user: req.user.id, // from auth middleware
+//     });
+
+//     res.status(201).json({
+//       message: 'Post created',
+//       post: newPost,
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: 'Failed to create post' });
+//   }
+// };
+
+
+//post bu user
+export const createPost = async (req, res) => {
+  try {
+    const { text } = req.body;
+    let mediaUrl = null;
+    let mediaType = null;
+
+    if (req.file) {
+      // Assume you upload file to Cloudinary and get secure_url & type here
+      const result = await uploadToCloudinary(req.file.path,{resource_type: 'auto',});
+      mediaUrl = result;
+      
+      mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+    }
+
+    const post = new Post({
+      user: req.user._id,
+      text,
+      mediaUrl,
+      mediaType,
+    });
+
+    await post.save();
+
+    // Optionally update user posts array
+    await userModel.findByIdAndUpdate(req.user._id, {
+      $push: { posts: post._id },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Post created',
+      post,
+    });
+  } catch (error) {
+    console.error('Create Post Error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+//likes of post
+export const likePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.user._id;
+
+    const post = await postModel.findById(postId);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
+    // If already liked, remove like (toggle)
+    if (post.likes.includes(userId)) {
+      post.likes.pull(userId);
+    } else {
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    res.status(200).json({ success: true, likesCount: post.likes.length });
+  } catch (error) {
+    console.error('Like Post Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+//comment bu user
+export const addComment = async (req, res) => {
+  try {
+    const { text } = req.body;
+    const postId = req.params.postId;
+    const userId = req.user._id;
+
+    if (!text) return res.status(400).json({ message: 'Comment text is required' });
+
+    const post = await postModel.findById(postId);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
+    post.comments.push({ user: userId, text });
+    await post.save();
+
+    res.status(201).json({ success: true, comments: post.comments });
+  } catch (error) {
+    console.error('Add Comment Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+// share by user
+export const sharePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.user._id;
+
+    const post = await postModel.findById(postId);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
+    if (!post.shares.includes(userId)) {
+      post.shares.push(userId);
+      post.shareCount += 1;
+      await post.save();
+    }
+
+    res.status(200).json({ success: true, shareCount: post.shareCount });
+  } catch (error) {
+    console.error('Share Post Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+// Get All Users
+export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
+  const users = await userModel.find();
+  res.status(200).json({ success: true, users });
 });
 
 // Update User Profile (with optional image)
@@ -385,3 +554,181 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 });
 
 
+
+
+// Upload story
+export const uploadStory = async (req, res) => {
+  try {
+    // Validate that multer uploaded a file
+    if (!req.file) {
+      return res.status(400).json({ message: "Image file is required" });
+    }
+
+    console.log("Received file:", req.file);
+
+    // Upload file to Cloudinary
+    const result = await uploadToCloudinary(req.file.path, {
+      
+      resource_type: "auto", // supports image/video
+    });
+
+    console.log("Cloudinary result:", result);
+
+    // Save to MongoDB
+    const story = await Story.create({
+      user: req.user._id,
+      image: result,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+    });
+    console.log("Saved story:", story);
+
+    // Delete file from temp folder
+    fs.unlink(req.file.path, () => {});
+
+    res.status(201).json(story);
+  } catch (err) {
+    console.error("Upload story error:", err);
+    res.status(500).json({ message: "Failed to upload story" });
+  }
+};
+
+// Get all recent stories
+export const getStories = async (req, res) => {
+  try {
+    const stories = await Story.find({ expiresAt: { $gt: new Date() } })
+      .populate("user", "fullName image") // include user name and profile image
+      .sort({ createdAt: -1 });
+     console.log(stories)
+    res.json(stories);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch stories" });
+  }
+};
+
+
+
+
+
+//friends
+
+
+
+
+// Send Friend Request
+export const sendFriendRequest = async (req, res) => {
+  const { targetId } = req.params;
+  const currentUser = await userModel.findById(req.user.id);
+  const targetUser = await userModel.findById(targetId);
+
+  if (!currentUser || !targetUser) return res.status(404).json({ msg: 'User not found' });
+  if (currentUser.friends.includes(targetId)) return res.status(400).json({ msg: 'Already friends' });
+
+  if (!currentUser.friendRequestsSent.includes(targetId)) {
+    currentUser.friendRequestsSent.push(targetId);
+    targetUser.friendRequestsReceived.push(req.user.id);
+    await currentUser.save();
+    await targetUser.save();
+  }
+
+  res.json({ msg: 'Friend request sent' });
+};
+
+// Accept Friend Request
+export const acceptFriendRequest = async (req, res) => {
+  const { targetId } = req.params;
+  const currentUser = await userModel.findById(req.user.id);
+  const targetUser = await userModel.findById(targetId);
+
+  if (!currentUser.friendRequestsReceived.includes(targetId)) {
+    return res.status(400).json({ msg: 'No friend request from this user' });
+  }
+
+  currentUser.friends.push(targetId);
+  targetUser.friends.push(req.user.id);
+
+  currentUser.friendRequestsReceived = currentUser.friendRequestsReceived.filter(id => id.toString() !== targetId);
+  targetUser.friendRequestsSent = targetUser.friendRequestsSent.filter(id => id.toString() !== req.user.id);
+
+  await currentUser.save();
+  await targetUser.save();
+
+  res.json({ msg: 'Friend request accepted' });
+};
+
+// Reject Friend Request
+export const rejectFriendRequest = async (req, res) => {
+  const { targetId } = req.params;
+  const currentUser = await userModel.findById(req.user.id);
+  const targetUser = await userModel.findById(targetId);
+
+  currentUser.friendRequestsReceived = currentUser.friendRequestsReceived.filter(id => id.toString() !== targetId);
+  targetUser.friendRequestsSent = targetUser.friendRequestsSent.filter(id => id.toString() !== req.user.id);
+
+  await currentUser.save();
+  await targetUser.save();
+
+  res.json({ msg: 'Friend request rejected' });
+};
+
+// Unfriend
+export const unfriendUser = async (req, res) => {
+  const { targetId } = req.params;
+  const currentUser = await userModel.findById(req.user.id);
+  const targetUser = await userModel.findById(targetId);
+
+  currentUser.friends = currentUser.friends.filter(id => id.toString() !== targetId);
+  targetUser.friends = targetUser.friends.filter(id => id.toString() !== req.user.id);
+
+  await currentUser.save();
+  await targetUser.save();
+
+  res.json({ msg: 'Unfriended successfully' });
+};
+
+// Get Friends List
+export const getFriendsList = async (req, res) => {
+  const user = await userModel.findById(req.user.id).populate('friends', 'fullName email image');
+  res.json(user.friends);
+};
+
+// Get Pending Requests (sent & received)
+export const getPendingRequests = async (req, res) => {
+  const user = await userModel.findById(req.user.id)
+    .populate('friendRequestsReceived', 'fullName email image')
+    .populate('friendRequestsSent', 'fullName email image');
+
+  res.json({
+    received: user.friendRequestsReceived,
+    sent: user.friendRequestsSent,
+  });
+};
+
+// Search Users and include relationship status
+export const searchUsers = async (req, res) => {
+  const user = await userModel.findById(req.user.id);
+  const { q } = req.query;
+
+  const users = await userModel.find({
+    fullName: { $regex: q, $options: 'i' },
+    _id: { $ne: req.user.id },
+  }).select('fullName email image');
+
+  const enhanced = users.map(u => {
+    let status = 'none';
+    if (user.friends.includes(u._id)) status = 'friends';
+    else if (user.friendRequestsSent.includes(u._id)) status = 'sent';
+    else if (user.friendRequestsReceived.includes(u._id)) status = 'incoming';
+
+    return {
+      _id: u._id,
+      fullName: u.fullName,
+      email: u.email,
+      image: u.image,
+      status,
+    };
+  });
+
+  res.json(enhanced);
+};

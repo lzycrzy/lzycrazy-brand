@@ -1,3 +1,7 @@
+
+
+import React, { useState ,useEffect} from 'react';
+import axios from 'axios';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar1';
 import MainFeed from '../components/MainFeed';
@@ -5,26 +9,26 @@ import RightSidebar from '../components/RightSidebar';
 import ChatSidebar from '../components/ChatSidebar'; // Coming soon
 
 const Home = () => {
-  const posts = [
-    {
-      user: "Alice Johnson",
-      time: "1 hour ago",
-      content: "Loving this new community!",
-      image: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e",
-      likes: 15,
-      comments: 4,
-      share: 1,
-    },
-    {
-      user: "Bob Smith",
-      time: "3 hours ago",
-      content: "Check out my latest project!",
-      image: "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
-      likes: 28,
-      comments: 7,
-      share: 3,
-    },
-  ];
+  // const posts = [
+  //   {
+  //     user: "Alice Johnson",
+  //     time: "1 hour ago",
+  //     content: "Loving this new community!",
+  //     image: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e",
+  //     likes: 15,
+  //     comments: 4,
+  //     share: 1,
+  //   },
+  //   {
+  //     user: "Bob Smith",
+  //     time: "3 hours ago",
+  //     content: "Check out my latest project!",
+  //     image: "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
+  //     likes: 28,
+  //     comments: 7,
+  //     share: 3,
+  //   },
+  // ];
   
   const people = [
     {
@@ -53,6 +57,20 @@ const Home = () => {
       follow: false,
     },
   ];
+  const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    const fetchAllPosts = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/v1/users/posts',{withCredentials:"true"});
+        console.log(response)
+        setPosts(response.data.posts); // Ensure your backend returns { posts: [...] }
+      } catch (err) {
+        console.error('Failed to fetch posts:', err);
+      }
+    };
+
+    fetchAllPosts();
+  }, []);
   
 
   return (
