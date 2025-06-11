@@ -36,7 +36,10 @@ app.use(
 // This allows requests from the specified origins and enables credentials
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL],
+    origin: [
+              process.env.FRONTEND_URL || 'https://lzycrazy-brand-frontend.netlify.app', 
+             process.env.DASHBOARD_URL
+            ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   }),
