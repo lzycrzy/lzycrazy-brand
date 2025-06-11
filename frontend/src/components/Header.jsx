@@ -24,7 +24,7 @@ const Header = () => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, setUser } = useUser(); // ✅ access context
+  const { user,profilePic, setUser } = useUser(); // ✅ access context
 
   const handleLogout = async () => {
     try {
@@ -95,7 +95,7 @@ const Header = () => {
             className="relative h-9 w-9 overflow-hidden rounded-full border border-gray-300"
           >
             <img
-              src={user?.photoURL || 'https://via.placeholder.com/150'}
+              src={profilePic || 'https://via.placeholder.com/150'}
               alt="Profile"
               className="h-full w-full object-cover"
             />
