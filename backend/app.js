@@ -28,7 +28,7 @@ const app = express();
 //--configuring security headers
 app.use(
   helmet({
-    crossOriginOpenerPolicy: false // disables the COOP header
+    crossOriginOpenerPolicy: false,
   })
 );
 

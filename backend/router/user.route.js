@@ -55,5 +55,4 @@ router.put('/password/update', isAuthenticated, updatePassword);
 router.post('/password/forgot', forgotPassword);
 // Reset password route
 router.post('/password/reset/:token', resetPassword);
-
 export default router;

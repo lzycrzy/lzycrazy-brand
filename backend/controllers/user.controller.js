@@ -188,7 +188,6 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
-
 // updateMe
 export const updateMe = async (req, res) => {
   try {
@@ -384,34 +383,5 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
   generateToken(user, 'Reset Password Successfully!', 200, res); //--
 });
-
-
-// // Get All Users
-// export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
-//   const users = await userModel.find();
-//   res.status(200).json({ success: true, users });
-// });
-
-// // Admin Dashboard
-// export const getAdminDashboard = catchAsyncErrors(async (req, res, next) => {
-//   const totalUsers = await userModel.countDocuments();
-//   res.status(200).json({
-//     success: true,
-//     message: 'Admin Dashboard Data',
-//     data: { totalUsers },
-//   });
-// });
-
-// // SuperAdmin Dashboard
-// export const getSuperAdminDashboard = catchAsyncErrors(
-//   async (req, res, next) => {
-//     const totalUsers = await userModel.countDocuments();
-//     res.status(200).json({
-//       success: true,
-//       message: 'SuperAdmin Dashboard Data',
-//       data: { totalUsers },
-//     });
-//   },
-// );
 
 
