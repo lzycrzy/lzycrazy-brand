@@ -24,7 +24,7 @@ const Header = () => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user,profilePic, setUser } = useUser(); // ✅ access context
+  const { user, profilePic, setUser } = useUser(); // ✅ access context
 
   const handleLogout = async () => {
     try {
@@ -88,10 +88,7 @@ const Header = () => {
 
           {/* Profile Button */}
           <button
-            onClick={() => {
-              setIsDropdownOpen((prev) => !prev);
-              navigate('/profile');
-            }}
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
             className="relative h-9 w-9 overflow-hidden rounded-full border border-gray-300"
           >
             <img
@@ -108,7 +105,14 @@ const Header = () => {
               className="absolute top-16 right-4 z-50 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow-md"
             >
               <div className="px-4 py-3">
-                <p className="text-sm font-semibold text-gray-900">
+                {/* Clicking this will now navigate to profile page */}
+                <p
+                  onClick={() => {
+                    navigate('/profile');
+                    setIsDropdownOpen(false); // close dropdown on navigation
+                  }}
+                  className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
+                >
                   {user?.name || 'User'}
                 </p>
                 <p className="truncate text-sm text-gray-600">

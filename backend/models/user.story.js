@@ -1,6 +1,11 @@
 // models/Story.js
 import mongoose from 'mongoose';
 
+const viewSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    viewedAt: { type: Date, default: Date.now },
+  });
+
 const storySchema = new mongoose.Schema({
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -19,6 +24,7 @@ const storySchema = new mongoose.Schema({
       type: Date,
       default: () => new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hrs
     },
+    views: [viewSchema],
   });
   
 
@@ -27,4 +33,6 @@ storySchema.pre('save', function (next) {
   next();
 });
 
+
 export const Story = mongoose.model('Story', storySchema);
+export const View = mongoose.model('View', viewSchema);
