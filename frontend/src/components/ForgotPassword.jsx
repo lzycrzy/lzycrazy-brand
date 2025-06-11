@@ -1,6 +1,6 @@
 // src/pages/ForgotPassword.jsx
 import { useState } from 'react';
-import axios from 'axios';
+import axios from '../lib/axios/axiosInstance';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -13,7 +13,7 @@ const ForgotPassword = () => {
     setMsg('');
     setError('');
     try {
-      const res = await axios.post('http://localhost:4000/api/v1/users/password/forgot', { email });
+      const res = await axios.post('/api/v1/users/password/forgot', { email });
       setMsg(res.data.message);
       setSubmitted(true);
     } catch (err) {
