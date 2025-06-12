@@ -62,7 +62,7 @@ const Auth = () => {
       if (data?.token) localStorage.setItem('token', data.token);
       if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
       dispatch(login({ success: true, data: data.user, token: data.token }));
-      navigate('/dashboard');
+      navigate('/dashboard',{ replace: true, state: { welcome: true } });
     } catch (error) {
       alert(error.response?.data?.message || 'Login failed');
       console.error('Login error:', error);
@@ -89,7 +89,7 @@ const Auth = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       dispatch(login({ success: true, data: user, token }));
-      navigate('/dashboard');
+      navigate('/dashboard',{ replace: true, state: { welcome: true } });
     } catch (error) {
       alert(error.response?.data?.message || 'Registration failed');
       console.error('Registration error:', error);
@@ -108,7 +108,7 @@ const Auth = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(backendUser));
       dispatch(login({ success: true, data: backendUser, token }));
-      navigate('/dashboard');
+      navigate('/dashboard',{ replace: true, state: { welcome: true } });
     } catch (error) {
       alert(error.response?.data?.message || 'Google login failed');
       console.error('Google login error:', error);
@@ -128,7 +128,7 @@ const Auth = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(backendUser));
       dispatch(login({ success: true, data: backendUser, token }));
-      navigate('/dashboard');
+      navigate('/dashboard',{ replace: true, state: { welcome: true } });
     } catch (error) {
       alert(error.response?.data?.message || 'Facebook login failed');
       console.error('Facebook login error:', error);
