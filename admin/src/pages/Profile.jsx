@@ -1,128 +1,163 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Camera, Save } from 'lucide-react';
 
 const Profile = () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [userData, setUserData] = useState({
+    firstName: '',
+    lastName: '',
+    mobile: '',
+    email: '343@gmail.com',
+    password: '',
+    confirmPassword: '',
+    city: '',
+    state: '',
+    country: '',
+    gender: '',
+    image: 'https://storage.googleapis.com/a1aa/image/8304db84-2243-443d-a7aa-3588328fd97d.jpg',
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setUserData(prev => ({ ...prev, image: imageUrl }));
+    }
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveChanges = () => {
+    setIsEditing(false);
+    // Save logic here (e.g. API call)
+    console.log('User data saved:', userData);
+  };
+
   return (
-    <div>
-      <h1 className="mb-4 text-2xl font-bold">User Profile</h1>
-      <div className="overflow-hidden rounded-lg bg-white shadow">
-        <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-600"></div>
-        <div className="px-6 pb-6">
-          <div className="-mt-16 mb-4 flex flex-col items-center md:flex-row md:items-end">
-            <div className="mb-2 flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-white shadow md:mb-0">
-              <div className="text-5xl font-bold text-blue-500">LC</div>
-            </div>
-            <div className="text-center md:ml-6 md:text-left">
-              <h2 className="text-xl font-bold">John Doe</h2>
-              <p className="text-gray-500">Administrator</p>
-            </div>
-          </div>
+    <div className="bg-[#f3f4f6]  font-sans text-[#1e293b]">
+      <main className="max-w-6xl mx-auto">
+        <h2 className="text-lg font-semibold mb-6">Update User</h2>
 
-          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <h3 className="mb-3 text-lg font-semibold">
-                Personal Information
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Full Name
+        {/* Profile Info */}
+        <section className="bg-white rounded-xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="relative w-16 h-16">
+              <img
+                className="w-16 h-16 rounded-full object-cover"
+                src={userData.image}
+                alt="User"
+              />
+              {isEditing && (
+                <>
+                  <label className="absolute -top-1 -right-1 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center border border-white cursor-pointer">
+                    <Camera className="w-3 h-3 text-[#1e293b]" />
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
                   </label>
-                  <input
-                    type="text"
-                    className="w-full rounded border px-3 py-2"
-                    defaultValue="John Doe"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    className="w-full rounded border px-3 py-2"
-                    defaultValue="john.doe@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    className="w-full rounded border px-3 py-2"
-                    defaultValue="+1 (555) 987-6543"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Job Title
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full rounded border px-3 py-2"
-                    defaultValue="Administrator"
-                  />
-                </div>
-              </div>
+                </>
+              )}
             </div>
             <div>
-              <h3 className="mb-3 text-lg font-semibold">Account Settings</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full rounded border px-3 py-2"
-                    defaultValue="johndoe"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full rounded border px-3 py-2"
-                    defaultValue="********"
-                  />
-                </div>
-                <div className="pt-2">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300 text-blue-600"
-                      defaultChecked
-                    />
-                    <span className="ml-2 text-sm text-gray-600">
-                      Receive email notifications
-                    </span>
-                  </label>
-                </div>
-                <div>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300 text-blue-600"
-                      defaultChecked
-                    />
-                    <span className="ml-2 text-sm text-gray-600">
-                      Enable two-factor authentication
-                    </span>
-                  </label>
-                </div>
-              </div>
+              <p className="font-semibold text-base leading-5">John Smith</p>
+              <p className="text-xs text-gray-500 leading-4">{userData.email}</p>
             </div>
           </div>
+          {!isEditing && (
+            <button
+              onClick={handleEditClick}
+              className="bg-[#2563eb] text-white text-xs font-medium px-4 py-2 rounded-md"
+            >
+              Update Now
+            </button>
+          )}
+        </section>
 
-          <div className="mt-6">
-            <button className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
+        {/* Form */}
+        <form
+          autoComplete="off"
+          className="bg-white rounded-xl p-6 mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5"
+        >
+          {[
+            ['First Name', 'firstName', 'text'],
+            ['Last Name', 'lastName', 'text'],
+            ['Mobile No.', 'mobile', 'tel'],
+            ['Email', 'email', 'email'],
+            ['Password', 'password', 'password'],
+            ['Confirm Password', 'confirmPassword', 'password'],
+          ].map(([label, name, type]) => (
+            <div key={name}>
+              <label className="block text-xs mb-1">{label}:</label>
+              <input
+                type={type}
+                name={name}
+                value={userData[name]}
+                disabled={!isEditing}
+                onChange={handleInputChange}
+                placeholder={`Your ${label}`}
+                className={`w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 focus:outline-none focus:ring-2 ${
+                  isEditing
+                    ? 'focus:ring-[#2563eb] text-gray-700'
+                    : 'text-gray-400'
+                }`}
+              />
+            </div>
+          ))}
+
+          {/* Select Inputs */}
+          {[
+            ['City', 'city', ['New York', 'Los Angeles', 'Chicago']],
+            ['State', 'state', ['California', 'Texas', 'Florida']],
+            ['Country', 'country', ['United States', 'Canada', 'United Kingdom']],
+            ['Gender', 'gender', ['Male', 'Female', 'Other']],
+          ].map(([label, name, options]) => (
+            <div key={name}>
+              <label className="block text-xs mb-1">{label}:</label>
+              <select
+                name={name}
+                disabled={!isEditing}
+                value={userData[name]}
+                onChange={handleInputChange}
+                className={`w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 appearance-none focus:outline-none focus:ring-2 ${
+                  isEditing
+                    ? 'focus:ring-[#2563eb] text-gray-700'
+                    : 'text-gray-400'
+                }`}
+              >
+                <option value="" disabled>
+                  Your {label}
+                </option>
+                {options.map((option) => (
+                  <option key={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+          ))}
+        </form>
+
+        {/* Save Changes */}
+        {isEditing && (
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={handleSaveChanges}
+              className="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-md flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
               Save Changes
             </button>
           </div>
-        </div>
-      </div>
+        )}
+      </main>
     </div>
   );
 };
