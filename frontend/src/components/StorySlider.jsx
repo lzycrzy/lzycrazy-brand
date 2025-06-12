@@ -1,96 +1,102 @@
-import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, Loader2, X } from "lucide-react";
-import axios from "../lib/axios/axiosInstance";
+import { useEffect, useRef, useState } from 'react';
+import { ChevronLeft, ChevronRight, Plus, Loader2, X } from 'lucide-react';
+import axios from '../lib/axios/axiosInstance';
 
 export default function Stories() {
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(false);
-  
-  // For the modal: all stories of the clicked user
   const [selectedUserStories, setSelectedUserStories] = useState(null);
+  const [viewerId, setViewerId] = useState(null);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    setViewerId(user?._id || null);
+    fetchStories();
+  }, []);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
-      const container = scrollRef.current;
-      const scrollAmount = container.offsetWidth;
-      container.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
+      const scrollAmount = scrollRef.current.offsetWidth;
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
       });
     }
   };
 
   const fetchStories = async () => {
     try {
-      const res = await axios.get("/v1/users/story", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      const res = await axios.get('/v1/users/story', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
         withCredentials: true,
       });
       setStories(res.data);
     } catch (err) {
-      console.error("Failed to load stories for slider:", err);
+      console.error('Failed to load stories for slider:', err);
     }
   };
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    console.log(file)
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append("image", file);
-
-      await axios.post("/v1/users/story", formData, {
+      formData.append('image', file);
+      await axios.post('/v1/users/story', formData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data',
         },
         withCredentials: true,
       });
-
-      await fetchStories(); // refresh story list
+      await fetchStories();
     } catch (err) {
-      console.error("Error uploading story:", err);
+      console.error('Error uploading story:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle click on a story in the slider
   const handleStoryClick = async (story) => {
     try {
-      // Record view for the clicked story id
-      await axios.post(`/v1/users/story/view/${story._id}`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        withCredentials: true,
-      });
+      await axios.post(
+        `/v1/users/story/view/${story._id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          withCredentials: true,
+        },
+      );
 
-      // Fetch all stories of the user
       const res = await axios.get(`/v1/users/story/view/${story.user._id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
         withCredentials: true,
       });
+      console.log("views",res.data)
       setSelectedUserStories(res.data);
     } catch (err) {
-      console.error("Failed to record story view or fetch user's stories:", err);
+      console.error(
+        "Failed to record story view or fetch user's stories:",
+        err,
+      );
     }
   };
 
   const openFilePicker = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    if (fileInputRef.current) fileInputRef.current.click();
   };
 
-  useEffect(() => {
-    fetchStories();
-  }, []);
-
   return (
-    <div className="relative w-full px-4 py-6 bg-gray-100">
+    <div className="relative w-full bg-gray-100 px-4 py-6">
       <input
         type="file"
         accept="image/*"
@@ -101,19 +107,18 @@ export default function Stories() {
 
       <div className="flex items-center space-x-2">
         <button
-          onClick={() => scroll("left")}
-          className="z-10 p-2 rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer"
+          onClick={() => scroll('left')}
+          className="z-10 rounded-full bg-gray-200 p-2 hover:bg-gray-300"
         >
           <ChevronLeft />
         </button>
 
-        <div ref={scrollRef} className="flex overflow-hidden w-full gap-3">
-          {/* Add Story Card */}
+        <div ref={scrollRef} className="flex w-full gap-3 overflow-hidden">
           <div
-            className="w-1/5 h-48 flex-shrink-0 flex flex-col items-center justify-center bg-gray-800 text-white rounded-lg p-4 cursor-pointer"
+            className="flex h-48 w-1/5 flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg bg-gray-800 p-4 text-white"
             onClick={openFilePicker}
           >
-            <div className="flex items-center justify-center w-12 h-12 bg-white rounded-full mb-2">
+            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-white">
               {loading ? (
                 <Loader2 className="animate-spin text-gray-800" />
               ) : (
@@ -123,26 +128,24 @@ export default function Stories() {
             <p className="text-sm font-semibold">Add Story</p>
           </div>
 
-          {/* Render Stories (one per user) */}
           {stories.map((story) => (
             <div
-              key={story._id || story.id}
-              className="relative w-1/5 h-48 flex-shrink-0 rounded-xl overflow-hidden shadow-lg bg-cover bg-center text-white cursor-pointer"
+              key={story._id}
+              className="relative h-48 w-1/5 flex-shrink-0 cursor-pointer overflow-hidden rounded-xl bg-cover bg-center shadow-lg"
               style={{ backgroundImage: `url(${story.image})` }}
               onClick={() => handleStoryClick(story)}
             >
               <div className="absolute top-3 left-3">
                 <img
                   src={story.user.image}
-                  alt={story.user.name || story.user.fullName}
-                  className="w-10 h-10 rounded-full border-2 border-white shadow-md"
+                  alt={story.user.name}
+                  className="h-10 w-10 rounded-full border-2 border-white shadow-md"
                 />
               </div>
-              <div className="absolute bottom-2 left-2 right-2 text-sm font-semibold text-center truncate">
+              <div className="absolute right-2 bottom-2 left-2 truncate text-center text-sm font-semibold">
                 {story.user.name}
               </div>
-              <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-full">
-                {/* Show views count */}
+              <div className="bg-opacity-50 absolute top-2 right-2 rounded-full bg-black px-2 py-1 text-xs text-white">
                 {story.views?.length ?? 0} views
               </div>
             </div>
@@ -150,58 +153,64 @@ export default function Stories() {
         </div>
 
         <button
-          onClick={() => scroll("right")}
-          className="z-10 p-2 rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer"
+          onClick={() => scroll('right')}
+          className="z-10 rounded-full bg-gray-200 p-2 hover:bg-gray-300"
         >
           <ChevronRight />
         </button>
       </div>
 
-      {/* Story Viewer Modal: Show all stories of selected user */}
       {selectedUserStories && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center p-4 overflow-auto">
-          <div className="relative bg-white rounded-lg max-w-3xl w-full max-h-full overflow-y-auto">
+        <div className="bg-opacity-70 fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black p-4">
+          <div className="relative max-h-full w-full max-w-4xl overflow-y-auto rounded-lg bg-white">
             <button
-              className="absolute top-2 right-2 text-black p-2 hover:bg-gray-200 rounded-full"
+              className="absolute top-2 right-2 rounded-full p-2 text-black hover:bg-gray-200"
               onClick={() => setSelectedUserStories(null)}
             >
               <X size={24} />
             </button>
 
-            <h2 className="text-xl font-bold p-4 border-b">
-              {selectedUserStories[0]?.user?.name}'s Stories
+            <h2 className="border-b p-4 text-xl font-bold">
+              {selectedUserStories[0]?.user?.fullName}'s Stories
             </h2>
 
-            <div className="p-4 space-y-6">
+            <div className="relative flex gap-4 overflow-x-auto px-4 py-6">
               {selectedUserStories.map((story) => (
-                <div key={story._id} className="border rounded-lg overflow-hidden shadow-md">
+                <div
+                  key={story._id}
+                  className="min-w-[90%] overflow-hidden rounded-lg border shadow-md"
+                >
                   <img
                     src={story.image}
                     alt="story"
-                    className="w-full max-h-96 object-contain"
+                    className="max-h-[500px] w-full object-contain"
                   />
                   <div className="p-3">
                     <p className="text-sm text-gray-600">
-                      Uploaded at: {new Date(story.createdAt).toLocaleString()}
+                      Uploaded: {new Date(story.createdAt).toLocaleString()}
                     </p>
-                    <h4 className="mt-2 font-semibold">Viewed by:</h4>
-                    {story.views.length === 0 ? (
-                      <p className="text-gray-500 text-sm">No views yet</p>
-                    ) : (
-                      <ul className="max-h-40 overflow-y-auto">
-                        {story.views.map((view) => (
-                          <li key={view.user._id} className="flex items-center space-x-2 mt-1">
-                            <img
-                              src={view.user.image}
-                              alt={view.user.name}
-                              className="w-6 h-6 rounded-full"
-                            />
-                            <span className="text-sm text-gray-700">
-                              {view.user.name} at {new Date(view.viewedAt).toLocaleString()}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
+
+                    {story.views.map((view, i) =>
+                      view.user ? (
+                        <li
+                          key={i}
+                          className="mt-1 flex items-center space-x-2"
+                        >
+                          <img
+                            src={view.user.image}
+                            alt={view.user.fullName}
+                            className="h-6 w-6 rounded-full"
+                          />
+                          <span className="text-sm text-gray-700">
+                            {view.user.fullName} at{' '}
+                            {new Date(view.viewedAt).toLocaleString()}
+                          </span>
+                        </li>
+                      ) : (
+                        <li key={i} className="text-sm text-gray-500">
+                          Unknown viewer
+                        </li>
+                      ),
                     )}
                   </div>
                 </div>

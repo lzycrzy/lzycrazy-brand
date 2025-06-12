@@ -22,13 +22,12 @@ import {
   getFriendsList,
   getPendingRequests,
   searchUsers,
-
   storyView,
-  getUserStories
+  getUserStories,
+  getStoryViews
   // getAdminDashboard,
   // getSuperAdminDashboard,
   // getAllUsers,
-
 } from '../controllers/user.controller.js';
 
 import {
@@ -94,5 +93,6 @@ router.post('/password/reset/:token', resetPassword);
 
 //story
 router.post('/story/view/:storyId', isAuthenticated,storyView )
+router.get('/stories/view/:storyId', isAuthenticated, getStoryViews);
 router.get('/story/view/:userId', isAuthenticated,getUserStories )
 export default router;
