@@ -5,6 +5,7 @@ import { adminModel } from '../models/admin.model.js';
 import { userModel } from '../models/user.model.js';
 import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
+import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
 
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
@@ -84,12 +85,50 @@ export const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
 
   const { fullName, email, phone } = req.body;
 
+  // Update basic fields
   admin.fullName = fullName || admin.fullName;
   admin.email = email || admin.email;
   admin.phone = phone || admin.phone;
 
+  // Handle image upload with your cloudinary utility
+  if (req.file) {
+    try {
+      console.log('Uploading image to Cloudinary...');
+      console.log('File path:', req.file.path);
+      
+      // Delete old image if exists
+      if (admin.image && admin.image !== '') {
+        console.log('Deleting old image...');
+        await deleteFromCloudinary(admin.image);
+      }
+      
+      // Upload to Cloudinary using your utility function
+      const imageUrl = await uploadToCloudinary(req.file.path, 'admin_profiles');
+      
+      // Set new image URL
+      admin.image = imageUrl;
+      
+      console.log('Image uploaded successfully:', imageUrl);
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      return next(new ErrorHandler('Image upload failed', 500));
+    }
+  }
+
   await admin.save();
-  res.status(200).json({ success: true, message: 'Profile updated' });
+  
+  res.status(200).json({ 
+    success: true, 
+    message: 'Profile updated successfully',
+    admin: {
+      _id: admin._id,
+      fullName: admin.fullName,
+      email: admin.email,
+      phone: admin.phone,
+      image: admin.image,
+      role: admin.role
+    }
+  });
 });
 
 // UPDATE PASSWORD
