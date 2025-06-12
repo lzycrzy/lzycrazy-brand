@@ -13,6 +13,7 @@ import { Provider } from 'react-redux';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import UserTable from './pages/Usertable';
 import Profile from './pages/Profile';
+import MarketPost from './pages/MarketPost';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -52,6 +53,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/market"
+            element={
+              <ProtectedRoute>
+                <MarketPost />
               </ProtectedRoute>
             }
           />

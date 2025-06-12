@@ -8,7 +8,8 @@ import {
   Package, 
   FileBarChart, 
   Users, 
-  LogOut 
+  LogOut, 
+  Camera
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -17,6 +18,7 @@ export function Sidebar() {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+    { icon: Camera, label: 'Market-Post', path: '/market' },
     { icon: Grid3X3, label: 'Category', path: '/category' },
     { icon: MapPin, label: 'Address', path: '/address' },
     { icon: Store, label: 'Shop', path: '/shop' },

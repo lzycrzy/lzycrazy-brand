@@ -19,7 +19,7 @@ const onSubmit = (e) => {
     form.email === 'admin@lzycrazy.com' && form.password === 'admin123';
 
   if (ok) {
-    localStorage.setItem('isAuthenticated', 'true'); // ✅ Add this line
+    localStorage.setItem('isAuthenticated', 'true');
   }
 
   setStage(ok ? 'verified' : 'error');
