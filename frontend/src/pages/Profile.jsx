@@ -12,6 +12,7 @@ import EditProfile from '../components/EditProfile';
 import FriendsTab from '../components/FriendsTab';
 import { useUser } from '../context/UserContext';
 import ManageFriends from '../components/ManageFriends';
+import Footer   from '../components/Footer1';
 
 import Loader from '../components/Spinner';
 
@@ -232,6 +233,7 @@ const Profile = () => {
           onImageChange={handleImageChange}
         />
       )}
+      <Footer/>
     </div>
   );
 };

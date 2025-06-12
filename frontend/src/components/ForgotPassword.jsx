@@ -1,19 +1,32 @@
-// src/pages/ForgotPassword.jsx
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import axios from '../lib/axios/axiosInstance';
+import { IoClose } from 'react-icons/io5';
 
-const ForgotPassword = () => {
+const ForgotPassword = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  const modalRef = useRef(null);
+
+  // Close modal on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg('');
     setError('');
     try {
-      const res = await axios.post('/api/v1/users/password/forgot', { email });
+      const res = await axios.post('/v1/users/password/forgot', { email });
       setMsg(res.data.message);
       setSubmitted(true);
     } catch (err) {
@@ -22,14 +35,26 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md rounded-md bg-white p-8 shadow-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+      <div
+        ref={modalRef}
+        className="relative w-full max-w-md rounded-md bg-white p-8 shadow-md"
+      >
+        {/* Close Icon */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 hover:text-black"
+        >
+          <IoClose size={22} />
+        </button>
+
         <h2 className="mb-4 text-center text-2xl font-semibold text-gray-800">
           Find Your Account
         </h2>
         <p className="mb-6 text-center text-sm text-gray-600">
           Enter your email address and we'll send you a link to reset your password.
         </p>
+
         <form onSubmit={handleSubmit}>
           <input
             type="email"
@@ -47,7 +72,7 @@ const ForgotPassword = () => {
           </button>
         </form>
 
-        {/* Message/Status */}
+        {/* Status Messages */}
         {msg && (
           <div className="mt-4 rounded bg-green-100 px-4 py-2 text-sm text-green-700">
             {msg}
@@ -58,8 +83,6 @@ const ForgotPassword = () => {
             {error}
           </div>
         )}
-
-        {/* After submission feedback */}
         {submitted && (
           <p className="mt-4 text-center text-sm text-gray-500">
             If the email is registered, you’ll receive a reset link shortly.

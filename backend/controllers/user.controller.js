@@ -11,9 +11,7 @@ import {Post} from '../models/user.post.js';
 import {Story} from '../models/user.story.js';
 import fs from 'fs-extra';
 
-import { uploadToCloudinary } from '../utils/cloudinary.js';
 import mongoose from "mongoose";
-
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -560,38 +558,46 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 
 
+
 export const uploadStory = async (req, res) => {
   try {
+    // Ensure file is uploaded
     if (!req.file) {
       return res.status(400).json({ message: "Image file is required" });
+       
     }
-
-    const imageUrl = await uploadToCloudinary(req.file.path, {
-      resource_type: "auto",
+    console.log("Uploading story for user:", req.user); // Make sure _id is there
+    console.log("File received:", req.file?.path);
+    // Upload to Cloudinary
+    const result = await uploadToCloudinary(req.file.path, {
+      resource_type: "image",
     });
+
+    // If upload failed
     
 
-  
-    
-
-    
-    
+    // Create story
     const story = await Story.create({
       user: req.user._id,
-      image:imageUrl,
+      image: result,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24hr
       views: [],
     });
+    console.log("✅ Story saved in DB:", story); 
 
-    fs.unlink(req.file.path, () => {});
+    // Delete local file
+    fs.unlink(req.file.path, (err) => {
+      if (err) console.error("Failed to delete temp file:", err);
+    });
 
     res.status(201).json(story);
   } catch (err) {
-    console.error("Upload story error:", err);
-    res.status(500).json({ message: "Failed to upload story" });
+    console.error("Upload story error:", err.message || err);
+    res.status(500).json({ message: "Failed to upload story", error: err.message });
   }
 };
+
 
 // Get all recent stories
 export const getStories = async (req, res) => {
@@ -818,5 +824,23 @@ export const getUserStories = async (req, res) => {
   } catch (err) {
     console.error('Error fetching user stories:', err);
     res.status(500).json({ message: 'Failed to fetch user stories.' });
+  }
+};
+
+
+
+export const getStoryViews = async (req, res) => {
+  const { storyId } = req.params;
+
+  try {
+    const stories = await Story.find({ user: userId })
+    .sort({ createdAt: -1 })
+    .populate("user", "fullName image")
+    .populate("views.user", "fullName image email");
+
+  res.status(200).json(stories);
+  } catch (err) {
+    console.error("Error fetching story viewers:", err);
+    res.status(500).json({ message: "Failed to fetch viewers" });
   }
 };

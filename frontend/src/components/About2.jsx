@@ -3,6 +3,7 @@ import image1 from '../assets/1.png';
 import image2 from '../assets/2.png';
 import image3 from '../assets/3.png';
 import image4 from '../assets/4.png';
+import Footer   from '../components/Footer1';
 
 const sections = [
   {
@@ -40,7 +41,7 @@ const AboutUs = () => {
           return (
             <div
               key={index}
-              className="relative h-[500px] flex items-center justify-center bg-center bg-cover text-white"
+              className="relative h-[600px] flex items-center justify-center bg-center bg-cover text-white"
               style={{ backgroundImage: `url(${section.image})` }}
             >
               {/* White triangular overlay */}
@@ -60,7 +61,7 @@ const AboutUs = () => {
         return (
           <div
             key={index}
-            className={`flex flex-col md:flex-row items-center justify-center gap-10 px-8 md:px-20 py-16 ${
+            className={`flex flex-col h-[700px] md:flex-row items-center justify-center gap-10 px-8 md:px-20 py-16 ${
               index % 2 === 1 ? 'bg-blue-50' : 'bg-white'
             }`}
           >
@@ -90,6 +91,7 @@ const AboutUs = () => {
           </div>
         );
       })}
+      <Footer/>
     </div>
   );
 };
