@@ -16,10 +16,11 @@ import {
   User2Icon,
   UserPlus,
 } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 import { users } from '../data';
 
 const SuperAdminDashboard = () => {
+  const navigate = useNavigate();
   const [country, setCountry] = useState('');
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
@@ -59,13 +60,16 @@ const SuperAdminDashboard = () => {
 
       {/* Top Section */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="flex items-center gap-2 rounded-md bg-blue-50 p-4">
-          <User2 className="text-blue-600" />
-          <div>
-            <p className="text-sm">User</p>
-            <p className="text-lg font-bold">{filteredUsers.length}</p>
-          </div>
-        </div>
+        <div
+      className="flex cursor-pointer items-center gap-2 rounded-md bg-blue-50 p-4 hover:bg-blue-100 transition"
+      onClick={() => navigate('/dashboard/users')}
+    >
+      <User2 className="text-blue-600" />
+      <div>
+        <p className="text-sm">User</p>
+        <p className="text-lg font-bold">{filteredUsers.length}</p>
+      </div>
+    </div>
         <div className="flex items-center gap-2 rounded-md bg-gray-200 p-4">
           <div className="rounded-full bg-orange-100 p-3">
             <Megaphone className="text-orange-300" />
