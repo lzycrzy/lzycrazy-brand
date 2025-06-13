@@ -44,7 +44,10 @@ const Auth = () => {
     password: '',
     role: 'user',
   });
-
+  const googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({
+    prompt: 'select_account',
+  });
   const navigate = useNavigate();
   const dispatch = useDispatch();
 

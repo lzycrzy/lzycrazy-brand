@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/lzy logo.jpg';
-
+import HiringFormModal from '../components/HiringFormModal'; // Make sure this path is correct
+import HiringTaskModal from '../components/HiringTaskModal';
+import SuccessPopup from '../components/SuccessPopup';
 const Searchbar = () => {
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState('');
   const { t, i18n } = useTranslation();
-
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const [showHiring, setShowHiring] = useState(false);
+  const [showTask, setShowTask] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const handleSearch = async (e) => {
     e.preventDefault();
     if (query.trim()) {
@@ -19,9 +25,18 @@ const Searchbar = () => {
     { name: 'About Us', path: '/about' },
     { name: 'LzyCrazy Services', path: '/services' },
     { name: 'LzyCrazy Marketplace', path: '/marketplace' },
-    { name: 'We Are Hiring', path: '/careers' },
+    { name: 'We Are Hiring', path: '/careers' }, // This will trigger modal
     { name: 'LzyCrazy News', path: '/news' },
   ];
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab.name);
+    if (tab.name === 'We Are Hiring') {
+      setShowHiring(true); // Open modal
+    } else {
+      navigate(tab.path); // Navigate for other tabs
+    }
+  };
 
   return (
     <div className="relative flex h-screen flex-col items-center justify-start bg-[#ebf3fe] pt-14 pb-24">
@@ -54,14 +69,23 @@ const Searchbar = () => {
         </button>
       </form>
 
-      {/* Tabs - Fixed at Bottom */}
+      {/* Hiring Form Modal */}
+      <HiringFormModal
+  isOpen={showHiring}
+  onClose={() => setShowHiring(false)}
+  onSubmitSuccess={() => setShowTask(true)}
+/>
+
+<HiringTaskModal isOpen={showTask} onClose={() => setShowTask(false)} onSubmitSuccess={() => setShowSuccess(true)}/>
+<SuccessPopup  isOpen={showSuccess} onClose={() => setShowSuccess(false)} />
+
+      {/* Tabs */}
       <div className="absolute w-full right-0 bottom-60 flex justify-center left-0">
         <div className="mx-auto flex w-fit justify-center gap-4">
           {tabs.map((tab) => (
-            <Link
+            <button
               key={tab.name}
-              to={tab.path}
-              onClick={() => setActiveTab(tab.name)}
+              onClick={() => handleTabClick(tab)}
               className={`max-w-xs rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap shadow-md transition ${
                 activeTab === tab.name
                   ? 'bg-purple-100 text-purple-700'
@@ -69,7 +93,7 @@ const Searchbar = () => {
               }`}
             >
               {tab.name}
-            </Link>
+            </button>
           ))}
         </div>
       </div>
