@@ -11,7 +11,7 @@ import Auth from './pages/Auth';
 import store from './lib/redux/store';
 import { Provider } from 'react-redux';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
-import UserTable from './pages/Usertable';
+import UserTable from './pages/UserTable';
 import Profile from './pages/Profile';
 import MarketPost from './pages/MarketPost';
 
