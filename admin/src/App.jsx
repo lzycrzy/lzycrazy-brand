@@ -12,9 +12,10 @@ import store from './lib/redux/store';
 import { Provider } from 'react-redux';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import UserTable from './pages/Usertable';
+import Profile from './pages/Profile';
+import MarketPost from './pages/MarketPost';
 
-
-// Protected route wrapper component
+// Protected route wrapper
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,30 +35,45 @@ const App = () => {
     <Provider store={store}>
       <Routes>
         <Route path="/" element={<Layout />}>
-          {/* Auth route - accessible without login */}
           <Route path="auth" element={<Auth />} />
-
-          {/* Protected routes - require login */}
           <Route
             path="/"
+            element={<Navigate to="/dashboard" replace />}
+          />
+          <Route
+            path="/dashboard/users"
             element={
-              // <ProtectedRoute>
-              <Navigate to="/dashboard" replace />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <UserTable />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/market"
+            element={
+              <ProtectedRoute>
+                <MarketPost />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <SuperAdminDashboard />
+              </ProtectedRoute>
             }
           />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Route>
-      <Route
-  path="/dashboard/users"
-  element={
-    <ProtectedRoute>
-      <UserTable />
-    </ProtectedRoute>
-  }
-/>
-
-        <Route path="/admin" element={<SuperAdminDashboard />} />
       </Routes>
     </Provider>
   );

@@ -12,14 +12,19 @@ export default function Auth() {
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const onSubmit = (e) => {
-    e.preventDefault();
+const onSubmit = (e) => {
+  e.preventDefault();
 
-    const ok =
-      form.email === 'admin@lzycrazy.com' && form.password === 'admin123';
+  const ok =
+    form.email === 'admin@lzycrazy.com' && form.password === 'admin123';
 
-    setStage(ok ? 'verified' : 'error');
-  };
+  if (ok) {
+    localStorage.setItem('isAuthenticated', 'true');
+  }
+
+  setStage(ok ? 'verified' : 'error');
+};
+
 
   const goDashboard = () => navigate('/admin');
   const closeError = () => setStage('login');

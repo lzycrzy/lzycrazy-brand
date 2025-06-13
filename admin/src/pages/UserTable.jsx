@@ -123,6 +123,18 @@ const UserTable = () => {
       lastActive: "52 minutes ago",
       role: "User",
       joinDate: "2024-03-25"
+    },
+    {
+      id: 10,
+      name: "Amanda White",
+      idNumber: "Ic04250015",
+      mobile: "7457024850",
+      email: "amanda.white@gmail.com",
+      address: "Jaipur Rajasthan",
+      status: "Pending",
+      lastActive: "52 minutes ago",
+      role: "User",
+      joinDate: "2024-03-25"
     }
   ]);
 
@@ -364,7 +376,7 @@ const UserTable = () => {
         {/* Table */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-700 text-white">
+            <thead className="bg-blue-700 text-white">
               <tr>
                 <th className="px-3 py-3 text-left text-xs font-semibold">Sl No</th>
                 <th className="px-3 py-3 text-left text-xs font-semibold">Profile</th>
