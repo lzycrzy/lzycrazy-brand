@@ -13,6 +13,8 @@ import PrivateRoute from './components/PrivateRoute';
 import AuthRedirect from './components/AuthRedirect';
 import ResetPassword from './components/ResetPassword';
 import AboutUs from './components/About2';
+import NewsFeed from './components/NewsFeed';
+import Services from './components/Services';
 import ForgotPassword from './components/ForgotPassword';
 
 const App = () => {
@@ -37,6 +39,9 @@ const App = () => {
               </AuthRedirect>
             }
           />
+          
+            <Route path="/news" element={<NewsFeed />} />
+            <Route path="/services" element={<Services />} />
 
           {/* Password recovery flow (publicly accessible) */}
           <Route path="/password/forgot" element={<ForgotPassword />} />

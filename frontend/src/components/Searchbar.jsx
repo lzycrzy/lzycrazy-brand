@@ -5,6 +5,8 @@ import logo from '../assets/lzy logo.jpg';
 import HiringFormModal from '../components/HiringFormModal'; // Make sure this path is correct
 import HiringTaskModal from '../components/HiringTaskModal';
 import SuccessPopup from '../components/SuccessPopup';
+import NewsFeed from '../components/NewsFeed'; // Adjust path as needed
+
 const Searchbar = () => {
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState('');
@@ -14,6 +16,7 @@ const Searchbar = () => {
   const [showHiring, setShowHiring] = useState(false);
   const [showTask, setShowTask] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  
   const handleSearch = async (e) => {
     e.preventDefault();
     if (query.trim()) {
@@ -33,9 +36,9 @@ const Searchbar = () => {
     setActiveTab(tab.name);
     if (tab.name === 'We Are Hiring') {
       setShowHiring(true); // Open modal
-    } else {
-      navigate(tab.path); // Navigate for other tabs
-    }
+    }  else  {
+          navigate(tab.path);
+          }
   };
 
   return (
@@ -94,9 +97,15 @@ const Searchbar = () => {
             >
               {tab.name}
             </button>
+            
           ))}
         </div>
       </div>
+      {activeTab === 'LzyCrazy News' && (
+  <div className="mt-12 w-full max-w-4xl">
+    <NewsFeed />
+  </div>
+)}
     </div>
   );
 };
