@@ -4,6 +4,7 @@ import image2 from '../assets/2.png';
 import image3 from '../assets/3.png';
 import image4 from '../assets/4.png';
 import Footer   from '../components/Footer1';
+import Header from '../components/Header1';
 
 const sections = [
   {
@@ -35,6 +36,7 @@ const sections = [
 const AboutUs = () => {
   return (
     <div className="w-full">
+        <Header/>
       {sections.map((section, index) => {
         if (index === 2) {
           // CUSTOM SECTION FOR "OUR VISION"
