@@ -19,12 +19,15 @@ import { signOut } from 'firebase/auth';
 import { logout } from '../lib/redux/authSlice';
 import { useUser } from '../context/UserContext'; // ✅ context hook
 
+
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, profilePic, setUser } = useUser(); // ✅ access context
+  const { user, profilePic,displayName, setUser } = useUser(); // ✅ access context
+  console.log(user)
+ 
 
   const handleLogout = async () => {
     try {
@@ -113,10 +116,11 @@ const Header = () => {
                   }}
                   className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
                 >
-                  {user?.name || 'User'}
+                  {/* {user?.name || 'User'} */}
+                  {displayName}
                 </p>
                 <p className="truncate text-sm text-gray-600">
-                  {user?.email || 'user@example.com'}
+                  {user.profile?.email || 'user@example.com'}
                 </p>
               </div>
               <div className="py-2 hover:bg-gray-100">
