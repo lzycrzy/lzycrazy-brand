@@ -30,9 +30,9 @@ const RightSidebar = () => {
   }, []);
 
   return (
-    <div className="hidden w-full max-w-[220px] lg:block">
+    <div className="hidden min-w-[300px] px-7 max-w-[420px] lg:block">
       {/* People You May Know */}
-      <div className="h-[400px] overflow-y-auto rounded-lg bg-white p-5 shadow-md">
+      <div className="h-[400px] overflow-y-auto rounded-lg bg-white p-5  shadow-md">
         <h3 className="sticky top-0 z-10 mb-4 bg-white pb-2 text-lg font-semibold text-gray-800">
           People You May Know
         </h3>
@@ -87,7 +87,7 @@ const RightSidebar = () => {
                 </div>
               ) : (
                 <button
-                  className="mt-1 flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700"
+                  className="mt-1 flex items-center gap-1 rounded-full bg-black px-3 py-1.5 text-xs text-white hover:bg-blue-700"
                   onClick={() => sendRequest(p._id)}
                 >
                   <FaUserPlus /> Add Friend

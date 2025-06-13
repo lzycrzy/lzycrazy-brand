@@ -89,7 +89,7 @@ const PostCreateBox = ({ onPostCreated }) => {
         <textarea
           placeholder="What's on your mind?"
           className="flex-1 resize-none rounded-xl border border-gray-300 bg-gray-50 p-4 text-sm outline-none focus:ring-2 focus:ring-blue-400"
-          rows={4}
+          rows={2}
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
