@@ -14,6 +14,7 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import UserTable from './pages/UserTable';
 import Profile from './pages/Profile';
 import MarketPost from './pages/MarketPost';
+import AddNews from './pages/AddNews';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -61,6 +62,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <MarketPost />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="/news"
+            element={
+              <ProtectedRoute>
+                <AddNews />
               </ProtectedRoute>
             }
           />
