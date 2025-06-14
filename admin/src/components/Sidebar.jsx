@@ -20,7 +20,7 @@ export function Sidebar() {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
     { icon: Camera, label: 'Market-Post', path: '/market' },
     { icon: Grid3X3, label: 'Category', path: '/category' },
-    { icon: MapPin, label: 'Address', path: '/address' },
+    { icon: MapPin, label: 'Services', path: '/services' },
     { icon: Store, label: 'Shop', path: '/shop' },
     { icon: FileText, label: 'News', path: '/news' },
     { icon: Package, label: 'Products', path: '/products' },
