@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Header from '../components/Header';
+import Footer   from '../components/Footer1';
 
 const services = [
   {
@@ -41,38 +42,61 @@ const services = [
 ];
 
 const Services = () => {
+  const [expanded, setExpanded] = useState(null);
+
+  const toggleExpand = (index) => {
+    setExpanded(expanded === index ? null : index);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        {/* Orange Heading with underline */}
-        <h2 className="text-3xl font-bold text-orange-600 mb-2 text-center">
-          Our Services
-        </h2>
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        {/* Heading */}
+        <h2 className="text-3xl font-bold text-orange-600 mb-2 text-center">Our Services</h2>
         <div className="w-20 h-1 bg-orange-400 mx-auto mb-8 rounded"></div>
 
-        <div className="space-y-6">
+        {/* Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service, index) => (
             <div
               key={index}
-              className="flex items-start bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
+              className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex items-start gap-4"
             >
+              {/* Icon */}
               <img
                 src={service.icon}
                 alt={service.title}
-                className="w-16 h-16 object-contain mr-5 mt-1"
+                className="w-14 h-14 object-contain mt-1"
               />
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800">{service.title}</h3>
-                <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                  {service.description}
+
+              {/* Text */}
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-800 mb-1">{service.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {expanded === index
+                    ? service.description
+                    : service.description.length > 120
+                      ? service.description.slice(0, 120) + '...'
+                      : service.description}
                 </p>
+
+                {/* Button */}
+                {service.description.length > 120 && (
+                  <button
+                    onClick={() => toggleExpand(index)}
+                    className="mt-3 text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                  >
+                    {expanded === index ? 'Show Less' : 'Read More'}
+                  </button>
+                )}
               </div>
             </div>
           ))}
         </div>
       </div>
+  <Footer/>
     </div>
   );
 };

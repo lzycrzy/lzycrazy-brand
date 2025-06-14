@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from '../components/Header';
+import Footer   from '../components/Footer1';
 
 const NewsFeed = () => {
   const newsItems = [
@@ -31,7 +32,7 @@ const NewsFeed = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-6xl min-h-[600px] mx-auto px-4 py-6">
         <h2 className="text-2xl font-bold text-blue-700 mb-6">Top News</h2>
 
         {/* Grid Layout */}
@@ -59,6 +60,7 @@ const NewsFeed = () => {
           ))}
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };
