@@ -15,6 +15,8 @@ import UserTable from './pages/UserTable';
 import Profile from './pages/Profile';
 import MarketPost from './pages/MarketPost';
 import AddNews from './pages/AddNews';
+import AddService from './pages/AddServices';
+import AddCategory from './pages/AddCategory';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -65,11 +67,27 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-           <Route
-            path="/news"
+          <Route
+            path="/services"
             element={
               <ProtectedRoute>
-                <AddNews />
+                <AddService />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="/services"
+            element={
+              <ProtectedRoute>
+                <AddService />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="/category"
+            element={
+              <ProtectedRoute>
+                <AddCategory />
               </ProtectedRoute>
             }
           />
