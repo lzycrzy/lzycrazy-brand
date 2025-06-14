@@ -24,7 +24,8 @@ import {
   searchUsers,
   storyView,
   getUserStories,
-  getStoryViews
+  getStoryViews,
+  submitApplication
   // getAdminDashboard,
   // getSuperAdminDashboard,
   // getAllUsers,
@@ -95,4 +96,8 @@ router.post('/password/reset/:token', resetPassword);
 router.post('/story/view/:storyId', isAuthenticated,storyView )
 router.get('/stories/view/:storyId', isAuthenticated, getStoryViews);
 router.get('/story/view/:userId', isAuthenticated,getUserStories )
+
+
+//aplicant
+router.post('/hiring', upload.single('video'), submitApplication);
 export default router;
