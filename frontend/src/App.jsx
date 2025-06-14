@@ -15,7 +15,9 @@ import ResetPassword from './components/ResetPassword';
 import AboutUs from './components/About2';
 import NewsFeed from './components/NewsFeed';
 import Services from './components/Services';
+import TermPage from './components/TermPage';
 import ForgotPassword from './components/ForgotPassword';
+import PrivacyPolicyPage from './components/PrivacyPagePolicy';
 
 const App = () => {
   return (
@@ -39,8 +41,10 @@ const App = () => {
               </AuthRedirect>
             }
           />
+          <Route path="/terms" element={<TermPage />} />
           
             <Route path="/news" element={<NewsFeed />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/services" element={<Services />} />
 
           {/* Password recovery flow (publicly accessible) */}

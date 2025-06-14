@@ -9,6 +9,7 @@ import {
   facebookProvider,
 } from '../lib/firebase/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { Link } from 'react-router-dom';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
@@ -100,12 +101,14 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
+//google login
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const idToken = await user.getIdToken();
+      console.log("ID Token:", idToken); // add before axios.post
+
       const response = await axios.post('/v1/users/google-login', { idToken });
       const { token, user: backendUser } = response.data;
       localStorage.setItem('token', token);
@@ -489,8 +492,8 @@ const Auth = () => {
 
           {/* Right Side - Links */}
           <div className="flex gap-6">
-            <span className="cursor-pointer hover:underline">Privacy</span>
-            <span className="cursor-pointer hover:underline">Terms</span>
+          <Link to="/privacy" className="hover:underline">Privacy</Link>
+          <Link to="/terms" className="hover:underline">Terms</Link>
           </div>
         </div>
       </footer>
