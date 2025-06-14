@@ -139,7 +139,7 @@ const AddCategory = () => {
   };
 
   const handleDelete = (id) => {
-    if (confirm('क्या आप इस category को delete करना चाहते हैं?')) {
+    if (confirm('Are you sure you want to delete this category?')) {
       setCategories(prev => prev.filter(cat => cat.id !== id));
       console.log('Category Deleted, Remaining:', categories.filter(cat => cat.id !== id));
     }
