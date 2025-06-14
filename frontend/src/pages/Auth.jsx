@@ -49,7 +49,6 @@ const Auth = () => {
   googleProvider.setCustomParameters({
     prompt: 'select_account',
   });
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
