@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, Calendar, User, Eye, Play, X, Camera } from 'lucide-react';
+import { Upload, Calendar, User, Eye, Play } from 'lucide-react';
 
 const NewsDashboard = () => {
   const [formData, setFormData] = useState({
@@ -10,10 +10,6 @@ const NewsDashboard = () => {
   
   const [videoFile, setVideoFile] = useState(null);
   const [videoPreview, setVideoPreview] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState(null);
   
   const [newsData, setNewsData] = useState([
     {
@@ -22,8 +18,7 @@ const NewsDashboard = () => {
       postDate: '12-06-2025',
       views: '663k',
       userName: 'John Smith',
-      thumbnail: '/api/placeholder/60/40',
-      videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
+      thumbnail: '/api/placeholder/60/40'
     },
     {
       id: 2,
@@ -31,8 +26,7 @@ const NewsDashboard = () => {
       postDate: '11-06-2025',
       views: '663k',
       userName: 'John Smith',
-      thumbnail: '/api/placeholder/60/40',
-      videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
+      thumbnail: '/api/placeholder/60/40'
     },
     {
       id: 3,
@@ -93,7 +87,8 @@ const NewsDashboard = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (!formData.title.trim() || !formData.name.trim()) {
       alert('Please fill in all required fields');
       return;
@@ -105,8 +100,7 @@ const NewsDashboard = () => {
       postDate: formData.date,
       views: '0',
       userName: formData.name,
-      thumbnail: videoPreview || '/api/placeholder/60/40',
-      videoUrl: videoPreview
+      thumbnail: videoPreview || '/api/placeholder/60/40'
     };
 
     setNewsData(prev => [newEntry, ...prev]);
@@ -128,6 +122,7 @@ const NewsDashboard = () => {
       <div className="max-w-7xl mx-auto">
         {/* Upload Form Section */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Video Upload Section */}
             <div className="lg:col-span-1">
@@ -242,8 +237,7 @@ const NewsDashboard = () => {
                 </button>
               </div>
             </div>
-        
-      </div>
+          
         </div>
 
         {/* Data Table Section */}
@@ -302,7 +296,7 @@ const NewsDashboard = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
   );
 };
 
