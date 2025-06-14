@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
     "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/vite": "^4.1.7",
     "axios": "^1.9.0",
@@ -32,6 +33,7 @@
     "react-redux": "^9.2.0",
     "react-router": "^7.6.1",
     "react-router-dom": "^7.6.2",
+    "react-scroll": "^1.9.3",
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.3",
     "rsuite": "^5.82.0",

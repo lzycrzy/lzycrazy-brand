@@ -10,6 +10,7 @@ import UserAbout from '../models/user.about.js';
 import {Post} from '../models/user.post.js';
 import {Story} from '../models/user.story.js';
 import fs from 'fs-extra';
+import Applicant from '../models/Applicant.js';
 
 import mongoose from "mongoose";
 
@@ -115,9 +116,10 @@ export const loginWithGoogle = async (req, res) => {
     if (!idToken) {
       return res.status(400).json({ message: 'Firebase ID token required' });
     }
-
+    console.log("Received idToken:", idToken);
     // Verify Firebase ID token
     const decodedToken = await firebaseadmin.auth().verifyIdToken(idToken);
+    console.log("Decoded token:", decodedToken);
     const { uid, email, name, picture } = decodedToken;
 
     if (!email) {
@@ -842,5 +844,54 @@ export const getStoryViews = async (req, res) => {
   } catch (err) {
     console.error("Error fetching story viewers:", err);
     res.status(500).json({ message: "Failed to fetch viewers" });
+  }
+};
+
+
+
+export const submitApplication = async (req, res) => {
+  try {
+    const {
+      lycrazyId,
+      country,
+      state,
+      city,
+      phone,
+      email,
+      education,
+      age,
+      height,
+      weight,
+      jobCategory,
+      experience,
+      about,
+    } = req.body;
+
+    console.log(req.file); // includes path, size, filename, etc.
+
+    const videoPath = req.file?.path || null;
+
+    const applicant = new Applicant({
+      lycrazyId,
+      country,
+      state,
+      city,
+      education,
+      phone,
+      age,
+      email,
+      height,
+      weight,
+      jobCategory,
+      experience,
+      about,
+      videoUrl: videoPath, // store local file path
+    });
+
+    await applicant.save();
+    res.status(200).json({ message: 'Application submitted successfully!' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error submitting application' });
   }
 };

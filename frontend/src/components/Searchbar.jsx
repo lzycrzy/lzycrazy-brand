@@ -27,7 +27,7 @@ const Searchbar = () => {
   const tabs = [
     { name: 'About Us', path: '/about' },
     { name: 'LzyCrazy Services', path: '/services' },
-    { name: 'LzyCrazy Marketplace', path: '/marketplace' },
+    { name: 'LzyCrazy Marketplace', path: '/market' },
     { name: 'We Are Hiring', path: '/careers' }, // This will trigger modal
     { name: 'LzyCrazy News', path: '/news' },
   ];
