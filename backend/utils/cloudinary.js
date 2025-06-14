@@ -12,7 +12,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export const uploadToCloudinary = async (filePath, folderName = 'admin_profiles') => {
+export const uploadToCloudinary = async (filePath, folderName = 'admin_profiles',resourceType = 'image') => {
 
   try {
     console.log('Cloud name:', process.env.CLOUDINARY_CLOUD_NAME);
@@ -25,15 +25,24 @@ export const uploadToCloudinary = async (filePath, folderName = 'admin_profiles'
     console.log('API secret:', process.env.CLOUDINARY_API_SECRET);
 
     // Check if the file exists
-    const result = await cloudinary.uploader.upload(filePath, {
-      folder: folderName,
-      width: 500,
-      height: 500,
-      crop: 'limit',
-      quality: 'auto:good',
-      format: 'jpg'
-    });
-
+    if (resourceType === 'video') {
+      result = await cloudinary.uploader.upload_large(filePath, {
+        folder: folderName,
+        resource_type: 'video',
+        chunk_size: 20 * 1024 * 1024, // 6MB
+        quality: 'auto',
+      });
+    } else {
+      result = await cloudinary.uploader.upload(filePath, {
+        folder: folderName,
+        resource_type: 'image',
+        width: 500,
+        height: 500,
+        crop: 'limit',
+        quality: 'auto:good',
+        format: 'jpg',
+      });
+    }
     // Delete local file after successful upload
     await fs.unlink(filePath);
     console.log('File uploaded and local file deleted');

@@ -10,6 +10,7 @@ import UserAbout from '../models/user.about.js';
 import {Post} from '../models/user.post.js';
 import {Story} from '../models/user.story.js';
 import fs from 'fs-extra';
+import Applicant from '../models/Applicant.js';
 
 import mongoose from "mongoose";
 
@@ -842,5 +843,56 @@ export const getStoryViews = async (req, res) => {
   } catch (err) {
     console.error("Error fetching story viewers:", err);
     res.status(500).json({ message: "Failed to fetch viewers" });
+  }
+};
+
+
+
+export const submitApplication = async (req, res) => {
+  try {
+    const {
+      lycrazyId,
+      country,
+      state,
+      city,
+     
+      education,
+      age,
+      height,
+      weight,
+      jobCategory,
+      experience,
+      about,
+    } = req.body;
+    console.log(req.file.size); // in bytes
+
+    const Url = req.file?.path || null;
+    
+    console.log(req.body);
+    const videoUrl = await uploadToCloudinary(Url,'applicant_videos', 'video');
+    console.log(videoUrl)
+
+  
+    const applicant = new Applicant({
+      lycrazyId,
+      country,
+      state,
+      city,
+    
+      education,
+      age,
+      height,
+      weight,
+      jobCategory,
+      experience,
+      about,
+      videoUrl,
+    });
+
+    await applicant.save();
+    res.status(200).json({ message: 'Application submitted successfully!' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error submitting application' });
   }
 };

@@ -9,6 +9,7 @@ import {
   facebookProvider,
 } from '../lib/firebase/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { Link } from 'react-router-dom';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
@@ -489,8 +490,8 @@ const Auth = () => {
 
           {/* Right Side - Links */}
           <div className="flex gap-6">
-            <span className="cursor-pointer hover:underline">Privacy</span>
-            <span className="cursor-pointer hover:underline">Terms</span>
+          <Link to="/privacy" className="hover:underline">Privacy</Link>
+          <Link to="/terms" className="hover:underline">Terms</Link>
           </div>
         </div>
       </footer>

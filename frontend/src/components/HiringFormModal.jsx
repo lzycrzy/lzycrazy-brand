@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import * as faceapi from 'face-api.js';
+import axios from '../lib/axios/axiosInstance';
 
 const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
   const [cameraOn, setCameraOn] = useState(false);
@@ -8,23 +9,47 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
+  const [videoFile, setVideoFile] = useState(null);
 
-  // Load face detection model
+  const [formData, setFormData] = useState({
+    lycrazyId: '',
+    country: '',
+    state: '',
+    city: '',
+    location: '',
+    education: '',
+    age: '',
+    height: '',
+    weight: '',
+    jobCategory: '',
+    experience: '',
+    about: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleVideoChange = (e) => {
+    setVideoFile(e.target.files[0]);
+  };
+
   useEffect(() => {
     const loadModels = async () => {
       await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-      console.log('Model loaded successfully');
     };
     loadModels();
   }, []);
 
-  // Camera start/stop
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+  }, [isOpen]);
+
   useEffect(() => {
     const startCamera = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-        });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
@@ -41,36 +66,29 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
       }
     };
 
-    if (cameraOn) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
+    if (cameraOn) startCamera();
+    else stopCamera();
 
     return () => stopCamera();
   }, [cameraOn]);
 
-  // Face detection logic
   useEffect(() => {
     const detectFace = async () => {
-      if (videoRef.current && cameraOn && canvasRef.current) {
+      if (videoRef.current && canvasRef.current) {
         const video = videoRef.current;
         const canvas = canvasRef.current;
 
-        // Run face detection
         const detection = await faceapi.detectSingleFace(
           video,
-          new faceapi.TinyFaceDetectorOptions(),
+          new faceapi.TinyFaceDetectorOptions()
         );
 
-        // Set canvas dimensions to match video
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw gray guide box in center
         const dims = faceapi.matchDimensions(canvas, video, true);
         const guideBox = {
           x: dims.width / 2 - 100,
@@ -84,10 +102,8 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
         ctx.strokeRect(guideBox.x, guideBox.y, guideBox.width, guideBox.height);
 
         if (detection && detection.box) {
-          // Resize detection for canvas
           const resizedDetection = faceapi.resizeResults(detection, dims);
           const box = resizedDetection.box;
-
           const isInsideGuideBox =
             box.x > guideBox.x &&
             box.y > guideBox.y &&
@@ -101,11 +117,10 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
           setInstruction(
             isInsideGuideBox
               ? '✅ Face aligned – Good!'
-              : '❗ Face not centered – Move face to center',
+              : '❗ Face not centered – Move face to center'
           );
         } else {
           setInstruction('❗ Face not detected – Please center your face.');
-          console.log('No face detected.');
         }
       }
     };
@@ -119,176 +134,196 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
     return () => clearInterval(intervalRef.current);
   }, [cameraOn]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const form = new FormData();
+    Object.keys(formData).forEach((key) => form.append(key, formData[key]));
+    if (videoFile) form.append('video', videoFile);
+
+    try {
+      await axios.post('/v1/users/hiring', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      alert('Submitted!');
+      if (onSubmitSuccess) onSubmitSuccess(true); // ✅ success triggers next form
+      onClose();
+    } catch (err) {
+      alert('Submission failed');
+      console.error(err);
+    }
+  };
+
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
-    <div className="bg-opacity-40 fixed inset-0 z-[1000] flex h-screen w-screen items-center justify-center  backdrop-blur-sm">
-      <div className="relative max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-8 shadow-2xl">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-red-500"
-        >
+    <div className="bg-opacity-40 fixed inset-0 z-[1000] flex h-screen w-screen items-center justify-center backdrop-blur-sm">
+      <div className="relative w-full max-w-4xl h-[95vh] overflow-hidden rounded-lg bg-white p-6 shadow-2xl flex flex-col">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-red-500">
           &times;
         </button>
 
-        <h2 className="mb-2 text-center text-2xl font-bold text-blue-700">
-          WE ARE HIRING
-        </h2>
-        <p className="mb-2 text-center text-sm text-gray-600">
+        <h2 className="mb-1 text-center text-xl font-bold text-blue-700">WE ARE HIRING</h2>
+        <p className="text-center text-sm text-gray-600">
           Please sign up to get your <strong>LyCrazy ID</strong>.<br />
-          Once you receive your LyCrazy ID (e.g. <code>lc09240031</code>), enter
-          it below to continue the application.
+          Then enter your LyCrazy ID (e.g. <code>lc09240031</code>) below.
         </p>
-        <p className="mb-6 cursor-pointer text-center font-semibold text-blue-600 hover:underline">
-          <a href="/signup" target="_blank" rel="noopener noreferrer">
-            Sign Up Here
-          </a>
+        <p className="mb-4 text-center text-sm text-blue-600 hover:underline">
+          <a href="/signup" target="_blank" rel="noopener noreferrer">Sign Up Here</a>
         </p>
 
-        <form
-          className="space-y-5"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onClose();
-            if (onSubmitSuccess) onSubmitSuccess();
-          }}
-        >
-          <Input label="LyCrazy ID" placeholder="e.g. lc09240031" />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Input label="Country" />
-            <Input label="State" />
-          </div>
-          <Input label="Location (City/Town)" />
-          <Input label="Education" placeholder="e.g. B.Tech, MBA, etc." />
-          <Select
-            label="Select Job Category"
-            options={['Marketing', 'Sales', 'Development', 'Operations']}
-          />
-          <Textarea label="About Yourself (20 Words)" rows={2} />
+        <div className="flex-grow overflow-y-auto pr-2 max-h-[calc(95vh-150px)]">
+          <form className="space-y-1" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input required label="LyCrazy ID" name="lycrazyId" value={formData.lycrazyId} onChange={handleChange} placeholder="e.g. lc09240031" />
+              <Input required label="Country" name="country" value={formData.country} onChange={handleChange} />
+            </div>
 
-          <div>
-            <div className="int flex w-full grid-cols-1 items-end justify-between gap-4 px-3.5 sm:grid-cols-3">
-              {/* Upload Video */}
-              <div className="w-1/2">
-                {/* Label + Checkbox in one row */}
-                <div className="mb-2 flex items-center space-x-4">
-                  <label className="text-sm font-medium text-gray-700">
-                    Upload 15s Video
-                  </label>
-                  <label className="inline-flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 accent-blue-600"
-                      checked={cameraOn}
-                      onChange={() => setCameraOn(!cameraOn)}
-                    />
-                    <span className="text-sm text-gray-700">Open Camera</span>
-                  </label>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input required label="State" name="state" value={formData.state} onChange={handleChange} />
+              <Input required label="City" name="city" value={formData.city} onChange={handleChange} />
+            </div>
 
-                {/* File input */}
+            {/* <Input required label="Location (City/Town)" name="location" value={formData.location} onChange={handleChange} /> */}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input required label="Education" name="education" value={formData.education} onChange={handleChange} />
+              <Input required label="Age" type="number" name="age" value={formData.age} onChange={handleChange} />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input required label="Height (cm)" type="number" name="height" value={formData.height} onChange={handleChange} />
+              <Input required label="Weight (kg)" type="number" name="weight" value={formData.weight} onChange={handleChange} />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Select required label="Select Job Category" name="jobCategory" value={formData.jobCategory} onChange={handleChange} options={['Marketing', 'Sales', 'Development', 'Operations']} />
+              <Select required label="Select Experience Level" name="experience" value={formData.experience} onChange={handleChange} options={['Fresher', '1-2 Years', '3-5 Years', '5+ Years']} />
+            </div>
+
+            <Textarea required label="About Yourself (20 Words)" name="about" value={formData.about} onChange={handleChange} rows={2} />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Upload 15s Video</label>
                 <input
                   type="file"
                   accept="video/*"
-                  className="block w-full text-sm text-gray-700 file:mr-4 file:rounded file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white hover:file:bg-blue-700"
+                  onChange={handleVideoChange}
+                  required
+                  className="mt-1 w-full text-sm file:mr-4 file:rounded file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white hover:file:bg-blue-700"
                 />
+                <div className="mt-2 flex items-center gap-2">
+                  <input type="checkbox" className="h-4 w-4 accent-blue-600" checked={cameraOn} onChange={() => setCameraOn(!cameraOn)} />
+                  <span className="text-sm text-gray-700">Open Camera</span>
+                </div>
               </div>
 
-              {/* Height Input (Already present, moved here for alignment) */}
-              <Input label="Height (cm)" className="w-12" type="number" />
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-1">Example Video</p>
+                <video src="/example.mp4" controls className="w-1/2 rounded-md border" />
+              </div>
             </div>
 
             {cameraOn && (
-              <div className="relative mb-2 rounded-md border border-blue-300 bg-gray-50 p-4">
-                <p className="mb-2 text-sm text-blue-600">📷 Camera is ON</p>
-                <ul className="list-inside list-disc space-y-1 text-sm text-gray-500">
+              <div className="relative mt-4 rounded-md border border-blue-300 bg-gray-50 p-4">
+                <p className="text-sm text-blue-600 mb-2">📷 Camera is ON</p>
+                <ul className="list-disc list-inside text-sm text-gray-500 mb-4">
                   <li>Ensure face is centered in the frame</li>
                   <li>Good lighting is recommended</li>
                   <li>Neutral background is preferred</li>
                 </ul>
-                <div className="relative mt-4 w-full">
-                  <video
-                    ref={videoRef}
-                    className="w-full rounded-md bg-black"
-                    muted
-                    autoPlay
-                    playsInline
-                  />
-                  <canvas
-                    ref={canvasRef}
-                    className="absolute top-0 left-0 h-full w-full"
-                  />
+                <div className="relative w-full">
+                  <video ref={videoRef} className="w-full rounded-md bg-black" muted autoPlay playsInline />
+                  <canvas ref={canvasRef} className="absolute top-0 left-0 h-full w-full" />
                 </div>
-                <p className="mt-2 text-center text-sm font-medium text-blue-700">
-                  {instruction}
-                </p>
+                <p className="mt-2 text-center text-sm font-medium text-blue-700">{instruction}</p>
               </div>
             )}
-          </div>
 
-          <div className="flex justify-between gap-4 px-3.5 sm:grid-cols-3">
-            {/* <Input label="Height (cm)" type="number" /> */}
-            <Input label="Weight (kg)" type="number" />
-            <Input label="Age" type="number" />
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              className="rounded-md bg-gray-200 px-4 py-2 text-gray-800 transition hover:bg-gray-300"
-            >
-              Clear
-            </button>
-            <button
-              type="submit"
-              className="rounded-md bg-blue-600 px-6 py-2 text-white transition hover:bg-blue-700"
-            >
-              SUBMIT
-            </button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({
+                    lycrazyId: '',
+                    country: '',
+                    state: '',
+                    city: '',
+                   
+                    education: '',
+                    age: '',
+                    height: '',
+                    weight: '',
+                    jobCategory: '',
+                    experience: '',
+                    about: '',
+                  });
+                  setVideoFile(null);
+                  setInstruction('');
+                  setCameraOn(false);
+                }}
+                className="rounded-md bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300"
+              >
+                Clear
+              </button>
+              <button type="submit" className="rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
+                SUBMIT
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 };
 
-// Reusable components
-const Input = ({ label, placeholder = '', type = 'text' }) => (
+// Reusable Input
+const Input = ({ label, name, value, onChange, placeholder = '', type = 'text', required = false }) => (
   <div>
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      {label}
-    </label>
+    <label className="mb-1 block text-sm font-medium text-gray-700">{label}</label>
     <input
       type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
       placeholder={placeholder}
+      required={required}
       className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
     />
   </div>
 );
 
-const Select = ({ label, options = [] }) => (
+// Reusable Select
+const Select = ({ label, name, value, onChange, options = [], required = false }) => (
   <div>
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      {label}
-    </label>
-    <select className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+    <label className="mb-1 block text-sm font-medium text-gray-700">{label}</label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      required={required}
+      className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+    >
+      <option value="">-- Select --</option>
       {options.map((opt, i) => (
-        <option key={i} value={opt}>
-          {opt}
-        </option>
+        <option key={i} value={opt}>{opt}</option>
       ))}
     </select>
   </div>
 );
 
-const Textarea = ({ label, rows = 3 }) => (
+// Reusable Textarea
+const Textarea = ({ label, name, value, onChange, rows = 3, required = false }) => (
   <div>
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      {label}
-    </label>
+    <label className="mb-1 block text-sm font-medium text-gray-700">{label}</label>
     <textarea
+      name={name}
+      value={value}
+      onChange={onChange}
       rows={rows}
+      required={required}
       className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
     ></textarea>
   </div>
