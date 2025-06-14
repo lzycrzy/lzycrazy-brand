@@ -32,6 +32,7 @@
     "react-redux": "^9.2.0",
     "react-router": "^7.6.1",
     "react-router-dom": "^7.6.2",
+    "react-scroll": "^1.9.3",
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.3",
     "rsuite": "^5.82.0",

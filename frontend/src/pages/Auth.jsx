@@ -49,6 +49,7 @@ const Auth = () => {
   googleProvider.setCustomParameters({
     prompt: 'select_account',
   });
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -101,12 +102,14 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
+//google login
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const idToken = await user.getIdToken();
+      console.log("ID Token:", idToken); // add before axios.post
+
       const response = await axios.post('/v1/users/google-login', { idToken });
       const { token, user: backendUser } = response.data;
       localStorage.setItem('token', token);

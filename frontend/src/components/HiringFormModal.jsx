@@ -21,6 +21,8 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
     age: '',
     height: '',
     weight: '',
+    phone: '',
+    email: '',
     jobCategory: '',
     experience: '',
     about: '',
@@ -146,7 +148,7 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       alert('Submitted!');
-      if (onSubmitSuccess) onSubmitSuccess(true); // ✅ success triggers next form
+      if (onSubmitSuccess) onSubmitSuccess(true);
       onClose();
     } catch (err) {
       alert('Submission failed');
@@ -184,8 +186,6 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
               <Input required label="City" name="city" value={formData.city} onChange={handleChange} />
             </div>
 
-            {/* <Input required label="Location (City/Town)" name="location" value={formData.location} onChange={handleChange} /> */}
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input required label="Education" name="education" value={formData.education} onChange={handleChange} />
               <Input required label="Age" type="number" name="age" value={formData.age} onChange={handleChange} />
@@ -194,6 +194,11 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input required label="Height (cm)" type="number" name="height" value={formData.height} onChange={handleChange} />
               <Input required label="Weight (kg)" type="number" name="weight" value={formData.weight} onChange={handleChange} />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input required label="Phone Number" name="phone" value={formData.phone} onChange={handleChange} type="tel" />
+              <Input required label="Email Address" name="email" value={formData.email} onChange={handleChange} type="email" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -250,11 +255,13 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                     country: '',
                     state: '',
                     city: '',
-                   
+                    location: '',
                     education: '',
                     age: '',
                     height: '',
                     weight: '',
+                    phone: '',
+                    email: '',
                     jobCategory: '',
                     experience: '',
                     about: '',

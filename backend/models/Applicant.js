@@ -5,7 +5,8 @@ const applicantSchema = new mongoose.Schema({
   country: String,
   state: String,
   city: String,
-  
+  phone: { type: String, required: true },
+  email: { type: String, required: true },
   education: String,
   age: Number,
   height: Number,

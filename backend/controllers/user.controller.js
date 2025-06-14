@@ -116,9 +116,10 @@ export const loginWithGoogle = async (req, res) => {
     if (!idToken) {
       return res.status(400).json({ message: 'Firebase ID token required' });
     }
-
+    console.log("Received idToken:", idToken);
     // Verify Firebase ID token
     const decodedToken = await firebaseadmin.auth().verifyIdToken(idToken);
+    console.log("Decoded token:", decodedToken);
     const { uid, email, name, picture } = decodedToken;
 
     if (!email) {
@@ -855,7 +856,8 @@ export const submitApplication = async (req, res) => {
       country,
       state,
       city,
-     
+      phone,
+      email,
       education,
       age,
       height,
@@ -864,29 +866,26 @@ export const submitApplication = async (req, res) => {
       experience,
       about,
     } = req.body;
-    console.log(req.file.size); // in bytes
 
-    const Url = req.file?.path || null;
-    
-    console.log(req.body);
-    const videoUrl = await uploadToCloudinary(Url,'applicant_videos', 'video');
-    console.log(videoUrl)
+    console.log(req.file); // includes path, size, filename, etc.
 
-  
+    const videoPath = req.file?.path || null;
+
     const applicant = new Applicant({
       lycrazyId,
       country,
       state,
       city,
-    
       education,
+      phone,
       age,
+      email,
       height,
       weight,
       jobCategory,
       experience,
       about,
-      videoUrl,
+      videoUrl: videoPath, // store local file path
     });
 
     await applicant.save();
