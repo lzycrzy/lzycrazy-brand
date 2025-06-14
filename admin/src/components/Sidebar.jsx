@@ -22,7 +22,7 @@ export function Sidebar() {
     { icon: Grid3X3, label: 'Category', path: '/category' },
     { icon: MapPin, label: 'Address', path: '/address' },
     { icon: Store, label: 'Shop', path: '/shop' },
-    { icon: FileText, label: 'Post', path: '/post' },
+    { icon: FileText, label: 'News', path: '/news' },
     { icon: Package, label: 'Products', path: '/products' },
     { icon: FileBarChart, label: 'Client Enquiry', path: '/client-enquiry' },
     { icon: Users, label: 'Join Team', path: '/join-team' },
