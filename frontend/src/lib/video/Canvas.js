@@ -36,7 +36,7 @@ const detectFace = async () => {
         ctx.lineWidth = 3;
         ctx.strokeRect(box.x, box.y, box.width, box.height);
   
-        setInstruction(isInsideGuideBox ? '✅ Face aligned – Good!' : '❗ Face not centered – Move face to center');
+        setInstruction(isInsideGuideBox ? ' Face aligned – Good!' : '❗ Face not centered – Move face to center');
       } else {
         setInstruction('❗ Face not detected – Please center your face.');
       }

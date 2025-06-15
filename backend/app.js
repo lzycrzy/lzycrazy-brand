@@ -4,7 +4,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dbConnection from './dataBase/dbConnection.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
-
+import categoryRoutes from './router/category.route.js';
+import serviceRoutes from './router/service.routes.js';
 //--importing cloudinary configuration
 // This is where you would configure Cloudinary for file uploads
 import './utils/cloudinary.js';
@@ -40,7 +41,7 @@ app.use(
               process.env.FRONTEND_URL || 'https://lzycrazy-brand-frontend.netlify.app', 
              process.env.DASHBOARD_URL
             ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   }),
 );
@@ -54,9 +55,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1/users', userRoutes);  //--user routes
 app.use('/api/v1/users/about', aboutRoutes); //--user about routes
 app.use('/api/v1/admin', adminRoutes);  //--admin routes
+app.use('/api/v1/categories', categoryRoutes); //--category routes
+app.use('/api/v1/services', serviceRoutes); //--service routes
 
-//--connecting to the database
-dbConnection(); //--
+dbConnection(); 
 
 app.use(errorMiddleware); //--error handling middleware
 

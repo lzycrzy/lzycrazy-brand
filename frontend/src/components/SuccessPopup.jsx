@@ -12,7 +12,7 @@ const SuccessPopup = ({
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-40 backdrop-blur-sm">
       <div className="bg-white w-[90%] max-w-md p-8 rounded-lg shadow-xl text-center">
-        <h2 className="text-2xl font-semibold text-green-600 mb-2">✅ Success!</h2>
+        <h2 className="text-2xl font-semibold text-green-600 mb-2"> Success!</h2>
         <p className="text-gray-700 mb-3">{message}</p>
         <p className="text-sm text-gray-600">
           Email ID:&nbsp;
