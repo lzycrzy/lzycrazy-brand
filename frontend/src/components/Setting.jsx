@@ -29,7 +29,7 @@ const SettingsMenu = ({ activeTab, setActiveTab }) => {
     { label: 'Logout', icon: <FaSignOutAlt />, tabName: 'logout' },
   ];
 
-  // ✅ Close dropdown on outside click
+  //  Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {

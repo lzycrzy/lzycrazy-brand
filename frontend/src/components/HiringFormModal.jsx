@@ -118,7 +118,7 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
 
           setInstruction(
             isInsideGuideBox
-              ? '✅ Face aligned – Good!'
+              ? ' Face aligned – Good!'
               : '❗ Face not centered – Move face to center'
           );
         } else {
