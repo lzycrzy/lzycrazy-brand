@@ -13,7 +13,7 @@ cloudinary.config({
 });
 
 export const uploadToCloudinary = async (filePath, folderName = 'admin_profiles') => {
-
+  
   try {
     console.log('Cloud name:', process.env.CLOUDINARY_CLOUD_NAME);
     console.log('API key:', process.env.CLOUDINARY_API_KEY ? 'Set' : 'Not Set');
