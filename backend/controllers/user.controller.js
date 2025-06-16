@@ -143,7 +143,7 @@ export const loginWithGoogle = async (req, res) => {
 
     const token = user.generateJsonWebToken();
 
-    // ✅ Set cookie so backend middleware can read it
+    //  Set cookie so backend middleware can read it
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -203,7 +203,7 @@ export const updateMe = async (req, res) => {
       runValidators: true,
     });
     await fs.remove(filePath);
-    console.log("✅ User updated:", updatedUser.fullName, updatedUser.image);
+    console.log(" User updated:", updatedUser.fullName, updatedUser.image);
 
     res.status(200).json({
       status: 'success',
@@ -589,7 +589,7 @@ export const uploadStory = async (req, res) => {
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24hr
       views: [],
     });
-    console.log("✅ Story saved in DB:", story); 
+    console.log(" Story saved in DB:", story); 
 
     // Delete local file
     fs.unlink(req.file.path, (err) => {
