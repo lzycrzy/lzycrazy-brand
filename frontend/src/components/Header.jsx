@@ -12,8 +12,14 @@ import {
 import { SiCoinmarketcap } from 'react-icons/si';
 import { BsCameraReels } from 'react-icons/bs';
 import { MdOutlineChat } from 'react-icons/md';
+import store from '../assets/store.png'; // Replace with your actual path
 
 import logo from '../assets/logo.png';
+import home from '../assets/home.png';
+import movie from '../assets/movie-reel.png';
+import play from '../assets/play-button-arrowhead.png';
+
+import hand from '../assets/hand.png';
 import { auth } from '../lib/firebase/firebase';
 import { signOut } from 'firebase/auth';
 import { logout } from '../lib/redux/authSlice';
@@ -32,7 +38,7 @@ const Header = () => {
       localStorage.clear();
       dispatch(logout());
       setUser(null);
-      navigate('/auth');
+      navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -64,11 +70,12 @@ const Header = () => {
 
         {/* Center - Tabs */}
         <div className="absolute left-1/2 hidden -translate-x-1/2 transform items-center gap-4 lg:flex">
-          <HeaderIcon icon={FaHome} to="/" user={user} />
-          <HeaderIcon icon={SiCoinmarketcap} to="/coins" user={user} />
-          <HeaderIcon icon={FaFileVideo} to="/videos" user={user} />
-          <HeaderIcon icon={BsCameraReels} to="/reels" user={user} />
-          <HeaderIcon icon={MdOutlineChat} to="/chat" user={user} />
+          <HeaderIcon image={home} to="/" user={user} />
+          <HeaderIcon image={store} to="/market" user={user} />
+
+          <HeaderIcon image={play} to="/videos" user={user} />
+          <HeaderIcon image={movie} to="/reels" user={user} />
+          <HeaderIcon image={play} to="/chat" user={user} />
         </div>
 
         {/* Right - Search + Icons */}
@@ -145,7 +152,7 @@ const Header = () => {
   );
 };
 
-const HeaderIcon = ({ icon: Icon, to, user }) => {
+const HeaderIcon = ({ icon: Icon, to, user, image }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -162,9 +169,18 @@ const HeaderIcon = ({ icon: Icon, to, user }) => {
       onClick={to ? handleClick : undefined}
       className="group cursor-pointer rounded-full p-2 text-gray-700 transition hover:bg-gray-100"
     >
-      <Icon className="text-[22px] group-hover:text-blue-600" />
+      {image ? (
+        <img
+          src={image}
+          alt="custom icon"
+          className="w-[22px] h-[22px] object-contain group-hover:brightness-110"
+        />
+      ) : (
+        <Icon className="text-[22px] group-hover:text-blue-600" />
+      )}
     </div>
   );
 };
+
 
 export default Header;

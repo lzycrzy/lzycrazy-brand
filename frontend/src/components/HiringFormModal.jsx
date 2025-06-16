@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import * as faceapi from 'face-api.js';
 import axios from '../lib/axios/axiosInstance';
+import Loader from '../components/Spinner';
 
 const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
   const [cameraOn, setCameraOn] = useState(false);
@@ -10,6 +11,7 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
   const [videoFile, setVideoFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     lycrazyId: '',
@@ -34,6 +36,23 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
   };
 
   const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const acceptedTypes = ['video/mp4', 'video/webm', 'video/ogg'];
+
+    if (!acceptedTypes.includes(file.type)) {
+      alert(
+        'Invalid file type. Please upload a video in MP4, WebM, or Ogg format.',
+      );
+      return;
+    }
+
+    if (file.size > maxSize) {
+      alert('File too large. Please upload a video less than 10MB.');
+      return;
+    }
     setVideoFile(e.target.files[0]);
   };
 
@@ -137,87 +156,14 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
 
     return () => clearInterval(intervalRef.current);
   }, [cameraOn]);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
-  const [recordedBlob, setRecordedBlob] = useState(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  let recordedChunks = useRef([]);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const recordingInterval = useRef(null);
-
-  const startRecording = () => {
-    if (!videoRef.current || !videoRef.current.srcObject) return;
-
-    const stream = videoRef.current.srcObject;
-    const recorder = new MediaRecorder(stream);
-    recordedChunks.current = [];
-
-    recorder.ondataavailable = (e) => {
-      if (e.data.size > 0) recordedChunks.current.push(e.data);
-    };
-
-    recorder.onstop = () => {
-      const blob = new Blob(recordedChunks.current, { type: 'video/webm' });
-      if (blob && blob.size > 0) {
-        setRecordedBlob(blob);
-      } else {
-        alert('Recording failed. Please try again.');
-      }
-    };
-
-    recorder.start();
-    setMediaRecorder(recorder);
-    setIsRecording(true);
-    setIsPaused(false);
-    setRecordingTime(0);
-
-    recordingInterval.current = setInterval(() => {
-      setRecordingTime((prev) => prev + 1);
-    }, 1000);
-  };
-
-  const pauseRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-      mediaRecorder.pause();
-      setIsPaused(true);
-      clearInterval(recordingInterval.current);
-    }
-  };
-
-  const resumeRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === 'paused') {
-      mediaRecorder.resume();
-      setIsPaused(false);
-      recordingInterval.current = setInterval(() => {
-        setRecordingTime((prev) => prev + 1);
-      }, 1000);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setIsRecording(false);
-      setIsPaused(false);
-      clearInterval(recordingInterval.current);
-    }
-  };
-
-  const resetRecording = () => {
-    setRecordedBlob(null);
-    recordedChunks.current = [];
-    setRecordingTime(0);
-    clearInterval(recordingInterval.current);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true); // 🚀 Start spinner
 
     const form = new FormData();
     Object.keys(formData).forEach((key) => form.append(key, formData[key]));
-    if (recordedBlob) {
-      form.append('video', recordedBlob, 'recorded_video.webm');
-    }
+    if (videoFile) form.append('video', videoFile);
 
     try {
       await axios.post('/v1/users/hiring', form, {
@@ -229,11 +175,12 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
     } catch (err) {
       alert('Submission failed');
       console.error(err);
+    } finally {
+      setIsSubmitting(false); // ✅ Stop spinner
     }
   };
-
   if (!isOpen) return null;
-
+    if (isSubmitting) return <Loader />;
   return ReactDOM.createPortal(
     <div className="bg-opacity-40 fixed inset-0 z-[1000] flex h-screen w-screen items-center justify-center backdrop-blur-sm">
       <div className="relative flex h-[95vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg bg-white p-6 shadow-2xl">
@@ -379,46 +326,27 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
             />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Record 15s Video (with Audio)
-          </label>
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <button type="button" onClick={() => setCameraOn(true)} className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700">
-                Open Camera
-              </button>
-              <button type="button" onClick={startRecording} disabled={!cameraOn || isRecording} className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700">
-                Start
-              </button>
-              <button type="button" onClick={pauseRecording} disabled={!isRecording || isPaused} className="rounded bg-yellow-600 px-3 py-1 text-sm text-white hover:bg-yellow-700">
-                Pause
-              </button>
-              <button type="button" onClick={resumeRecording} disabled={!isPaused} className="rounded bg-purple-600 px-3 py-1 text-sm text-white hover:bg-purple-700">
-                Resume
-              </button>
-              <button type="button" onClick={stopRecording} disabled={!isRecording} className="rounded bg-gray-600 px-3 py-1 text-sm text-white hover:bg-gray-700">
-                Stop
-              </button>
-              <button type="button" onClick={resetRecording} disabled={!recordedBlob} className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700">
-                Reset
-              </button>
-              {isRecording && <span className="ml-2 font-bold text-red-500">⏱ {recordingTime}s</span>}
-            </div>
-            {recordedBlob && (
-              <video
-                controls
-                className="mt-2 h-32 rounded border"
-                ref={(el) => {
-                  if (el && recordedBlob) {
-                    el.src = URL.createObjectURL(recordedBlob);
-                  }
-                }}
-                onError={() => alert('An error occurred while loading the recorded video. Please record again.')}
-              />
-            )}
-          </div>
-        </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Upload 15s Video
+                </label>
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoChange}
+                  required
+                  className="mt-1 w-full text-sm file:mr-4 file:rounded file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white hover:file:bg-blue-700"
+                />
+                <div className="mt-2 flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-blue-600"
+                    checked={cameraOn}
+                    onChange={() => setCameraOn(!cameraOn)}
+                  />
+                  <span className="text-sm text-gray-700">Open Camera</span>
+                </div>
+              </div>
 
               <div>
                 <p className="mb-1 text-sm font-medium text-gray-700">
@@ -443,7 +371,7 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 <div className="relative w-full">
                   <video
                     ref={videoRef}
-                    className="mx-auto h-36 w-48 rounded-md bg-black"
+                    className="w-full rounded-md bg-black"
                     muted
                     autoPlay
                     playsInline
@@ -489,9 +417,10 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
               </button>
               <button
                 type="submit"
-                className="rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
+                disabled={isSubmitting}
+                className={`rounded-md px-6 py-2 text-white ${isSubmitting ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
               >
-                SUBMIT
+                {isSubmitting ? 'Submitting...' : 'SUBMIT'}
               </button>
             </div>
           </form>

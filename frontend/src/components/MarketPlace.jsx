@@ -208,10 +208,10 @@
 
 // export default MarketplaceHome;
 
-
 import React, { useState } from 'react';
 import Header from './Header';
 import CategoryPostForm from './CategoryPostForm';
+import { toast } from 'react-toastify';
 
 const categoriesWithSub = {
   Vehicles: ['Car', 'Bike', 'Bus'],
@@ -226,10 +226,22 @@ const categoriesWithSub = {
 };
 
 const banners = [
-  { type: 'image', src: 'https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=800&q=80' },
-  { type: 'image', src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80' },
-  { type: 'video', src: 'https://player.vimeo.com/external/371540223.sd.mp4?s=174cf8c423e50346a6613ab9e2df8774a2bd4173&profile_id=164' },
-  { type: 'video', src: 'https://player.vimeo.com/external/428070005.sd.mp4?s=8e989d6cbf58a63a57f3b271d35a51cf3079f2ce&profile_id=164' },
+  {
+    type: 'image',
+    src: 'https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    type: 'image',
+    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    type: 'video',
+    src: 'https://player.vimeo.com/external/371540223.sd.mp4?s=174cf8c423e50346a6613ab9e2df8774a2bd4173&profile_id=164',
+  },
+  {
+    type: 'video',
+    src: 'https://player.vimeo.com/external/428070005.sd.mp4?s=8e989d6cbf58a63a57f3b271d35a51cf3079f2ce&profile_id=164',
+  },
 ];
 
 const baseConfig = {
@@ -256,9 +268,21 @@ const categoryFormConfig = {
       { name: 'price', placeholder: 'Price', type: 'number' },
     ],
     checkboxGroups: [
-      { label: 'Fuel Type', name: 'fuel', options: ['CNG & Hybrids', 'Diesel', 'Electric', 'LPG', 'Petrol'] },
-      { label: 'No. of Owners', name: 'owners', options: ['1st', '2nd', '3rd', '4+'] },
-      { label: 'Transmission', name: 'transmission', options: ['Automatic', 'Manual'] },
+      {
+        label: 'Fuel Type',
+        name: 'fuel',
+        options: ['CNG & Hybrids', 'Diesel', 'Electric', 'LPG', 'Petrol'],
+      },
+      {
+        label: 'No. of Owners',
+        name: 'owners',
+        options: ['1st', '2nd', '3rd', '4+'],
+      },
+      {
+        label: 'Transmission',
+        name: 'transmission',
+        options: ['Automatic', 'Manual'],
+      },
     ],
   },
   RealEstate: {
@@ -272,8 +296,16 @@ const categoryFormConfig = {
       { name: 'description', placeholder: 'Description' },
     ],
     checkboxGroups: [
-      { label: 'Property Type', name: 'propertyType', options: ['Apartment', 'Independent House', 'Villa'] },
-      { label: 'Furnishing', name: 'furnishing', options: ['Furnished', 'Semi-Furnished', 'Unfurnished'] },
+      {
+        label: 'Property Type',
+        name: 'propertyType',
+        options: ['Apartment', 'Independent House', 'Villa'],
+      },
+      {
+        label: 'Furnishing',
+        name: 'furnishing',
+        options: ['Furnished', 'Semi-Furnished', 'Unfurnished'],
+      },
     ],
   },
   Electronics: baseConfig,
@@ -297,62 +329,110 @@ const MarketplaceHome = () => {
       <Header />
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-white shadow p-4 min-h-screen sticky top-0">
-          <h2 className="text-xl font-bold mb-4">Categories</h2>
-          <ul className="space-y-2">
-            {Object.entries(categoriesWithSub).map(([category, subcategories]) => (
-              <li key={category}>
-                <div
-                  onClick={() => setExpandedCategory(expandedCategory === category ? null : category)}
-                  className={`p-2 rounded cursor-pointer text-gray-700 hover:bg-blue-100 font-semibold ${
-                    expandedCategory === category ? 'bg-blue-100' : ''
-                  }`}
-                >
-                  {category}
-                </div>
-                {expandedCategory === category && subcategories.length > 0 && (
-                  <ul className="ml-4 mt-2 space-y-1">
-                    {subcategories.map((sub, subIndex) => (
-                      <li
-                        key={subIndex}
-                        onClick={() => {
-                          setSelectedCategory(category);
-                          setIsModalOpen(true);
-                        }}
-                        className="p-2 text-sm cursor-pointer text-gray-600 hover:text-blue-700 hover:underline"
+        <aside className="sticky top-0 min-h-screen w-64 bg-white px-6 py-8 shadow-sm">
+          <h2 className="mb-6 text-lg font-semibold text-gray-800">
+            Categories
+          </h2>
+
+          <ul className="space-y-1">
+            {Object.entries(categoriesWithSub).map(
+              ([category, subcategories]) => {
+                const isExpanded = expandedCategory === category;
+                return (
+                  <li key={category}>
+                    <button
+                      onClick={() =>
+                        setExpandedCategory(isExpanded ? null : category)
+                      }
+                      className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-all ${
+                        isExpanded
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <span className="font-medium">{category}</span>
+                      <svg
+                        className={`h-4 w-4 transform transition-transform duration-200 ${
+                          isExpanded ? 'rotate-90' : ''
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        {sub}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </button>
+
+                    {isExpanded && subcategories.length > 0 && (
+                      <ul className="mt-2 ml-4 space-y-1 border-l border-gray-200 pl-2">
+                        {subcategories.map((sub, idx) => (
+                          <li key={idx}>
+                            <button
+                              onClick={() => {
+                                const token = localStorage.getItem('token');
+                                if (!token) {
+                                  toast.error('Please login or signup first');
+                                  return;
+                                }
+                                setSelectedCategory(category);
+                                setIsModalOpen(true);
+                              }}
+                              className="w-full px-3 py-1 text-left text-sm text-gray-600 hover:text-blue-700 hover:underline"
+                            >
+                              {sub}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              },
+            )}
           </ul>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-9 space-y-8">
+        <main className="flex-1 space-y-8 p-9">
           {!selectedCategory && (
             <>
               {/* Image Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {banners
                   .filter((banner) => banner.type === 'image')
                   .map((banner, index) => (
-                    <div key={index} className="bg-white rounded-lg shadow overflow-hidden">
-                      <img src={banner.src} alt={`Banner ${index}`} className="w-full h-64 object-cover" />
+                    <div
+                      key={index}
+                      className="overflow-hidden rounded-lg bg-white shadow"
+                    >
+                      <img
+                        src={banner.src}
+                        alt={`Banner ${index}`}
+                        className="h-64 w-full object-cover"
+                      />
                     </div>
                   ))}
               </div>
 
               {/* Video Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 {banners
                   .filter((banner) => banner.type === 'video')
                   .map((banner, index) => (
-                    <div key={index} className="bg-white rounded-lg shadow overflow-hidden">
-                      <video controls className="w-full h-64 object-cover" src={banner.src}>
+                    <div
+                      key={index}
+                      className="overflow-hidden rounded-lg bg-white shadow"
+                    >
+                      <video
+                        controls
+                        className="h-64 w-full object-cover"
+                        src={banner.src}
+                      >
                         Your browser does not support the video tag.
                       </video>
                     </div>
@@ -365,6 +445,7 @@ const MarketplaceHome = () => {
           {selectedCategory && config ? (
             <CategoryPostForm
               isOpen={isModalOpen}
+              selectedCategory
               onClose={() => {
                 setIsModalOpen(false);
                 setSelectedCategory('');

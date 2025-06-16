@@ -22,7 +22,7 @@ const PrivacyPolicyPage = () => {
       <Header />
       <main className="flex-grow flex w-full">
         {/* Sidebar */}
-        <aside className="hidden lg:block w-64 sticky top-24 h-screen p-6 border-r border-gray-200 bg-gray-50">
+        <aside className="hidden lg:block w-64 sticky top-15 h-screen p-10 border-r border-gray-200 bg-gray-50">
           <nav className="space-y-4 text-sm font-medium">
             {sections.map(sec => (
               <a
@@ -38,7 +38,7 @@ const PrivacyPolicyPage = () => {
         </aside>
 
         {/* Content */}
-        <div className="flex-grow px-4 py-12 sm:px-8 lg:px-16">
+        <div className="flex-grow px-4 py-29 sm:px-8 lg:px-16">
           <div className="max-w-4xl mx-auto space-y-12">
             <h1 className="text-4xl sm:text-4xl font-bold text-center text-gray-900 mb-15">
               Privacy Policy
