@@ -69,8 +69,8 @@ const TermsPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-800">
       <Header />
-      <main className="flex-grow w-full flex flex-col lg:flex-row">
-        <aside className="hidden lg:flex flex-col w-64 p-6 border-r border-gray-200 sticky top-20 h-screen overflow-y-auto bg-gray-50">
+      <main className="flex-grow  w-full flex flex-col lg:flex-row">
+        <aside className="hidden lg:flex flex-col w-64 p-6 border-r border-gray-200 sticky top-15 h-screen overflow-y-auto bg-gray-50">
           <h2 className="text-lg font-semibold mb-6 text-gray-700">Sections</h2>
           <ul className="space-y-4">
             {sections.map((sec) => (
@@ -84,7 +84,7 @@ const TermsPage = () => {
           </ul>
         </aside>
 
-        <div className="flex-1 px-6 py-10">
+        <div className="flex-1 px-6 py-20">
           <div className="max-w-5xl mx-auto">
             <h1 className="text-4xl sm:text-4xl font-bold mt-6 text-gray-900 mb-15 text-center">Terms & Conditions</h1>
 

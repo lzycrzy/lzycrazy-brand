@@ -4,7 +4,7 @@ import logo from '../assets/logo.png';
 
 const Header = () => {
   return (
-    <header className="bg-white z-50 px-12 py-4 flex items-center justify-between shadow-[0_4px_10px_rgba(0,0,0,0.15)] border-b border-gray-200">
+    <header className="fixed top-0 left-0 w-full bg-white z-50 px-12 py-4 flex items-center justify-between  border-b border-gray-200">
       
       {/* Left: Logo */}
       <div className="flex items-center space-x-3">
@@ -21,7 +21,7 @@ const Header = () => {
       <nav className="hidden md:flex space-x-8 text-gray-700 font-medium">
         <Link to="/about" className="hover:text-blue-500">About Us</Link>
         <Link to="/services" className="hover:text-blue-500">LzyCrazy Services</Link>
-        <Link to="/marketplace" className="hover:text-blue-500">LzyCrazy Marketplace</Link>
+        <Link to="/market" className="hover:text-blue-500">LzyCrazy Marketplace</Link>
         <Link to="/careers" className="hover:text-blue-500">We Are Hiring</Link>
         <Link to="/news" className="hover:text-blue-500">LzyCrazy News</Link>
       </nav>

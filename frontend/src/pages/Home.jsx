@@ -6,29 +6,29 @@ import Sidebar from '../components/Sidebar1';
 import MainFeed from '../components/MainFeed';
 import RightSidebar from '../components/RightSidebar';
 import ChatSidebar from '../components/ChatSidebar'; 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
-  const location = useLocation();
+  
  
   const [showWelcome, setShowWelcome] = useState(false);
+  const location = useLocation();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   
   useEffect(() => {
-    
-    if (location.state?.welcome) {
-      setShowWelcome(true);
-      const timer = setTimeout(() => {
-        setShowWelcome(false);
-        // Clear the welcome from location state so it doesn't repeat
-        window.history.replaceState({}, document.title);
-      }, 3000); // Show for 3 seconds
-  
-      return () => clearTimeout(timer);
+    if (location.state?.welcome && user?.fullName) {
+      toast.success(`🎉 Welcome back, ${user.fullName}!`, {
+        position: 'top-center',
+        autoClose: 4000,
+      });
     }
-  }, [location]);
+  }, [location.state, user]);
   
   const people = [
     {

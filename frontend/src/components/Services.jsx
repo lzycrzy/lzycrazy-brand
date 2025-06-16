@@ -46,17 +46,17 @@ const Services = () => {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
 
-      <div className="flex-grow max-w-6x min-h-screen  mx-auto px-4 py-10">
+      <div className="flex-grow mt-15 max-w-6xl min-h-screen mx-auto px-4 py-10">
         {/* Heading */}
         <h2 className="text-3xl font-bold text-orange-600 mb-2 text-center">Our Services</h2>
         <div className="w-20 h-1 bg-orange-400 mx-auto mb-8 rounded"></div>
 
-        {/* Cards */}
+        {/* Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service, index) => (
             <div
               key={index}
-             className="bg-white w-[300px] max-w-sm mx-auto rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex items-start gap-4"
+              className="bg-white w-[300px] max-w-sm mx-auto rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex items-start gap-4"
             >
               {/* Icon */}
               <img
@@ -74,6 +74,13 @@ const Services = () => {
               </div>
             </div>
           ))}
+
+          {/* Coming Soon Card */}
+          <div className="bg-white w-[300px] max-w-sm mx-auto rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-300">
+            <span className="text-4xl">🚧</span>
+            <h3 className="text-lg font-bold text-gray-700 mt-2">Coming Soon</h3>
+            <p className="text-sm text-gray-500 mt-1">Exciting new service on the way!</p>
+          </div>
         </div>
 
         {/* Placeholder for future form */}

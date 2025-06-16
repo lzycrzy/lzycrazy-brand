@@ -42,9 +42,9 @@ const NewsFeed = () => {
       <Header />
 
       {/* Main Layout Section */}
-      <div className="flex flex-1 min-h-screen overflow-hidden">
+      <div className="flex flex-1 mt-20 min-h-screen overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-64 pt-10 gap-2.5 bg-white  shadow-md p-4 overflow-y-auto">
+        <aside className="w-64 pt-6 gap-2.5 bg-white  shadow-md p-4 overflow-y-auto">
           <h3 className="text-lg font-semibold mb-4 ">Top Uploaders</h3>
           <ul className="space-y-4">
             {uploaders.map((user, idx) => (
