@@ -110,6 +110,7 @@ export const loginWithFacebook = async (req, res) => {
 
 // Login with Google
 export const loginWithGoogle = async (req, res) => {
+  console.log(req.body);
   try {
     const { idToken } = req.body;
 
@@ -175,8 +176,8 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
     .cookie('token', '', {
       expires: new Date(0),
       httpOnly: true,
-      sameSite: 'None',
-      secure: true,
+      sameSite: 'Lax',   
+      secure: process.env.NODE_ENV === 'production',
     })
     .json({
       success: true,

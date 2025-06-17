@@ -38,7 +38,7 @@ app.use(
 app.use(
   cors({
     origin: [
-              process.env.FRONTEND_URL || 'https://lzycrazy-brand-frontend.netlify.app', 
+              process.env.FRONTEND_URL || 'http://localhost:5173', 
              process.env.DASHBOARD_URL
             ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],

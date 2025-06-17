@@ -30,6 +30,7 @@ import {
   // getSuperAdminDashboard,
   // getAllUsers,
 } from '../controllers/user.controller.js';
+import { createEnquiry } from '../controllers/Enquiry.controller.js';
 
 import {
   isAuthenticated
@@ -63,7 +64,7 @@ router.post('/post', isAuthenticated, upload.single('media'), createPost);
 
 router.post('/logout', logoutUser);
 // Social login routes
-router.post('/google-login',isAuthenticated, loginWithGoogle);
+router.post('/google-login', loginWithGoogle);
 router.post('/facebook-login',isAuthenticated, loginWithFacebook);
 
 
@@ -98,6 +99,10 @@ router.get('/stories/view/:storyId', isAuthenticated, getStoryViews);
 router.get('/story/view/:userId', isAuthenticated,getUserStories )
 
 
+
 //aplicant
 router.post('/hiring', upload.single('video'), submitApplication);
+
+//enquiry
+router.post('/enquiry', createEnquiry);
 export default router;

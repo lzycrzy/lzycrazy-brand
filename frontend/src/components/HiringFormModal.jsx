@@ -169,7 +169,7 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
       await axios.post('/v1/users/hiring', form, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      alert('Submitted!');
+     
       if (onSubmitSuccess) onSubmitSuccess(true);
       onClose();
     } catch (err) {
@@ -180,7 +180,9 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
     }
   };
   if (!isOpen) return null;
-    if (isSubmitting) return <Loader />;
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/70 backdrop-blur-sm">
+  <Loader className="h-10 w-10 animate-spin text-blue-600" />
+</div>
   return ReactDOM.createPortal(
     <div className="bg-opacity-40 fixed inset-0 z-[1000] flex h-screen w-screen items-center justify-center backdrop-blur-sm">
       <div className="relative flex h-[95vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg bg-white p-6 shadow-2xl">

@@ -8,6 +8,8 @@ import RightSidebar from '../components/RightSidebar';
 import ChatSidebar from '../components/ChatSidebar'; 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Loader from '../components/Spinner';
+import { useUser } from '../context/UserContext';
 
 
 
@@ -18,7 +20,8 @@ const Home = () => {
  
   const [showWelcome, setShowWelcome] = useState(false);
   const location = useLocation();
-  const user = JSON.parse(localStorage.getItem('user'));
+  
+  const { user, loading } = useUser();
 
   
   useEffect(() => {
@@ -78,7 +81,7 @@ const Home = () => {
     fetchAllPosts();
   }, [location]);
   
-
+  if (loading) return Loader; 
   return (
     
     <div className="h-screen w-screen mt-0 top-0 gap-x-4  gap-6 flex flex-col bg-gray-100 font-sans overflow-hidden m-0 p-0">

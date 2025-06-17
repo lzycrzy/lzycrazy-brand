@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import axios from '../lib/axios/axiosInstance';
 import {
   FaHome,
   FaBell,
@@ -9,9 +10,7 @@ import {
   FaSearch,
   FaFileVideo,
 } from 'react-icons/fa';
-import { SiCoinmarketcap } from 'react-icons/si';
-import { BsCameraReels } from 'react-icons/bs';
-import { MdOutlineChat } from 'react-icons/md';
+
 import store from '../assets/store.png'; // Replace with your actual path
 
 import logo from '../assets/logo.png';
@@ -24,21 +23,26 @@ import { auth } from '../lib/firebase/firebase';
 import { signOut } from 'firebase/auth';
 import { logout } from '../lib/redux/authSlice';
 import { useUser } from '../context/UserContext';
+import Loader from './Spinner';
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, profilePic, displayName, setUser } = useUser();
+  const { user, profilePic, displayName, setUser,logout1 } = useUser();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      localStorage.clear();
+      
+      logout1();
       dispatch(logout());
-      setUser(null);
+      
+      await axios.post('/v1/users/logout', {}, { withCredentials: true });
+
       navigate('/');
+   
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -53,7 +57,7 @@ const Header = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
+ 
   return (
     <div className="sticky top-0 left-0 z-[100] w-full bg-white px-4 py-2 shadow-sm">
       <div className="relative mx-auto flex items-center justify-between">
@@ -73,9 +77,9 @@ const Header = () => {
           <HeaderIcon image={home} to="/" user={user} />
           <HeaderIcon image={store} to="/market" user={user} />
 
-          <HeaderIcon image={play} to="/videos" user={user} />
-          <HeaderIcon image={movie} to="/reels" user={user} />
-          <HeaderIcon image={play} to="/chat" user={user} />
+          <HeaderIcon image={play} to="/" user={user} />
+          <HeaderIcon image={movie} to="/" user={user} />
+          <HeaderIcon image={play} to="/" user={user} />
         </div>
 
         {/* Right - Search + Icons */}
@@ -89,63 +93,54 @@ const Header = () => {
             />
           </div>
 
-          <HeaderIcon icon={FaBell} to="/notifications" user={user} />
-          <HeaderIcon icon={FaPlus} to="/add" user={user} />
+          <HeaderIcon icon={FaBell} to="/" user={user} />
+          <HeaderIcon icon={FaPlus} to="/" user={user} />
 
-          {/* Profile Button */}
+         {/* Profile Button & Dropdown - Only show if user is logged in */}
+{user && (
+  <div className="relative">
+    <button
+      onClick={() => setIsDropdownOpen((prev) => !prev)}
+      className="relative h-9 w-9 overflow-hidden rounded-full border border-gray-300"
+    >
+      <img
+        src={profilePic || 'https://via.placeholder.com/150'}
+        alt="Profile"
+        className="h-full w-full object-cover"
+      />
+    </button>
+
+    {isDropdownOpen && (
+      <div
+        ref={dropdownRef}
+        className="absolute top-12 right-0 z-50 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow-md"
+      >
+        <div className="px-4 py-3">
+          <p
+            onClick={() => {
+              navigate('/profile');
+              setIsDropdownOpen(false);
+            }}
+            className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
+          >
+            {displayName || 'User'}
+          </p>
+          <p className="truncate text-sm text-gray-600">
+            {user?.profile?.email || 'user@example.com'}
+          </p>
+        </div>
+        <div className="py-2 hover:bg-gray-100">
           <button
-  onClick={() => {
-    if (!user) {
-      alert('Please login first');
-      navigate('/auth');
-    } else {
-      setIsDropdownOpen((prev) => !prev);
-    }
-  }}
-  className="relative h-9 w-9 overflow-hidden rounded-full border border-gray-300"
->
-  <img
-    src={profilePic || 'https://via.placeholder.com/150'}
-    alt="Profile"
-    className="h-full w-full object-cover"
-  />
-</button>
-
-          {/* Dropdown */}
-          {isDropdownOpen && (
-            <div
-              ref={dropdownRef}
-              className="absolute top-16 right-4 z-50 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow-md"
-            >
-              <div className="px-4 py-3">
-                <p
-                  onClick={() => {
-                    if (!user) {
-                      alert('Please login first');
-                      navigate('/auth');
-                    } else {
-                      navigate('/profile');
-                    }
-                    setIsDropdownOpen(false);
-                  }}
-                  className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
-                >
-                  {displayName || 'User'}
-                </p>
-                <p className="truncate text-sm text-gray-600">
-                  {user?.profile?.email || 'user@example.com'}
-                </p>
-              </div>
-              <div className="py-2 hover:bg-gray-100">
-                <button
-                  onClick={handleLogout}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-700"
-                >
-                  <FaSignOutAlt /> Sign out
-                </button>
-              </div>
-            </div>
-          )}
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-700"
+          >
+            <FaSignOutAlt /> Sign out
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+)}
         </div>
       </div>
     </div>
@@ -158,7 +153,7 @@ const HeaderIcon = ({ icon: Icon, to, user, image }) => {
   const handleClick = () => {
     if (!user) {
       alert('Please login first');
-      navigate('/auth');
+      navigate('/');
     } else {
       navigate(to);
     }
@@ -173,7 +168,7 @@ const HeaderIcon = ({ icon: Icon, to, user, image }) => {
         <img
           src={image}
           alt="custom icon"
-          className="w-[22px] h-[22px] object-contain group-hover:brightness-110"
+          className="h-[22px] w-[22px] object-contain group-hover:brightness-110"
         />
       ) : (
         <Icon className="text-[22px] group-hover:text-blue-600" />
@@ -181,6 +176,5 @@ const HeaderIcon = ({ icon: Icon, to, user, image }) => {
     </div>
   );
 };
-
 
 export default Header;

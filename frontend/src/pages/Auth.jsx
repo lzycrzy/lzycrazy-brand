@@ -27,6 +27,7 @@ import CountryCodes from '../data/CountryCodes.json';
 import Loader from '../components/Spinner';
 import { useTranslation } from 'react-i18next'; // Add this at the top
 import { toast } from 'react-toastify';
+import { useUser } from '../context/UserContext';
 
 
 const Auth = () => {
@@ -52,7 +53,7 @@ const Auth = () => {
   });
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const { fetchUser } = useUser();
   const handleLoginChange = (e) =>
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
 
@@ -67,6 +68,7 @@ const Auth = () => {
       if (data?.token) localStorage.setItem('token', data.token);
       if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
       dispatch(login({ success: true, data: data.user, token: data.token }));
+      fetchUser(); 
       toast.success(`🎉 Welcome back, ${data.user.fullName || 'User'}!`);
       
       navigate('/dashboard',{ replace: true, state: { welcome: true } });
@@ -125,6 +127,7 @@ const Auth = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       dispatch(login({ success: true, data: user, token }));
+      fetchUser(); 
   
       toast.success('Registration successful!');
       navigate('/dashboard', { replace: true, state: { welcome: true } });
@@ -141,7 +144,7 @@ const Auth = () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-      const idToken = await user.getIdToken();
+      const idToken = await user.getIdToken(true);
       console.log("ID Token:", idToken); // add before axios.post
 
       const response = await axios.post('/v1/users/google-login', { idToken });
@@ -149,6 +152,8 @@ const Auth = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(backendUser));
       dispatch(login({ success: true, data: backendUser, token }));
+      await fetchUser(); 
+      toast.success(`🎉 Welcome back`);
       navigate('/dashboard',{ replace: true, state: { welcome: true } });
     } catch (error) {
       alert(error.response?.data?.message || 'Google login failed');
@@ -183,357 +188,232 @@ const Auth = () => {
 
   return (
     <>
-      <div className="flex max-h-screen w-full flex-col items-center overflow-y-hidden bg-[#ebf3fe] px-4 pb-8 md:pb-12">
-        <div className="flex w-full max-w-7xl flex-col md:flex-row md:items-center md:justify-center">
-          {/* Left - Branding */}
-          <div className="ml-8 flex w-full -translate-y-10 items-center justify-start bg-[#ebf3fe] p-8 md:w-3/4">
-            <div className="w-full max-w-xl">
-              <Searchbar />
+      <div className="min-h-screen flex flex-col bg-[#ebf3fe] overflow-hidden">
+        {/* Main content container */}
+        <div className="flex-1 flex flex-col items-center justify-center px-4 pb-8 md:pb-12">
+          <div className="flex w-full max-w-7xl flex-col md:flex-row md:items-center md:justify-center gap-6">
+            {/* Left - Branding */}
+            <div className="flex w-full justify-start bg-[#ebf3fe] p-4 md:p-8 md:w-3/4">
+              <div className="w-full max-w-xl">
+                <Searchbar />
+              </div>
             </div>
-          </div>
-
-          {/* Right - Auth Card */}
-          <div
-            className="mr-8 flex flex-col items-center justify-center bg-white p-8 shadow-lg"
-            style={{ width: 452 }}
-          >
-            {/* <div className="mb-6 flex w-full overflow-hidden rounded-2xl border border-gray-200">
-              <button
-                className={`flex flex-1 items-center justify-center py-3 text-sm font-medium transition ${
-                  activeTab === 'login'
-                    ? 'rounded-r-md bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] text-white'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
-                onClick={() => setActiveTab('login')}
-              >
-                Login
-              </button>
-              <button
-                className={`flex flex-1 items-center justify-center py-3 text-sm font-medium transition ${
-                  activeTab === 'register'
-                    ? 'rounded-r-md bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] text-white'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
-                onClick={() => setActiveTab('register')}
-              >
-                Signup
-              </button>
-            </div> */}
-
-            <div className="flex h-full w-full max-w-md flex-col justify-between">
-              <h2 className="mb-4 text-center text-xl font-semibold text-gray-800">
-                {/* {activeTab === 'login'
-                  ? 'Login to Your Account'
-                  : 'Create a New Account'} */}
-              </h2>
-
-              {activeTab === 'login' && (
-                <form onSubmit={handleLoginSubmit} className="flex flex-col">
-                  <div className="relative mb-3">
-                    <img
-                      src={email}
-                      className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
-                      alt="email"
-                    />
-                    <input
-                      type="email"
-                      name="email"
-                      value={loginData.email}
-                      onChange={handleLoginChange}
-                      placeholder="Email Address"
-                      required
-                      className={inputClass}
-                    />
-                  </div>
-
-                  <div className="relative mb-3">
-                    <img
-                      src={lock}
-                      className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
-                      alt="lock"
-                    />
-                    <input
-                      type="password"
-                      name="password"
-                      value={loginData.password}
-                      onChange={handleLoginChange}
-                      placeholder="Password"
-                      required
-                      className={inputClass}
-                    />
-                  </div>
-
-                  <div className="mb-3 text-right">
-                  <button
-        onClick={() => setShowForgotModal(true)}
-        className="text-sm text-blue-600 hover:underline"
-      >
-        Forgot Password?
-      </button>
-
-      {showForgotModal && (
-        <ForgotPassword onClose={() => setShowForgotModal(false)} />
-      )}
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="mt-3.5 w-full rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white"
-                  >
-                    Login
-                  </button>
-
-                  <div className="my-4 flex items-center gap-4 py-3 text-sm text-gray-500">
-                    <div className="h-px flex-1 bg-gray-300" />
-                    <span className="whitespace-nowrap">or continue with</span>
-                    <div className="h-px flex-1 bg-gray-300" />
-                  </div>
-
-                  <div className="flex gap-4">
-                    <button
-                      type="button"
-                      onClick={handleGoogleLogin}
-                      className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 bg-white py-2 font-medium text-black shadow-sm shadow-gray-300"
-                    >
-                      <img
-                        src={googleLogo}
-                        alt="Google"
-                        className="h-5 w-5 rounded-full bg-white p-0.5"
+  
+            {/* Right - Auth Card */}
+            <div className="flex w-full max-w-[452px] flex-col items-center justify-center bg-white p-6 md:p-8 shadow-lg rounded-lg">
+              <div className="w-full max-w-md flex flex-col justify-between">
+                <h2 className="mb-4 text-center text-xl font-semibold text-gray-800"></h2>
+  
+                {activeTab === 'login' && (
+                  <form onSubmit={handleLoginSubmit} className="flex flex-col">
+                    <div className="relative mb-3">
+                      <img src={email} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" />
+                      <input
+                        type="email"
+                        name="email"
+                        value={loginData.email}
+                        onChange={handleLoginChange}
+                        placeholder="Email Address"
+                        required
+                        className={inputClass}
                       />
-                      Google
-                    </button>
+                    </div>
+  
+                    <div className="relative mb-3">
+                      <img src={lock} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" />
+                      <input
+                        type="password"
+                        name="password"
+                        value={loginData.password}
+                        onChange={handleLoginChange}
+                        placeholder="Password"
+                        required
+                        className={inputClass}
+                      />
+                    </div>
+  
+                    <div className="mb-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => setShowForgotModal(true)}
+                        className="text-sm text-blue-600 hover:underline"
+                      >
+                        Forgot Password?
+                      </button>
+                      {showForgotModal && (
+                        <ForgotPassword onClose={() => setShowForgotModal(false)} />
+                      )}
+                    </div>
+  
                     <button
-                      type="button"
-                      onClick={handleFacebookLogin}
-                      className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 py-2 font-medium text-black shadow-sm shadow-gray-300 hover:bg-[#155DC0]"
+                      type="submit"
+                      className="mt-3.5 w-full rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white"
                     >
-                      <img src={fb} alt="Facebook" className="h-5 w-5" />
-                      Facebook
+                      Login
                     </button>
-                  </div>
-                  <p className="mt-4 text-center text-sm text-gray-600">
+  
+                    <div className="my-4 flex items-center gap-4 py-3 text-sm text-gray-500">
+                      <div className="h-px flex-1 bg-gray-300" />
+                      <span className="whitespace-nowrap">or continue with</span>
+                      <div className="h-px flex-1 bg-gray-300" />
+                    </div>
+  
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        onClick={handleGoogleLogin}
+                        className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 bg-white py-2 font-medium text-black shadow-sm shadow-gray-300"
+                      >
+                        <img src={googleLogo} alt="Google" className="h-5 w-5 rounded-full bg-white p-0.5" />
+                        Google
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleFacebookLogin}
+                        className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 py-2 font-medium text-black shadow-sm shadow-gray-300 hover:bg-[#155DC0]"
+                      >
+                        <img src={fb} alt="Facebook" className="h-5 w-5" />
+                        Facebook
+                      </button>
+                    </div>
+  
+                    <p className="mt-4 text-center text-sm text-gray-600">
+                      <button
+                        type="button"
+                        className={`mt-3.5 w-1/2 rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white ${
+                          activeTab === 'register'
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-400 text-white'
+                            : 'bg-gray-100'
+                        }`}
+                        onClick={() => setActiveTab('register')}
+                      >
+                        Create New Account
+                      </button>
+                    </p>
+                  </form>
+                )}
+  
+                {activeTab === 'register' && (
+                  <form onSubmit={handleRegisterSubmit} className="flex flex-col">
+                    <div className="relative mb-3">
+                      <img src={identity} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="user" />
+                      <input
+                        type="text"
+                        name="fullName"
+                        value={registerData.fullName}
+                        onChange={handleRegisterChange}
+                        placeholder="Full Name"
+                        required
+                        className={inputClass}
+                      />
+                    </div>
+  
+                    <div className="relative mb-3">
+                      <PhoneInput
+                        country={'in'}
+                        value={registerData.phone}
+                        onChange={(phone) => setRegisterData((prev) => ({ ...prev, phone }))}
+                        placeholder="Phone Number"
+                        enableSearch
+                        inputStyle={{
+                          width: '100%',
+                          paddingLeft: '48px',
+                          paddingTop: '12px',
+                          paddingBottom: '12px',
+                          paddingRight: '12px',
+                          borderRadius: '0.375rem',
+                          border: '1px solid #d1d5db',
+                          fontSize: '0.875rem',
+                        }}
+                        buttonStyle={{
+                          borderRight: '1px solid #d1d5db',
+                          backgroundColor: '#f9fafb',
+                        }}
+                        containerStyle={{ width: '100%' }}
+                      />
+                    </div>
+  
+                    <div className="relative mb-3">
+                      <img src={email} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" />
+                      <input
+                        type="email"
+                        name="email"
+                        value={registerData.email}
+                        onChange={handleRegisterChange}
+                        placeholder="Email Address"
+                        required
+                        className={inputClass}
+                      />
+                    </div>
+  
+                    <div className="relative mb-3">
+                      <img src={lock} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" />
+                      <input
+                        type="password"
+                        name="password"
+                        value={registerData.password}
+                        onChange={handleRegisterChange}
+                        placeholder="Password"
+                        required
+                        className={inputClass}
+                      />
+                    </div>
+  
+                    <div className="mb-4 flex flex-col gap-2 text-xs text-gray-700">
+                      <span>
+                        We may use your contact information to improve your experience.{' '}
+                        <span className="cursor-pointer text-blue-600">Learn more</span>
+                      </span>
+                      <span>
+                        By clicking Sign Up, you agree to our{' '}
+                        <span className="cursor-pointer text-blue-600">Terms of Service</span>,{' '}
+                        <span className="cursor-pointer text-blue-600">Privacy Policy</span>, and{' '}
+                        <span className="cursor-pointer text-blue-600">Cookies Policy</span>
+                      </span>
+                    </div>
+  
                     <button
-                      type="button"
-                      className={`mt-3.5 w-1/2 rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white ${
-                        activeTab === 'register'
-                          ? 'bg-gradient-to-r from-purple-600 to-pink-400 text-white'
-                          : 'bg-gray-100'
-                      }`}
-                      onClick={() => setActiveTab('register')}
+                      type="submit"
+                      className="w-full rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white"
                     >
-                      Create New Account
+                      Signup
                     </button>
-                  </p>
-                </form>
-              )}
-
-              {activeTab === 'register' && (
-                <form onSubmit={handleRegisterSubmit} className="flex flex-col">
-                  <div className="relative mb-3">
-                    <img
-                      src={identity}
-                      className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
-                      alt="user"
-                    />
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={registerData.fullName}
-                      onChange={handleRegisterChange}
-                      placeholder="Full Name"
-                      required
-                      className={inputClass}
-                    />
-                  </div>
-
-                  {/* <div className="relative mb-3">
-                    <img
-                      src={country}
-                      className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
-                      alt="country"
-                    />
-                    <select
-                      name="country"
-                      value={registerData.country}
-                      onChange={handleRegisterChange}
-                      required
-                      className="w-full rounded border border-gray-300 bg-[#ebf3fe] py-2 pr-3 pl-10 text-sm text-gray-700"
-                    >
-                      <option value="" disabled>
-                        Select Country
-                      </option>
-                      {countryList.map((c) => (
-                        <option key={c.code} value={c.name}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div> */}
-
-                  {/* <div className="relative mb-3">
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={registerData.phone}
-                      onChange={handleRegisterChange}
-                      placeholder="Phone Number"
-                      required
-                      className={inputClass}
-                    />
-                  </div> */}
-                  <div className="relative mb-3">
-                    <PhoneInput
-                      country={'in'}
-                      value={registerData.phone}
-                      onChange={(phone) =>
-                        setRegisterData((prev) => ({ ...prev, phone }))
-                      }
-                      placeholder="Phone Number"
-                      enableSearch={true}
-                      inputStyle={{
-                        width: '100%',
-                        paddingLeft: '48px',
-                        paddingTop: '12px',
-                        paddingBottom: '12px',
-                        paddingRight: '12px',
-                        borderRadius: '0.375rem',
-                        border: '1px solid #d1d5db', // Tailwind border-gray-300
-                        fontSize: '0.875rem',
-                      }}
-                      buttonStyle={{
-                        borderRight: '1px solid #d1d5db',
-                        backgroundColor: '#f9fafb',
-                      }}
-                      containerStyle={{
-                        width: '100%',
-                      }}
-                    />
-                  </div>
-
-                  <div className="relative mb-3">
-                    <img
-                      src={email}
-                      className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
-                      alt="email"
-                    />
-                    <input
-                      type="email"
-                      name="email"
-                      value={registerData.email}
-                      onChange={handleRegisterChange}
-                      placeholder="Email Address"
-                      required
-                      className={inputClass}
-                    />
-                  </div>
-
-                  <div className="relative mb-3">
-                    <img
-                      src={lock}
-                      className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
-                      alt="lock"
-                    />
-                    <input
-                      type="password"
-                      name="password"
-                      value={registerData.password}
-                      onChange={handleRegisterChange}
-                      placeholder="Password"
-                      required
-                      className={inputClass}
-                    />
-                  </div>
-
-                  <div className="mb-4 flex flex-col gap-2 text-xs text-gray-700">
-                    <span>
-                      We may use your contact information to improve your
-                      experience.{' '}
-                      <span className="cursor-pointer text-blue-600">
-                        Learn more
-                      </span>
-                    </span>
-                    <span>
-                      By clicking Sign Up, you agree to our{' '}
-                      <span className="cursor-pointer text-blue-600">
-                        Terms of Service
-                      </span>
-                      ,{' '}
-                      <span className="cursor-pointer text-blue-600">
-                        Privacy Policy
-                      </span>
-                      , and{' '}
-                      <span className="cursor-pointer text-blue-600">
-                        Cookies Policy
-                      </span>
-                    </span>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white"
-                  >
-                    Signup
-                  </button>
-                  <p className="mt-4 text-center text-sm text-gray-600">
-                    <button
-                      type="button"
-                      className="text-blue-600 hover:underline"
-                      onClick={() => setActiveTab('login')}
-                    >
-                      Already have an account?{' '}
-                    </button>
-                  </p>
-                </form>
-              )}
+                    <p className="mt-4 text-center text-sm text-gray-600">
+                      <button
+                        type="button"
+                        className="text-blue-600 hover:underline"
+                        onClick={() => setActiveTab('login')}
+                      >
+                        Already have an account?
+                      </button>
+                    </p>
+                  </form>
+                )}
+              </div>
             </div>
           </div>
         </div>
+  
+        {/* Footer - Always at the bottom */}
+        <footer className="w-full border-t border-gray-200 bg-[#ebf3fe] py-4 text-sm text-gray-600">
+          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-between px-4 sm:px-20 gap-4">
+            <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
+              <div>India</div>
+              <div className="ml-2">|</div>
+              <div>LzyCrazy offered in:</div>
+              <button onClick={() => i18n.changeLanguage('hi')} className="ml-2 text-blue-600 hover:underline">हिन्दी</button>
+              <button onClick={() => i18n.changeLanguage('en')} className="ml-2 text-blue-600 hover:underline">English</button>
+              <button onClick={() => i18n.changeLanguage('bn')} className="ml-2 text-blue-600 hover:underline">বাংলা</button>
+              <button onClick={() => i18n.changeLanguage('ar')} className="ml-2 text-blue-600 hover:underline">العربية</button>
+            </div>
+            <div className="flex gap-6 justify-center sm:justify-end">
+              <Link to="/privacy" className="hover:underline">Privacy</Link>
+              <Link to="/terms" className="hover:underline">Terms</Link>
+            </div>
+          </div>
+        </footer>
       </div>
-
-      {/* 🌍 Google-style Footer */}
-      <footer className="absolute bottom-0 w-full border-t border-gray-200 bg-[#ebf3fe] py-4 text-sm text-gray-600">
-        <div className="flex flex-wrap items-center justify-between px-4 sm:px-20">
-          {/* Left Side - Location + LzyCrazy + Languages */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div>India</div>
-            <div className="ml-2">|</div> {/* Separator */}
-            <div>LzyCrazy offered in:</div>
-            {/* Language buttons with spacing */}
-            <button
-              onClick={() => i18n.changeLanguage('hi')}
-              className="ml-2 text-blue-600 hover:underline"
-            >
-              हिन्दी
-            </button>
-            <button
-              onClick={() => i18n.changeLanguage('en')}
-              className="ml-2 text-blue-600 hover:underline"
-            >
-              English
-            </button>
-            <button
-              onClick={() => i18n.changeLanguage('bn')}
-              className="ml-2 text-blue-600 hover:underline"
-            >
-              বাংলা
-            </button>
-            <button
-              onClick={() => i18n.changeLanguage('ar')}
-              className="ml-2 text-blue-600 hover:underline"
-            >
-              العربية
-            </button>
-          </div>
-
-          {/* Right Side - Links */}
-          <div className="flex gap-6">
-          <Link to="/privacy" className="hover:underline">Privacy</Link>
-          <Link to="/terms" className="hover:underline">Terms</Link>
-          </div>
-        </div>
-      </footer>
     </>
-  );
-};
+  )};
 
 export default Auth;
