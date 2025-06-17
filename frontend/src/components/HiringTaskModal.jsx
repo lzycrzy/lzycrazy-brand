@@ -26,7 +26,7 @@ const HiringTasksModal = ({ isOpen, onClose, onSubmitSuccess }) => {
         </p>
 
         <div className="bg-green-100 text-green-700 text-center text-sm px-4 py-3 rounded mb-4">
-          ✅ Form Successfully Submitted!
+           Form Successfully Submitted!
         </div>
 
         <p className="text-center text-md font-medium mb-6">
