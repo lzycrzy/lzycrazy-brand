@@ -101,6 +101,7 @@ const ChatSidebar = () => {
               onClick={() => setIsOpen(false)}
             />
           </div>
+          
 
           {/* Search */}
           <div className="px-4 py-2">

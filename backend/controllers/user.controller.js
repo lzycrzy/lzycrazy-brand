@@ -315,20 +315,24 @@ export const getPosts= catchAsyncErrors( async (req, res) => {
 
 //post bu user
 export const createPost = async (req, res) => {
+  console.log("🎯 Reached createPost controller");
   try {
     const { text } = req.body;
     let mediaUrl = null;
     let mediaType = null;
-    const filePath=req.file.path;
+    const filePath = req.file?.path;
 
     if (req.file) {
-      // Assume you upload file to Cloudinary and get secure_url & type here
-      const result = await uploadToCloudinary(filePath,{resource_type: 'auto',});
+      // Upload to Cloudinary and get URL
+      const result = await uploadToCloudinary(filePath);
       mediaUrl = result;
-      
       mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
     }
-    await fs.remove(filePath);
+
+    // Optional: Remove file only if it exists
+   
+    console.log(mediaUrl)
+
     const post = new Post({
       user: req.user._id,
       text,
@@ -338,11 +342,10 @@ export const createPost = async (req, res) => {
 
     await post.save();
 
-    // Optionally update user posts array
     await userModel.findByIdAndUpdate(req.user._id, {
       $push: { posts: post._id },
     });
-    
+
     res.status(201).json({
       success: true,
       message: 'Post created',
@@ -851,6 +854,7 @@ export const getStoryViews = async (req, res) => {
 
 export const submitApplication = async (req, res) => {
   try {
+    console.log(req.body);
     const {
       lycrazyId,
       country,
@@ -869,7 +873,9 @@ export const submitApplication = async (req, res) => {
 
     console.log(req.file); // includes path, size, filename, etc.
 
-    const videoPath = req.file?.path || null;
+    const result = req.file?.path || null;
+    const videoUrl = await uploadToCloudinary(result);
+    console.log(videoUrl)
 
     const applicant = new Applicant({
       lycrazyId,
@@ -885,7 +891,7 @@ export const submitApplication = async (req, res) => {
       jobCategory,
       experience,
       about,
-      videoUrl: videoPath, // store local file path
+      videoUrl // store local file path
     });
 
     await applicant.save();

@@ -19,15 +19,34 @@ import TermPage from './components/TermPage';
 import ForgotPassword from './components/ForgotPassword';
 import PrivacyPolicyPage from './components/PrivacyPagePolicy';
 import MarketplaceHome from './components/MarketPlace';
+import { ToastContainer } from 'react-toastify'; // ✅ Import Toast
+import 'react-toastify/dist/ReactToastify.css'; // ✅ Toast styles
+
 
 const App = () => {
   return (
     <Provider store={store}>
       <UserProvider> {/*  Wrap everything in UserProvider */}
+
+          {/* ✅ Global ToastContainer */}
+          <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+         
+        />
+
         <Routes>
           {/* Routes restricted to unauthenticated users only */}
           <Route
-            path="/auth"
+            path="/"
             element={
               <AuthRedirect>
                 <Auth />
@@ -42,6 +61,7 @@ const App = () => {
               </AuthRedirect>
             }
           />
+        
           <Route path="/terms" element={<TermPage />} />
           
             <Route path="/news" element={<NewsFeed />} />

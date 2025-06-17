@@ -26,6 +26,7 @@ import countryList from '../data/countries.json';
 import CountryCodes from '../data/CountryCodes.json';
 import Loader from '../components/Spinner';
 import { useTranslation } from 'react-i18next'; // Add this at the top
+import { toast } from 'react-toastify';
 
 
 const Auth = () => {
@@ -66,6 +67,8 @@ const Auth = () => {
       if (data?.token) localStorage.setItem('token', data.token);
       if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
       dispatch(login({ success: true, data: data.user, token: data.token }));
+      toast.success(`🎉 Welcome back, ${data.user.fullName || 'User'}!`);
+      
       navigate('/dashboard',{ replace: true, state: { welcome: true } });
     } catch (error) {
       alert(error.response?.data?.message || 'Login failed');
@@ -78,24 +81,56 @@ const Auth = () => {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (
-      !registerData.email ||
-      !registerData.password ||
-      !registerData.phone ||
-      !registerData.fullName
-    ) {
-      alert('Please fill in all the required fields');
+  
+    const { fullName, email, phone, password } = registerData;
+  
+    // Check all fields
+    if (!fullName || !email || !phone || !password) {
+      toast.error('All fields are required');
+      setLoading(false);
       return;
     }
+  
+    // Email regex validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Invalid email format');
+      setLoading(false);
+      return;
+    }
+  
+    // Phone validation for India (starts with 6-9, total 10 digits)
+    // const phoneRegex = /^[6-9]\d{9}$/;
+    // if (!phoneRegex.test(phone)) {
+    //   toast.error('Enter a valid Indian mobile number');
+    //   setLoading(false);
+    //   return;
+    // }
+  
+    // Password validation
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      toast.error(
+        'Password must be 8+ chars, include uppercase, lowercase, number & special character'
+      );
+      setLoading(false);
+      return;
+    }
+  
     try {
       const response = await axios.post('/v1/users/register', registerData);
       const { user, token } = response.data;
+  
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       dispatch(login({ success: true, data: user, token }));
-      navigate('/dashboard',{ replace: true, state: { welcome: true } });
+  
+      toast.success('Registration successful!');
+      navigate('/dashboard', { replace: true, state: { welcome: true } });
     } catch (error) {
-      alert(error.response?.data?.message || 'Registration failed');
+      const msg = error.response?.data?.message || 'Registration failed';
+      toast.error(msg);
       console.error('Registration error:', error);
     } finally {
       setLoading(false);

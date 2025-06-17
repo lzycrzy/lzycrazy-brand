@@ -4,6 +4,7 @@ import { Dialog } from '@headlessui/react';
 const CategoryPostForm = ({
   isOpen,
   onClose,
+  
   categoryOptions = ['Cars'],
   subCategoryOptions = [],
   inputFields = [],

@@ -47,8 +47,8 @@ app.use(
 );
 
 app.use(cookieParser()); //--for accessing cokkies--
-app.use(express.json({ limit: '10mb' })); //--for parsing JSON bodies
-app.use(express.urlencoded({ limit: '10mb', extended: true })); //--for parsing URL-encoded bodies
+app.use(express.json({ limit: '100mb' })); //--for parsing JSON bodies
+app.use(express.urlencoded({ limit: '100mb', extended: true })); //--for parsing URL-encoded bodies
 app.use(express.urlencoded({ extended: true })); 
 
 //--setting up routes
@@ -59,6 +59,11 @@ app.use('/api/v1/categories', categoryRoutes); //--category routes
 app.use('/api/v1/services', serviceRoutes); //--service routes
 
 dbConnection(); 
+
+app.use((err, req, res, next) => {
+  console.error("🔥 Uncaught error:", err);
+  res.status(500).json({ message: "Unexpected server error" });
+});
 
 app.use(errorMiddleware); //--error handling middleware
 
