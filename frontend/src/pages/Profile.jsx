@@ -204,7 +204,7 @@ const Profile = () => {
               if (newImage) formData.append('photo', newImage);
 
               const res = await axios.put(
-                'http://localhost:4000/api/v1/users/updateMe',
+                '/v1/users/updateMe',
                 formData,
                 {
                   headers: {
