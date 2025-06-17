@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-
+import axios from '../utils/axios';
 export default function Auth() {
   const navigate = useNavigate();
 
@@ -12,18 +12,29 @@ export default function Auth() {
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-const onSubmit = (e) => {
+const onSubmit = async (e) => {
   e.preventDefault();
 
-  const ok =
-    form.email === 'admin@lzycrazy.com' && form.password === 'admin123';
+  try {
+    const res = await axios.post('/admin/login', {
+      email: form.email,
+      password: form.password,
+    });
 
-  if (ok) {
-    localStorage.setItem('isAuthenticated', 'true');
+    // login successful
+    if (res.data?.token) {
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('token', res.data.token);
+      setStage('verified');
+    } else {
+      setStage('error');
+    }
+  } catch (error) {
+    console.error(error?.response?.data || error.message);
+    setStage('error');
   }
-
-  setStage(ok ? 'verified' : 'error');
 };
+
 
 
   const goDashboard = () => navigate('/admin');
