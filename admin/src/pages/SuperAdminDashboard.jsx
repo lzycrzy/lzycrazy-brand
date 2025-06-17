@@ -17,7 +17,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { users } from '../data';
+import axios from '../utils/axios'; // tu already import kar raha hai
 
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
@@ -25,34 +25,62 @@ const SuperAdminDashboard = () => {
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
   const [dateRange, setDateRange] = useState('Monthly');
-  const [filteredUsers, setFilteredUsers] = useState(users);
+const [usersData, setUsersData] = useState([]);
+const [totalUsers, setTotalUsers] = useState(0);
+const [filteredUsers, setFilteredUsers] = useState([]);
+useEffect(() => {
+  const fetchDashboardData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('/admin/admin/dashboard', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-  // Filter users
-  useEffect(() => {
-    let filtered = users;
+      // overview ke data ko set karo
+      const overview = res.data?.data?.overview;
+      setTotalUsers(overview?.totalUsers || 0);
 
-    if (country) filtered = filtered.filter((u) => u.country === country);
-    if (state) filtered = filtered.filter((u) => u.state === state);
-    if (city) filtered = filtered.filter((u) => u.city === city);
+      // agar future me recentUsers ka use karna ho to:
+      // const recentUsers = res.data?.data?.userStats?.recentUsers || [];
 
-    setFilteredUsers(filtered);
-  }, [country, state, city]);
+    } catch (err) {
+      console.error('Dashboard fetch error:', err);
+    }
+  };
+
+  fetchDashboardData();
+}, []);
+
+useEffect(() => {
+  let filtered = usersData;
+
+  if (country) filtered = filtered.filter((u) => u.country === country);
+  if (state) filtered = filtered.filter((u) => u.state === state);
+  if (city) filtered = filtered.filter((u) => u.city === city);
+
+  setFilteredUsers(filtered);
+}, [country, state, city, usersData]);
+
 
   // Monthly group logic
-  const chartData = Array.from({ length: 12 }, (_, i) => ({
-    name: new Date(0, i).toLocaleString('default', { month: 'short' }),
-    users: filteredUsers.filter(
-      (user) => new Date(user.createdAt).getMonth() === i,
-    ).length,
-  }));
+ const chartData = Array.from({ length: 12 }, (_, i) => ({
+  name: new Date(0, i).toLocaleString('default', { month: 'short' }),
+  users: filteredUsers.filter(
+    (user) => new Date(user.createdAt).getMonth() === i
+  ).length,
+}));
 
-  const uniqueCountries = [...new Set(users.map((u) => u.country))];
-  const uniqueStates = [
-    ...new Set(users.filter((u) => u.country === country).map((u) => u.state)),
-  ];
-  const uniqueCities = [
-    ...new Set(users.filter((u) => u.state === state).map((u) => u.city)),
-  ];
+
+ const uniqueCountries = [...new Set(usersData.map((u) => u.country))];
+const uniqueStates = [
+  ...new Set(usersData.filter((u) => u.country === country).map((u) => u.state)),
+];
+const uniqueCities = [
+  ...new Set(usersData.filter((u) => u.state === state).map((u) => u.city)),
+];
+
 
   return (
     <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
@@ -67,7 +95,7 @@ const SuperAdminDashboard = () => {
       <User2 className="text-blue-600" />
       <div>
         <p className="text-sm">User</p>
-        <p className="text-lg font-bold">{filteredUsers.length}</p>
+        <p className="text-lg font-bold">{totalUsers}</p>
       </div>
     </div>
         <div className="flex items-center gap-2 rounded-md bg-gray-200 p-4">
