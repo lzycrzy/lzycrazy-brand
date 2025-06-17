@@ -15,50 +15,43 @@ cloudinary.config({
 
 
 
-export const uploadToCloudinary = async (filePath, folderName = 'admin_profiles') => {
+export const uploadToCloudinary = async (filePath, folderName = 'user_uploads') => {
   try {
     console.log('Cloud name:', process.env.CLOUDINARY_CLOUD_NAME);
     console.log('API key:', process.env.CLOUDINARY_API_KEY ? 'Set' : 'Not Set');
+    console.log('API secret:', process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Not Set');
     console.log('Uploading file:', filePath);
 
+    // Get file extension to determine if it's a video
     const ext = path.extname(filePath).toLowerCase();
     const isVideo = ['.mp4', '.mov', '.avi', '.mkv'].includes(ext);
 
     let result;
 
     if (isVideo) {
-      result = await cloudinary.uploader.upload(filePath, {
-        resource_type: 'video',  // ❗ Force video here
+      // Upload large video using chunked upload
+       result = await cloudinary.uploader.upload(filePath, {
+        resource_type: 'video',
         folder: folderName,
-       
       });
     } else {
+      // Upload small images normally
       result = await cloudinary.uploader.upload(filePath, {
-        resource_type: 'image',  // ❗ Force image here
         folder: folderName,
+        resource_type: 'auto', 
         width: 500,
         height: 500,
         crop: 'limit',
         quality: 'auto:good',
+        
       });
     }
 
-    console.log('Cloudinary Upload Result:', result); // ✅ Debug log
-    console.log('Cloudinary upload result:', result);
-if (!result || !result.secure_url) {
-  console.error('Upload failed or no URL returned.');
-  return res.status(500).json({ message: 'Upload failed' });
-}
-    console.log("error")
-
-    try {
-      await fs.unlink(filePath);
-    } catch (err) {
-      console.warn('Safe unlink failed (may be already deleted):', err.message);
-    }
+    // Delete local file after upload
+    await fs.unlink(filePath);
     console.log('File uploaded and local file deleted');
 
-    return result?.secure_url || null;
+    return result.secure_url;
   } catch (error) {
     console.error('Cloudinary upload error:', error);
     try {
@@ -70,6 +63,9 @@ if (!result || !result.secure_url) {
     throw error;
   }
 };
+
+
+
 // Function to delete image from cloudinary
 export const deleteFromCloudinary = async (imageUrl) => {
   try {
