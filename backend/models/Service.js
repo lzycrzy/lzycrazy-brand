@@ -29,6 +29,7 @@ const serviceSchema = new mongoose.Schema({
     ref: 'Category',
     required: false
   },
+  
   tags: {
     type: [String],
     default: []
