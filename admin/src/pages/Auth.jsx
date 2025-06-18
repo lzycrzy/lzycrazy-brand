@@ -2,40 +2,40 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import axios from '../utils/axios';
+import axios from '../lib/axios/axiosInstance'; // Adjust the import path as necessary
+
 export default function Auth() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [stage, setStage] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
+  
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-const onSubmit = async (e) => {
-  e.preventDefault();
+  const onSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const res = await axios.post('/admin/login', {
-      email: form.email,
-      password: form.password,
-    });
+    try {
+      const res = await axios.post('/admin/login', {
+        email: form.email,
+        password: form.password,
+      });
 
-    // login successful
-    if (res.data?.token) {
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('token', res.data.token);
-      setStage('verified');
-    } else {
+      // login successful
+      if (res.data?.token) {
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('token', res.data.token);
+        setStage('verified');
+      } else {
+        setStage('error');
+      }
+    } catch (error) {
+      console.error(error?.response?.data || error.message);
       setStage('error');
     }
-  } catch (error) {
-    console.error(error?.response?.data || error.message);
-    setStage('error');
-  }
-};
-
-
+  };
 
   const goDashboard = () => navigate('/admin');
   const closeError = () => setStage('login');

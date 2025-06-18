@@ -58,7 +58,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get('/users/logout', { withCredentials: true }); // send cookie
+      await axios.get('/admin/logout', { withCredentials: true }); // send cookie
       dispatch(logout()); // clear redux & localStorage
       navigate('/auth'); // redirect to login page
     } catch (error) {

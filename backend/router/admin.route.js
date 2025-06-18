@@ -35,28 +35,6 @@ router.get('/logout', logoutAdmin);
 // Protected routes
 router.get('/me', isAuthenticatedAdmin, getAdminProfile);
 
-// Admin-only routes for User management Actions
-router.get(
-  '/admin/dashboard',
-  isAuthenticatedAdmin,
-  authorizeRolesAdimin('admin'),
-  getAdminDashboard,
-);
-
-router.get(
-  '/admin/userslist',
-  isAuthenticatedAdmin,
-  authorizeRolesAdimin('admin'),
-  getAllUsersList,
-);
-
-router.delete(
-  '/admin/user/delete/:id',
-  isAuthenticatedAdmin,
-  authorizeRolesAdimin('admin'),
-  deleteSingleUser,
-);
-
 // Protected routes (require authentication)
 router.put('/profile/update', isAuthenticatedAdmin, updateAdminProfile);
 router.put('/password/update', isAuthenticatedAdmin, updateAdminPassword);
@@ -64,5 +42,27 @@ router.put('/password/update', isAuthenticatedAdmin, updateAdminPassword);
 // Password reset routes
 router.post('/password/forgot', forgotAdminPassword);
 router.put('/password/reset/:token', resetAdminPassword);
+
+// Admin-only routes for User management Actions
+router.get(
+  '/dashboard',
+  isAuthenticatedAdmin,
+  authorizeRolesAdimin('admin'),
+  getAdminDashboard,
+);
+
+router.get(
+  '/userslist',
+  isAuthenticatedAdmin,
+  authorizeRolesAdimin('admin'),
+  getAllUsersList,
+);
+
+router.delete(
+  '/user/delete/:id',
+  isAuthenticatedAdmin,
+  authorizeRolesAdimin('admin'),
+  deleteSingleUser,
+);
 
 export default router;

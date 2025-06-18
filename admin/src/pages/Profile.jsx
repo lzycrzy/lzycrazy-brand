@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
 import { Camera, Save } from 'lucide-react';
+import axios from '../lib/axios/axiosInstance'; // Adjust the import path as necessary
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState({
-    firstName: '',
-    lastName: '',
-    mobile: '',
+    fullName: '',
     email: '343@gmail.com',
+    mobile: '',
     password: '',
     confirmPassword: '',
-    city: '',
-    state: '',
-    country: '',
-    gender: '',
     image: 'https://storage.googleapis.com/a1aa/image/8304db84-2243-443d-a7aa-3588328fd97d.jpg',
   });
 
@@ -89,12 +85,11 @@ const Profile = () => {
           className="bg-white rounded-xl p-6 mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5"
         >
           {[
-            ['First Name', 'firstName', 'text'],
-            ['Last Name', 'lastName', 'text'],
+            ['Name', 'fullName', 'text'],
             ['Mobile No.', 'mobile', 'tel'],
             ['Email', 'email', 'email'],
-            ['Password', 'password', 'password'],
-            ['Confirm Password', 'confirmPassword', 'password'],
+            // ['Password', 'password', 'password'],
+            // ['Confirm Password', 'confirmPassword', 'password'],
           ].map(([label, name, type]) => (
             <div key={name}>
               <label className="block text-xs mb-1">{label}:</label>
@@ -105,17 +100,16 @@ const Profile = () => {
                 disabled={!isEditing}
                 onChange={handleInputChange}
                 placeholder={`Your ${label}`}
-                className={`w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 focus:outline-none focus:ring-2 ${
-                  isEditing
+                className={`w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 focus:outline-none focus:ring-2 ${isEditing
                     ? 'focus:ring-[#2563eb] text-gray-700'
                     : 'text-gray-400'
-                }`}
+                  }`}
               />
             </div>
           ))}
 
           {/* Select Inputs */}
-          {[
+          {/* {[
             ['City', 'city', ['New York', 'Los Angeles', 'Chicago']],
             ['State', 'state', ['California', 'Texas', 'Florida']],
             ['Country', 'country', ['United States', 'Canada', 'United Kingdom']],
@@ -128,11 +122,10 @@ const Profile = () => {
                 disabled={!isEditing}
                 value={userData[name]}
                 onChange={handleInputChange}
-                className={`w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 appearance-none focus:outline-none focus:ring-2 ${
-                  isEditing
+                className={`w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 appearance-none focus:outline-none focus:ring-2 ${isEditing
                     ? 'focus:ring-[#2563eb] text-gray-700'
                     : 'text-gray-400'
-                }`}
+                  }`}
               >
                 <option value="" disabled>
                   Your {label}
@@ -142,7 +135,8 @@ const Profile = () => {
                 ))}
               </select>
             </div>
-          ))}
+          ))} */}
+
         </form>
 
         {/* Save Changes */}
