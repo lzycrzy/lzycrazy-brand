@@ -2,7 +2,7 @@ import { useState } from 'react'
 import LeftSideDeatil from './LeftSideDeatil'
 import RightSideDeatil from './RightSideDeatil'
 import PropertyMap from './PropertyMap'
-import Header from '../../components/Header'
+import Header from '../Header'
 
 const PropertyListing = () => {
     const propertyImages = [

@@ -21,7 +21,7 @@ import PrivacyPolicyPage from './components/PrivacyPagePolicy';
 import MarketplaceHome from './components/MarketPlace';
 import { ToastContainer } from 'react-toastify'; // ✅ Import Toast
 import 'react-toastify/dist/ReactToastify.css'; // ✅ Toast styles
-import PropertyListing from './pages/PropertyDetail/PropertyListing';
+import PropertyListing from './components/PropertyDetail/PropertyListing';
 
 
 const App = () => {
@@ -69,7 +69,7 @@ const App = () => {
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/services" element={<Services />} />
             <Route path="/market" element={ <MarketplaceHome />} />
-            <Route path="/property" element={  <PropertyListing />} />
+            {/* <Route path="/property" element={  <PropertyListing />} /> */}
 
             
 
