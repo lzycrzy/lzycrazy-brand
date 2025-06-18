@@ -21,6 +21,7 @@ import PrivacyPolicyPage from './components/PrivacyPagePolicy';
 import MarketplaceHome from './components/MarketPlace';
 import { ToastContainer } from 'react-toastify'; // ✅ Import Toast
 import 'react-toastify/dist/ReactToastify.css'; // ✅ Toast styles
+import PropertyListing from './pages/PropertyDetail/PropertyListing';
 
 
 const App = () => {
@@ -67,7 +68,10 @@ const App = () => {
             <Route path="/news" element={<NewsFeed />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/market" element={<MarketplaceHome />} />
+            <Route path="/market" element={ <PrivateRoute> <MarketplaceHome /></PrivateRoute>} />
+            <Route path="/property" element={ <PrivateRoute> <PropertyListing /></PrivateRoute>} />
+
+            
 
           {/* Password recovery flow (publicly accessible) */}
           <Route path="/password/forgot" element={<ForgotPassword />} />
