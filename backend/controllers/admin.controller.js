@@ -16,18 +16,12 @@ export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler('Admin already exists', 400));
   }
 
-  let image = '';
-  if (req.file) {
-    image = req.file.filename;
-  }
-
   const newAdmin = await adminModel.create({
     fullName,
     email,
     phone,
     password,
     role,
-    image,
   });
 
   generateTokenAdmin(newAdmin, "Admin registered successfully", 201, res);
