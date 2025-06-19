@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, ChevronLeft, ChevronRight, Edit, Trash2 } from 'lucide-react';
-import axios from '../utils/axios';
+import axios from '../lib/axios/axiosInstance'; // Adjust the import path as necessary
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const UserTable = () => {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]); 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); 
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,7 +27,7 @@ const UserTable = () => {
           throw new Error('No token found, please log in.');
         }
 
-        const response = await axios.get('/admin/admin/userslist', {
+        const response = await axios.get('/admin/userslist', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -95,7 +95,7 @@ const UserTable = () => {
                 throw new Error('No token found, please log in.');
               }
 
-              const response = await axios.delete(`/admin/admin/user/delete/${userId}`, {
+              const response = await axios.delete(`/admin/user/delete/${userId}`, {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
@@ -161,6 +161,7 @@ const UserTable = () => {
                 <th className="px-3 py-3 text-left text-xs font-semibold">Sl No</th>
                 <th className="px-3 py-3 text-left text-xs font-semibold">Profile</th>
                 <th className="px-3 py-3 text-left text-xs font-semibold">Name</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold">lc-Id</th>
                 <th className="px-3 py-3 text-left text-xs font-semibold">Email</th>
                 <th className="px-3 py-3 text-left text-xs font-semibold">Status</th>
                 <th className="px-3 py-3 text-left text-xs font-semibold">Action</th>
@@ -182,6 +183,7 @@ const UserTable = () => {
                     />
                   </td>
                   <td className="px-3 py-3 font-semibold text-slate-800">{user.fullName}</td>
+                  <td className="px-3 py-3 font-semibold text-slate-800">{user._id}</td>
                   <td className="px-3 py-3 text-slate-500">{user.email}</td>
                   <td className="px-3 py-3">
                     <span
