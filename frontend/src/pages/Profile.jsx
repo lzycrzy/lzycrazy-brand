@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../lib/axios/axiosInstance';
-import Header from '../components/Header';
+import Header from '../components/static/Header';
 import { FaCamera } from 'react-icons/fa';
-import PostCreateBox from '../components/PostCreateBox';
-import PostCard from '../components/PostCard';
-import Intro from '../components/Intro';
-import About from '../components/About';
-import Friends from '../components/Friends';
-import SettingMenu from '../components/Setting';
-import EditProfile from '../components/EditProfile';
-import FriendsTab from '../components/FriendsTab';
+import PostCreateBox from '../components/Posts/PostCreateBox';
+import PostCard from '../components/Posts/PostCard';
+import Intro from '../components/profile/Intro';
+import About from '../components/profile/About';
+import Friends from '../components/common/Friends';
+import SettingMenu from '../components/profile/Setting';
+import EditProfile from '../components/profile/EditProfile';
+import FriendsTab from '../components/profile/FriendsTab';
 import { useUser } from '../context/UserContext';
-import ManageFriends from '../components/ManageFriends';
-import Footer   from '../components/Footer1';
+import ManageFriends from '../components/profile/ManageFriends';
+import Footer   from '../components/static/Footer1';
 
-import Loader from '../components/Spinner';
+import Loader from '../components/common/Spinner';
 
 
 const Profile = () => {
@@ -25,8 +25,8 @@ const Profile = () => {
   const [newImage, setNewImage] = useState(null);
   const [activeTab1, setActiveTab1] = useState('');
   const [posts, setPosts] = useState([]);
-  const [loadingPosts, setLoadingPosts] = useState(false);
-
+  const [imagePreview, setImagePreview] = useState(profilePic);
+  const [loadingPosts, setLoadingPosts] = useState(true);
   const fetchProfile = async () => {
     try {
       await fetchUser();
@@ -49,6 +49,7 @@ const Profile = () => {
     const file = e.target.files[0];
     if (file) {
       setNewImage(file);
+    setImagePreview(URL.createObjectURL(file));
       updateUser({ photoURL: URL.createObjectURL(file) });
       e.target.value = '';
     }
@@ -68,11 +69,19 @@ const Profile = () => {
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="relative h-24 w-24">
-                <img
-                  src={profilePic || '/default-profile.png'}
-                  alt="Profile"
-                  className="h-full w-full rounded-full border-4 border-white object-cover"
-                />
+              <img
+  src={
+    newImage
+      ? URL.createObjectURL(newImage)
+      : profilePic || 'https://i.ibb.co/2kR5zq0/default-avatar.png'
+  }
+  alt="Profile"
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = 'https://i.ibb.co/2kR5zq0/default-avatar.png';
+  }}
+  className="h-full w-full rounded-full border-4 border-white object-cover"
+/>
                 <label htmlFor="profileUpload">
                   <div className="absolute right-0 bottom-16 cursor-pointer rounded-full bg-white p-1 shadow">
                     <FaCamera className="text-xs text-blue-700" />

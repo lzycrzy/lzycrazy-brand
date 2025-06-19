@@ -1,14 +1,14 @@
 import React, { useState ,useEffect} from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from '../lib/axios/axiosInstance';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar1';
-import MainFeed from '../components/MainFeed';
-import RightSidebar from '../components/RightSidebar';
-import ChatSidebar from '../components/ChatSidebar'; 
+import Header from '../components/static/Header';
+import Sidebar from '../components/Home/Sidebar1';
+import MainFeed from '../components/Home/MainFeed';
+import RightSidebar from '../components/Home/RightSidebar';
+import ChatSidebar from '../components/Home/ChatSidebar'; 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Loader from '../components/Spinner';
+import Loader from '../components/common/Spinner';
 import { useUser } from '../context/UserContext';
 
 

@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Phone Number required'],
     unique:true
   },
+  
 
   password: {
     type: String,
@@ -34,7 +35,7 @@ const userSchema = new mongoose.Schema({
   },
   image: {
     type: String, // image file name or URL
-    default: '', // default empty
+    default: 'https://i.ibb.co/2kR5zq0/default-avatar.png', // default empty
   },
   resetPasswordToken: {
     type: String,
