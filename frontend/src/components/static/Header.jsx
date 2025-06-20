@@ -77,7 +77,7 @@ const Header = () => {
           <HeaderIcon image={home} to="/" user={user} />
           <HeaderIcon image={store} to="/market" user={user} />
 
-          <HeaderIcon image={play} to="/" user={user} />
+          <HeaderIcon icon={FaPlus} to="/Product" user={user} />
           <HeaderIcon image={movie} to="/" user={user} />
           <HeaderIcon image={play} to="/" user={user} />
         </div>

@@ -15,6 +15,7 @@ import PrivacyPolicyPage from '../components/static/PrivacyPolicyPage';
 import MarketplaceHome from '../pages/Marketplace';
 import PropertyListing from '../components/ProductDetail/ProductListing';
 import PropertyViewPage from '../pages/PropertyViewPage';
+import AddProduct from '../pages/AddProduct';
 // import Searchbar from '../components/common/Searchbar';
 
 const AppRoutes = () => (
@@ -56,6 +57,7 @@ const AppRoutes = () => (
         </PrivateRoute>
       }
     />
+     <Route path="/Product" element={  <PrivateRoute><AddProduct /></PrivateRoute>} />
 
     {/* Dev/Test */}
     {/* <Route path="/test" element={<Home />} /> */}
