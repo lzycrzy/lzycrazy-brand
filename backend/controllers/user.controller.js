@@ -500,8 +500,9 @@ export const updatePassword = catchAsyncErrors(async (req, res, next) => {
 
 // Forgot Password
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
-  const user = await userModel.findOne({ email: req.body.email });
-   console.log(user);
+  const { email } = req.body;
+  const user = await userModel.findOne({ email });
+   console.log(user.email);
   if (!user) {
     return next(new ErrorHandler('User not Found', 404));
   }
