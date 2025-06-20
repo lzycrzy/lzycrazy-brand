@@ -19,12 +19,12 @@ import email from '../assets/mail.png';
 import lock from '../assets/lock.png';
 import identity from '../assets/identity.png';
 import country from '../assets/cntry.png';
-import ForgotPassword from '../components/ForgotPassword';
+import ForgotPassword from '../components/Auth/ForgotPassword';
 
-import Searchbar from '../components/Searchbar';
+import Searchbar from '../components/common/Searchbar';
 import countryList from '../data/countries.json';
 import CountryCodes from '../data/CountryCodes.json';
-import Loader from '../components/Spinner';
+import Loader from '../components/common/Spinner';
 import { useTranslation } from 'react-i18next'; // Add this at the top
 import { toast } from 'react-toastify';
 import { useUser } from '../context/UserContext';

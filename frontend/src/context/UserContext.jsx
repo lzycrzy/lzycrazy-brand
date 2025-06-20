@@ -1,16 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import axios from '../lib/axios/axiosInstance';
-import { Loader } from 'lucide-react';
+
 
 const UserContext = createContext();
 
 export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
+  const DEFAULT_PROFILE_PIC = 'https://i.ibb.co/2kR5zq0/default-avatar.png'; // replace with any public URL
+
+
   const [user, setUser] = useState(null);
-  const [profilePic, setProfilePic] = useState('');
+  const [profilePic, setProfilePic] = useState(DEFAULT_PROFILE_PIC);
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(true);
+
 
 
   const fetchUser = async () => {
