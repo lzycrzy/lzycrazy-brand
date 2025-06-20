@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import * as faceapi from 'face-api.js';
 import axios from '../lib/axios/axiosInstance';
-import Loader from '../components/Spinner';
+import Loader from './common/Spinner';
 
 const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
   const [cameraOn, setCameraOn] = useState(false);

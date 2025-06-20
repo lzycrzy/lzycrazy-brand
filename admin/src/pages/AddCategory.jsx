@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Home, User, Settings, Mail, Phone, Calendar, Camera, 
-  Heart, Star, Search, ShoppingCart, Bell, Lock, 
-  Globe, Wifi, Battery, Volume2, Bluetooth, Download,
-  Plus, Edit, Trash2, ChevronDown, ChevronUp
+  Settings, Search, Plus, Edit, Trash2, Upload, X
 } from 'lucide-react';
 
 const AddCategory = () => {
@@ -14,44 +11,30 @@ const AddCategory = () => {
     subcategories: []
   });
   const [editingId, setEditingId] = useState(null);
-  const [isMainDropdownOpen, setIsMainDropdownOpen] = useState(false);
-  const [openSubDropdowns, setOpenSubDropdowns] = useState({});
 
-  const iconsList = [
-    { name: 'Home', component: Home },
-    { name: 'User', component: User },
-    { name: 'Settings', component: Settings },
-    { name: 'Mail', component: Mail },
-    { name: 'Phone', component: Phone },
-    { name: 'Calendar', component: Calendar },
-    { name: 'Camera', component: Camera },
-    { name: 'Heart', component: Heart },
-    { name: 'Star', component: Star },
-    { name: 'Search', component: Search },
-    { name: 'ShoppingCart', component: ShoppingCart },
-    { name: 'Bell', component: Bell },
-    { name: 'Lock', component: Lock },
-    { name: 'Globe', component: Globe },
-    { name: 'Wifi', component: Wifi },
-    { name: 'Battery', component: Battery },
-    { name: 'Volume2', component: Volume2 },
-    { name: 'Bluetooth', component: Bluetooth },
-    { name: 'Download', component: Download },
-    { name: 'Plus', component: Plus }
-  ];
-
-  const handleIconSelect = (icon, type = 'category', subIndex = null) => {
-    if (type === 'category') {
-      setCategoryData(prev => ({ ...prev, icon }));
-      setIsMainDropdownOpen(false);
+  const handleImageUpload = (file, type = 'category', subIndex = null) => {
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageData = {
+          url: e.target.result,
+          name: file.name
+        };
+        
+        if (type === 'category') {
+          setCategoryData(prev => ({ ...prev, icon: imageData }));
+        } else {
+          setCategoryData(prev => ({
+            ...prev,
+            subcategories: prev.subcategories.map((sub, index) =>
+              index === subIndex ? { ...sub, icon: imageData } : sub
+            )
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
     } else {
-      setCategoryData(prev => ({
-        ...prev,
-        subcategories: prev.subcategories.map((sub, index) =>
-          index === subIndex ? { ...sub, icon } : sub
-        )
-      }));
-      setOpenSubDropdowns(prev => ({ ...prev, [subIndex]: false }));
+      alert('Please select a valid image file (JPG, PNG, GIF, etc.)');
     }
   };
 
@@ -82,11 +65,17 @@ const AddCategory = () => {
     }));
   };
 
-  const toggleSubDropdown = (index) => {
-    setOpenSubDropdowns(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+  const removeImage = (type = 'category', subIndex = null) => {
+    if (type === 'category') {
+      setCategoryData(prev => ({ ...prev, icon: null }));
+    } else {
+      setCategoryData(prev => ({
+        ...prev,
+        subcategories: prev.subcategories.map((sub, index) =>
+          index === subIndex ? { ...sub, icon: null } : sub
+        )
+      }));
+    }
   };
 
   const handleAdd = () => {
@@ -123,9 +112,8 @@ const AddCategory = () => {
         name: '',
         subcategories: []
       });
-      setOpenSubDropdowns({});
     } else {
-      alert('Please select an icon and enter a category name!');
+      alert('Please upload an image and enter a category name!');
     }
   };
 
@@ -152,10 +140,7 @@ const AddCategory = () => {
       name: '',
       subcategories: []
     });
-    setOpenSubDropdowns({});
   };
-
-  const CategoryIconComponent = categoryData.icon?.component;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-6">
@@ -165,60 +150,45 @@ const AddCategory = () => {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2">
             Category Manager
           </h1>
-          <p className="text-gray-600 text-lg">Create categories with optional subcategories</p>
+          <p className="text-gray-600 text-lg">Create categories with custom images</p>
         </div>
 
         {/* Add Category Form */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 p-8 mb-8 relative z-50">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 p-8 mb-8">
           {/* Category Section */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Category</h3>
             <div className="flex items-center gap-4">
-              {/* Category Icon Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsMainDropdownOpen(!isMainDropdownOpen)}
-                  className="px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:bg-white focus:outline-none transition-all duration-200 text-left flex items-center justify-between min-w-[200px]"
-                >
-                  <div className="flex items-center gap-3">
-                    {categoryData.icon ? (
-                      <>
-                        <div className="p-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg">
-                          <CategoryIconComponent size={20} className="text-white" />
-                        </div>
-                        <span className="text-gray-800 font-medium">{categoryData.icon.name}</span>
-                      </>
-                    ) : (
-                      <span className="text-gray-400">Select Icon...</span>
-                    )}
-                  </div>
-                  <div className={`transition-transform duration-200 ${isMainDropdownOpen ? 'rotate-180' : ''}`}>
-                    <ChevronDown size={20} className="text-gray-400" />
-                  </div>
-                </button>
-                
-                {isMainDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl z-[100] max-h-80 overflow-hidden">
-                    <div className="p-4">
-                      <h3 className="text-sm font-semibold text-gray-700 mb-3">Select Icon</h3>
-                      <div className="grid grid-cols-6 gap-2 max-h-60 overflow-y-auto">
-                        {iconsList.map((icon) => {
-                          const IconComp = icon.component;
-                          return (
-                            <button
-                              key={icon.name}
-                              onClick={() => handleIconSelect(icon)}
-                              className="p-3 hover:bg-gradient-to-r hover:from-green-500 hover:to-blue-500 rounded-lg flex flex-col items-center gap-1 transition-all duration-200 border-2 border-transparent hover:border-white"
-                              title={icon.name}
-                            >
-                              <IconComp size={20} className="text-gray-600 hover:text-white transition-colors duration-200" />
-                              <span className="text-xs text-gray-500 hover:text-white/90 font-medium transition-colors duration-200">{icon.name}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
+              {/* Category Image Upload */}
+              <div className="flex-shrink-0">
+                {categoryData.icon ? (
+                  <div className="relative group">
+                    <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-200 shadow-lg">
+                      <img 
+                        src={categoryData.icon.url} 
+                        alt={categoryData.icon.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
+                    <button
+                      onClick={() => removeImage('category')}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+                      title="Remove Image"
+                    >
+                      <X size={12} />
+                    </button>
                   </div>
+                ) : (
+                  <label className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all duration-200">
+                    <Upload size={20} className="text-gray-400 mb-1" />
+                    <span className="text-xs text-gray-500">Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e.target.files[0], 'category')}
+                      className="hidden"
+                    />
+                  </label>
                 )}
               </div>
               
@@ -264,84 +234,67 @@ const AddCategory = () => {
             <div>
               <h3 className="text-lg font-semibold text-gray-700 mb-4">Subcategories (Optional)</h3>
               <div className="space-y-4">
-                {categoryData.subcategories.map((subcategory, index) => {
-                  const SubIconComponent = subcategory.icon?.component;
-                  return (
-                    <div key={index} className="flex items-center gap-4 p-4 bg-gray-50/50 rounded-xl">
-                      {/* Subcategory Icon Dropdown */}
-                      <div className="relative">
-                        <button
-                          onClick={() => toggleSubDropdown(index)}
-                          className="px-4 py-2 bg-white/70 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:bg-white focus:outline-none transition-all duration-200 text-left flex items-center justify-between min-w-[180px]"
-                        >
-                          <div className="flex items-center gap-2">
-                            {subcategory.icon ? (
-                              <>
-                                <div className="p-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
-                                  <SubIconComponent size={16} className="text-white" />
-                                </div>
-                                <span className="text-gray-800 font-medium text-sm">{subcategory.icon.name}</span>
-                              </>
-                            ) : (
-                              <span className="text-gray-400 text-sm">Select Icon...</span>
-                            )}
+                {categoryData.subcategories.map((subcategory, index) => (
+                  <div key={index} className="flex items-center gap-4 p-4 bg-gray-50/50 rounded-xl">
+                    {/* Subcategory Image Upload */}
+                    <div className="flex-shrink-0">
+                      {subcategory.icon ? (
+                        <div className="relative group">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-200 shadow-md">
+                            <img 
+                              src={subcategory.icon.url} 
+                              alt={subcategory.icon.name}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
-                          <div className={`transition-transform duration-200 ${openSubDropdowns[index] ? 'rotate-180' : ''}`}>
-                            <ChevronDown size={16} className="text-gray-400" />
-                          </div>
-                        </button>
-                        
-                        {openSubDropdowns[index] && (
-                          <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl z-[100] max-h-60 overflow-hidden">
-                            <div className="p-3">
-                              <div className="grid grid-cols-5 gap-2 max-h-48 overflow-y-auto">
-                                {iconsList.map((icon) => {
-                                  const IconComp = icon.component;
-                                  return (
-                                    <button
-                                      key={icon.name}
-                                      onClick={() => handleIconSelect(icon, 'subcategory', index)}
-                                      className="p-2 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 rounded-lg flex flex-col items-center gap-1 transition-all duration-200 border-2 border-transparent hover:border-white"
-                                      title={icon.name}
-                                    >
-                                      <IconComp size={16} className="text-gray-600 hover:text-white transition-colors duration-200" />
-                                      <span className="text-xs text-gray-500 hover:text-white/90 font-medium transition-colors duration-200">{icon.name}</span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Subcategory Name */}
-                      <input
-                        type="text"
-                        placeholder="Subcategory Name"
-                        value={subcategory.name}
-                        onChange={(e) => handleNameChange(e.target.value, 'subcategory', index)}
-                        className="flex-1 px-4 py-2 bg-white/70 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:bg-white focus:outline-none transition-all duration-200"
-                      />
-                      
-                      {/* Remove Subcategory */}
-                      <button
-                        onClick={() => removeSubcategory(index)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
-                        title="Remove Subcategory"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                          <button
+                            onClick={() => removeImage('subcategory', index)}
+                            className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+                            title="Remove Image"
+                          >
+                            <X size={10} />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="w-16 h-16 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all duration-200">
+                          <Upload size={16} className="text-gray-400 mb-1" />
+                          <span className="text-xs text-gray-500">Upload</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageUpload(e.target.files[0], 'subcategory', index)}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
                     </div>
-                  );
-                })}
+                    
+                    {/* Subcategory Name */}
+                    <input
+                      type="text"
+                      placeholder="Subcategory Name"
+                      value={subcategory.name}
+                      onChange={(e) => handleNameChange(e.target.value, 'subcategory', index)}
+                      className="flex-1 px-4 py-2 bg-white/70 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:bg-white focus:outline-none transition-all duration-200"
+                    />
+                    
+                    {/* Remove Subcategory */}
+                    <button
+                      onClick={() => removeSubcategory(index)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
+                      title="Remove Subcategory"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </div>
 
         {/* Categories List */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden relative z-10">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
           <div className="bg-gradient-to-r from-green-600 to-blue-600 px-8 py-6">
             <h2 className="text-2xl font-bold text-white flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg">
@@ -362,73 +315,75 @@ const AddCategory = () => {
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
-              {categories.map((category, index) => {
-                const CategoryIcon = category.icon.component;
-                return (
-                  <div
-                    key={category.id}
-                    className="px-8 py-6 hover:bg-gradient-to-r hover:from-green-50 hover:to-blue-50 transition-all duration-200"
-                  >
-                    {/* Main Category */}
-                    <div className="flex items-center gap-6 mb-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
-                          <CategoryIcon size={24} className="text-white" />
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-xl font-bold text-gray-800 mb-1">
-                          {category.name}
-                        </h3>
-                        <p className="text-gray-600">
-                          {category.subcategories.length} subcategories
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEdit(category)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
-                          title="Edit Category"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(category.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
-                          title="Delete Category"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                        <div className="px-4 py-2 bg-gradient-to-r from-green-100 to-blue-100 rounded-full">
-                          <span className="text-sm font-semibold text-gray-700">
-                            #{index + 1}
-                          </span>
-                        </div>
+              {categories.map((category, index) => (
+                <div
+                  key={category.id}
+                  className="px-8 py-6 hover:bg-gradient-to-r hover:from-green-50 hover:to-blue-50 transition-all duration-200"
+                >
+                  {/* Main Category */}
+                  <div className="flex items-center gap-6 mb-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-14 h-14 rounded-xl overflow-hidden shadow-lg border-2 border-gray-200">
+                        <img 
+                          src={category.icon.url} 
+                          alt={category.icon.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     </div>
-
-                    {/* Subcategories */}
-                    {category.subcategories.length > 0 && (
-                      <div className="ml-20 space-y-2">
-                        {category.subcategories.map((subcategory, subIndex) => {
-                          const SubIcon = subcategory.icon.component;
-                          return (
-                            <div
-                              key={subIndex}
-                              className="flex items-center gap-4 p-3 bg-gray-50/50 rounded-lg"
-                            >
-                              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                                <SubIcon size={16} className="text-white" />
-                              </div>
-                              <span className="text-gray-700 font-medium">{subcategory.name}</span>
-                            </div>
-                          );
-                        })}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl font-bold text-gray-800 mb-1">
+                        {category.name}
+                      </h3>
+                      <p className="text-gray-600">
+                        {category.subcategories.length} subcategories
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleEdit(category)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                        title="Edit Category"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(category.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                        title="Delete Category"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                      <div className="px-4 py-2 bg-gradient-to-r from-green-100 to-blue-100 rounded-full">
+                        <span className="text-sm font-semibold text-gray-700">
+                          #{index + 1}
+                        </span>
                       </div>
-                    )}
+                    </div>
                   </div>
-                );
-              })}
+
+                  {/* Subcategories */}
+                  {category.subcategories.length > 0 && (
+                    <div className="ml-20 space-y-2">
+                      {category.subcategories.map((subcategory, subIndex) => (
+                        <div
+                          key={subIndex}
+                          className="flex items-center gap-4 p-3 bg-gray-50/50 rounded-lg"
+                        >
+                          <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-200">
+                            <img 
+                              src={subcategory.icon.url} 
+                              alt={subcategory.icon.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <span className="text-gray-700 font-medium">{subcategory.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
