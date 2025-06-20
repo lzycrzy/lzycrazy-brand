@@ -6,6 +6,9 @@ import dbConnection from './dataBase/dbConnection.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 import categoryRoutes from './router/category.route.js';
 import serviceRoutes from './router/service.routes.js';
+import imagesRoute from './router/cloudinaryRoutes.js';
+
+
 //--importing cloudinary configuration
 // This is where you would configure Cloudinary for file uploads
 import './utils/cloudinary.js';
@@ -57,6 +60,8 @@ app.use('/api/v1/users/about', aboutRoutes); //--user about routes
 app.use('/api/v1/admin', adminRoutes);  //--admin routes
 app.use('/api/v1/categories', categoryRoutes); //--category routes
 app.use('/api/v1/services', serviceRoutes); //--service routes
+app.use('/api/v1/image', imagesRoute); //--service routes
+
 
 dbConnection(); 
 
