@@ -24,6 +24,7 @@ export const getServiceById = async (req, res) => {
 //  Create a new service
 export const createService = async (req, res) => {
   const { title, description, icon } = req.body;
+  console.log(title, description, icon)
 
   if (!title || !description || !icon?.name || !icon?.component) {
     return res.status(400).json({ message: 'All fields are required.' });
