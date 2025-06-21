@@ -94,7 +94,7 @@ const Header = () => {
           </div>
 
           <HeaderIcon icon={FaBell} to="/" user={user} />
-          <HeaderIcon icon={FaPlus} to="/" user={user} />
+         
 
          {/* Profile Button & Dropdown - Only show if user is logged in */}
 {user && (

@@ -17,6 +17,8 @@ import helmet from 'helmet';
 import userRoutes from './router/user.route.js';
 import aboutRoutes from './router/user.about.js';
 import adminRoutes from './router/admin.route.js';
+import postRoutes from './router/user.post.routes.js'
+
 
 //--env file configuration
 // This loads environment variables from a .env file into process.env
@@ -53,6 +55,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //--setting up routes
 app.use('/api/v1/users', userRoutes);  //--user routes
+app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/users/about', aboutRoutes); //--user about routes
 app.use('/api/v1/admin', adminRoutes);  //--admin routes
 app.use('/api/v1/categories', categoryRoutes); //--category routes

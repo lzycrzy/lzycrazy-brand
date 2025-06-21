@@ -4,7 +4,7 @@ import CategoryPostForm from '../components/CategoryPostForm';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
-// import { mockPosts } from '../data/mockPosts';
+import  mockPosts  from '../data/mockPosts';
 // import ProductCard from './ProductCard';
 
 

@@ -396,22 +396,22 @@ const Auth = () => {
   
         {/* Footer - Always at the bottom */}
         <footer className="w-full border-t border-gray-200 bg-[#ebf3fe] py-4 text-sm text-gray-600">
-          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-between px-4 sm:px-20 gap-4">
-            <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
-              <div>India</div>
-              <div className="ml-2">|</div>
-              <div>LzyCrazy offered in:</div>
-              <button onClick={() => i18n.changeLanguage('hi')} className="ml-2 text-blue-600 hover:underline">हिन्दी</button>
-              <button onClick={() => i18n.changeLanguage('en')} className="ml-2 text-blue-600 hover:underline">English</button>
-              <button onClick={() => i18n.changeLanguage('bn')} className="ml-2 text-blue-600 hover:underline">বাংলা</button>
-              <button onClick={() => i18n.changeLanguage('ar')} className="ml-2 text-blue-600 hover:underline">العربية</button>
-            </div>
-            <div className="flex gap-6 justify-center sm:justify-end">
-              <Link to="/privacy" className="hover:underline">Privacy</Link>
-              <Link to="/terms" className="hover:underline">Terms</Link>
-            </div>
-          </div>
-        </footer>
+      <div className="flex flex-col sm:flex-row flex-wrap items-center justify-between px-4 sm:px-20 gap-4">
+        <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
+          <span>India</span>
+          <span className="mx-2">|</span>
+          <span>LzyCrazy offered in:</span>
+          <button onClick={() => i18n.changeLanguage('hi')} className="ml-2 text-blue-600 hover:underline">हिन्दी</button>
+          <button onClick={() => i18n.changeLanguage('en')} className="ml-2 text-blue-600 hover:underline">English</button>
+          <button onClick={() => i18n.changeLanguage('bn')} className="ml-2 text-blue-600 hover:underline">বাংলা</button>
+          <button onClick={() => i18n.changeLanguage('ar')} className="ml-2 text-blue-600 hover:underline">العربية</button>
+        </div>
+        <div className="flex gap-6 justify-center sm:justify-end">
+          <Link to="/privacy" className="hover:underline">Privacy</Link>
+          <Link to="/terms" className="hover:underline">Terms</Link>
+        </div>
+      </div>
+    </footer>
       </div>
     </>
   )};

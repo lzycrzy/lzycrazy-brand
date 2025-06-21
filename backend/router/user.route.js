@@ -25,7 +25,9 @@ import {
   storyView,
   getUserStories,
   getStoryViews,
-  submitApplication
+  submitApplication,
+  likePost,
+  addComment
   // getAdminDashboard,
   // getSuperAdminDashboard,
   // getAllUsers,
@@ -70,6 +72,9 @@ router.post('/facebook-login',isAuthenticated, loginWithFacebook);
 
 //get posts
 router.get('/posts', isAuthenticated, getPosts);
+router.put('/:id/like',isAuthenticated, likePost);   // PUT /posts/:id/like
+router.post('/:id/comment',isAuthenticated, addComment); // POST /posts/:id/comment
+
 
 // Protected routes (any logged in user)
 router.get('/me', isAuthenticated, getMyProfile);
