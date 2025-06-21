@@ -17,7 +17,7 @@ import logo from '../../assets/logo.png';
 import home from '../../assets/home.png';
 import movie from '../../assets/movie-reel.png';
 import play from '../../assets/play-button-arrowhead.png';
-
+import add from '../../assets/add.png';
 import hand from '../../assets/hand.png';
 import { auth } from '../../lib/firebase/firebase';
 import { signOut } from 'firebase/auth';
@@ -77,7 +77,7 @@ const Header = () => {
           <HeaderIcon image={home} to="/" user={user} />
           <HeaderIcon image={store} to="/market" user={user} />
 
-          <HeaderIcon icon={FaPlus} to="/Product" user={user} />
+          <HeaderIcon image={add} to="/Product" user={user} />
           <HeaderIcon image={movie} to="/" user={user} />
           <HeaderIcon image={play} to="/" user={user} />
         </div>

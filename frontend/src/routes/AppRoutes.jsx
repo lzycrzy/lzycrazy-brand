@@ -5,18 +5,18 @@ import AuthRedirect from '../components/routes/AuthRedirect';
 import Auth from '../pages/Auth';
 import Home from '../pages/Home';
 import Profile from '../pages/Profile';
-import ForgotPassword from '../components/auth/ForgotPassword';
-import ResetPassword from '../components/auth/ResetPassword';
+import ForgotPassword from '../components/Auth/ForgotPassword';
+import ResetPassword from '../components/Auth/ResetPassword';
 import AboutUs from '../components/static/AboutCompany';
 import Services from '../components/Services/Services';
 import NewsFeed from '../components/News/NewsFeed';
 import TermPage from '../components/static/TermPage';
 import PrivacyPolicyPage from '../components/static/PrivacyPolicyPage';
-import MarketplaceHome from '../pages/Marketplace';
 import PropertyListing from '../components/ProductDetail/ProductListing';
 import PropertyViewPage from '../pages/PropertyViewPage';
 import AddProduct from '../pages/AddProduct';
 // import Searchbar from '../components/common/Searchbar';
+import MarketplaceHome from '../pages/MarketPlace';
 
 const AppRoutes = () => (
   <Routes>

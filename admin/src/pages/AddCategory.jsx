@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { 
   Settings, Search, Plus, Edit, Trash2, Upload, X
 } from 'lucide-react';
+import instance from '../utils/axios';
 
 const AddCategory = () => {
   const [categories, setCategories] = useState([]);
@@ -12,31 +13,54 @@ const AddCategory = () => {
   });
   const [editingId, setEditingId] = useState(null);
 
-  const handleImageUpload = (file, type = 'category', subIndex = null) => {
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageData = {
-          url: e.target.result,
-          name: file.name
-        };
-        
-        if (type === 'category') {
-          setCategoryData(prev => ({ ...prev, icon: imageData }));
-        } else {
-          setCategoryData(prev => ({
-            ...prev,
-            subcategories: prev.subcategories.map((sub, index) =>
-              index === subIndex ? { ...sub, icon: imageData } : sub
-            )
-          }));
-        }
-      };
-      reader.readAsDataURL(file);
-    } else {
-      alert('Please select a valid image file (JPG, PNG, GIF, etc.)');
+
+const handleImageUpload = async (file, type = 'category', subIndex = null) => {
+  if (!file || !file.type.startsWith('image/')) {
+    return alert('Please select a valid image file (JPG, PNG, etc.)');
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await instance.post(
+      '/image/upload',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        skipAuth: false, 
+      }
+    );
+
+    const data = response.data;
+
+    if (!data.success) {
+      throw new Error(data.message || 'Upload failed');
     }
-  };
+
+    const imageData = {
+      url: data.url, 
+      name: file.name,
+    };
+
+    if (type === 'category') {
+      setCategoryData(prev => ({ ...prev, icon: imageData }));
+    } else {
+      setCategoryData(prev => ({
+        ...prev,
+        subcategories: prev.subcategories.map((sub, index) =>
+          index === subIndex ? { ...sub, icon: imageData } : sub
+        )
+      }));
+    }
+  } catch (err) {
+    console.error('Upload error:', err);
+    alert('Image upload failed');
+  }
+};
+
 
   const handleNameChange = (value, type = 'category', subIndex = null) => {
     if (type === 'category') {
@@ -65,7 +89,23 @@ const AddCategory = () => {
     }));
   };
 
-  const removeImage = (type = 'category', subIndex = null) => {
+
+const removeImage = async (type = 'category', subIndex = null) => {
+  try {
+    let imageUrl = '';
+
+    if (type === 'category') {
+      imageUrl = categoryData.icon?.url;
+    } else {
+      imageUrl = categoryData.subcategories[subIndex]?.icon?.url;
+    }
+
+    if (imageUrl && imageUrl.includes('cloudinary')) {
+      await instance.delete('/image/delete', {
+        data: { imageUrl },
+      });
+    }
+
     if (type === 'category') {
       setCategoryData(prev => ({ ...prev, icon: null }));
     } else {
@@ -76,7 +116,12 @@ const AddCategory = () => {
         )
       }));
     }
-  };
+  } catch (err) {
+    console.error('Error deleting image:', err);
+    alert('Failed to delete image');
+  }
+};
+
 
   const handleAdd = () => {
     if (categoryData.icon && categoryData.name) {
