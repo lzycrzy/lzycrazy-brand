@@ -16,46 +16,59 @@ import mongoose from "mongoose";
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
+  const { fullName, email, phone, password, role } = req.body;
 
-  const { fullName, email, phone, password, role  } = req.body;
-  console.log('req.body:', req.body);
-  // Add this line
-  
- 
+  // Duplicate email check
   const existingUser = await userModel.findOne({ email });
   if (existingUser) {
     return next(new ErrorHandler('Email already exists', 400));
   }
-  
-  // image upload to cloudinary
   try {
-    
-
-    const userRole = role || 'user';
-    // Create new user
     const createdUser = await userModel.create({
       fullName,
       email,
       phone,
       password,
-      role:userRole,
-      
+      role: role || "user",
     });
 
-    // If user creation fails
-    if (!createdUser) {
-      return next(new ErrorHandler('User creation failed', 400));
-    }
-
-    // Generate JWT token and send response
-    generateToken(createdUser, 'User Registered Successfully', 201, res);
-
+    generateToken(createdUser, "User Registered Successfully", 201, res);
   } catch (err) {
-    console.error('Registration error:', err); // Log the error for debugging
-    res.status(500).json({ error: err.message }); //
+    console.error("Registration error:", err);
+
+    // ✅ Mongoose validation errors
+    if (err.name === "ValidationError") {
+      const validationErrors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({
+        success: false,
+        errors: validationErrors,
+      });
+    }
+  
+    // ✅ Other known errors (cast, duplicate keys, etc.)
+    if (err.message) {
+      return res.status(500).json({
+        success: false,
+        errors: [err.message], // always send as array
+      });
+    }
+  
+    // ❌ Fallback (unknown)
+    return res.status(500).json({
+      success: false,
+      errors: ["An unknown error occurred"],
+    });
   }
 });
 
+export const getMe = catchAsyncErrors(async (req, res, next) => {
+  if (!req.user) return next(new ErrorHandler('Unauthorized', 401));
+
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+});
 // Login User
 export const loginUser = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;

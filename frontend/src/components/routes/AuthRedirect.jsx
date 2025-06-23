@@ -1,11 +1,19 @@
-import { useSelector } from 'react-redux';
+import { useUser } from '../../context/UserContext';
 import { Navigate } from 'react-router-dom';
 
 const AuthRedirect = ({ children }) => {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const { user, authChecked } = useUser();
 
-  // If user is logged in, redirect to dashboard
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : children;
+  // Wait for auth check
+  if (!authChecked) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center text-gray-500 text-lg">
+        Checking authentication...
+      </div>
+    );
+  }
+
+  return user ? <Navigate to="/dashboard" replace /> : children;
 };
 
 export default AuthRedirect;

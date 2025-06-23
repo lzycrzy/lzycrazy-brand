@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: [true, 'Full Name required'],
-    minlength: [4, 'Full Name must contain at least 2 characters'],
+    minlength: [2, 'Full Name must contain at least 2 characters'],
+    trim: true, // ✅ This trims leading/trailing whitespace before validation
   },
   email: {
     type: String,

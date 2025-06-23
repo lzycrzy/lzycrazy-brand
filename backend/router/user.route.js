@@ -26,6 +26,7 @@ import {
   getUserStories,
   getStoryViews,
   submitApplication,
+  getMe,
   likePost,
   addComment
   // getAdminDashboard,
@@ -77,7 +78,7 @@ router.get('/posts', isAuthenticated, getPosts);
 
 // Protected routes (any logged in user)
 router.get('/me', isAuthenticated, getMyProfile);
-
+router.get('/getMe',isAuthenticated,  getMe);
 
 //story
 router.get('/story', isAuthenticated, getStories);

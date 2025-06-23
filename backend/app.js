@@ -7,7 +7,7 @@ import { errorMiddleware } from './middlewares/error.middleware.js';
 import categoryRoutes from './router/category.route.js';
 import serviceRoutes from './router/service.routes.js';
 import imagesRoute from './router/cloudinaryRoutes.js';
-
+import ErrorHandler from './middlewares/error.middleware.js';
 
 //--importing cloudinary configuration
 // This is where you would configure Cloudinary for file uploads
@@ -68,10 +68,10 @@ app.use('/api/v1/image', imagesRoute); //--service routes
 
 dbConnection(); 
 
-app.use((err, req, res, next) => {
-  console.error("🔥 Uncaught error:", err);
-  res.status(500).json({ message: "Unexpected server error" });
-});
+// app.use((err, req, res, next) => {
+//   console.error("🔥 Uncaught error:", err);
+//   res.status(500).json({ message: "Unexpected server error" });
+// });
 
 app.use(errorMiddleware); //--error handling middleware
 

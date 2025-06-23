@@ -13,11 +13,13 @@ import FriendsTab from '../components/profile/FriendsTab';
 import { useUser } from '../context/UserContext';
 import ManageFriends from '../components/profile/ManageFriends';
 import Footer from '../components/static/Footer1';
-import Modal from '../components/common/Modal';
+import { HiOutlineDotsVertical } from 'react-icons/hi'; // at the top
+
 import Loader from '../components/common/Spinner';
 
 const Profile = () => {
   const { user, profilePic, displayName, fetchUser, updateUser } = useUser();
+
   const [activeTab, setActiveTab] = useState('posts');
   const [isEditing, setIsEditing] = useState(false);
   const [newImage, setNewImage] = useState(null);
@@ -25,7 +27,6 @@ const Profile = () => {
   const [posts, setPosts] = useState([]);
   const [imagePreview, setImagePreview] = useState(profilePic);
   const [loadingPosts, setLoadingPosts] = useState(true);
-
   const fetchProfile = async () => {
     try {
       await fetchUser();
@@ -39,8 +40,10 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
+    console.log('user.profile.posts:', user?.profile?.posts);
     if (user?.profile?.posts) {
       setPosts(Array.isArray(user.profile.posts) ? user.profile.posts : []);
+      setLoadingPosts(false);
     }
   }, [user]);
 
@@ -60,26 +63,29 @@ const Profile = () => {
     <div className="min-h-screen w-full bg-gray-50">
       <Header />
 
-      <div className="bg-blue-900 text-white shadow-md">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+      {/* Profile Header */}
+      <div className="h-80 w-full bg-blue-900 text-white shadow-md">
+        <div className="mx-auto max-w-5xl px-6 py-28">
+          <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32">
+              <div className="relative h-24 w-24">
                 <img
                   src={
                     newImage
                       ? URL.createObjectURL(newImage)
-                      : profilePic || 'https://i.ibb.co/2kR5zq0/default-avatar.png'
+                      : profilePic ||
+                        'https://i.ibb.co/2kR5zq0/default-avatar.png'
                   }
+                  alt="Profile"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = 'https://i.ibb.co/2kR5zq0/default-avatar.png';
+                    e.target.src =
+                      'https://i.ibb.co/2kR5zq0/default-avatar.png';
                   }}
-                  className="w-full h-full object-cover border-4 border-white rounded-full"
-                  alt="Profile"
+                  className="h-full w-full rounded-full border-4 border-white object-cover"
                 />
                 <label htmlFor="profileUpload">
-                  <div className="absolute right-0 bottom-2 cursor-pointer rounded-full bg-white p-1 shadow">
+                  <div className="absolute right-0 bottom-16 cursor-pointer rounded-full bg-white p-1 shadow">
                     <FaCamera className="text-xs text-blue-700" />
                   </div>
                 </label>
@@ -92,63 +98,151 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-semibold">{displayName}</h2>
+                <h2 className="text-2xl font-semibold">{displayName}</h2>
                 <p className="text-sm text-gray-200">Full Stack Developer</p>
-                <p className="text-sm mt-1">Total Friends: {user.friendsCount || 120}</p>
+                <p className="mt-1 text-sm">
+                  Total Friends: {user.friendsCount || 120}
+                </p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button className="text-sm px-4 py-2 rounded bg-white text-blue-900 hover:bg-gray-100">Edit Story</button>
-              <button
-                onClick={() => setIsEditing(true)}
-                className="text-sm px-4 py-2 rounded bg-white text-blue-900 hover:bg-gray-100"
-              >
-                Edit Profile
-              </button>
-            </div>
+
+            {/* For large screens: show buttons normally */}
+<div className="hidden sm:flex space-x-3">
+  <button className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100">
+    Edit Story
+  </button>
+  <button
+    onClick={() => setIsEditing(true)}
+    className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100"
+  >
+    Edit Profile
+  </button>
+  <SettingMenu activeTab={activeTab1} setActiveTab={setActiveTab1} />
+</div>
+
+{/* For small screens: dropdown menu */}
+<div className="relative sm:hidden">
+  <button
+    className="rounded-md bg-white p-2 text-blue-900 hover:bg-gray-100"
+    onClick={() => setActiveTab1((prev) => (prev === 'dropdown' ? '' : 'dropdown'))}
+  >
+    <HiOutlineDotsVertical size={20} />
+  </button>
+
+  {activeTab1 === 'dropdown' && (
+    <div className="absolute right-0 mt-2 w-40 rounded-md bg-white shadow-md z-50">
+      <button
+        onClick={() => {
+          setActiveTab1('');
+          // Add your logic here
+        }}
+        className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+      >
+        Edit Story
+      </button>
+      <button
+        onClick={() => {
+          setIsEditing(true);
+          setActiveTab1('');
+        }}
+        className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+      >
+        Edit Profile
+      </button>
+      <SettingMenu activeTab={activeTab1} setActiveTab={setActiveTab1} />
+    </div>
+  )}
+</div>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center justify-between mt-6">
-            <div className="scrollbar-hide flex overflow-x-auto space-x-2 sm:space-x-4 whitespace-nowrap">
-              {['posts', 'about', 'friends', 'photos', 'videos', 'my Ads', 'more'].map((tab) => (
+          {/* Tabs */}
+          <div className="flex items-center justify-between border-t pt-4">
+            {/* Tabs for large screens */}
+            <div className="hidden space-x-2 overflow-x-auto whitespace-nowrap sm:flex">
+              {[
+                'posts',
+                'about',
+                'friends',
+                'photos',
+                'videos',
+                'my Ads',
+                'more',
+              ].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`capitalize px-4 py-2 rounded-md text-sm transition whitespace-nowrap ${
-                    activeTab === tab ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  className={`rounded-md px-4 py-2 text-sm capitalize transition ${
+                    activeTab === tab
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
                   {tab}
                 </button>
               ))}
             </div>
-            <div className="mt-4 md:mt-0 flex gap-4">
-              <SettingMenu activeTab={activeTab1} setActiveTab={setActiveTab1} />
-              {activeTab1 === 'manageFriends' && (
-  <Modal onClose={() => setActiveTab1('')}>
-    <h2 className="text-lg font-semibold mb-4">Manage Friends</h2>
-    <ManageFriends />
-  </Modal>
-)}
+
+            {/* Hamburger dropdown for mobile */}
+            <div className="relative sm:hidden">
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value)}
+                className="w-full rounded bg-white p-2 text-blue-900"
+              >
+                {[
+                  'posts',
+                  'about',
+                  'friends',
+                  'photos',
+                  'videos',
+                  'my Ads',
+                  'more',
+                ].map((tab) => (
+                  <option key={tab} value={tab}>
+                    {tab}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex gap-6">
+              <SettingMenu
+                activeTab={activeTab1}
+                setActiveTab={setActiveTab1}
+              />
+
+              <div className="flex-1">
+                {activeTab1 === 'manageFriends' && <ManageFriends />}
+                {/* You can conditionally render other tabs here */}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+      {/* Main Content */}
+      <div className="mx-auto mt-6 min-h-[600px] max-w-5xl rounded-xl bg-white p-6 shadow-inner">
         {activeTab === 'posts' && (
-          <div className="flex flex-col lg:flex-row gap-6">
-            <div className="w-full lg:w-2/3 space-y-4">
-              <PostCreateBox onPostCreated={(newPost) => setPosts(prev => [newPost, ...prev])} />
+          <div className="flex flex-col gap-6 text-left lg:flex-row">
+            <div className="w-full space-y-4 lg:w-2/3">
+              <PostCreateBox
+                onPostCreated={(newPost) =>
+                  setPosts((prev) => [newPost, ...prev])
+                }
+              />
               {loadingPosts ? (
-                <p className="text-center text-gray-500">Loading posts...</p>
+                <div className="py-10 text-center text-gray-500">
+                  Loading posts...
+                </div>
               ) : posts.length === 0 ? (
-                <p className="text-center text-gray-500">No posts yet.</p>
+                <div className="py-10 text-center text-gray-500">
+                  No posts yet.
+                </div>
               ) : (
                 posts.map((post) => <PostCard key={post._id} post={post} />)
               )}
             </div>
-            <div className="w-full lg:w-1/3 space-y-4">
+            <div className="w-full lg:w-1/3">
               <Intro />
               <Friends friends={user.friends || []} />
             </div>
@@ -160,9 +254,16 @@ const Profile = () => {
         {activeTab === 'photos' && (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {posts
-              .filter((post) => post.mediaUrl?.match(/\.(jpg|jpeg|png|gif|webp)$/i))
+              .filter((post) =>
+                post.mediaUrl?.match(/\.(jpg|jpeg|png|gif|webp)$/i),
+              )
               .map((post) => (
-                <img key={post._id} src={post.mediaUrl} alt="User upload" className="w-full h-64 object-cover rounded-lg" />
+                <img
+                  key={post._id}
+                  src={post.mediaUrl}
+                  alt="User upload"
+                  className="h-64 w-full rounded-lg object-cover"
+                />
               ))}
           </div>
         )}
@@ -171,12 +272,18 @@ const Profile = () => {
             {posts
               .filter((post) => post.mediaUrl?.match(/\.(mp4|webm|ogg)$/i))
               .map((post) => (
-                <video key={post._id} src={post.mediaUrl} controls className="w-full max-h-80 object-cover rounded-lg" />
+                <video
+                  key={post._id}
+                  src={post.mediaUrl}
+                  controls
+                  className="max-h-80 w-full rounded-lg object-cover"
+                />
               ))}
           </div>
         )}
-      </main>
+      </div>
 
+      {/* Edit Profile Modal */}
       {isEditing && (
         <EditProfile
           profilePic={profilePic}
@@ -215,7 +322,6 @@ const Profile = () => {
           onImageChange={handleImageChange}
         />
       )}
-
       <Footer />
     </div>
   );

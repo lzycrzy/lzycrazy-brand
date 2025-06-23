@@ -94,6 +94,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useUser } from '../../context/UserContext';
 import axios from '../../lib/axios/axiosInstance';
 import Modal from '../common/Modal';
+import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
 
 const PostCard = ({ post }) => {
   const {
@@ -186,9 +187,16 @@ const PostCard = ({ post }) => {
 
         {/* Actions */}
         <div className="flex items-center gap-6 px-4 pt-3 text-xl text-gray-700">
-          <button onClick={handleLike} className={`${liked ? 'text-red-500' : 'hover:text-black'}`}>
-            <FiHeart />
-          </button>
+        <button
+  onClick={handleLike}
+  className="text-xl transition-all duration-200 focus:outline-none"
+>
+  {liked ? (
+    <AiFillHeart className="text-red-500" title="Unlike" />
+  ) : (
+    <AiOutlineHeart className="text-gray-500 hover:text-black" title="Like" />
+  )}
+</button>
           <button onClick={() => setShowModal(true)} className="hover:text-black">
             <FiMessageCircle />
           </button>
