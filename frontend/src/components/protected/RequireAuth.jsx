@@ -38,15 +38,17 @@
 // src/components/protected/RequireAuth.jsx
 import { Outlet, Navigate } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
+import Loader from '../../components/common/Spinner';
 
 export default function RequireAuth() {
   const { user, authChecked } = useUser();
 
   if (!authChecked) {
     return (
-      <div className="w-full h-screen flex items-center justify-center text-gray-500 text-lg">
-        Checking authentication...
-      </div>
+      // <div className="w-full h-screen flex items-center justify-center text-gray-500 text-lg">
+      //   Checking authentication...
+      // </div>
+      <Loader/>
     );
   }
 

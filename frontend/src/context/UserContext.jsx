@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import axios from '../lib/axios/axiosInstance';
+import Loader from '../components/common/Spinner';
 
 const UserContext = createContext();
 export const useUser = () => useContext(UserContext);
@@ -51,7 +52,7 @@ export const UserProvider = ({ children }) => {
         authChecked,
       }}
     >
-      {authChecked ? children : <div>Checking authentication...</div>}
+      {authChecked ? children : <Loader/>}
     </UserContext.Provider>
   );
 };

@@ -1,18 +1,19 @@
-// src/components/Footer.jsx
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="bg-white  text-gray-700 text-sm py-25 shadow-[0_-2px_6px_rgba(0,0,0,0.05)]">
+    <footer className="bg-white text-gray-700 text-sm py-25 shadow-[0_-2px_6px_rgba(0,0,0,0.05)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-6">
+
           {/* About */}
           <div>
             <h4 className="mb-2 font-semibold text-gray-800">About Us</h4>
             <ul className="space-y-1">
-              <li><a href="#" className="hover:underline">We Are Hiring</a></li>
-              <li><a href="#" className="hover:underline">LzyCrazy News</a></li>
-              <li><a href="#" className="hover:underline">Marketplace</a></li>
+              <li><Link to="/hiring" className="hover:underline">We Are Hiring</Link></li>
+              <li><Link to="/news" className="hover:underline">LzyCrazy News</Link></li>
+              <li><Link to="/market" className="hover:underline">Marketplace</Link></li>
             </ul>
           </div>
 
@@ -20,9 +21,9 @@ const Footer = () => {
           <div>
             <h4 className="mb-2 font-semibold text-gray-800">Services</h4>
             <ul className="space-y-1">
-              <li><a href="#" className="hover:underline">Business</a></li>
-              <li><a href="#" className="hover:underline">Shopping</a></li>
-              <li><a href="#" className="hover:underline">Entertainment</a></li>
+              <li><Link to="/services" className="hover:underline">Business</Link></li>
+              <li><Link to="/services" className="hover:underline">Shopping</Link></li>
+              <li><Link to="/services" className="hover:underline">Entertainment</Link></li>
             </ul>
           </div>
 
@@ -30,9 +31,9 @@ const Footer = () => {
           <div>
             <h4 className="mb-2 font-semibold text-gray-800">Site Terms & Policies</h4>
             <ul className="space-y-1">
-              <li><a href="#" className="hover:underline">Privacy Policy</a></li>
-              <li><a href="#" className="hover:underline">Terms</a></li>
-              <li><a href="#" className="hover:underline">Cookie Policy</a></li>
+              <li><Link to="/privacy" className="hover:underline">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:underline">Terms</Link></li>
+              <li><Link to="/cookie-policy" className="hover:underline">Cookie Policy</Link></li>
             </ul>
           </div>
 
@@ -40,9 +41,9 @@ const Footer = () => {
           <div>
             <h4 className="mb-2 font-semibold text-gray-800">Support Center</h4>
             <ul className="space-y-1">
-              <li><a href="#" className="hover:underline">Business Profile</a></li>
-              <li><a href="#" className="hover:underline">Advertising</a></li>
-              <li><a href="#" className="hover:underline">Feedback</a></li>
+              <li><Link to="/business-profile" className="hover:underline">Business Profile</Link></li>
+              <li><Link to="/advertising" className="hover:underline">Advertising</Link></li>
+              <li><Link to="/feedback" className="hover:underline">Feedback</Link></li>
             </ul>
           </div>
 
