@@ -4,7 +4,182 @@ import * as faceapi from 'face-api.js';
 import axios from '../lib/axios/axiosInstance';
 import Loader from './common/Spinner';
 
+// Main component that orchestrates the two modals
 const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
+  const [currentStep, setCurrentStep] = useState(1); // 1 for login check, 2 for details
+  const [userData, setUserData] = useState({
+    lycrazyId: '',
+    phone: '',
+    email: ''
+  });
+
+  const handleLoginSuccess = (userData) => {
+    setUserData(userData);
+    setCurrentStep(2);
+  };
+
+  const handleBackToStep1 = () => {
+    setCurrentStep(1);
+    setUserData({ lycrazyId: '', phone: '', email: '' });
+  };
+
+  const handleCloseModal = () => {
+    setCurrentStep(1);
+    setUserData({ lycrazyId: '', phone: '', email: '' });
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <>
+      {currentStep === 1 && (
+        <LoginCheckModal 
+          isOpen={isOpen}
+          onClose={handleCloseModal}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      )}
+      {currentStep === 2 && (
+        <HiringDetailsModal 
+          isOpen={isOpen}
+          onClose={handleCloseModal}
+          onBack={handleBackToStep1}
+          userData={userData}
+          onSubmitSuccess={onSubmitSuccess}
+        />
+      )}
+    </>
+  );
+};
+
+// First Modal - Login Check
+const LoginCheckModal = ({ isOpen, onClose, onLoginSuccess }) => {
+  const [formData, setFormData] = useState({
+    lycrazyId: '',
+    phone: '',
+    email: ''
+  });
+  const [isChecking, setIsChecking] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setError(''); // Clear error when user types
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsChecking(true);
+    setError('');
+
+    try {
+      // Check if user exists with these credentials
+      const response = await axios.post('/v1/users/check-credentials', {
+        lycrazyId: formData.lycrazyId,
+        phone: formData.phone,
+        email: formData.email
+      });
+
+      if (response.data.exists) {
+        // User exists, proceed to next step
+        onLoginSuccess(formData);
+      } else {
+        // User doesn't exist
+        setError('User not found. Please sign up first.');
+      }
+    } catch (err) {
+      console.error('Error checking credentials:', err);
+      setError('User not found. Please sign up first or check your credentials.');
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return ReactDOM.createPortal(
+    <div className="bg-opacity-50 fixed inset-0 z-[1000] flex h-screen w-screen items-center justify-center bg-black backdrop-blur-sm">
+      {isChecking && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/70 backdrop-blur-sm">
+          <Loader className="h-10 w-10 animate-spin text-blue-600" />
+        </div>
+      )}
+      
+      <div className="relative flex w-full max-w-md flex-col overflow-hidden rounded-lg bg-white p-8 shadow-2xl">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-red-500"
+        >
+          &times;
+        </button>
+
+        <h2 className="mb-2 text-center text-2xl font-bold text-blue-700">
+          VERIFY YOUR ACCOUNT
+        </h2>
+        <p className="mb-4 text-center text-sm text-gray-600">
+          Enter your LyCrazy ID, phone number, and email to continue
+        </p>
+        
+        <p className="mb-6 text-center text-sm text-blue-600">
+          Don't have an account? <a href="/signup" target="_blank" rel="noopener noreferrer" className="hover:underline font-medium">Sign Up Here</a>
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            required
+            label="LyCrazy ID"
+            name="lycrazyId"
+            value={formData.lycrazyId}
+            onChange={handleChange}
+            placeholder="e.g. lc09240031"
+          />
+          
+          <Input
+            required
+            label="Phone Number"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            type="tel"
+            placeholder="Enter your phone number"
+          />
+          
+          <Input
+            required
+            label="Email Address"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            type="email"
+            placeholder="Enter your email address"
+          />
+
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isChecking}
+            className={`w-full rounded-md px-6 py-3 text-white font-medium ${
+              isChecking ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            {isChecking ? 'Verifying...' : 'CONTINUE'}
+          </button>
+        </form>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
+// Second Modal - Hiring Details
+const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess }) => {
   const [cameraOn, setCameraOn] = useState(false);
   const [instruction, setInstruction] = useState('');
   const videoRef = useRef(null);
@@ -14,7 +189,6 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
-    lycrazyId: '',
     country: '',
     state: '',
     city: '',
@@ -23,8 +197,6 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
     age: '',
     height: '',
     weight: '',
-    phone: '',
-    email: '',
     jobCategory: '',
     experience: '',
     about: '',
@@ -43,9 +215,7 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
     const acceptedTypes = ['video/mp4', 'video/webm', 'video/ogg'];
 
     if (!acceptedTypes.includes(file.type)) {
-      alert(
-        'Invalid file type. Please upload a video in MP4, WebM, or Ogg format.',
-      );
+      alert('Invalid file type. Please upload a video in MP4, WebM, or Ogg format.');
       return;
     }
 
@@ -53,7 +223,7 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
       alert('File too large. Please upload a video less than 10MB.');
       return;
     }
-    setVideoFile(e.target.files[0]);
+    setVideoFile(file);
   };
 
   useEffect(() => {
@@ -159,10 +329,18 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // 🚀 Start spinner
+    setIsSubmitting(true);
 
     const form = new FormData();
+    
+    // Add user credentials from step 1
+    form.append('lycrazyId', userData.lycrazyId);
+    form.append('phone', userData.phone);
+    form.append('email', userData.email);
+    
+    // Add form data from step 2
     Object.keys(formData).forEach((key) => form.append(key, formData[key]));
+    
     if (videoFile) form.append('video', videoFile);
 
     try {
@@ -176,15 +354,20 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
       alert('Submission failed');
       console.error(err);
     } finally {
-      setIsSubmitting(false); // ✅ Stop spinner
+      setIsSubmitting(false);
     }
   };
+
   if (!isOpen) return null;
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/70 backdrop-blur-sm">
-  <Loader className="h-10 w-10 animate-spin text-blue-600" />
-</div>
+
   return ReactDOM.createPortal(
     <div className="bg-opacity-40 fixed inset-0 z-[1000] flex h-screen w-screen items-center justify-center backdrop-blur-sm">
+      {isSubmitting && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/70 backdrop-blur-sm">
+          <Loader className="h-10 w-10 animate-spin text-blue-600" />
+        </div>
+      )}
+      
       <div className="relative flex h-[95vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg bg-white p-6 shadow-2xl">
         <button
           onClick={onClose}
@@ -194,29 +377,22 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
         </button>
 
         <h2 className="mb-1 text-center text-xl font-bold text-blue-700">
-          WE ARE HIRING
+          COMPLETE YOUR APPLICATION
         </h2>
-        <p className="text-center text-sm text-gray-600">
-          Please sign up to get your <strong>LyCrazy ID</strong>.<br />
-          Then enter your LyCrazy ID (e.g. <code>lc09240031</code>) below.
+        <p className="mb-2 text-center text-sm text-gray-600">
+          Welcome, <strong>{userData.lycrazyId}</strong>! Please complete your hiring form.
         </p>
-        <p className="mb-4 text-center text-sm text-blue-600 hover:underline">
-          <a href="/signup" target="_blank" rel="noopener noreferrer">
-            Sign Up Here
-          </a>
-        </p>
+        
+        <button
+          onClick={onBack}
+          className="mb-4 self-start text-sm text-blue-600 hover:underline"
+        >
+          ← Back to previous step
+        </button>
 
-        <div className="max-h-[calc(95vh-150px)] flex-grow overflow-y-auto pr-2">
-          <form className="space-y-1" onSubmit={handleSubmit}>
+        <div className="max-h-[calc(95vh-200px)] flex-grow overflow-y-auto pr-2">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input
-                required
-                label="LyCrazy ID"
-                name="lycrazyId"
-                value={formData.lycrazyId}
-                onChange={handleChange}
-                placeholder="e.g. lc09240031"
-              />
               <Input
                 required
                 label="Country"
@@ -224,9 +400,6 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 value={formData.country}
                 onChange={handleChange}
               />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
                 required
                 label="State"
@@ -234,6 +407,9 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 value={formData.state}
                 onChange={handleChange}
               />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
                 required
                 label="City"
@@ -241,9 +417,6 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 value={formData.city}
                 onChange={handleChange}
               />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
                 required
                 label="Education"
@@ -251,6 +424,9 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 value={formData.education}
                 onChange={handleChange}
               />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
                 required
                 label="Age"
@@ -259,9 +435,6 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 value={formData.age}
                 onChange={handleChange}
               />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
                 required
                 label="Height (cm)"
@@ -270,6 +443,9 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 value={formData.height}
                 onChange={handleChange}
               />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
                 required
                 label="Weight (kg)"
@@ -278,28 +454,6 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 value={formData.weight}
                 onChange={handleChange}
               />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input
-                required
-                label="Phone Number"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                type="tel"
-              />
-              <Input
-                required
-                label="Email Address"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                type="email"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Select
                 required
                 label="Select Job Category"
@@ -308,15 +462,16 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 onChange={handleChange}
                 options={['Marketing', 'Sales', 'Development', 'Operations']}
               />
-              <Select
-                required
-                label="Select Experience Level"
-                name="experience"
-                value={formData.experience}
-                onChange={handleChange}
-                options={['Fresher', '1-2 Years', '3-5 Years', '5+ Years']}
-              />
             </div>
+
+            <Select
+              required
+              label="Select Experience Level"
+              name="experience"
+              value={formData.experience}
+              onChange={handleChange}
+              options={['Fresher', '1-2 Years', '3-5 Years', '5+ Years']}
+            />
 
             <Textarea
               required
@@ -330,7 +485,7 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-sm font-medium text-gray-700">
-                  Upload 15s Video
+                  Upload 15s Video Introduction *
                 </label>
                 <input
                   type="file"
@@ -346,7 +501,7 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                     checked={cameraOn}
                     onChange={() => setCameraOn(!cameraOn)}
                   />
-                  <span className="text-sm text-gray-700">Open Camera</span>
+                  <span className="text-sm text-gray-700">Open Camera for Preview</span>
                 </div>
               </div>
 
@@ -357,14 +512,14 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 <video
                   src="/example.mp4"
                   controls
-                  className="w-1/2 rounded-md border"
+                  className="w-full rounded-md border"
                 />
               </div>
             </div>
 
             {cameraOn && (
               <div className="relative mt-4 rounded-md border border-blue-300 bg-gray-50 p-4">
-                <p className="mb-2 text-sm text-blue-600">📷 Camera is ON</p>
+                <p className="mb-2 text-sm text-blue-600">📷 Camera Preview</p>
                 <ul className="mb-4 list-inside list-disc text-sm text-gray-500">
                   <li>Ensure face is centered in the frame</li>
                   <li>Good lighting is recommended</li>
@@ -389,12 +544,11 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
               </div>
             )}
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-between gap-3 pt-4">
               <button
                 type="button"
                 onClick={() => {
                   setFormData({
-                    lycrazyId: '',
                     country: '',
                     state: '',
                     city: '',
@@ -403,8 +557,6 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                     age: '',
                     height: '',
                     weight: '',
-                    phone: '',
-                    email: '',
                     jobCategory: '',
                     experience: '',
                     about: '',
@@ -415,14 +567,17 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 }}
                 className="rounded-md bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300"
               >
-                Clear
+                Clear Form
               </button>
+              
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`rounded-md px-6 py-2 text-white ${isSubmitting ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+                className={`rounded-md px-6 py-2 text-white font-medium ${
+                  isSubmitting ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
+                }`}
               >
-                {isSubmitting ? 'Submitting...' : 'SUBMIT'}
+                {isSubmitting ? 'Submitting...' : 'SUBMIT APPLICATION'}
               </button>
             </div>
           </form>
@@ -433,7 +588,7 @@ const HiringFormModal = ({ isOpen, onClose, onSubmitSuccess }) => {
   );
 };
 
-// Reusable Input
+// Reusable Input Component
 const Input = ({
   label,
   name,
@@ -445,7 +600,7 @@ const Input = ({
 }) => (
   <div>
     <label className="mb-1 block text-sm font-medium text-gray-700">
-      {label}
+      {label} {required && <span className="text-red-500">*</span>}
     </label>
     <input
       type={type}
@@ -459,7 +614,7 @@ const Input = ({
   </div>
 );
 
-// Reusable Select
+// Reusable Select Component
 const Select = ({
   label,
   name,
@@ -470,7 +625,7 @@ const Select = ({
 }) => (
   <div>
     <label className="mb-1 block text-sm font-medium text-gray-700">
-      {label}
+      {label} {required && <span className="text-red-500">*</span>}
     </label>
     <select
       name={name}
@@ -489,7 +644,7 @@ const Select = ({
   </div>
 );
 
-// Reusable Textarea
+// Reusable Textarea Component
 const Textarea = ({
   label,
   name,
@@ -500,7 +655,7 @@ const Textarea = ({
 }) => (
   <div>
     <label className="mb-1 block text-sm font-medium text-gray-700">
-      {label}
+      {label} {required && <span className="text-red-500">*</span>}
     </label>
     <textarea
       name={name}
