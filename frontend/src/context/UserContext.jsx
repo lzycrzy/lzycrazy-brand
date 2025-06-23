@@ -21,15 +21,20 @@ export const UserProvider = ({ children }) => {
       setDisplayName(data?.profile?.name || '');
       setProfilePic(`${data?.profile?.photoURL || DEFAULT_PROFILE_PIC}?t=${Date.now()}`);
     } catch (error) {
-      console.warn("Auth check failed:", error?.response?.data || error);
-      logout(); // logout clears user + storage
+      // console.warn("Auth check failed:", error?.response?.data || error);
+      // logout clears user + storage
     } finally {
       setAuthChecked(true);
     }
   };
 
   useEffect(() => {
+    const tokenExists = document.cookie.includes('token=');
+  if (tokenExists) {
     fetchUser();
+  } else {
+    setAuthChecked(true);
+  }
   }, []);
 
   const logout1 = () => {
