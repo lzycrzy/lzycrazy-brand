@@ -183,7 +183,7 @@ const UserTable = () => {
                     />
                   </td>
                   <td className="px-3 py-3 font-semibold text-slate-800">{user.fullName}</td>
-                  <td className="px-3 py-3 font-semibold text-slate-800">{user._id}</td>
+                  <td className="px-3 py-3 font-semibold text-slate-800">{user.companyId}</td>
                   <td className="px-3 py-3 text-slate-500">{user.email}</td>
                   <td className="px-3 py-3">
                     <span
