@@ -54,6 +54,8 @@ const Header = () => {
         setIsDropdownOpen(false);
       }
     };
+    console.log("User object:", user);
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -128,6 +130,11 @@ const Header = () => {
           >
             {displayName || 'User'}
           </p>
+          {user?.profile?.companyId && (
+    <p className="text-xs text-gray-500 mt-1">
+      ID: <span className="font-mono">{user.profile.companyId.replace(/^lz\d{8}/, 'lz')}</span>
+    </p>
+  )}
           <p className="truncate text-sm text-gray-600">
             {user?.profile?.email || 'user@example.com'}
           </p>

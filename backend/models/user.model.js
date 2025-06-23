@@ -38,6 +38,11 @@ const userSchema = new mongoose.Schema({
     type: String, // image file name or URL
     default: 'https://i.ibb.co/2kR5zq0/default-avatar.png', // default empty
   },
+  companyId: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
   resetPasswordToken: {
     type: String,
     select: false,
@@ -97,10 +102,33 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next(); //--
+  // Assign companyId if new and doesn't already have it
+  if (this.isNew && !this.companyId) {
+    const now = new Date();
 
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const yyyy = now.getFullYear();
+
+    const dateStr = `${dd}${mm}${yyyy}`;
+
+    // 2. Count users created on the same day
+    const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(now.setHours(23, 59, 59, 999));
+
+    const countToday = await mongoose.model('User').countDocuments({
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    // 3. Generate companyId like `lz23062025001`
+    this.companyId = `lz${dateStr}00${countToday + 1}`;
+  }
+
+  // Hash password if it's modified
+  if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+
   next();
 });
 
