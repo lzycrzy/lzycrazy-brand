@@ -54,7 +54,10 @@ const Home = () => {
       follow: false,
     },
   ];
-
+  const handlePostCreated = (newPost) => {
+    setPosts((prevPosts) => [newPost, ...prevPosts]);
+  };
+  
   useEffect(() => {
     const fetchAllPosts = async () => {
       try {
@@ -98,7 +101,8 @@ const Home = () => {
 
         {/* Main Feed (always visible) */}
         <div className="scrollbar-hide flex-1 overflow-y-auto px-2 sm:px-4 lg:px-6">
-          <MainFeed posts={posts} />
+        <MainFeed posts={posts} onPostCreated={handlePostCreated} />
+
         </div>
 
         {/* Right Sidebar (hide on md and below) */}

@@ -95,12 +95,12 @@ import Stories from './StorySlider';
 import PostCreateBox from '../Posts/PostCreateBox';
 import PostCard from '../Posts/PostCard'; // 🔹 Import reusable PostCard
 
-const MainFeed = ({ posts }) => {
+const MainFeed = ({ posts,onPostCreated }) => {
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       {/* Stories & Create Post */}
       <Stories />
-      <PostCreateBox />
+      <PostCreateBox onPostCreated={onPostCreated} />
 
       {/* Posts List */}
       {posts?.length > 0 ? (
