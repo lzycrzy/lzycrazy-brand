@@ -7,7 +7,7 @@ import { errorMiddleware } from './middlewares/error.middleware.js';
 import categoryRoutes from './router/category.route.js';
 import serviceRoutes from './router/service.routes.js';
 import imagesRoute from './router/cloudinaryRoutes.js';
-
+import ErrorHandler from './middlewares/error.middleware.js';
 
 //--importing cloudinary configuration
 // This is where you would configure Cloudinary for file uploads
@@ -20,6 +20,8 @@ import helmet from 'helmet';
 import userRoutes from './router/user.route.js';
 import aboutRoutes from './router/user.about.js';
 import adminRoutes from './router/admin.route.js';
+import postRoutes from './router/user.post.routes.js'
+
 
 //--env file configuration
 // This loads environment variables from a .env file into process.env
@@ -56,6 +58,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //--setting up routes
 app.use('/api/v1/users', userRoutes);  //--user routes
+app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/users/about', aboutRoutes); //--user about routes
 app.use('/api/v1/admin', adminRoutes);  //--admin routes
 app.use('/api/v1/categories', categoryRoutes); //--category routes
@@ -65,10 +68,10 @@ app.use('/api/v1/image', imagesRoute); //--service routes
 
 dbConnection(); 
 
-app.use((err, req, res, next) => {
-  console.error("🔥 Uncaught error:", err);
-  res.status(500).json({ message: "Unexpected server error" });
-});
+// app.use((err, req, res, next) => {
+//   console.error("🔥 Uncaught error:", err);
+//   res.status(500).json({ message: "Unexpected server error" });
+// });
 
 app.use(errorMiddleware); //--error handling middleware
 

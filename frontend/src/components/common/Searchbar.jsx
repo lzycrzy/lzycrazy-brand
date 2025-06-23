@@ -45,27 +45,27 @@ const Searchbar = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-start bg-[#ebf3fe] pt-12 pb-24 px-4 sm:px-6 lg:px-8">
+    <div className="w-full flex flex-col items-center justify-start bg-[#ebf3fe] pt-2">
       {/* Logo */}
-      <div className="mt-4 mb-8">
+      <div className="mb-4">
         <img
           src={logo}
           alt="LzyCrazy Logo"
-          className="w-32 md:w-44 lg:w-60 opacity-90 mix-blend-multiply"
+          className="w-28 md:w-40 lg:w-52 opacity-90 mix-blend-multiply"
         />
       </div>
 
       {/* Search Box */}
       <form
         onSubmit={handleSearch}
-        className="relative w-full max-w-xl transition"
+        className="relative w-full max-w-xl px-1 transition"
       >
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search here..."
-          className="w-full rounded-full border border-gray-300 px-12 py-4 shadow-md focus:outline-none"
+          className="w-full rounded-full border border-gray-300 px-12 py-3 shadow-md focus:outline-none"
         />
         <button
           type="submit"
@@ -90,26 +90,13 @@ const Searchbar = () => {
 
       {/* Coming Soon Text */}
       {showComingSoon && (
-        <div className="mt-6 animate-fadeInScale rounded-full bg-yellow-100 px-6 py-3 text-sm font-semibold text-yellow-800 shadow-md transition-all duration-500 ease-in-out">
+        <div className="mt-4 animate-fadeInScale rounded-full bg-yellow-100 px-6 py-3 text-sm font-semibold text-yellow-800 shadow-md">
           🚧 This feature is coming next week — stay tuned!
         </div>
       )}
 
-      {/* Hiring Modals */}
-      <HiringFormModal
-        isOpen={showHiring}
-        onClose={() => setShowHiring(false)}
-        onSubmitSuccess={() => setShowTask(true)}
-      />
-      <HiringTaskModal
-        isOpen={showTask}
-        onClose={() => setShowTask(false)}
-        onSubmitSuccess={() => setShowSuccess(true)}
-      />
-      <SuccessPopup isOpen={showSuccess} onClose={() => setShowSuccess(false)} />
-
       {/* Tabs */}
-      <div className="mt-12 w-full max-w-3xl px-4">
+      <div className="mt-5 w-full max-w-3xl px-4">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           {tabs.map((tab) => (
             <button
@@ -129,10 +116,23 @@ const Searchbar = () => {
 
       {/* News Section */}
       {activeTab === 'LzyCrazy News' && (
-        <div className="mt-12 w-full max-w-4xl px-4">
+        <div className="mt-6 w-full max-w-4xl px-4">
           <NewsFeed />
         </div>
       )}
+
+      {/* Hiring Modals */}
+      <HiringFormModal
+        isOpen={showHiring}
+        onClose={() => setShowHiring(false)}
+        onSubmitSuccess={() => setShowTask(true)}
+      />
+      <HiringTaskModal
+        isOpen={showTask}
+        onClose={() => setShowTask(false)}
+        onSubmitSuccess={() => setShowSuccess(true)}
+      />
+      <SuccessPopup isOpen={showSuccess} onClose={() => setShowSuccess(false)} />
     </div>
   );
 };

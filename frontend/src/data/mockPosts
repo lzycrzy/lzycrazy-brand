@@ -1,0 +1,52 @@
+const mockPosts = [
+  {
+    id: 1,
+    title: 'Toyota Fortuner 2021',
+    category: 'Cars',
+    subcategory: 'SUV',
+    location: 'Delhi',
+    fields: {
+      brand: 'Toyota',
+      fuelType: 'Diesel',
+      transmission: 'Manual',
+    },
+    features: ['Sunroof', 'Touchscreen', 'Bluetooth'],
+    images: [
+      'https://via.placeholder.com/150',
+      'https://via.placeholder.com/150',
+    ],
+    postedAt: '2025-06-19',
+  },
+  {
+    id: 2,
+    title: 'Maruti Swift VXI',
+    category: 'Cars',
+    subcategory: 'Hatchback',
+    location: 'Mumbai',
+    fields: {
+      brand: 'Maruti',
+      fuelType: 'Petrol',
+      transmission: 'Automatic',
+    },
+    features: ['Airbags', 'Bluetooth'],
+    images: ['https://via.placeholder.com/150'],
+    postedAt: '2025-06-18',
+  },
+  {
+    id: 3,
+    title: 'Hyundai Creta 2022',
+    category: 'Cars',
+    subcategory: 'SUV',
+    location: 'Bangalore',
+    fields: {
+      brand: 'Hyundai',
+      fuelType: 'Diesel',
+      transmission: 'Automatic',
+    },
+    features: ['Cruise Control', 'Sunroof', 'LED Headlights'],
+    images: ['https://via.placeholder.com/150'],
+    postedAt: '2025-06-17',
+  },
+];
+
+export default mockPosts;
