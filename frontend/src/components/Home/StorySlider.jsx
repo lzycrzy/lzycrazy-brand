@@ -104,19 +104,24 @@ export default function Stories() {
         onChange={handleFileChange}
         className="hidden"
       />
-
-      <div className="flex items-center space-x-2">
+  
+      {/* Desktop Arrows & Story Cards */}
+      <div className="hidden sm:flex items-center space-x-2">
         <button
           onClick={() => scroll('left')}
           className="z-10 rounded-full bg-gray-200 p-2 hover:bg-gray-300"
         >
           <ChevronLeft />
         </button>
-
-        <div ref={scrollRef} className="flex w-full gap-3 overflow-hidden">
+  
+        <div
+          ref={scrollRef}
+          className="scrollbar-hide flex w-full gap-3 overflow-x-auto sm:overflow-x-visible"
+        >
+          {/* Add Story Card (Desktop) */}
           <div
-            className="flex h-48 w-1/5 flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg bg-gray-800 p-4 text-white"
             onClick={openFilePicker}
+            className="flex h-48 w-[180px] flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg bg-gray-800 p-4 text-white"
           >
             <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-white">
               {loading ? (
@@ -127,31 +132,32 @@ export default function Stories() {
             </div>
             <p className="text-sm font-semibold">Add Story</p>
           </div>
-
+  
+          {/* Desktop Stories */}
           {stories.map((story) => (
             <div
               key={story._id}
-              className="relative h-48 w-1/5 flex-shrink-0 cursor-pointer overflow-hidden rounded-xl bg-cover bg-center shadow-lg"
-              style={{ backgroundImage: `url(${story.image})` }}
               onClick={() => handleStoryClick(story)}
+              className="relative h-48 w-[180px] flex-shrink-0 cursor-pointer rounded-xl bg-cover bg-center shadow-md"
+              style={{ backgroundImage: `url(${story.image})` }}
             >
               <div className="absolute top-3 left-3">
                 <img
                   src={story.user.image}
                   alt={story.user.name}
-                  className="h-10 w-10 rounded-full border-2 border-white shadow-md"
+                  className="h-10 w-10 rounded-full border-2 border-white"
                 />
               </div>
-              <div className="absolute right-2 bottom-2 left-2 truncate text-center text-sm font-semibold">
+              <div className="absolute bottom-2 left-2 right-2 text-center text-sm font-semibold text-white">
                 {story.user.name}
               </div>
-              <div className="bg-opacity-50 absolute top-2 right-2 rounded-full bg-black px-2 py-1 text-xs text-white">
+              <div className="absolute top-2 right-2 rounded-full bg-black bg-opacity-50 px-2 py-1 text-xs text-white">
                 {story.views?.length ?? 0} views
               </div>
             </div>
           ))}
         </div>
-
+  
         <button
           onClick={() => scroll('right')}
           className="z-10 rounded-full bg-gray-200 p-2 hover:bg-gray-300"
@@ -159,9 +165,46 @@ export default function Stories() {
           <ChevronRight />
         </button>
       </div>
-
+  
+      {/* Mobile: Instagram-style Circular Scrollable Stories */}
+      <div
+        ref={scrollRef}
+        className="sm:hidden flex gap-4 overflow-x-auto scrollbar-hide mt-2"
+      >
+        {/* Add Story (Mobile) */}
+        <div onClick={openFilePicker} className="flex flex-col items-center">
+          <div className="mb-1 h-16 w-16 rounded-full border-2 border-dashed border-blue-500 flex items-center justify-center">
+            {loading ? (
+              <Loader2 className="animate-spin text-blue-600" />
+            ) : (
+              <Plus className="text-blue-600" />
+            )}
+          </div>
+          <p className="text-xs text-center text-blue-600">Add</p>
+        </div>
+  
+        {/* Mobile Stories */}
+        {stories.map((story) => (
+          <div
+            key={story._id}
+            onClick={() => handleStoryClick(story)}
+            className="flex flex-col items-center"
+          >
+            <img
+              src={story.user.image}
+              alt={story.user.name}
+              className="h-25 w-25 rounded-full border-4 border-blue-500 object-cover"
+            />
+            <p className="mt-1 text-xs text-center text-gray-700">
+              {story.user.name}
+            </p>
+          </div>
+        ))}
+      </div>
+  
+      {/* Modal Story Viewer */}
       {selectedUserStories && (
-        <div className="bg-opacity-70 fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
           <div className="relative max-h-full w-full max-w-4xl overflow-y-auto rounded-lg bg-white">
             <button
               className="absolute top-2 right-2 rounded-full p-2 text-black hover:bg-gray-200"
@@ -169,11 +212,11 @@ export default function Stories() {
             >
               <X size={24} />
             </button>
-
+  
             <h2 className="border-b p-4 text-xl font-bold">
               {selectedUserStories[0]?.user?.fullName}'s Stories
             </h2>
-
+  
             <div className="relative flex gap-4 overflow-x-auto px-4 py-6">
               {selectedUserStories.map((story) => (
                 <div
@@ -189,13 +232,9 @@ export default function Stories() {
                     <p className="text-sm text-gray-600">
                       Uploaded: {new Date(story.createdAt).toLocaleString()}
                     </p>
-
                     {story.views.map((view, i) =>
                       view.user ? (
-                        <li
-                          key={i}
-                          className="mt-1 flex items-center space-x-2"
-                        >
+                        <li key={i} className="mt-1 flex items-center space-x-2">
                           <img
                             src={view.user.image}
                             alt={view.user.fullName}
@@ -210,7 +249,7 @@ export default function Stories() {
                         <li key={i} className="text-sm text-gray-500">
                           Unknown viewer
                         </li>
-                      ),
+                      )
                     )}
                   </div>
                 </div>
@@ -221,4 +260,5 @@ export default function Stories() {
       )}
     </div>
   );
-}
+  
+}  

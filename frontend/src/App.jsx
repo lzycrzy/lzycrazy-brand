@@ -129,6 +129,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => (
   <Provider store={store}>
+     
     <UserProvider>
     
         <ToastContainer
