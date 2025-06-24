@@ -110,4 +110,5 @@ router.post('/hiring', upload.single('video'), submitApplication);
 
 //enquiry
 router.post('/enquiry', createEnquiry);
+     
 export default router;

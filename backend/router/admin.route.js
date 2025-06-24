@@ -17,7 +17,7 @@ import {
   authorizeRolesAdimin,
 } from '../middlewares/auth.middleware.admin.js';
 import upload from '../middlewares/multer.middleware.js';
-
+import { getAllEnquiries } from '../controllers/Enquiry.controller.js';
 const router = express.Router();
 
 // Public routes
@@ -64,5 +64,6 @@ router.delete(
   authorizeRolesAdimin('admin'),
   deleteSingleUser,
 );
+router.get('/enquiry', getAllEnquiries); 
 
 export default router;
