@@ -15,6 +15,7 @@ const AddCategory = () => {
   const [editingId, setEditingId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+
   const FIELD_TYPES = [
     { value: 'text', label: 'Text Input' },
     { value: 'textarea', label: 'Textarea' },
@@ -22,7 +23,26 @@ const AddCategory = () => {
     { value: 'checkbox', label: 'Checkbox' },
     { value: 'dropdown', label: 'Dropdown' },
     { value: 'file', label: 'File Upload' },
+
   ];
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await instance.get('/categories');
+        if (response.data.success) {
+          setCategories(response.data.data.categories);
+         
+        } else {
+          console.error('Failed to fetch categories:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();  
+  },[]);
 
   const handleImageUpload = async (file, type = 'category', subIndex = null) => {
     if (!file || !file.type.startsWith('image/')) {
@@ -252,7 +272,6 @@ const AddCategory = () => {
 
     setIsSubmitting(true);
     try {
-      // Filter out empty subcategories and prepare data for API
       const validSubcategories = categoryData.subcategories
         .filter(sub => sub.imageData && sub.name)
         .map(sub => ({
@@ -267,15 +286,14 @@ const AddCategory = () => {
         name: categoryData.name,
         imageData: categoryData.imageData,
         subcategories: validSubcategories,
-        createdBy: null // Add user ID if available
+        createdBy: null 
       };
 
       const response = await instance.post('/categories', payload);
 
       if (response.data.success) {
-        // Add to local state for display
         const newCategory = {
-          id: Date.now(),
+          id: response.data.data._id,
           ...payload
         };
 
@@ -309,9 +327,9 @@ const AddCategory = () => {
 
   const handleEdit = (category) => {
     setCategoryData({
-      imageData: category.imageData,
-      name: category.name,
-      subcategories: category.subcategories.map(sub => ({
+      imageData: category?.imageData,
+      name: category?.name,
+      subcategories: category?.subcategories.map(sub => ({
         ...sub,
         showFormBuilder: false
       }))
@@ -319,9 +337,14 @@ const AddCategory = () => {
     setEditingId(category.id);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this category?')) {
-      setCategories(prev => prev.filter(cat => cat.id !== id));
+      const response = await instance.delete(`/categories/${id}`);
+      if (response.data.success) {
+        console.log('Category deleted successfully');
+             setCategories(prev => prev.filter(cat => cat.id !== id));
+
+      }
     }
   };
 
@@ -432,12 +455,12 @@ const AddCategory = () => {
                     <div className="flex items-center gap-4 mb-4">
                       {/* Subcategory Image Upload */}
                       <div className="flex-shrink-0">
-                        {subcategory.imageData ? (
+                        {subcategory?.imageData ? (
                           <div className="relative group">
                             <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-200 shadow-md">
                               <img 
-                                src={subcategory.imageData.url} 
-                                alt={subcategory.imageData.name}
+                                src={subcategory?.imageData.url} 
+                                alt={subcategory?.imageData.name}
                                 className="w-full h-full object-cover"
                               />
                             </div>
@@ -611,7 +634,7 @@ const AddCategory = () => {
             <p className="text-green-100 mt-1">Manage all your categories and subcategories</p>
           </div>
           
-          {categories.length === 0 ? (
+          {categories?.length === 0 ? (
             <div className="p-12 text-center">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search size={32} className="text-gray-400" />
@@ -631,8 +654,8 @@ const AddCategory = () => {
                     <div className="flex-shrink-0">
                       <div className="w-14 h-14 rounded-xl overflow-hidden shadow-lg border-2 border-gray-200">
                         <img 
-                          src={category.imageData.url} 
-                          alt={category.imageData.name}
+                          src={category?.imageData?.url} 
+                          alt={category?.imageData?.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -669,7 +692,7 @@ const AddCategory = () => {
                   </div>
 
                   {/* Subcategories */}
-                  {category.subcategories.length > 0 && (
+                  {category?.subcategories.length > 0 && (
                     <div className="ml-20 space-y-2">
                       {category.subcategories.map((subcategory, subIndex) => (
                         <div
@@ -678,8 +701,8 @@ const AddCategory = () => {
                         >
                           <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-200">
                             <img 
-                              src={subcategory.imageData.url} 
-                              alt={subcategory.imageData.name}
+                              src={subcategory?.imageData?.url} 
+                              alt={subcategory?.imageData?.name}
                               className="w-full h-full object-cover"
                             />
                           </div>

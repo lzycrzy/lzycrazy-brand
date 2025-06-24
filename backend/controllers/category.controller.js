@@ -135,6 +135,7 @@ export const createCategory = async (req, res) => {
     await category.save();
 
     const formattedResponse = {
+      _id: category._id,
       name: category.name,
       imageData: category.imageData,
       subcategories: category.subcategories.map(sub => ({
