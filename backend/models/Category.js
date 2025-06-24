@@ -2,20 +2,29 @@ import mongoose from 'mongoose';
 
 const subcategorySchema = new mongoose.Schema(
   {
-    icon: {
+    imageData: {
       name: { type: String, required: true, trim: true },
-      component: { type: String, required: true, trim: true },
+      url: { type: String, required: true, trim: true },
     },
     name: { type: String, required: true, trim: true, maxlength: 100 },
+   formStructure: [
+      {
+        label: { type: String, required: true },
+        fieldName: { type: String, required: true },
+        type: { type: String, enum: ['text', 'textarea', 'radio', 'checkbox', 'dropdown', 'file'], required: true },
+        options: [String], 
+        required: { type: Boolean, default: false },
+      },
+    ],
   },
   { _id: false },
 );
 
 const categorySchema = new mongoose.Schema(
   {
-    icon: {
+    imageData: {
       name: { type: String, required: true, trim: true },
-      component: { type: String, required: true, trim: true },
+      url: { type: String, required: true, trim: true },
     },
     name: {
       type: String,
