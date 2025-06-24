@@ -5,54 +5,51 @@ export const getAllCategories = async (req, res) => {
     const {
       page = 1,
       limit = 10,
-      search,
+      search = '',
       sortBy = 'createdAt',
       sortOrder = 'desc',
       isActive
     } = req.query;
 
+    const pageNumber = parseInt(page);
+    const pageLimit = parseInt(limit);
+    const skip = (pageNumber - 1) * pageLimit;
+
     const filter = {};
 
-    //  Filter only if isActive is present in query
-    if (req.query.hasOwnProperty('isActive')) {
+    // Optional isActive filter
+    if (Object.prototype.hasOwnProperty.call(req.query, 'isActive')) {
       filter.isActive = isActive === 'true';
     }
 
-    //  Search by name or subcategory name
-    if (search) {
+    // Optional search filter on name and subcategory name
+    if (search.trim() !== '') {
       filter.$or = [
         { name: { $regex: search, $options: 'i' } },
         { 'subcategories.name': { $regex: search, $options: 'i' } }
       ];
     }
 
-    //  Sorting logic
-    const sort = {};
-    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    const sort = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
 
-    //  Pagination logic
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    //  Fetch categories + count in parallel
     const [categories, total] = await Promise.all([
       Category.find(filter)
         .sort(sort)
         .skip(skip)
-        .limit(parseInt(limit))
+        .limit(pageLimit)
         .populate('createdBy', 'name email'),
       Category.countDocuments(filter)
     ]);
 
-    //  Send response
     res.json({
       success: true,
       data: {
         categories,
         pagination: {
-          currentPage: parseInt(page),
-          totalPages: Math.ceil(total / parseInt(limit)),
+          currentPage: pageNumber,
+          totalPages: Math.ceil(total / pageLimit),
           totalItems: total,
-          itemsPerPage: parseInt(limit)
+          itemsPerPage: pageLimit
         }
       }
     });
@@ -64,6 +61,7 @@ export const getAllCategories = async (req, res) => {
     });
   }
 };
+
 
 
 export const getCategoryById = async (req, res) => {
@@ -78,81 +76,181 @@ export const getCategoryById = async (req, res) => {
 
 export const createCategory = async (req, res) => {
   try {
-    const { name, icon, subcategories = [], createdBy } = req.body;
+    const { name, imageData, subcategories = [], createdBy } = req.body;
 
-    // Check duplicate
-    const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
+    const existingCategory = await Category.findOne({
+      name: { $regex: new RegExp(`^${name}$`, 'i') },
+    });
+
     if (existingCategory) {
-      return res.status(409).json({ success: false, message: 'Category with this name already exists' });
+      return res.status(409).json({
+        success: false,
+        message: 'Category with this name already exists',
+      });
     }
 
-    // Filter valid subcategories
-    const validSubcategories = subcategories.filter(
-      sub => sub.name && sub.icon?.name && sub.icon?.component
-    );
+    const validSubcategories = subcategories
+      .filter(
+        sub =>
+          sub.name &&
+          sub.imageData?.name &&
+          sub.imageData?.url &&
+          Array.isArray(sub.formStructure)
+      )
+      .map(sub => ({
+        name: sub.name.trim(),
+        imageData: {
+          name: sub.imageData.name.trim(),
+          url: sub.imageData.url.trim(),
+        },
+        formStructure: sub.formStructure
+          .filter(
+            field =>
+              field.label &&
+              field.fieldName &&
+              ['text', 'textarea', 'radio', 'checkbox', 'dropdown', 'file'].includes(field.type)
+          )
+          .map(field => {
+            const needsOptions = ['radio', 'checkbox', 'dropdown'].includes(field.type);
+            return {
+              label: field.label.trim(),
+              fieldName: field.fieldName.trim(),
+              type: field.type,
+              options: needsOptions && Array.isArray(field.options) ? field.options : [],
+              required: Boolean(field.required),
+            };
+          }),
+      }));
 
-    // Create and save category
     const category = new Category({
-      name,
-      icon,
+      name: name.trim(),
+      imageData: {
+        name: imageData.name.trim(),
+        url: imageData.url.trim(),
+      },
       subcategories: validSubcategories,
-      createdBy: createdBy || null
+      createdBy: createdBy || null,
     });
 
     await category.save();
 
-    // Format response to show name, icon, and list of subcategories (name + icon only)
     const formattedResponse = {
       name: category.name,
-      icon: category.icon,
+      imageData: category.imageData,
       subcategories: category.subcategories.map(sub => ({
         name: sub.name,
-        icon: sub.icon
-      }))
+        imageData: sub.imageData,
+      })),
     };
 
     res.status(201).json({
       success: true,
       message: 'Category created successfully',
-      data: formattedResponse
+      data: formattedResponse,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error creating category', error: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Error creating category',
+      error: error.message,
+    });
   }
 };
 
 
+
+
+import mongoose from 'mongoose';
+
 export const updateCategory = async (req, res) => {
   try {
-    const { name, icon, subcategories = [] } = req.body;
+    const { name, imageData, subcategories = [] } = req.body;
+    const { id } = req.params;
 
+    // Validate ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid category ID' });
+    }
+
+    // Check for name duplication
     const existingCategory = await Category.findOne({
       name: { $regex: new RegExp(`^${name}$`, 'i') },
-      _id: { $ne: req.params.id }
+      _id: { $ne: id },
     });
 
-    if (existingCategory)
-      return res.status(409).json({ success: false, message: 'Another category with this name already exists' });
+    if (existingCategory) {
+      return res.status(409).json({
+        success: false,
+        message: 'Another category with this name already exists',
+      });
+    }
 
-    const validSubcategories = subcategories.filter(sub => sub.name && sub.icon?.name && sub.icon?.component);
+    // Validate and clean subcategories
+    const validSubcategories = subcategories
+      .filter(
+        sub =>
+          sub.name &&
+          sub.imageData?.name &&
+          sub.imageData?.url &&
+          Array.isArray(sub.formStructure)
+      )
+      .map(sub => ({
+        name: sub.name.trim(),
+        imageData: {
+          name: sub.imageData.name.trim(),
+          url: sub.imageData.url.trim(),
+        },
+        formStructure: sub.formStructure
+          .filter(
+            field =>
+              field.label &&
+              field.fieldName &&
+              ['text', 'textarea', 'radio', 'checkbox', 'dropdown', 'file'].includes(field.type)
+          )
+          .map(field => {
+            const needsOptions = ['radio', 'checkbox', 'dropdown'].includes(field.type);
+            return {
+              label: field.label.trim(),
+              fieldName: field.fieldName.trim(),
+              type: field.type,
+              options: needsOptions && Array.isArray(field.options) ? field.options : [],
+              required: Boolean(field.required),
+            };
+          }),
+      }));
 
+    // Perform update
     const category = await Category.findByIdAndUpdate(
-      req.params.id,
+      id,
       {
-        name,
-        icon,
-        subcategories: validSubcategories
+        name: name.trim(),
+        imageData: {
+          name: imageData.name.trim(),
+          url: imageData.url.trim(),
+        },
+        subcategories: validSubcategories,
       },
       { new: true, runValidators: true }
     );
 
-    if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
+    if (!category) {
+      return res.status(404).json({ success: false, message: 'Category not found' });
+    }
 
-    res.json({ success: true, message: 'Category updated successfully', data: category });
+    res.json({
+      success: true,
+      message: 'Category updated successfully',
+      data: category,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error updating category', error: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Error updating category',
+      error: error.message,
+    });
   }
 };
+
 
 export const deleteCategory = async (req, res) => {
   try {
