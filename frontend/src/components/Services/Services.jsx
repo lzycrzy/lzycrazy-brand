@@ -1,41 +1,27 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Header from '../static/Header1';
 import Footer from '../static/Footer1';
 import axios from '../../lib/axios/axiosInstance';
 
-const services = [
-  {
-    title: 'Web Development',
-    description: 'Responsive, fast websites using React, Next.js, and Django.',
-    icon: 'https://cdn-icons-png.flaticon.com/512/919/919827.png',
-  },
-  {
-    title: 'Graphic Design',
-    description: 'Creative logos, posters, and social media designs.',
-    icon: 'https://cdn-icons-png.flaticon.com/512/1828/1828919.png',
-  },
-  {
-    title: 'SEO Optimization',
-    description: 'Improve ranking with smart SEO and keyword strategy.',
-    icon: 'https://cdn-icons-png.flaticon.com/512/609/609803.png',
-  },
-  {
-    title: 'Content Writing',
-    description: 'Engaging blogs, landing pages, and ad copy.',
-    icon: 'https://cdn-icons-png.flaticon.com/512/1828/1828884.png',
-  },
-  {
-    title: 'Social Media Marketing',
-    description: 'Growth strategies for Instagram, LinkedIn & more.',
-    icon: 'https://cdn-icons-png.flaticon.com/512/733/733547.png',
-  },
-  {
-    title: 'UI/UX Design',
-    description: 'Intuitive interfaces for web and mobile apps.',
-    icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-  },
-];
+// Icon packs
+import * as FaIcons from 'react-icons/fa';
+import * as MdIcons from 'react-icons/md';
+import * as AiIcons from 'react-icons/ai';
+
+// Mapping string to icon component
+const iconPacks = {
+  Fa: FaIcons,
+  Md: MdIcons,
+  Ai: AiIcons,
+};
+
+const getIconComponent = (iconString) => {
+  if (!iconString) return null;
+  const prefix = iconString.slice(0, 2);
+  const pack = iconPacks[prefix];
+  return pack?.[iconString] || null;
+};
 
 // Modal Component
 const EnquiryModal = ({ service, onClose }) => {
@@ -56,7 +42,7 @@ const EnquiryModal = ({ service, onClose }) => {
       await axios.post('/v1/users/enquiry', {
         ...formData,
         service: service._id,
-        serviceTitle: service.title 
+        serviceTitle: service.title,
       });
       setSuccess(true);
     } catch {
@@ -126,6 +112,7 @@ const EnquiryModal = ({ service, onClose }) => {
     document.body
   );
 };
+
 const Services = () => {
   const [selectedService, setSelectedService] = useState(null);
   const [services, setServices] = useState([]);
@@ -133,6 +120,7 @@ const Services = () => {
   const handleServiceClick = (index) => {
     setSelectedService(services[index]);
   };
+
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -145,7 +133,6 @@ const Services = () => {
 
     fetchServices();
   }, []);
-
 
   const closeModal = () => {
     setSelectedService(null);
@@ -168,11 +155,16 @@ const Services = () => {
               onClick={() => handleServiceClick(index)}
               className="bg-white w-[300px] max-w-sm mx-auto rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex items-start gap-4 cursor-pointer"
             >
-              <img
-                src={service.icon}
-                alt={service.title}
-                className="w-14 h-14 object-contain mt-1"
-              />
+              {service.icon?.component ? (
+  <img
+    src={service.icon.component}
+    alt={service.title}
+    className="w-14 h-14 object-contain mt-1"
+  />
+) : (
+  <span className="text-gray-400 text-sm">No Icon</span>
+)}
+
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-800 mb-1">{service.title}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
@@ -201,4 +193,5 @@ const Services = () => {
     </div>
   );
 };
+
 export default Services;

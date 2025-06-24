@@ -17,6 +17,9 @@ import MarketPost from './pages/MarketPost';
 import AddNews from './pages/AddNews';
 import AddService from './pages/AddServices';
 import AddCategory from './pages/AddCategory';
+import ForgotPassword from './components/Auth/ForgotPassword';
+import ResetPassword from './components/Auth/ResetPassword';
+import ClientEnquiry from './components/Client/ClientEnquiry';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -43,6 +46,9 @@ const App = () => {
             path="/"
             element={<Navigate to="/dashboard" replace />}
           />
+          
+          <Route path="/password/forgot" element={<ForgotPassword />} />
+          <Route path="/password/reset/:token" element={<ResetPassword />} />
           <Route
             path="/dashboard/users"
             element={
@@ -51,11 +57,20 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/profile"
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="/client-enquiry"
+            element={
+              <ProtectedRoute>
+                <ClientEnquiry />
               </ProtectedRoute>
             }
           />
