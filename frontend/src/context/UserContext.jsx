@@ -13,28 +13,34 @@ export const UserProvider = ({ children }) => {
   const [displayName, setDisplayName] = useState('');
   const [authChecked, setAuthChecked] = useState(false);
 
+  // Ensure axios always sends credentials
+  axios.defaults.withCredentials = true;
+
   const fetchUser = async () => {
+    console.log('[Auth] Fetching user...');
     try {
-      const res = await axios.get('/v1/users/me', { withCredentials: true });
+      const res = await axios.get('/v1/users/me');
       const data = res.data;
+
+      if (!data || !data.profile) {
+        throw new Error('No user data returned');
+      }
+
+      console.log('[Auth] User fetched:', data);
+
       setUser(data);
       setDisplayName(data?.profile?.name || '');
       setProfilePic(`${data?.profile?.photoURL || DEFAULT_PROFILE_PIC}?t=${Date.now()}`);
     } catch (error) {
-      // console.warn("Auth check failed:", error?.response?.data || error);
-      // logout clears user + storage
+      console.error('[Auth] Failed to fetch user:', error.response?.status, error.response?.data);
+      setUser(null); // force logout state on failure
     } finally {
       setAuthChecked(true);
     }
   };
 
   useEffect(() => {
-    const tokenExists = document.cookie.includes('token=');
-  if (tokenExists) {
     fetchUser();
-  } else {
-    setAuthChecked(true);
-  }
   }, []);
 
   const logout1 = () => {
@@ -57,7 +63,7 @@ export const UserProvider = ({ children }) => {
         authChecked,
       }}
     >
-      {authChecked ? children : <Loader/>}
+      {authChecked ? children : <Loader />}
     </UserContext.Provider>
   );
 };

@@ -14,6 +14,8 @@ import { useUser } from '../context/UserContext';
 import ManageFriends from '../components/profile/ManageFriends';
 import Footer from '../components/static/Footer1';
 import { HiOutlineDotsVertical } from 'react-icons/hi'; // at the top
+import Modal from '../components/common/Modal'; // adjust the path if needed
+
 
 import Loader from '../components/common/Spinner';
 
@@ -27,6 +29,8 @@ const Profile = () => {
   const [posts, setPosts] = useState([]);
   const [imagePreview, setImagePreview] = useState(profilePic);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [showManageFriendsModal, setShowManageFriendsModal] = useState(false);
+
   const fetchProfile = async () => {
     try {
       await fetchUser();
@@ -107,7 +111,7 @@ const Profile = () => {
             </div>
 
             {/* For large screens: show buttons normally */}
-<div className="hidden sm:flex space-x-3">
+            <div className="hidden space-x-3 sm:flex">
   <button className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100">
     Edit Story
   </button>
@@ -117,42 +121,54 @@ const Profile = () => {
   >
     Edit Profile
   </button>
-  <SettingMenu activeTab={activeTab1} setActiveTab={setActiveTab1} />
+  <SettingMenu
+    activeTab={activeTab1}
+    setActiveTab={setActiveTab1}
+    onManageFriendsClick={() => setShowManageFriendsModal(true)} // ✅ Add this!
+  />
 </div>
 
-{/* For small screens: dropdown menu */}
-<div className="relative sm:hidden">
-  <button
-    className="rounded-md bg-white p-2 text-blue-900 hover:bg-gray-100"
-    onClick={() => setActiveTab1((prev) => (prev === 'dropdown' ? '' : 'dropdown'))}
-  >
-    <HiOutlineDotsVertical size={20} />
-  </button>
+            {/* For small screens: dropdown menu */}
+            <div className="relative sm:hidden">
+              <button
+                className="rounded-md bg-white p-2 text-blue-900 hover:bg-gray-100"
+                onClick={() =>
+                  setActiveTab1((prev) =>
+                    prev === 'dropdown' ? '' : 'dropdown',
+                  )
+                }
+              >
+                <HiOutlineDotsVertical size={20} />
+              </button>
 
-  {activeTab1 === 'dropdown' && (
-    <div className="absolute right-0 mt-2 w-40 rounded-md bg-white shadow-md z-50">
-      <button
-        onClick={() => {
-          setActiveTab1('');
-          // Add your logic here
-        }}
-        className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-      >
-        Edit Story
-      </button>
-      <button
-        onClick={() => {
-          setIsEditing(true);
-          setActiveTab1('');
-        }}
-        className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-      >
-        Edit Profile
-      </button>
-      <SettingMenu activeTab={activeTab1} setActiveTab={setActiveTab1} />
-    </div>
-  )}
-</div>
+              {activeTab1 === 'dropdown' && (
+                <div className="absolute right-0 z-50 mt-2 w-40 rounded-md bg-white shadow-md">
+                  <button
+                    onClick={() => {
+                      setActiveTab1('');
+                      // Add your logic here
+                    }}
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Edit Story
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsEditing(true);
+                      setActiveTab1('');
+                    }}
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Edit Profile
+                  </button>
+                  <SettingMenu
+  activeTab={activeTab1}
+  setActiveTab={setActiveTab1}
+  onManageFriendsClick={() => setShowManageFriendsModal(true)}
+/>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Tabs */}
@@ -205,7 +221,7 @@ const Profile = () => {
               </select>
             </div>
 
-            <div className="flex gap-6">
+            {/* <div className="flex gap-6">
               <SettingMenu
                 activeTab={activeTab1}
                 setActiveTab={setActiveTab1}
@@ -214,8 +230,8 @@ const Profile = () => {
               <div className="flex-1">
                 {activeTab1 === 'manageFriends' && <ManageFriends />}
                 {/* You can conditionally render other tabs here */}
-              </div>
-            </div>
+              {/* </div>
+            </div> */} 
           </div>
         </div>
       </div>
@@ -322,6 +338,11 @@ const Profile = () => {
           onImageChange={handleImageChange}
         />
       )}
+      {showManageFriendsModal && (
+  <Modal onClose={() => setShowManageFriendsModal(false)}>
+    <ManageFriends />
+  </Modal>
+)}
       <Footer />
     </div>
   );
