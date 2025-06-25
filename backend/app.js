@@ -43,8 +43,8 @@ app.use(
 app.use(
   cors({
     origin: [
-              process.env.FRONTEND_URL || 'http://localhost:5174', 
-             process.env.DASHBOARD_URL || 'http://localhost:5173'
+              process.env.FRONTEND_URL || 'http://localhost:5173', 
+             process.env.DASHBOARD_URL || 'http://localhost:5174'
             ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
