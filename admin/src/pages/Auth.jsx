@@ -10,7 +10,7 @@ export default function Auth() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [stage, setStage] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
-  
+   const [showForgotModal, setShowForgotModal] = useState(false);
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -121,10 +121,13 @@ export default function Auth() {
               <button
                 type="button"
                 className="text-blue-600 hover:underline"
-                onClick={() => alert('TODO: forgot-password flow')}
+                onClick={() => setShowForgotModal(true)}
               >
                 Forgot Password…?
               </button>
+              {showForgotModal && (
+                        <ForgotPassword onClose={() => setShowForgotModal(false)} />
+                      )}
             </div>
 
             <button

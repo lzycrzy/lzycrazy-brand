@@ -13,3 +13,10 @@
 .Toastify__toast-container {
   z-index: 9999 !important;
 }
+
+
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin 12s linear infinite;
+  }
+}

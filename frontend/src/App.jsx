@@ -132,12 +132,15 @@ const App = () => (
      
     <UserProvider>
     
-        <ToastContainer
+        {/* <ToastContainer
           position="top-right"
           autoClose={3000}
           theme="colored"
+          style={{ zIndex: 9999 }}
+        
+        
           pauseOnHover
-        />
+        /> */}
         <AppRoutes />
       
     </UserProvider>

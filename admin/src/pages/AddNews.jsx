@@ -28,6 +28,7 @@ const NewsDashboard = () => {
       userName: 'John Smith',
       thumbnail: '/api/placeholder/60/40'
     },
+    
     {
       id: 3,
       title: 'Breaking News Live Updates: Sri Lanka Speaker Recognises Ranil Wickremesinghe As Prime Minister',

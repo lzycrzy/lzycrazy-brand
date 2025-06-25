@@ -4,7 +4,7 @@ import {
 } from 'lucide-react';
 import instance from '../utils/axios';
 
-const AddServices = () => {
+const AddServices1 = () => {
   const [services, setServices] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
@@ -501,4 +501,4 @@ const AddServices = () => {
   );
 };
 
-export default AddServices;
+export default AddServices1;
