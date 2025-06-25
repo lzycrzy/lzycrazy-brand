@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaCamera } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
+import instance from '../../utils/axios'; // ✅ custom axios instance
+
+const MAX_VIDEO_SIZE_MB = 50;
+const MAX_IMAGE_SIZE_MB = 5;
 
 const NewsForm = ({ onSubmit }) => {
   const [video, setVideo] = useState(null);
@@ -8,21 +12,64 @@ const NewsForm = ({ onSubmit }) => {
   const [title, setTitle] = useState('');
   const [profileName, setProfileName] = useState('');
   const [date, setDate] = useState('');
+  const [videoPreview, setVideoPreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    if (video) setVideoPreview(URL.createObjectURL(video));
+    if (profileImage) setImagePreview(URL.createObjectURL(profileImage));
+    return () => {
+      videoPreview && URL.revokeObjectURL(videoPreview);
+      imagePreview && URL.revokeObjectURL(imagePreview);
+    };
+  }, [video, profileImage]);
+
+  const handleSubmit = async () => {
     if (!video || !title || !profileName || !date || !profileImage) {
       toast.error('Please fill all fields!');
       return;
     }
 
-    onSubmit({ title, video, profileName, profileImage, date });
+    if (video.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+      toast.error(`Video size should be less than ${MAX_VIDEO_SIZE_MB}MB`);
+      return;
+    }
 
-    setVideo(null);
-    setProfileImage(null);
-    setTitle('');
-    setProfileName('');
-    setDate('');
-    toast.success('News created!');
+    if (profileImage.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+      toast.error(`Image size should be less than ${MAX_IMAGE_SIZE_MB}MB`);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('profileName', profileName);
+    formData.append('date', date);
+    formData.append('video', video);
+    formData.append('profileImage', profileImage);
+
+    setLoading(true);
+    try {
+      await instance.post('/news', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      toast.success('News created!');
+
+      // Reset form
+      setTitle('');
+      setProfileName('');
+      setDate('');
+      setVideo(null);
+      setProfileImage(null);
+      setVideoPreview(null);
+      setImagePreview(null);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to upload news');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,12 +77,8 @@ const NewsForm = ({ onSubmit }) => {
       {/* Video Upload */}
       <div className="w-full lg:w-1/3 space-y-4">
         <div className="h-48 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-          {video ? (
-            <video
-              src={URL.createObjectURL(video)}
-              controls
-              className="w-full h-full object-cover"
-            />
+          {videoPreview ? (
+            <video src={videoPreview} controls className="w-full h-full object-cover" />
           ) : (
             <img
               src="https://wallpapers.com/images/hd/news-studio-background-dyhy6shg9vnyheww.jpg"
@@ -57,7 +100,7 @@ const NewsForm = ({ onSubmit }) => {
         </label>
       </div>
 
-      {/* Form Inputs */}
+      {/* Form Fields */}
       <div className="flex-1 space-y-4">
         <input
           type="text"
@@ -92,9 +135,9 @@ const NewsForm = ({ onSubmit }) => {
               </span>
             </label>
 
-            {profileImage && (
+            {imagePreview && (
               <img
-                src={URL.createObjectURL(profileImage)}
+                src={imagePreview}
                 alt="Preview"
                 className="w-10 h-10 rounded-full object-cover border"
               />
@@ -111,9 +154,12 @@ const NewsForm = ({ onSubmit }) => {
 
         <button
           onClick={handleSubmit}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-2 rounded w-full sm:w-auto"
+          disabled={loading}
+          className={`${
+            loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+          } text-white font-semibold px-6 py-2 rounded w-full sm:w-auto`}
         >
-          Submit
+          {loading ? 'Uploading...' : 'Submit'}
         </button>
       </div>
     </div>

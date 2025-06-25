@@ -180,7 +180,7 @@ console.log(serviceId);
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-1/2 p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
             <input

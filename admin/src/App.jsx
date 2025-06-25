@@ -15,7 +15,7 @@ import UserTable from './pages/UserTable';
 import Profile from './pages/Profile';
 import MarketPost from './pages/MarketPost';
 import AddNews from './pages/AddNews';
-import AddService from './pages/AddServices';
+import AddService1 from './pages/AddServices';
 import AddCategory from './pages/AddCategory';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import ResetPassword from './components/Auth/ResetPassword';
@@ -23,6 +23,9 @@ import ClientEnquiry from './components/Client/ClientEnquiry';
 import NewsForm from './components/News/AddNews';
 import NewsList from './components/News/NewsList';
 import ApplicationsList from './components/Applications/ApplicationsList';
+import AddService from './components/Services/AddService';
+import ServiceList from './components/Services/ServiceList';
+import AddServices1 from './pages/AddServices';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -60,6 +63,13 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/services/add" element={ <ProtectedRoute>
+                <AddService />
+              </ProtectedRoute>} />
+          <Route path="/services/list"  element={ <ProtectedRoute>
+                <ServiceList />
+              </ProtectedRoute>} />
+              <Route path="/edit-service/:id" element={<AddService />} />
 
           <Route
             path="/profile"
@@ -107,18 +117,18 @@ const App = () => {
             path="/market"
             element={
               <ProtectedRoute>
-                <MarketPost />
+                <AddServices1 />
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/services"
             element={
               <ProtectedRoute>
                 <AddService />
               </ProtectedRoute>
             }
-          />
+          /> */}
            <Route
             path="/services"
             element={

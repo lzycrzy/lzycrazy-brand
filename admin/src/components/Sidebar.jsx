@@ -22,18 +22,32 @@ export function Sidebar() {
   const [isNewsOpen, setIsNewsOpen] = useState(
     currentPath.startsWith('/news')
   );
-
+  const [isServicesOpen, setIsServicesOpen] = useState(
+    currentPath.startsWith('/services')
+  );
+  
+  const toggleServices = () => setIsServicesOpen(!isServicesOpen);
+  
   const toggleNews = () => setIsNewsOpen(!isNewsOpen);
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
     { icon: Camera, label: 'Market-Post', path: '/market' },
     { icon: Grid3X3, label: 'Category', path: '/category' },
-    { icon: MapPin, label: 'Services', path: '/services' },
-    { icon: Store, label: 'Shop', path: '/shop' },
+    {
+      icon: MapPin,
+      label: 'LzyCrazy Services',
+      path: '/services',
+      isSubmenu: true,
+      children: [
+        { label: 'Add Service', path: '/services/add', icon: Plus },
+        { label: 'Service List', path: '/services/list', icon: List }
+      ]
+    },
+    { icon: Store, label: 'Business Profile', path: '/shop' },
     {
       icon: FileText,
-      label: 'News',
+      label: 'LzyCrazy News',
       path: '/news',
       isSubmenu: true,
       children: [
@@ -43,15 +57,15 @@ export function Sidebar() {
     },
     {
       icon: FileBarChart,
-      label: 'Applications',
+      label: 'We are hiring',
       path: '/applications'
     },
-    { icon: Package, label: 'Products', path: '/products' },
+    
     { icon: FileBarChart, label: 'Client Enquiry', path: '/client-enquiry' },
-    { icon: Users, label: 'Join Team', path: '/join-team' },
+   
     { icon: LogOut, label: 'Logout', path: '/logout' }
   ];
-
+  
   return (
     <div className="flex h-full w-64 flex-col bg-white">
       {/* Header */}
@@ -69,10 +83,14 @@ export function Sidebar() {
             const isActive = currentPath === item.path || currentPath.startsWith(item.path);
 
             if (item.isSubmenu) {
+              const isServiceMenu = item.path === '/services';
+              const isOpen = isServiceMenu ? isServicesOpen : isNewsOpen;
+              const toggleFn = isServiceMenu ? toggleServices : toggleNews;
+            
               return (
                 <div key={index}>
                   <button
-                    onClick={toggleNews}
+                    onClick={toggleFn}
                     className={`w-full relative flex items-center px-6 py-3 text-sm font-medium transition-colors text-left ${
                       isActive
                         ? 'text-blue-600 bg-blue-50'
@@ -82,11 +100,12 @@ export function Sidebar() {
                     {isActive && (
                       <div className="absolute left-0 top-0 h-full w-1 bg-blue-600" />
                     )}
-                    <Icon className="mr-4 h-5 w-5 flex-shrink-0" />
+                    <item.icon className="mr-4 h-5 w-5 flex-shrink-0" />
                     {item.label}
                   </button>
+            
                   {/* Submenu */}
-                  {isNewsOpen && (
+                  {isOpen && (
                     <div className="ml-10 space-y-1">
                       {item.children.map((sub, subIndex) => {
                         const SubIcon = sub.icon;
@@ -111,6 +130,7 @@ export function Sidebar() {
                 </div>
               );
             }
+            
 
             return (
               <Link

@@ -196,97 +196,167 @@
 
 // export default Services;
 
-
-
-
 //new inter code
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import axios from "../../lib/axios/axiosInstance";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from '../../lib/axios/axiosInstance';
+import { motion } from 'framer-motion';
 
-import * as FaIcons from "react-icons/fa";
-import * as MdIcons from "react-icons/md";
-import * as AiIcons from "react-icons/ai";
+import Header from '../static/Header1';
+import Footer from '../static/Footer1';
 
-// Icon packs map
+// Icon packs
+import * as FaIcons from 'react-icons/fa';
+import * as MdIcons from 'react-icons/md';
+import * as AiIcons from 'react-icons/ai';
+
 const iconPacks = {
   Fa: FaIcons,
   Md: MdIcons,
   Ai: AiIcons,
 };
 
-// Get icon component from string
 const getIconComponent = (iconName) => {
   if (!iconName) return null;
+
+  // If it's an image URL
+  if (iconName.startsWith('http://') || iconName.startsWith('https://')) {
+    return iconName;
+  }
+
+  // Try to get from icon pack
   const prefix = iconName.slice(0, 2);
   const pack = iconPacks[prefix];
   return pack?.[iconName] || null;
 };
-
-export default function Services() {
+const Services = () => {
   const [services, setServices] = useState([]);
-  const radius = 200;
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const navigate = useNavigate();
+  const [hoveredService, setHoveredService] = useState(null);
+  const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
+
+  const centerX = 250;
+  const centerY = 250;
+  const radius = 180;
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await axios.get("/v1/services");
-        console.log(res.data)
-        setServices(res.data);
+        const res = await axios.get('/v1/services');
+        setServices(res.data || []);
       } catch (err) {
-        console.error("Error fetching services:", err);
+        console.error('Failed to fetch services', err);
       }
     };
     fetchServices();
   }, []);
 
-  const count = services.length;
+  const openModal = (service) => {
+    navigate('/enquire', {
+      state: { serviceName: service.title, serviceId: service._id },
+    });
+  };
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-100 overflow-hidden">
-      <div className="bg-white text-orange-600 text-xl font-bold px-4 py-2 rounded shadow-lg mb-4">
-        Our Services
-      </div>
+    <div className="flex min-h-screen flex-col bg-gray-50">
+      {/* Top Header */}
+      <Header />
 
-      <div className="relative w-[600px] h-[600px] rounded-full group">
-        {/* Center title */}
-        <div className="absolute top-1/2 left-1/2 z-10 transform -translate-x-1/2 -translate-y-1/2 text-orange-600 text-xl font-bold px-4 py-2 rounded">
-          Our Services
+      {/* Main Centered Content */}
+      <main className="flex flex-grow items-center justify-center pt-50 pb-40">
+        <div className="relative h-[90vw] max-h-[500px] w-[90vw] max-w-[500px]">
+          {/* Center Title */}
+          <div className="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 transform text-center text-2xl font-bold text-indigo-600">
+            Where Ideas Meet Execution
+            <br />
+            <span className="underline decoration-orange-500">
+              Our Services
+            </span>
+          </div>
+
+          {/* Rotating Icons */}
+          <motion.div
+            className="absolute h-full w-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          >
+            {services.map((service, index) => {
+              const angle = ((2 * Math.PI) / services.length) * index;
+              const x = centerX + radius * Math.cos(angle) - 60;
+              const y = centerY + radius * Math.sin(angle) - 45;
+
+              const Icon = getIconComponent(service.icon?.component);
+
+              return (
+                <motion.div
+                  key={service._id || index}
+                  className={`absolute flex h-[90px] w-[120px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 bg-white text-center text-sm font-medium shadow-sm transition-all duration-300 ${
+                    hoveredService?.id === service._id
+                      ? 'z-30 border-indigo-300 bg-indigo-50 shadow-lg'
+                      : 'z-10 border-gray-200'
+                  }`}
+                  style={{ left: `${x}px`, top: `${y}px` }}
+                  onClick={() => openModal(service)}
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setHoverPosition({
+                      x: rect.left + rect.width / 2,
+                      y: rect.top,
+                    });
+                    setHoveredService({ ...service, id: service._id || index });
+                  }}
+                  onMouseLeave={() => setHoveredService(null)}
+                  whileHover={{ scale: 1.15 }}
+                  animate={{
+                    scale: hoveredService?.id === service._id ? 1.15 : 1,
+                    zIndex: hoveredService?.id === service._id ? 30 : 10,
+                    borderWidth: hoveredService?.id === service._id ? 2 : 1,
+                  }}
+                  transition={{ type: 'spring', stiffness: 300 }}
+                >
+                  <span className="mb-1 text-2xl">
+                    {typeof Icon === 'string' ? (
+                      <img
+                        src={Icon}
+                        alt={service.title}
+                        className="h-6 w-6 object-contain"
+                      />
+                    ) : Icon ? (
+                      <Icon />
+                    ) : (
+                      '🚧'
+                    )}
+                  </span>
+                  <span>{service.title}</span>
+                </motion.div>
+              );
+            })}
+            
+          </motion.div>
         </div>
-
-        {/* Rotating icons */}
-        <div className="absolute inset-0 animate-spin-slow group-hover:animate-none transition-all duration-500">
-          {services.map((service, index) => {
-            const angle = (360 / count) * index;
-            const x = radius * Math.cos((angle * Math.PI) / 180);
-            const y = radius * Math.sin((angle * Math.PI) / 180);
-            const Icon = getIconComponent(service.icon?.component);
-
-            return (
+        {hoveredService && (
               <div
-                key={service._id || index}
-                className="absolute flex flex-col items-center"
+                className="fixed z-50 w-64 rounded-md border border-gray-200 bg-white p-3 text-sm shadow-xl"
                 style={{
-                  left: `calc(50% + ${x}px)`,
-                  top: `calc(50% + ${y}px)`,
-                  transform: "translate(-50%, -50%)",
+                  top: `${hoverPosition.y - 100}px`,
+                  left: `${hoverPosition.x - 120}px`,
                 }}
               >
-                <Link
-                  to="/enquire"
-                  state={{ serviceName: service.title, serviceId: service._id }}
-                  className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition duration-300 shadow-lg"
-                >
-                  {Icon ? <Icon className="w-6 h-6" /> : "🚧"}
-                </Link>
-                <div className="mt-2 text-xs bg-white px-2 py-1 rounded shadow text-black text-center max-w-[80px]">
-                  {service.title}
+                <div className="mb-1 font-semibold text-indigo-600">
+                  {hoveredService.title}
+                </div>
+                <div>
+                  {hoveredService.description || 'No description available.'}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </div>
+            )}
+      </main>
+
+      {/* Bottom Footer */}
+      <Footer />
     </div>
   );
-}
+};
+
+export default Services;
