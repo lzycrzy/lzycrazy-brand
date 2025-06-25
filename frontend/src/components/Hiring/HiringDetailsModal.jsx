@@ -1,13 +1,11 @@
 // HiringDetailsModal.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import * as faceapi from 'face-api.js';
 import axios from '../../lib/axios/axiosInstance';
 import Loader from '../common/Spinner';
 import { toast } from 'react-toastify';
 
 const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess }) => {
-  const [instruction, setInstruction] = useState('');
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
@@ -28,18 +26,24 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
     country: '',
     state: '',
     city: '',
-    location: '',
     education: '',
-    age: '',
-    height: '',
-    weight: '',
+    experienceLevel: '',
     jobCategory: '',
-    experience: '',
-    about: '',
+    introduction: '',
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Handle introduction word count validation
+    if (name === 'introduction') {
+      const wordCount = value.trim().split(/\s+/).filter(word => word.length > 0).length;
+      if (wordCount > 50) {
+        toast.error('Introduction cannot exceed 50 words');
+        return;
+      }
+    }
+    
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -47,16 +51,16 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
     const file = e.target.files[0];
     if (!file) return;
 
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    const acceptedTypes = ['video/mp4', 'video/webm', 'video/ogg'];
+    const maxSize = 50 * 1024 * 1024; // 50MB (matching backend)
+    const acceptedTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/mov', 'video/avi', 'video/mkv'];
 
     if (!acceptedTypes.includes(file.type)) {
-      toast.error('Invalid file type. Please upload a video in MP4, WebM, or Ogg format.');
+      toast.error('Invalid file type. Please upload a video file.');
       return;
     }
 
     if (file.size > maxSize) {
-      toast.error('File too large. Please upload a video less than 10MB.');
+      toast.error('File too large. Please upload a video less than 50MB.');
       return;
     }
 
@@ -209,59 +213,83 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
   };
 
   useEffect(() => {
-    const loadModels = async () => {
-      try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-      } catch (error) {
-        console.error('Error loading face detection models:', error);
-      }
-    };
-    loadModels();
-  }, []);
-
-  useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
     return () => {
       document.body.style.overflow = 'auto';
     };
   }, [isOpen]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const validateForm = () => {
+    const requiredFields = {
+      country: 'Country',
+      state: 'State', 
+      city: 'City',
+      education: 'Education',
+      experienceLevel: 'Experience Level',
+      jobCategory: 'Job Category',
+      introduction: 'Introduction'
+    };
 
-    // Check if user has either uploaded a file or recorded a video
+    for (const [field, label] of Object.entries(requiredFields)) {
+      if (!formData[field].trim()) {
+        toast.error(`${label} is required`);
+        return false;
+      }
+    }
+
+    // Validate introduction word count
+    const wordCount = formData.introduction.trim().split(/\s+/).filter(word => word.length > 0).length;
+    if (wordCount > 50) {
+      toast.error('Introduction must not exceed 50 words');
+      return false;
+    }
+
+    if (wordCount === 0) {
+      toast.error('Introduction is required');
+      return false;
+    }
+
+    // Check if video is provided
     if (!videoFile && !recordedVideoBlob) {
       toast.error('Please upload a video file or record a video introduction.');
-      setIsSubmitting(false);
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
       return;
     }
+    
+    setIsSubmitting(true);
 
     const form = new FormData();
     
-    // Add user data from login step
-    form.append('email', userData.email);
-    form.append('userId', userData.userId);
-    
-    // Add form data from step 2
-    Object.keys(formData).forEach((key) => form.append(key, formData[key]));
+    // Add form data
+    Object.keys(formData).forEach((key) => {
+      form.append(key, formData[key].trim());
+    });
     
     // Add video (either uploaded file or recorded blob)
     if (recordedVideoBlob) {
       // Convert blob to file for upload
-      const videoFile = new File([recordedVideoBlob], 'intro-video.webm', {
+      const videoFileFromBlob = new File([recordedVideoBlob], 'intro-video.webm', {
         type: 'video/webm',
       });
-      form.append('video', videoFile);
+      form.append('video', videoFileFromBlob);
     } else if (videoFile) {
       form.append('video', videoFile);
     }
 
     try {
-      const response = await axios.post('/v1/users/hiring', form, {
+      // API endpoint matching your backend route and baseURL
+      const response = await axios.post('/v1/hiring', form, {
         headers: { 
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${userData.token}`
         },
       });
      
@@ -272,7 +300,9 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
       clearForm();
       onClose();
     } catch (err) {
-      const msg = err?.response?.data?.message || 'Submission failed. Please try again.';
+      const msg = err?.response?.data?.message || 
+                  err?.response?.data?.errors?.[0] || 
+                  'Submission failed. Please try again.';
       toast.error(msg);
       console.error('Submission error:', err);
     } finally {
@@ -285,17 +315,12 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
       country: '',
       state: '',
       city: '',
-      location: '',
       education: '',
-      age: '',
-      height: '',
-      weight: '',
+      experienceLevel: '',
       jobCategory: '',
-      experience: '',
-      about: '',
+      introduction: '',
     });
     setVideoFile(null);
-    setInstruction('');
     
     // Clear recording states
     setRecordedVideoURL(null);
@@ -356,6 +381,11 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
       }
     };
   }, []);
+
+  // Get current word count for introduction
+  const getWordCount = () => {
+    return formData.introduction.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
 
   if (!isOpen) return null;
 
@@ -430,70 +460,48 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input
+              <Select
                 required
-                label="Age"
-                type="number"
-                name="age"
-                value={formData.age}
+                label="Experience Level"
+                name="experienceLevel"
+                value={formData.experienceLevel}
                 onChange={handleChange}
-                placeholder="Your age"
-                min="18"
-                max="65"
-              />
-              <Input
-                required
-                label="Height (cm)"
-                type="number"
-                name="height"
-                value={formData.height}
-                onChange={handleChange}
-                placeholder="Height in centimeters"
-                min="100"
-                max="250"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input
-                required
-                label="Weight (kg)"
-                type="number"
-                name="weight"
-                value={formData.weight}
-                onChange={handleChange}
-                placeholder="Weight in kilograms"
-                min="30"
-                max="200"
+                options={['Fresher', 'Junior', 'Mid-level', 'Senior', 'Expert']}
               />
               <Select
                 required
-                label="Select Job Category"
+                label="Job Category"
                 name="jobCategory"
                 value={formData.jobCategory}
                 onChange={handleChange}
-                options={['Marketing', 'Sales', 'Development', 'Operations', 'Design', 'HR', 'Finance']}
+                options={['Marketing', 'Sales', 'Development', 'Operations', 'Design', 'HR', 'Finance', 'Engineering', 'Customer Service', 'Content Writing', 'Data Analysis', 'Project Management']}
               />
             </div>
 
-            <Select
-              required
-              label="Select Experience Level"
-              name="experience"
-              value={formData.experience}
-              onChange={handleChange}
-              options={['Fresher', '1-2 Years', '3-5 Years', '5+ Years']}
-            />
-
-            <Textarea
-              required
-              label="About Yourself (Max 50 Words)"
-              name="about"
-              value={formData.about}
-              onChange={handleChange}
-              rows={3}
-              placeholder="Tell us about yourself in 50 words or less..."
-            />
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Introduction (Max 50 Words) <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                name="introduction"
+                value={formData.introduction}
+                onChange={handleChange}
+                rows={4}
+                required
+                placeholder="Tell us about yourself in 50 words or less..."
+                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors resize-vertical"
+              />
+              <div className="flex justify-between items-center mt-1">
+                <p className="text-xs text-gray-500">
+                  Word count: {getWordCount()}/50
+                </p>
+                {getWordCount() > 45 && (
+                  <p className="text-xs text-orange-600 font-medium">
+                    {50 - getWordCount()} words remaining
+                  </p>
+                )}
+              </div>
+            </div>
 
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -535,7 +543,7 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
                     onChange={handleVideoChange}
                     className="mt-1 w-full text-sm file:mr-4 file:rounded file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white hover:file:bg-blue-700"
                   />
-                  <p className="mt-1 text-xs text-gray-500">Max size: 10MB, Max duration: 15 seconds. Formats: MP4, WebM, OGG</p>
+                  <p className="mt-1 text-xs text-gray-500">Max size: 50MB, Max duration: 15 seconds. Formats: MP4, WebM, MOV, AVI, etc.</p>
                   
                   {videoFile && (
                     <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
@@ -707,8 +715,6 @@ const Input = ({
   placeholder = '',
   type = 'text',
   required = false,
-  min,
-  max,
 }) => (
   <div>
     <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -721,8 +727,6 @@ const Input = ({
       onChange={onChange}
       placeholder={placeholder}
       required={required}
-      min={min}
-      max={max}
       className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors"
     />
   </div>
@@ -755,32 +759,6 @@ const Select = ({
         </option>
       ))}
     </select>
-  </div>
-);
-
-// Reusable Textarea Component
-const Textarea = ({
-  label,
-  name,
-  value,
-  onChange,
-  rows = 3,
-  required = false,
-  placeholder = '',
-}) => (
-  <div>
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      {label} {required && <span className="text-red-500">*</span>}
-    </label>
-    <textarea
-      name={name}
-      value={value}
-      onChange={onChange}
-      rows={rows}
-      required={required}
-      placeholder={placeholder}
-      className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors resize-vertical"
-    ></textarea>
   </div>
 );
 

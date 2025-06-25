@@ -13,7 +13,6 @@ const links = [
   { icon: FaUsers, label: 'My Group' },
   { icon: BiSolidMoviePlay, label: 'Movies' },
   { icon: FaStar, label: 'Saved' },
-  { icon: FaUsers, label: 'Hiring' },
 ];
 
 const Sidebar = ({ compact = false }) => (
