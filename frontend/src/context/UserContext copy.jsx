@@ -21,20 +21,25 @@ export const UserProvider = ({ children }) => {
       setDisplayName(data?.profile?.name || '');
       setProfilePic(`${data?.profile?.photoURL || DEFAULT_PROFILE_PIC}?t=${Date.now()}`);
     } catch (error) {
-      // console.warn("Auth check failed:", error?.response?.data || error);
-      // logout clears user + storage
+      console.warn("Auth check failed:", error?.response?.data || error);
+      logout1(); // logout clears user + storage
     } finally {
       setAuthChecked(true);
     }
   };
 
   useEffect(() => {
-    const tokenExists = document.cookie.includes('token=');
-  if (tokenExists) {
-    fetchUser();
-  } else {
-    setAuthChecked(true);
-  }
+    // NEW: Check if hiring is in progress before auto-fetching user
+    const hiringInProgress = localStorage.getItem('hiringInProgress') === 'true';
+    
+    if (!hiringInProgress) {
+      // Only fetch user if not in hiring process
+      fetchUser();
+    } else {
+      // If hiring in progress, just mark auth as checked without fetching user
+      console.log('Hiring in progress - skipping auto authentication');
+      setAuthChecked(true);
+    }
   }, []);
 
   const logout1 = () => {

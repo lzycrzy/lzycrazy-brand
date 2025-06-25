@@ -17,7 +17,7 @@ import logo from '../../assets/logo.png';
 import home from '../../assets/home.png';
 import movie from '../../assets/movie-reel.png';
 import play from '../../assets/play-button-arrowhead.png';
-
+import add from '../../assets/add.png';
 import hand from '../../assets/hand.png';
 import { auth } from '../../lib/firebase/firebase';
 import { signOut } from 'firebase/auth';
@@ -54,6 +54,8 @@ const Header = () => {
         setIsDropdownOpen(false);
       }
     };
+    console.log("User object:", user);
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -77,7 +79,7 @@ const Header = () => {
           <HeaderIcon image={home} to="/" user={user} />
           <HeaderIcon image={store} to="/market" user={user} />
 
-          <HeaderIcon image={play} to="/" user={user} />
+          <HeaderIcon image={add} to="/Product" user={user} />
           <HeaderIcon image={movie} to="/" user={user} />
           <HeaderIcon image={play} to="/" user={user} />
         </div>
@@ -94,7 +96,7 @@ const Header = () => {
           </div>
 
           <HeaderIcon icon={FaBell} to="/" user={user} />
-          <HeaderIcon icon={FaPlus} to="/" user={user} />
+         
 
          {/* Profile Button & Dropdown - Only show if user is logged in */}
 {user && (
@@ -128,6 +130,11 @@ const Header = () => {
           >
             {displayName || 'User'}
           </p>
+          {user?.profile?.companyId && (
+    <p className="text-xs text-gray-500 mt-1">
+      ID: <span className="font-mono">{user.profile.companyId.replace(/^lz\d{8}/, 'lz')}</span>
+    </p>
+  )}
           <p className="truncate text-sm text-gray-600">
             {user?.profile?.email || 'user@example.com'}
           </p>

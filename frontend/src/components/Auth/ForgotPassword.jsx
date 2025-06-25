@@ -21,8 +21,7 @@ const ForgotPassword = ({ onClose }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setMsg('');
     setError('');
     try {
@@ -30,6 +29,7 @@ const ForgotPassword = ({ onClose }) => {
       setMsg(res.data.message);
       setSubmitted(true);
     } catch (err) {
+      console.error(err);
       setError(err?.response?.data?.message || 'Something went wrong');
     }
   };
@@ -55,7 +55,8 @@ const ForgotPassword = ({ onClose }) => {
           Enter your email address and we'll send you a link to reset your password.
         </p>
 
-        <form onSubmit={handleSubmit}>
+        {/* Input & Button */}
+        <div>
           <input
             type="email"
             required
@@ -65,12 +66,13 @@ const ForgotPassword = ({ onClose }) => {
             className="mb-4 w-full rounded border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
           />
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             className="w-full rounded bg-blue-600 py-2 text-white transition hover:bg-blue-700"
           >
             Send Reset Link
           </button>
-        </form>
+        </div>
 
         {/* Status Messages */}
         {msg && (

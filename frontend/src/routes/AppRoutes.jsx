@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import PrivateRoute from '../components/routes/PrivateRoute';
+import RequireAuth from '../components/protected/RequireAuth';
 import AuthRedirect from '../components/routes/AuthRedirect';
 
 import Auth from '../pages/Auth';
@@ -14,12 +14,12 @@ import TermPage from '../components/static/TermPage';
 import PrivacyPolicyPage from '../components/static/PrivacyPolicyPage';
 import PropertyListing from '../components/ProductDetail/ProductListing';
 import PropertyViewPage from '../pages/PropertyViewPage';
+import AddProduct from '../pages/AddProduct';
 import MarketplaceHome from '../pages/MarketPlace';
-// import Searchbar from '../components/common/Searchbar';
 
 const AppRoutes = () => (
   <Routes>
-    {/* Public only routes */}
+    {/* Public Routes */}
     <Route
       path="/"
       element={
@@ -40,29 +40,13 @@ const AppRoutes = () => (
     <Route path="/property-view" element={<PropertyViewPage />} />
 
     {/* Private Routes */}
-    <Route
-      path="/dashboard"
-      element={
-        <PrivateRoute>
-          <Home />
-        </PrivateRoute>
-      }
-    />
-    <Route
-      path="/profile"
-      element={
-        <PrivateRoute>
-          <Profile />
-        </PrivateRoute>
-      }
-    />
+    <Route element={<RequireAuth />}>
+      <Route path="/dashboard" element={<Home />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/product" element={<AddProduct />} />
+    </Route>
 
-    {/* Dev/Test */}
-    {/* <Route path="/test" element={<Home />} /> */}
-    {/* <Route path="/searchbar" element={<Searchbar />} /> */}
-
-    {/* Redirects */}
-    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    {/* Fallback Routes */}
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>
 );

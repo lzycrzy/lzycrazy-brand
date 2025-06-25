@@ -18,6 +18,7 @@
     "axios": "^1.9.0",
     "classnames": "^2.5.1",
     "date-fns": "^4.1.0",
+    "express": "^5.1.0",
     "face-api.js": "^0.22.2",
     "firebase": "^11.8.1",
     "framer-motion": "^12.16.0",
@@ -39,6 +40,7 @@
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.3",
     "rsuite": "^5.82.0",
+    "tailwind-scrollbar-hide": "^4.0.0",
     "tailwindcss": "^4.1.7"
   },
   "devDependencies": {
