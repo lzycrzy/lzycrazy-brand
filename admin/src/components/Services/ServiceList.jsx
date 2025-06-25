@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaEdit, FaTrash, FaThList } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 ;
-import instance from '../../utils/axios';
+import axios from '../../lib/axios/axiosInstance';
 
 const ServiceList = () => {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const ServiceList = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      const response = await instance.get('/services');
+      const response = await axios.get('/services');
       setServices(response.data);
     } catch (err) {
       console.error('Failed to fetch services:', err);
