@@ -28,7 +28,7 @@ const NewsList = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this news item?')) return;
     try {
-      await instance.delete(`/news/${id}`);
+      await axios.delete(`/news/${id}`);
       setNewsList(prev => prev.filter((item) => item._id !== id));
       toast.success('News deleted');
     } catch (err) {

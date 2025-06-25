@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaEdit, FaTrash, FaThList } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-;
 import axios from '../../lib/axios/axiosInstance';
 
 const ServiceList = () => {
@@ -43,7 +42,7 @@ const ServiceList = () => {
         });
       }
 
-      await instance.delete(`/services/${id}`);
+      await axios.delete(`/services/${id}`);
       setServices(prev => prev.filter(service => service._id !== id));
       alert('Service deleted');
     } catch (err) {
