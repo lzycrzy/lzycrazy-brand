@@ -17,6 +17,7 @@ import PropertyViewPage from '../pages/PropertyViewPage';
 import AddProduct from '../pages/AddProduct';
 import MarketplaceHome from '../pages/MarketPlace';
 import EnquiryForm from '../components/EnquiryForm';
+import AddAdvertisement from '../pages/AddAdvertisement';
 
 const AppRoutes = () => (
   <Routes>
@@ -40,11 +41,12 @@ const AppRoutes = () => (
     <Route path="/market" element={<MarketplaceHome />} />
     <Route path="/property" element={<PropertyListing />} />
     <Route path="/property-view" element={<PropertyViewPage />} />
-
+         
     {/* Private Routes */}
     <Route element={<RequireAuth />}>
       <Route path="/dashboard" element={<Home />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/ads" element={<AddAdvertisement />} />
       <Route path="/product" element={<AddProduct />} />
     </Route>
 
