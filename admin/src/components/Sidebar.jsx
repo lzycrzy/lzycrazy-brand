@@ -12,6 +12,7 @@ import {
   Camera,
   Plus,
   List,
+  Boxes
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -25,10 +26,11 @@ export function Sidebar() {
   const [isServicesOpen, setIsServicesOpen] = useState(
     currentPath.startsWith('/services')
   );
-  
+  const [isBusinessOpen, setIsBusinessOpen] = useState(currentPath.startsWith('/shop'));
   const toggleServices = () => setIsServicesOpen(!isServicesOpen);
   
   const toggleNews = () => setIsNewsOpen(!isNewsOpen);
+  const toggleBusiness = () => setIsBusinessOpen(!isBusinessOpen);
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -44,7 +46,18 @@ export function Sidebar() {
         { label: 'Service List', path: '/services/list', icon: List }
       ]
     },
-    { icon: Store, label: 'Business Profile', path: '/shop' },
+    {
+      icon: Store,
+      label: 'Business Profile',
+      path: '/shop',
+      isSubmenu: true,
+      children: [
+        { label: 'Logo ', path: '/shop/logo', icon: Camera },
+        { label: 'Banner ', path: '/shop/banner', icon: Camera },
+        { label: 'Category ', path: '/shop/category', icon: Grid3X3 },
+        { label: 'Card ', path: '/shop/cards', icon: Boxes }
+      ]
+    },
     {
       icon: FileText,
       label: 'LzyCrazy News',

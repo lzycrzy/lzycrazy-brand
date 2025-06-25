@@ -18,6 +18,7 @@ import AddProduct from '../pages/AddProduct';
 import MarketplaceHome from '../pages/MarketPlace';
 import EnquiryForm from '../components/EnquiryForm';
 import AddAdvertisement from '../pages/AddAdvertisement';
+import VerifiedPage from '../pages/Verify';
 
 const AppRoutes = () => (
   <Routes>
@@ -41,6 +42,7 @@ const AppRoutes = () => (
     <Route path="/market" element={<MarketplaceHome />} />
     <Route path="/property" element={<PropertyListing />} />
     <Route path="/property-view" element={<PropertyViewPage />} />
+    <Route path="/verify" element={<VerifiedPage />} />
          
     {/* Private Routes */}
     <Route element={<RequireAuth />}>

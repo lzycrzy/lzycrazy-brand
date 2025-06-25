@@ -26,6 +26,9 @@ import ApplicationsList from './components/Applications/ApplicationsList';
 import AddService from './components/Services/AddService';
 import ServiceList from './components/Services/ServiceList';
 import AddServices1 from './pages/AddServices';
+import Banner from './components/Business/Banner';
+import Category from './components/Business/Category';
+import Logo from './components/Business/Logo';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -60,6 +63,39 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <UserTable />
+              </ProtectedRoute>
+            }
+          />
+
+<Route  path="/shop/category"
+            element={
+              <ProtectedRoute>
+                <Category />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="/shop/banner"
+            element={
+              <ProtectedRoute>
+                <Banner />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/shop/logo"
+            element={
+              <ProtectedRoute>
+                <Logo />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="/shop/card"
+            element={
+              <ProtectedRoute>
+                <Card />
               </ProtectedRoute>
             }
           />

@@ -129,7 +129,7 @@ console.log(serviceId);
         service: serviceId,
         serviceTitle: serviceName
       });
-      window.location.href = "https://pawangangwar9.github.io/verify-page/";
+      navigate("/verify");
     } catch (err) {
       alert("Failed to submit enquiry. Please try again.");
       console.error(err);
