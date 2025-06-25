@@ -71,7 +71,7 @@ export function Sidebar() {
     {
       icon: FileBarChart,
       label: 'We are hiring',
-      path: '/applications'
+      path: '/Applications/Hiring'
     },
     
     { icon: FileBarChart, label: 'Client Enquiry', path: '/client-enquiry' },
