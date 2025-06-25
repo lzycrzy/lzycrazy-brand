@@ -16,6 +16,7 @@ import PropertyListing from '../components/ProductDetail/ProductListing';
 import PropertyViewPage from '../pages/PropertyViewPage';
 import AddProduct from '../pages/AddProduct';
 import MarketplaceHome from '../pages/MarketPlace';
+import EnquiryForm from '../components/EnquiryForm';
 
 const AppRoutes = () => (
   <Routes>
@@ -30,6 +31,7 @@ const AppRoutes = () => (
     />
     <Route path="/password/forgot" element={<ForgotPassword />} />
     <Route path="/password/reset/:token" element={<ResetPassword />} />
+    <Route path="/enquire" element={<EnquiryForm />} />
     <Route path="/about" element={<AboutUs />} />
     <Route path="/services" element={<Services />} />
     <Route path="/news" element={<NewsFeed />} />

@@ -6,6 +6,7 @@ import { userModel } from '../models/user.model.js';
 import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
+import Applicant from '../models/Applicant.js';
 
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
@@ -336,3 +337,33 @@ export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
   await user.deleteOne();
   res.status(200).json({ success: true, message: 'User deleted successfully' });
 });
+
+
+export const getAllApplications = async (req, res) => {
+  try {
+    const applications = await Applicant.find().sort({ createdAt: -1 }); // newest first
+    res.status(200).json(applications);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch applications' });
+  }
+};
+
+
+export const deleteApplication = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find and delete
+    const deleted = await Applicant.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    res.status(200).json({ message: "Application deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting application:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

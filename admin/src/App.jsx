@@ -20,6 +20,9 @@ import AddCategory from './pages/AddCategory';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import ResetPassword from './components/Auth/ResetPassword';
 import ClientEnquiry from './components/Client/ClientEnquiry';
+import NewsForm from './components/News/AddNews';
+import NewsList from './components/News/NewsList';
+import ApplicationsList from './components/Applications/ApplicationsList';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -66,6 +69,32 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/News/list"
+            element={
+              <ProtectedRoute>
+                < NewsList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/applications"
+            element={
+              <ProtectedRoute>
+                < ApplicationsList />
+              </ProtectedRoute>
+            }
+          />
+                <Route
+            path="/news/add"
+            element={
+              <ProtectedRoute>
+                < NewsForm/>
+              </ProtectedRoute>
+            }
+          />
+
+
            <Route
             path="/client-enquiry"
             element={

@@ -10,7 +10,9 @@ import {
   forgotAdminPassword,
   resetAdminPassword,
   getAllUsersList,
-  deleteSingleUser
+  deleteSingleUser,
+  getAllApplications,
+  deleteApplication
 } from '../controllers/admin.controller.js';
 import {
   isAuthenticatedAdmin,
@@ -65,5 +67,9 @@ router.delete(
   deleteSingleUser,
 );
 router.get('/enquiry', getAllEnquiries); 
+
+router.get('/applications', getAllApplications);
+
+router.delete('/applications/:id', deleteApplication);
 
 export default router;
