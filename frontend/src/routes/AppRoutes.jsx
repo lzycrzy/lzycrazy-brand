@@ -16,6 +16,9 @@ import PropertyListing from '../components/ProductDetail/ProductListing';
 import PropertyViewPage from '../pages/PropertyViewPage';
 import AddProduct from '../pages/AddProduct';
 import MarketplaceHome from '../pages/MarketPlace';
+import EnquiryForm from '../components/EnquiryForm';
+import AddAdvertisement from '../pages/AddAdvertisement';
+import VerifiedPage from '../pages/Verify';
 
 const AppRoutes = () => (
   <Routes>
@@ -30,6 +33,7 @@ const AppRoutes = () => (
     />
     <Route path="/password/forgot" element={<ForgotPassword />} />
     <Route path="/password/reset/:token" element={<ResetPassword />} />
+    <Route path="/enquire" element={<EnquiryForm />} />
     <Route path="/about" element={<AboutUs />} />
     <Route path="/services" element={<Services />} />
     <Route path="/news" element={<NewsFeed />} />
@@ -38,11 +42,13 @@ const AppRoutes = () => (
     <Route path="/market" element={<MarketplaceHome />} />
     <Route path="/property" element={<PropertyListing />} />
     <Route path="/property-view" element={<PropertyViewPage />} />
-
+    <Route path="/verify" element={<VerifiedPage />} />
+         
     {/* Private Routes */}
     <Route element={<RequireAuth />}>
       <Route path="/dashboard" element={<Home />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/ads" element={<AddAdvertisement />} />
       <Route path="/product" element={<AddProduct />} />
     </Route>
 

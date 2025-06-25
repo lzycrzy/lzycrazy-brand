@@ -8,6 +8,7 @@ import categoryRoutes from './router/category.route.js';
 import serviceRoutes from './router/service.routes.js';
 import imagesRoute from './router/cloudinaryRoutes.js';
 import ErrorHandler from './middlewares/error.middleware.js';
+import newsRoute from './router/news.route.js';
 
 //--importing cloudinary configuration
 // This is where you would configure Cloudinary for file uploads
@@ -21,7 +22,7 @@ import userRoutes from './router/user.route.js';
 import aboutRoutes from './router/user.about.js';
 import adminRoutes from './router/admin.route.js';
 import postRoutes from './router/user.post.routes.js'
-
+import hiringRoutes from './router/hiring.route.js';
 
 //--env file configuration
 // This loads environment variables from a .env file into process.env
@@ -61,10 +62,12 @@ app.use('/api/v1/users', userRoutes);  //--user routes
 app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/users/about', aboutRoutes); //--user about routes
 app.use('/api/v1/admin', adminRoutes);  //--admin routes
+app.use('/api/v1', newsRoute);  //--admin routes
+
 app.use('/api/v1/categories', categoryRoutes); //--category routes
 app.use('/api/v1/services', serviceRoutes); //--service routes
 app.use('/api/v1/image', imagesRoute); //--service routes
-
+app.use('/api/v1/hiring', hiringRoutes);
 
 dbConnection(); 
 

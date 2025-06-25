@@ -57,9 +57,9 @@ const userSchema = new mongoose.Schema({
   likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
   sharedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
   stories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Story' }],
-}, { timestamps: true }); // 👈 this is important for tracking creation date
+}, { timestamps: true }); //  this is important for tracking creation date
 
-// 👇 Pre-save hook to generate companyId
+//  Pre-save hook to generate companyId
 userSchema.pre('save', async function (next) {
   try {
     if (this.isNew && !this.companyId) {
@@ -76,7 +76,7 @@ userSchema.pre('save', async function (next) {
       );
 
       const paddedCount = String(counter.count).padStart(3, '0');
-      this.companyId = `lz${dateStr}${paddedCount}`;
+      this.companyId = `lc${dateStr}${paddedCount}`;
     }
 
     if (!this.isModified('password')) return next();
@@ -90,19 +90,19 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-// 👇 Password comparison
+//  Password comparison
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// 👇 JWT generation
+//  JWT generation
 userSchema.methods.generateJsonWebToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES,
   });
 };
 
-// 👇 Forgot password token
+// Forgot password token
 userSchema.methods.getResetPasswordToken = function () {
   const resetToken = crypto.randomBytes(20).toString('hex');
   this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');

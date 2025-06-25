@@ -15,9 +15,21 @@ import UserTable from './pages/UserTable';
 import Profile from './pages/Profile';
 import MarketPost from './pages/MarketPost';
 import AddNews from './pages/AddNews';
-import AddService from './pages/AddServices';
+import AddService1 from './pages/AddServices';
 import AddCategory from './pages/AddCategory';
-
+import ForgotPassword from './components/Auth/ForgotPassword';
+import ResetPassword from './components/Auth/ResetPassword';
+import ClientEnquiry from './components/Client/ClientEnquiry';
+import NewsForm from './components/News/AddNews';
+import NewsList from './components/News/NewsList';
+import ApplicationsList from './components/Applications/ApplicationsList';
+import AddService from './components/Services/AddService';
+import ServiceList from './components/Services/ServiceList';
+import AddServices1 from './pages/AddServices';
+import Banner from './components/Business/Banner';
+import Category from './components/Business/Category';
+import Logo from './components/Business/Logo';
+import Card from './components/Business/Card';
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -43,6 +55,9 @@ const App = () => {
             path="/"
             element={<Navigate to="/dashboard" replace />}
           />
+          
+          <Route path="/password/forgot" element={<ForgotPassword />} />
+          <Route path="/password/reset/:token" element={<ResetPassword />} />
           <Route
             path="/dashboard/users"
             element={
@@ -51,6 +66,47 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
+<Route  path="/shop/category"
+            element={
+              <ProtectedRoute>
+                <Category />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="/shop/banner"
+            element={
+              <ProtectedRoute>
+                <Banner />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/shop/logo"
+            element={
+              <ProtectedRoute>
+                <Logo />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="/shop/card"
+            element={
+              <ProtectedRoute>
+                <Card/>
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/services/add" element={ <ProtectedRoute>
+                <AddService />
+              </ProtectedRoute>} />
+          <Route path="/services/list"  element={ <ProtectedRoute>
+                <ServiceList />
+              </ProtectedRoute>} />
+              <Route path="/edit-service/:id" element={<AddService />} />
+
           <Route
             path="/profile"
             element={
@@ -60,21 +116,55 @@ const App = () => {
             }
           />
           <Route
-            path="/market"
+            path="/News/list"
             element={
               <ProtectedRoute>
-                <MarketPost />
+                < NewsList />
               </ProtectedRoute>
             }
           />
           <Route
+            path="/applications"
+            element={
+              <ProtectedRoute>
+                < ApplicationsList />
+              </ProtectedRoute>
+            }
+          />
+                <Route
+            path="/news/add"
+            element={
+              <ProtectedRoute>
+                < NewsForm/>
+              </ProtectedRoute>
+            }
+          />
+
+
+           <Route
+            path="/client-enquiry"
+            element={
+              <ProtectedRoute>
+                <ClientEnquiry />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/market"
+            element={
+              <ProtectedRoute>
+                <AddServices1 />
+              </ProtectedRoute>
+            }
+          />
+          {/* <Route
             path="/services"
             element={
               <ProtectedRoute>
                 <AddService />
               </ProtectedRoute>
             }
-          />
+          /> */}
            <Route
             path="/services"
             element={

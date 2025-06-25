@@ -28,6 +28,18 @@ export const createEnquiry = async (req, res) => {
 
 
 
+export const getAllEnquiries = async (req, res) => {
+  try {
+    const enquiries = await Enquiry.find()
+      .sort({ createdAt: -1 }) // Optional: show newest first
+      .populate('service', 'title') // Optional: if `service` is a ref and you want to show title
+      .lean();
 
+    res.status(200).json(enquiries);
+  } catch (error) {
+    console.error('Error fetching enquiries:', error);
+    res.status(500).json({ message: 'Server error while fetching enquiries' });
+  }
+};
 
 

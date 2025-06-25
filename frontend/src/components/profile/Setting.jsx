@@ -12,7 +12,7 @@ import {
   FaSignOutAlt,
 } from 'react-icons/fa';
 
-const SettingsMenu = ({ activeTab, setActiveTab }) => {
+const SettingsMenu = ({ activeTab, setActiveTab, onManageFriendsClick  }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -42,7 +42,11 @@ const SettingsMenu = ({ activeTab, setActiveTab }) => {
   }, []);
 
   const handleOptionClick = (tabName) => {
-    setActiveTab(tabName);
+    if (tabName === 'manageFriends' && onManageFriendsClick) {
+      onManageFriendsClick(); // Trigger modal from parent
+    } else {
+      setActiveTab(tabName); // For others like 'blockedUsers', etc.
+    }
     setIsOpen(false);
   };
 
