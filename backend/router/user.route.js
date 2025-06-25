@@ -38,7 +38,8 @@ import { createEnquiry } from '../controllers/Enquiry.controller.js';
 import {
   isAuthenticated
 } from '../middlewares/auth.middleware.js';
-import upload from '../middlewares/multer.middleware.js';
+// import upload from '../middlewares/multer.middleware.js';
+import upload from '../middlewares/multer.vps.middleware.js'; // Use VPS storage middleware instead of Cloudinary
 
 
 // multer setup (example: storing files in 'uploads/' folder with original name)

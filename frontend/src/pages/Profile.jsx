@@ -51,7 +51,7 @@ const Profile = () => {
     const file = e.target.files[0];
     if (file) {
       setNewImage(file);
-      setImagePreview(URL.createObjectURL(file));
+      setImagePreview(URL.createObjectURL(file));      
       updateUser({ photoURL: URL.createObjectURL(file) });
       e.target.value = '';
     }

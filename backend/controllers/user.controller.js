@@ -3,6 +3,7 @@ import { catchAsyncErrors } from '../middlewares/catchAsyncErrors.middleware.js'
 import ErrorHandler from '../middlewares/error.middleware.js';
 import { generateToken } from '../utils/jwtToken.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';// Import the uploadToCloudinary function 
+import { uploadToVps, deleteFromVps } from '../utils/vpsStorage.js';// // Import the VPS storage functions
 import { sendEmail } from '../utils/sendEmail.js';
 import { userModel } from '../models/user.model.js';
 import firebaseadmin from '../config/firebaseAdmin.js';
@@ -69,6 +70,7 @@ export const getMe = catchAsyncErrors(async (req, res, next) => {
     user: req.user,
   });
 });
+
 // Login User
 export const loginUser = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
@@ -198,17 +200,61 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
-// updateMe
+// // updateMe
+// export const updateMe = async (req, res) => {
+//   try {
+//     const updates = { fullName: req.body.name };
+
+//     console.log("🟡 Received name:", req.body.name);
+//     console.log("🟡 Received file:", req.file?.originalname);
+//     const filePath=req.file.path;
+
+//     if (req.file) {
+//       const photoURL = await uploadToCloudinary(filePath, req.user.id);
+//       updates.image = photoURL;
+//     }
+
+//     const updatedUser = await userModel.findByIdAndUpdate(req.user._id, updates, {
+//       new: true,
+//       runValidators: true,
+//     });
+//     await fs.remove(filePath);
+//     console.log(" User updated:", updatedUser.fullName, updatedUser.image);
+
+//     res.status(200).json({
+//       status: 'success',
+//       user: updatedUser,
+//     });
+//   } catch (err) {
+//     console.error('❌ Error updating profile:', err);
+//     res.status(500).json({ error: 'Something went wrong' });
+//   }
+// };
+
+// ✅ Updated for VPS
 export const updateMe = async (req, res) => {
   try {
     const updates = { fullName: req.body.name };
 
     console.log("🟡 Received name:", req.body.name);
     console.log("🟡 Received file:", req.file?.originalname);
-    const filePath=req.file.path;
 
     if (req.file) {
-      const photoURL = await uploadToCloudinary(filePath, req.user.id);
+      // 🔍 Fetch current user to get old image URL
+      const currentUser = await userModel.findById(req.user._id);
+
+      // ❌ Delete old image from VPS if it exists
+      if (currentUser?.image) {
+        try {
+          await deleteFromVps(currentUser.image);
+          console.log("🧹 Old image deleted");
+        } catch (err) {
+          console.warn("⚠️ Failed to delete old image:", err.message);
+        }
+      }
+
+      // ✅ Upload new image to VPS
+      const photoURL = await uploadToVps(req.file, req);
       updates.image = photoURL;
     }
 
@@ -216,8 +262,8 @@ export const updateMe = async (req, res) => {
       new: true,
       runValidators: true,
     });
-    await fs.remove(filePath);
-    console.log(" User updated:", updatedUser.fullName, updatedUser.image);
+
+    console.log("✅ User updated:", updatedUser.fullName, updatedUser.image);
 
     res.status(200).json({
       status: 'success',
@@ -228,6 +274,11 @@ export const updateMe = async (req, res) => {
     res.status(500).json({ error: 'Something went wrong' });
   }
 };
+
+
+
+
+
 
 // Get My Profile
 export const getMyProfile = catchAsyncErrors(async (req, res) => {
@@ -288,7 +339,7 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
   }
 });
 
-
+// Get All Posts
 export const getPosts = catchAsyncErrors(async (req, res) => {
   try {
     const posts = await Post.find()
@@ -416,7 +467,6 @@ export const likePost = async (req, res) => {
   }
 };
 
-
 //comment bu user
 export const addComment = async (req, res) => {
   try {
@@ -464,7 +514,6 @@ export const sharePost = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 
 // Get All Users
 export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
@@ -601,10 +650,7 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   generateToken(user, 'Reset Password Successfully!', 200, res); //--
 });
 
-
-
-
-
+// Upload Story
 export const uploadStory = async (req, res) => {
   try {
     // Ensure file is uploaded
@@ -643,7 +689,6 @@ export const uploadStory = async (req, res) => {
     res.status(500).json({ message: "Failed to upload story", error: err.message });
   }
 };
-
 
 // Get all recent stories
 export const getStories = async (req, res) => {
@@ -686,6 +731,7 @@ export const getStories = async (req, res) => {
   }
 };
 
+// Record Story View
 export const recordStoryView = async (req, res) => {
   const storyId = req.params.storyId;
   const viewerId = req.user._id;
@@ -709,11 +755,7 @@ export const recordStoryView = async (req, res) => {
 };
 
 
-
-
 //friends
-
-
 
 
 // Send Friend Request
@@ -833,8 +875,7 @@ export const searchUsers = async (req, res) => {
   res.json(enhanced);
 };
 
-
-
+// Story View Controller
 export const storyView = async (req, res) => {
   const storyId = req.params.storyId;
   const viewerId = req.user._id;
@@ -856,6 +897,8 @@ export const storyView = async (req, res) => {
     res.status(500).json({ message: "Failed to record story view" });
   }
 };
+
+// Get User Stories
 export const getUserStories = async (req, res) => {
   const { userId } = req.params;
 
@@ -873,8 +916,7 @@ export const getUserStories = async (req, res) => {
   }
 };
 
-
-
+// Get Story Views
 export const getStoryViews = async (req, res) => {
   const { storyId } = req.params;
 
@@ -891,8 +933,7 @@ export const getStoryViews = async (req, res) => {
   }
 };
 
-
-
+// Submit Application
 export const submitApplication = async (req, res) => {
   try {
     console.log(req.body);

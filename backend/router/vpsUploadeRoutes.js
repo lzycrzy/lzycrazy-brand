@@ -1,5 +1,5 @@
 import express from 'express';
-import uploads from '../middlewares/multer.middleware.js';
+import uploads from '../middlewares/multer.vps.middleware.js'; // Use VPS storage middleware
 import fs from 'fs';
 import path from 'path';
 

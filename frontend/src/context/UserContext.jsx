@@ -19,6 +19,7 @@ export const UserProvider = ({ children }) => {
       const data = res.data;
       setUser(data);
       setDisplayName(data?.profile?.name || '');
+      // console.log(data.profile.photoURL)
       setProfilePic(`${data?.profile?.photoURL || DEFAULT_PROFILE_PIC}?t=${Date.now()}`);
     } catch (error) {
       console.warn("Auth check failed:", error?.response?.data || error);
@@ -27,6 +28,7 @@ export const UserProvider = ({ children }) => {
       setAuthChecked(true);
     }
   };
+  
 
   useEffect(() => {
     fetchUser();
