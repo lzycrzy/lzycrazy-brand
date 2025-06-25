@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaCamera } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import instance from '../../utils/axios'; // ✅ custom axios instance
+import axios from '../../lib/axios/axiosInstance'; // ✅ custom axios instance
 
 const MAX_VIDEO_SIZE_MB = 50;
 const MAX_IMAGE_SIZE_MB = 5;
@@ -50,7 +50,7 @@ const NewsForm = ({ onSubmit }) => {
 
     setLoading(true);
     try {
-      await instance.post('/news', formData, {
+      await axios.post('/news', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
