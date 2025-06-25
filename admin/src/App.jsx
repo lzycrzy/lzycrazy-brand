@@ -26,7 +26,10 @@ import ApplicationsList from './components/Applications/ApplicationsList';
 import AddService from './components/Services/AddService';
 import ServiceList from './components/Services/ServiceList';
 import AddServices1 from './pages/AddServices';
-import HiringApplicationsTable from './components/Applications/Hiring';
+import Banner from './components/Business/Banner';
+import Category from './components/Business/Category';
+import Logo from './components/Business/Logo';
+import Card from './components/Business/Card';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -93,7 +96,7 @@ const App = () => {
             path="/shop/card"
             element={
               <ProtectedRoute>
-                <Card />
+                <Card/>
               </ProtectedRoute>
             }
           />
@@ -110,13 +113,6 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Profile />
-              </ProtectedRoute>
-            }
-          /><Route
-            path="/Applications/Hiring"
-            element={
-              <ProtectedRoute>
-                <HiringApplicationsTable />
               </ProtectedRoute>
             }
           />
