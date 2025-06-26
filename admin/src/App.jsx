@@ -30,6 +30,7 @@ import Banner from './components/Business/Banner';
 import Category from './components/Business/Category';
 import Logo from './components/Business/Logo';
 import Card from './components/Business/Card';
+import HiringApplicationsTable from './components/Applications/Hiring';
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -139,7 +140,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-
+            <Route
+            path="/Applications/Hiring"
+            element={
+              <ProtectedRoute>
+                <HiringApplicationsTable />
+              </ProtectedRoute>
+            }
+          />
 
            <Route
             path="/client-enquiry"
