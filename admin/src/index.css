@@ -165,9 +165,7 @@
     border: 2px solid #007bff; /* Blue border when input is focused */
     outline: none; /* Optional: remove default browser outline */
   }
-  .custom-input{
   
-  }
   .custom-input:focus {
     border: 1px solid #007bff; /* Change border color on focus */
     outline: none;
