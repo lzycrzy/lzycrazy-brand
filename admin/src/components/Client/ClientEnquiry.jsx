@@ -280,7 +280,7 @@ const ClientEnquiry = () => {
         <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#fff' }}>
           <thead>
             <tr>
-              {['Name', 'Email', 'Phone', 'Message', 'Date', 'Action'].map(header => (
+              {['Name', 'Email','Enquiry-For', 'Phone', 'Message', 'Date', 'Action'].map(header => (
                 <th key={header} style={thStyle}>{header}</th>
               ))}
             </tr>
@@ -290,6 +290,7 @@ const ClientEnquiry = () => {
               <tr key={i}>
                 <td style={tdStyle}>{entry.name}</td>
                 <td style={tdStyle}>{entry.email}</td>
+                <td style={tdStyle}>{entry.serviceTitle}</td>
                 <td style={tdStyle}>{entry.phone}</td>
                 <td style={tdStyle}>{entry.message}</td>
                 <td style={tdStyle}>{entry.createdAt?.slice(0, 10)}</td>

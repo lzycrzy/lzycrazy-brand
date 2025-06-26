@@ -30,6 +30,7 @@ import Banner from './components/Business/Banner';
 import Category from './components/Business/Category';
 import Logo from './components/Business/Logo';
 import Card from './components/Business/Card';
+import HiringApplicationsTable from './components/Applications/Hiring';
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -49,15 +50,13 @@ const App = () => {
   return (
     <Provider store={store}>
       <Routes>
+        <Route path="/password/reset/:token" element={<ResetPassword />} />
         <Route path="/" element={<Layout />}>
           <Route path="auth" element={<Auth />} />
-          <Route
-            path="/"
-            element={<Navigate to="/dashboard" replace />}
-          />
-          
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
           <Route path="/password/forgot" element={<ForgotPassword />} />
-          <Route path="/password/reset/:token" element={<ResetPassword />} />
+
           <Route
             path="/dashboard/users"
             element={
@@ -67,14 +66,15 @@ const App = () => {
             }
           />
 
-<Route  path="/shop/category"
+          <Route
+            path="/shop/category"
             element={
               <ProtectedRoute>
                 <Category />
               </ProtectedRoute>
             }
           />
-           <Route
+          <Route
             path="/shop/banner"
             element={
               <ProtectedRoute>
@@ -91,21 +91,36 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-           <Route
+          <Route
             path="/shop/card"
             element={
               <ProtectedRoute>
-                <Card/>
+                <Card />
               </ProtectedRoute>
             }
           />
-          <Route path="/services/add" element={ <ProtectedRoute>
+          <Route
+            path="/services/add"
+            element={
+              <ProtectedRoute>
                 <AddService />
-              </ProtectedRoute>} />
-          <Route path="/services/list"  element={ <ProtectedRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/services/list"
+            element={
+              <ProtectedRoute>
                 <ServiceList />
-              </ProtectedRoute>} />
-              <Route path="/edit-service/:id" element={<AddService />} />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route path="/edit-service/:id" element={
+              <ProtectedRoute>
+                <AddService />
+              </ProtectedRoute>
+            }  />
 
           <Route
             path="/profile"
@@ -119,7 +134,7 @@ const App = () => {
             path="/News/list"
             element={
               <ProtectedRoute>
-                < NewsList />
+                <NewsList />
               </ProtectedRoute>
             }
           />
@@ -127,21 +142,28 @@ const App = () => {
             path="/applications"
             element={
               <ProtectedRoute>
-                < ApplicationsList />
+                <ApplicationsList />
               </ProtectedRoute>
             }
           />
-                <Route
+          <Route
             path="/news/add"
             element={
               <ProtectedRoute>
-                < NewsForm/>
+                <NewsForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Applications/Hiring"
+            element={
+              <ProtectedRoute>
+                <HiringApplicationsTable />
               </ProtectedRoute>
             }
           />
 
-
-           <Route
+          <Route
             path="/client-enquiry"
             element={
               <ProtectedRoute>
@@ -153,7 +175,7 @@ const App = () => {
             path="/market"
             element={
               <ProtectedRoute>
-                <AddServices1 />
+                <MarketPost />
               </ProtectedRoute>
             }
           />
@@ -165,7 +187,7 @@ const App = () => {
               </ProtectedRoute>
             }
           /> */}
-           <Route
+          <Route
             path="/services"
             element={
               <ProtectedRoute>
@@ -173,7 +195,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-           <Route
+          <Route
             path="/category"
             element={
               <ProtectedRoute>

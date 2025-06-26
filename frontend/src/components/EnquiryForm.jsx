@@ -82,145 +82,146 @@
 
 
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import axios from "../lib/axios/axiosInstance"; // Adjust the path
-import image from "../assets/login1.webp"; // Adjust as needed
+import ReactDOM from "react-dom";
+import image from "../assets/login1.webp";
+import axios from "../lib/axios/axiosInstance";
 
-const EnquireForm = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const serviceName = location.state?.serviceName || "Service";
-  const serviceId = location.state?.serviceId;
-console.log(serviceId);
+const modalRoot = document.getElementById("modal-root");
+
+const EnquireModal = ({ serviceId, serviceName = "Service", onClose }) => {
   const [formData, setFormData] = useState({
-   name:"",
+    name: "",
     email: "",
     phone: "",
-    message: ""
+    message: "",
   });
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!serviceId) {
       alert("Service ID missing. Please try again.");
       return;
     }
 
-   
     try {
-      console.log("Submitting payload:", {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        message: formData.message,
-        service: serviceId,               // renamed to match schema
-        serviceTitle: serviceName        // added as required
-      });
+      setLoading(true);
       await axios.post("/v1/users/enquiry", {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         message: formData.message,
         service: serviceId,
-        serviceTitle: serviceName
+        serviceTitle: serviceName,
       });
-      navigate("/verify");
+
+      setSubmitted(true); // Show thank you message
     } catch (err) {
-      alert("Failed to submit enquiry. Please try again.");
       console.error(err);
+      alert("Failed to submit enquiry.");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="h-screen bg-gradient-to-br from-[#85abb3] to-[#a94c4c] flex items-center justify-center">
-      <div className="flex w-[800px] max-w-[95%] rounded-lg shadow-lg overflow-hidden bg-white">
-        {/* Image Section */}
-        <div className="relative w-1/2 hidden sm:block">
-          <img src={image} alt="Service" className="h-full w-full object-cover" />
-          <div className="absolute bottom-0 bg-black/50 text-white text-sm p-4">
-            {`Thanks for choosing ${serviceName}. Please tell us more about your needs.`}
-          </div> 
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="flex w-[850px] max-w-[95%] rounded-xl overflow-hidden shadow-2xl bg-white relative">
+        {/* Image Side */}
+        <div className="w-1/2 hidden sm:block bg-gray-100">
+          <img
+            src={image}
+            alt="Enquiry"
+            className="h-full w-full object-cover"
+          />
         </div>
 
-        {/* Form Section */}
+        {/* Form or Thank You Side */}
         <div className="w-full sm:w-1/2 p-8 relative">
           <button
-            onClick={() => navigate("/")}
-            className="absolute top-2 right-4 text-gray-500 text-xl"
+            onClick={onClose}
+            className="absolute top-2 right-4 text-gray-500 hover:text-gray-700 text-xl"
           >
             &times;
           </button>
-          <h2 className="text-xl font-semibold mb-2">Enquire About {serviceName}</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Fill out the form and our team will get back to you.
-          </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex gap-4">
-              {/* <input
-                type="text"
-                name="lastName"
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-                className="w-1/2 p-2 border border-gray-300 rounded-md text-sm"
-              /> */}
-              <input
-                type="text"
-                name="name"
-                placeholder="Name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-              />
+          {!submitted ? (
+            <>
+              <h2 className="text-xl font-semibold mb-2">Enquire About {serviceName}</h2>
+              <p className="text-sm text-gray-600 mb-4">
+                Fill out the form and our team will get back to you.
+              </p>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                />
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Phone Number"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                />
+                <textarea
+                  name="message"
+                  placeholder={`Message about ${serviceName}`}
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm resize-none h-20"
+                ></textarea>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 bg-gradient-to-r from-[#1ebddd] to-[#ea2473] text-white font-bold text-base rounded-md"
+                >
+                  {loading ? "Submitting..." : "Submit Enquiry →"}
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-center px-6">
+              <div className="text-4xl text-green-600 mb-3">✅</div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Thanks for Reaching Out!</h2>
+              <p className="text-sm text-gray-600 mb-6">
+                We’ve received your enquiry. Our team will be in touch with you shortly.
+              </p>
+              <button
+                onClick={onClose}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+              >
+                Close
+              </button>
             </div>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
-            />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone Number"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
-            />
-            <textarea
-              name="message"
-              placeholder={`Message about ${serviceName}`}
-              value={formData.message}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-md text-sm resize-none h-20"
-            ></textarea>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-[#1ebddd] to-[#ea2473] text-white font-bold text-base rounded-md"
-            >
-              {loading ? "Submitting..." : "Submit Enquiry →"}
-            </button>
-          </form>
+          )}
         </div>
       </div>
-    </div>
+    </div>,
+    modalRoot
   );
 };
 
-export default EnquireForm;
+export default EnquireModal;
