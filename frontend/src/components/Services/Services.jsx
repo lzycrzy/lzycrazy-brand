@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../static/Header1';
 import Footer from '../static/Footer1';
 import axios from '../../lib/axios/axiosInstance';
+import EnquireModal from '../EnquiryForm';// Import the modal
 
-// Icon packs
 import * as FaIcons from 'react-icons/fa';
 import * as MdIcons from 'react-icons/md';
 import * as AiIcons from 'react-icons/ai';
@@ -17,12 +17,9 @@ const iconPacks = {
 
 const getIconComponent = (iconName) => {
   if (!iconName) return null;
-
-  // ✅ Allow Cloudinary or external images directly
-  if (iconName.startsWith("http://") || iconName.startsWith("https://")) {
-    return iconName; // string for <img src=...>
+  if (iconName.startsWith('http://') || iconName.startsWith('https://')) {
+    return iconName;
   }
-
   const prefix = iconName.slice(0, 2);
   const pack = iconPacks[prefix];
   return pack?.[iconName] || null;
@@ -30,6 +27,7 @@ const getIconComponent = (iconName) => {
 
 const Services = () => {
   const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null); // 👈 for modal
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,32 +44,27 @@ const Services = () => {
   }, []);
 
   const handleCardClick = (service) => {
-    navigate('/enquire', {
-      state: {
-        serviceId: service._id,
-        serviceName: service.title,
-      },
-    });
+    setSelectedService(service); // 👈 Open modal instead of navigate
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
 
-      <div className="flex-grow mt-20 max-w-6xl mx-auto px-4 py-10">
+      <div className="flex-grow mt-20 max-w-8xl mx-auto px-4 py-10">
         <h2 className="text-3xl font-bold text-orange-600 mb-2 text-center">
           Our Services
         </h2>
         <div className="w-20 h-1 bg-orange-400 mx-auto mb-8 rounded"></div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-9">
           {services.map((service, index) => {
             const Icon = getIconComponent(service.icon?.component);
             return (
               <div
                 key={index}
                 onClick={() => handleCardClick(service)}
-                className="bg-white w-[300px] max-w-sm mx-auto rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex items-start gap-4 cursor-pointer"
+                className="cursor-pointer bg-white w-[300px] max-w-sm mx-auto rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-300"
               >
                 {typeof Icon === 'string' ? (
                   <img
@@ -104,6 +97,15 @@ const Services = () => {
       </div>
 
       <Footer />
+
+      {/* React Portal Modal */}
+      {selectedService && (
+        <EnquireModal
+        serviceId={selectedService._id}
+        serviceName={selectedService.title}
+        onClose={() => setSelectedService(null)}
+      />
+      )}
     </div>
   );
 };

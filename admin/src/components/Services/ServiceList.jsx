@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaEdit, FaTrash, FaThList } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../lib/axios/axiosInstance';
+import instance from '../../utils/axios';
 
 const ServiceList = () => {
   const navigate = useNavigate();
@@ -32,27 +33,43 @@ const ServiceList = () => {
 
   const handleDelete = async (id, imageUrl) => {
     if (!window.confirm('Are you sure you want to delete this service?')) return;
-
+  
     try {
       setLoading(true);
-
-      if (imageUrl?.includes('cloudinary')) {
-        await instance.delete('/image/delete', {
-          data: { imageUrl }
-        });
+  
+      const token = localStorage.getItem('token'); // or sessionStorage.getItem('token')
+      if (!token) {
+        alert('Unauthorized: No token found. Please login again.');
+        return;
       }
-
-      await axios.delete(`/services/${id}`);
+  
+      // Delete image from Cloudinary (if exists)
+    //   if (imageUrl?.includes('cloudinary')) {
+    //     await instance.delete('/image/delete', {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //       data: { imageUrl }
+    //     });
+    //   }
+  
+      // Delete service from DB
+      await instance.delete(`/services/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
       setServices(prev => prev.filter(service => service._id !== id));
       alert('Service deleted');
     } catch (err) {
-      console.error('Error deleting service:', err);
-      alert('Delete failed');
+      console.error('Error deleting service:', err.response?.data || err.message);
+      alert(err.response?.data?.message || 'Delete failed');
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="flex h-screen  ">
      

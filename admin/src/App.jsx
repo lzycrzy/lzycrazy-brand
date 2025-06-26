@@ -115,7 +115,12 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/edit-service/:id" element={<AddService />} />
+          
+          <Route path="/edit-service/:id" element={
+              <ProtectedRoute>
+                <AddService />
+              </ProtectedRoute>
+            }  />
 
           <Route
             path="/profile"
