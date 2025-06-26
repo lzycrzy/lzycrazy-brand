@@ -16,46 +16,59 @@ import mongoose from "mongoose";
 
 // Register User with Image Upload
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
+  const { fullName, email, phone, password, role } = req.body;
 
-  const { fullName, email, phone, password, role  } = req.body;
-  console.log('req.body:', req.body);
-  // Add this line
-  
- 
+  // Duplicate email check
   const existingUser = await userModel.findOne({ email });
   if (existingUser) {
     return next(new ErrorHandler('Email already exists', 400));
   }
-  
-  // image upload to cloudinary
   try {
-    
-
-    const userRole = role || 'user';
-    // Create new user
     const createdUser = await userModel.create({
       fullName,
       email,
       phone,
       password,
-      role:userRole,
-      
+      role: role || "user",
     });
 
-    // If user creation fails
-    if (!createdUser) {
-      return next(new ErrorHandler('User creation failed', 400));
-    }
-
-    // Generate JWT token and send response
-    generateToken(createdUser, 'User Registered Successfully', 201, res);
-
+    generateToken(createdUser, "User Registered Successfully", 201, res);
   } catch (err) {
-    console.error('Registration error:', err); // Log the error for debugging
-    res.status(500).json({ error: err.message }); //
+    console.error("Registration error:", err);
+
+    // ✅ Mongoose validation errors
+    if (err.name === "ValidationError") {
+      const validationErrors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({
+        success: false,
+        errors: validationErrors,
+      });
+    }
+  
+    // ✅ Other known errors (cast, duplicate keys, etc.)
+    if (err.message) {
+      return res.status(500).json({
+        success: false,
+        errors: [err.message], // always send as array
+      });
+    }
+  
+    // ❌ Fallback (unknown)
+    return res.status(500).json({
+      success: false,
+      errors: ["An unknown error occurred"],
+    });
   }
 });
 
+export const getMe = catchAsyncErrors(async (req, res, next) => {
+  if (!req.user) return next(new ErrorHandler('Unauthorized', 401));
+
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+});
 // Login User
 export const loginUser = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
@@ -223,7 +236,7 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
 
     // Fetch full user info including relationships
     const user = await userModel.findById(userId)
-      .select('fullName email image friends friendRequestsSent friendRequestsReceived phone role');
+      .select('fullName email image companyId friends friendRequestsSent friendRequestsReceived phone role');
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -260,6 +273,7 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
       phone: user.phone,
       role: user.role,
       photoURL: user.image,
+      companyId: user.companyId,
       about,
       posts,
       friends: user.friends,
@@ -275,14 +289,21 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
 });
 
 
-export const getPosts= catchAsyncErrors( async (req, res) => {
+export const getPosts = catchAsyncErrors(async (req, res) => {
   try {
-    const posts = await Post.find().sort({ createdAt: -1 }).populate('user', 'fullName image');
+    const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .populate('user', 'fullName image') // ✅ post author
+      .populate('comments.user', 'fullName image') // ✅ comment author
+      .populate('likes', 'fullName image');
+
     res.status(200).json({ posts });
   } catch (err) {
+    console.error('Get Posts Error:', err);
     res.status(500).json({ message: 'Failed to load posts' });
   }
 });
+
 //post by user
 // export const createPost = async (req, res) => {
 //   try {
@@ -361,49 +382,67 @@ export const createPost = async (req, res) => {
 //likes of post
 export const likePost = async (req, res) => {
   try {
-    const postId = req.params.postId;
-    const userId = req.user._id;
-
-    const post = await postModel.findById(postId);
+    const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: 'Post not found' });
 
-    // If already liked, remove like (toggle)
-    if (post.likes.includes(userId)) {
-      post.likes.pull(userId);
+    const userIdStr = req.user._id.toString();
+
+    const alreadyLiked = post.likes.some(
+      (like) => like.user.toString() === userIdStr
+    );
+
+    if (alreadyLiked) {
+      // Remove like
+      post.likes = post.likes.filter(
+        (like) => like.user.toString() !== userIdStr
+      );
     } else {
-      post.likes.push(userId);
+      // Add like
+      post.likes.push({
+        user: req.user._id,
+        likedAt: new Date(),
+      });
     }
 
     await post.save();
 
-    res.status(200).json({ success: true, likesCount: post.likes.length });
-  } catch (error) {
-    console.error('Like Post Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    // Populate likes for frontend
+    const updatedPost = await Post.findById(post._id).populate('likes.user', 'fullName image');
+
+    res.status(200).json({ likes: updatedPost.likes });
+  } catch (err) {
+    console.error('Like Post Error:', err);
+    res.status(500).json({ message: 'Server Error' });
   }
 };
+
 
 //comment bu user
 export const addComment = async (req, res) => {
   try {
     const { text } = req.body;
-    const postId = req.params.postId;
+    const postId = req.params.id;
     const userId = req.user._id;
 
     if (!text) return res.status(400).json({ message: 'Comment text is required' });
 
-    const post = await postModel.findById(postId);
+    const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ message: 'Post not found' });
 
     post.comments.push({ user: userId, text });
     await post.save();
 
-    res.status(201).json({ success: true, comments: post.comments });
+    // Populate user in comment
+    const updatedPost = await Post.findById(postId)
+      .populate('comments.user', 'fullName image');
+
+    res.status(201).json({ success: true, comments: updatedPost.comments });
   } catch (error) {
     console.error('Add Comment Error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 // share by user
 export const sharePost = async (req, res) => {
   try {
@@ -500,8 +539,9 @@ export const updatePassword = catchAsyncErrors(async (req, res, next) => {
 
 // Forgot Password
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
-  const user = await userModel.findOne({ email: req.body.email });
-   console.log(user);
+  const { email } = req.body;
+  const user = await userModel.findOne({ email });
+   console.log(user.email);
   if (!user) {
     return next(new ErrorHandler('User not Found', 404));
   }

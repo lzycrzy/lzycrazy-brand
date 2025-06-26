@@ -1,12 +1,22 @@
 @import 'tailwindcss';
 
 
-.scroll-hidden {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+/* Force Toastify to appear above all elements */
+.Toastify__toast-container {
+  z-index: 9999 !important;
+}
+
+
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin 12s linear infinite;
   }
-  
-  .scroll-hidden::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-  }
-  
+}

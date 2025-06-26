@@ -18,7 +18,7 @@ const router = express.Router();
 // /api/services
 router
   .route('/')
-  .post(isAuthenticatedAdmin, createService)
+  .post( createService)
   .get(getAllServices);
 
 // /api/services/stats

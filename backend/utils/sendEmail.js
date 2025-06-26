@@ -27,29 +27,25 @@
 import nodemailer from 'nodemailer';
 
 export const sendEmail = async (options) => {
-  // Create transporter with Gmail SMTP config
   const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',       // host should be a string with quotes
-    port: 587,                    // port for TLS
-    secure: false,                // false for TLS (STARTTLS)
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: false, // STARTTLS
     auth: {
-      user: 'bikashsharma5151@gmail.com',
-      pass: 'mrbb xobt ayhc hecc',  // Your app password
+      user: process.env.SMTP_EMAIL,
+      pass: process.env.SMTP_PASSWORD,
     },
   });
 
-  // Email options
   const mailOptions = {
-    from: '"Test App" <bikashsharma5151@gmail.com>',  // sender address
-    to: options.email,           // recipient address
-    subject: options.subject,    // subject line
-    text: options.message,       // plain text body
-    // html: '<p>Your HTML here</p>',  // optional HTML body
+    from: `"LZY CRAZY" <${process.env.SMTP_EMAIL}>`,
+    to: options.email,
+    subject: options.subject,
+    text: options.message,
   };
 
-  // Send email
   const info = await transporter.sendMail(mailOptions);
   console.log('Message sent:', info.messageId);
-  // getTestMessageUrl only works with test accounts, so remove it here
 };
+
 

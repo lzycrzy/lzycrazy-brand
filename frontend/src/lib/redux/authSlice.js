@@ -15,6 +15,7 @@ try {
 const initialState = {
   isAuthenticated: localStorage.getItem('isAuthenticated') === 'true',
   user: user,
+  hiringInProgress: localStorage.getItem('hiringInProgress') === 'true', // NEW: Track hiring process
 };
 
 const authSlice = createSlice({
@@ -37,14 +38,38 @@ const authSlice = createSlice({
       }
     },
 
+    // NEW: Set hiring in progress
+    setHiringInProgress: (state, action) => {
+      state.hiringInProgress = action.payload;
+      localStorage.setItem('hiringInProgress', action.payload);
+    },
+
+    // NEW: Clear hiring process and complete login
+    completeHiringLogin: (state, action) => {
+      const userData = action.payload.data || null;
+      const token = action.payload.token;
+
+      state.isAuthenticated = true;
+      state.user = userData;
+      state.hiringInProgress = false;
+
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.removeItem('hiringInProgress');
+    },
+
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
+      state.hiringInProgress = false;
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('user');
+      localStorage.removeItem('hiringInProgress');
+      localStorage.removeItem('token');
     },
   },
 });
 
 export default authSlice.reducer;
-export const { login, logout } = authSlice.actions;
+export const { login, logout, setHiringInProgress, completeHiringLogin } = authSlice.actions;

@@ -25,7 +25,10 @@ import {
   storyView,
   getUserStories,
   getStoryViews,
-  submitApplication
+  submitApplication,
+  getMe,
+  likePost,
+  addComment
   // getAdminDashboard,
   // getSuperAdminDashboard,
   // getAllUsers,
@@ -71,9 +74,11 @@ router.post('/facebook-login',isAuthenticated, loginWithFacebook);
 //get posts
 router.get('/posts', isAuthenticated, getPosts);
 
+
+
 // Protected routes (any logged in user)
 router.get('/me', isAuthenticated, getMyProfile);
-
+router.get('/getMe',isAuthenticated,  getMe);
 
 //story
 router.get('/story', isAuthenticated, getStories);
@@ -105,4 +110,5 @@ router.post('/hiring', upload.single('video'), submitApplication);
 
 //enquiry
 router.post('/enquiry', createEnquiry);
+     
 export default router;

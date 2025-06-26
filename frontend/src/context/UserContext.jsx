@@ -1,64 +1,69 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import axios from '../lib/axios/axiosInstance';
-import { Loader } from 'lucide-react';
+import Loader from '../components/common/Spinner';
 
 const UserContext = createContext();
-
 export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [profilePic, setProfilePic] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [loading, setLoading] = useState(true);
+  const DEFAULT_PROFILE_PIC = 'https://i.ibb.co/2kR5zq0/default-avatar.png';
 
+  const [user, setUser] = useState(null);
+  const [profilePic, setProfilePic] = useState(DEFAULT_PROFILE_PIC);
+  const [displayName, setDisplayName] = useState('');
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // Ensure axios always sends credentials
+  axios.defaults.withCredentials = true;
 
   const fetchUser = async () => {
-    setLoading(true);
+    console.log('[Auth] Fetching user...');
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setUser(null);
-        return;
-      }
-      const res = await axios.get('/v1/users/me', {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
+      const res = await axios.get('/v1/users/me');
       const data = res.data;
+
+      if (!data || !data.profile) {
+        throw new Error('No user data returned');
+      }
+
+      console.log('[Auth] User fetched:', data);
+
       setUser(data);
-      setDisplayName(data.profile.name);
-      setProfilePic(`${data.profile.photoURL}?t=${Date.now()}`);
+      setDisplayName(data?.profile?.name || '');
+      setProfilePic(`${data?.profile?.photoURL || DEFAULT_PROFILE_PIC}?t=${Date.now()}`);
     } catch (error) {
-      console.error('Error fetching user:', error);
+      console.error('[Auth] Failed to fetch user:', error.response?.status, error.response?.data);
+      setUser(null); // force logout state on failure
     } finally {
-      setLoading(false);
+      setAuthChecked(true);
     }
   };
-  
 
   useEffect(() => {
     fetchUser();
   }, []);
 
-  const updateUser = (updated) => {
-    if (updated.name) setDisplayName(updated.name);
-    if (updated.photoURL) setProfilePic(`${updated.photoURL}?t=${Date.now()}`);
-  };
   const logout1 = () => {
     localStorage.clear();
     sessionStorage.clear();
     document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     setUser(null);
-    setProfilePic('');
+    setProfilePic(DEFAULT_PROFILE_PIC);
     setDisplayName('');
   };
 
   return (
     <UserContext.Provider
-      value={{ user, profilePic, displayName, fetchUser, updateUser,logout1}}
+      value={{
+        user,
+        profilePic,
+        displayName,
+        fetchUser,
+        logout1,
+        authChecked,
+      }}
     >
-      {children}
+      {authChecked ? children : <Loader />}
     </UserContext.Provider>
   );
 };

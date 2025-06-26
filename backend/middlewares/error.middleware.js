@@ -1,52 +1,45 @@
 class ErrorHandler extends Error {
   constructor(message, statusCode) {
     super(message);
-    this.statusCode = statusCode;
+    this.statusCode = statusCode || 500;
+    Error.captureStackTrace(this, this.constructor);
   }
 }
 
+
 //--
 export const errorMiddleware = (err, req, res, next) => {
-  err.message = err.message || 'Internal Server Error';
-  err.statusCode = err.statusCode || 500;
+  let statusCode = err.statusCode || 500;
+  let message = err.message || "Internal Server Error";
 
-  //--
+  // MongoDB Duplicate Key
   if (err.code === 11000) {
-    const message = `Duplicate ${Object.keys(err.keyValue)} Entered`;
-    err = new ErrorHandler(message, 400);
+    message = `Duplicate ${Object.keys(err.keyValue)} Entered`;
+    statusCode = 400;
   }
 
-  //--
-  if (err.name === 'JsonWebTokenError') {
-    const message = `Json Web Token Is Invalied. Try Again!`;
-    err = new ErrorHandler(message, 400);
+  // Mongoose Validation Error
+  if (err.name === "ValidationError") {
+    message = Object.values(err.errors).map((e) => e.message).join(", ");
+    statusCode = 400;
   }
 
-  //--token expired
-  if (err.name === 'TokenExpiredError') {
-    const message = `Json Web Token Is Expired. Try to Login Again!`;
-    err = new ErrorHandler(message, 400);
+  // JWT Errors
+  if (err.name === "JsonWebTokenError") {
+    message = "Invalid token. Please login again.";
+    statusCode = 401;
   }
 
-  //--cast Error
-  if (err.name === 'CastError') {
-    const message = `Invalid ${err.path}`;
-    err = new ErrorHandler(message, 400);
+  if (err.name === "TokenExpiredError") {
+    message = "Token has expired. Please login again.";
+    statusCode = 401;
   }
 
-  // console.log(err)
-
-  //--
-  const errorMessage = err.errors
-    ? Object.values(err.errors)
-        .map((error) => error.message)
-        .join(' ')
-    : err.message;
-
-  return res.status(err.statusCode).json({
+  return res.status(statusCode).json({
     success: false,
-    message: errorMessage,
+    message,
   });
 };
+
 
 export default ErrorHandler;

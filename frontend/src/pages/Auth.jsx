@@ -19,12 +19,12 @@ import email from '../assets/mail.png';
 import lock from '../assets/lock.png';
 import identity from '../assets/identity.png';
 import country from '../assets/cntry.png';
-import ForgotPassword from '../components/ForgotPassword';
+import ForgotPassword from '../components/Auth/ForgotPassword';
 
-import Searchbar from '../components/Searchbar';
+import Searchbar from '../components/common/Searchbar';
 import countryList from '../data/countries.json';
 import CountryCodes from '../data/CountryCodes.json';
-import Loader from '../components/Spinner';
+import Loader from '../components/common/Spinner';
 import { useTranslation } from 'react-i18next'; // Add this at the top
 import { toast } from 'react-toastify';
 import { useUser } from '../context/UserContext';
@@ -62,29 +62,66 @@ const Auth = () => {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+  
+    const { email, password } = loginData;
+  
+    // ✅ Basic validations before triggering loading or API call
+    if (!email || !password) {
+      toast.error('Please enter both email and password');
+      return;
+    }
+  
+    // ✅ Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+  
     try {
+      setLoading(true); // ✅ Only show loading during API call
+  
       const { data } = await axios.post('/v1/users/login', loginData);
+  
+      // ✅ Save to local storage
       if (data?.token) localStorage.setItem('token', data.token);
       if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
+  
+      // ✅ Update Redux store
       dispatch(login({ success: true, data: data.user, token: data.token }));
-      fetchUser(); 
+  
+      // ✅ Update context
+      fetchUser();
+  
+      // ✅ Success toast
       toast.success(`🎉 Welcome back, ${data.user.fullName || 'User'}!`);
-      
-      navigate('/dashboard',{ replace: true, state: { welcome: true } });
+  
+      // ✅ Delay navigation so toast appears
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true, state: { welcome: true } });
+      }, 300);
+  
     } catch (error) {
-      alert(error.response?.data?.message || 'Login failed');
-      console.error('Login error:', error);
+      const msg = error?.response?.data?.message || 'Login failed. Try again.';
+      toast.error(msg);
+      console.error('Login error:', msg);
+  
     } finally {
       setLoading(false);
     }
   };
+  
+  
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
   
-    const { fullName, email, phone, password } = registerData;
+    // Trim inputs first
+    const fullName = registerData.fullName?.trim();
+    const email = registerData.email?.trim();
+    const phone = registerData.phone?.trim();
+    const password = registerData.password?.trim();
   
     // Check all fields
     if (!fullName || !email || !phone || !password) {
@@ -93,7 +130,15 @@ const Auth = () => {
       return;
     }
   
-    // Email regex validation
+    // Name validation: only letters and spaces, min 3 characters
+    const nameRegex = /^[A-Za-z\s.]{2,}$/;
+    if (!nameRegex.test(fullName)) {
+      toast.error('Name must be at least 2 characters and only contain letters/spaces');
+      setLoading(false);
+      return;
+    }
+  
+    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.error('Invalid email format');
@@ -101,44 +146,78 @@ const Auth = () => {
       return;
     }
   
-    // Phone validation for India (starts with 6-9, total 10 digits)
-    // const phoneRegex = /^[6-9]\d{9}$/;
-    // if (!phoneRegex.test(phone)) {
-    //   toast.error('Enter a valid Indian mobile number');
-    //   setLoading(false);
-    //   return;
-    // }
+    // Optional: block temporary email domains
+    const blockedDomains = ['tempmail.com', '10minutemail.com', 'mailinator.com'];
+    if (blockedDomains.some(domain => email.endsWith(`@${domain}`))) {
+      toast.error('Temporary email addresses are not allowed');
+      setLoading(false);
+      return;
+    }
+  
+    // Phone validation (India)
+    const rawPhone = registerData.phone?.trim();
+const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10);  // keep last 10 digits
+
+const phoneRegex = /^[6-9]\d{9}$/;
+if (!phoneRegex.test(phone1)) {
+  toast.error('Enter a valid 10-digit Indian mobile number');
+  setLoading(false);
+  return;
+}
   
     // Password validation
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).{8,}$/;
     if (!passwordRegex.test(password)) {
-      toast.error(
-        'Password must be 8+ chars, include uppercase, lowercase, number & special character'
-      );
+      toast.error('Password must be 8+ characters and include uppercase, lowercase, number, and special character');
+      setLoading(false);
+      return;
+    }
+  
+    // Prevent password that contains name or email
+    if (
+      password.toLowerCase().includes(fullName.toLowerCase()) ||
+      password.includes(email)
+    ) {
+      toast.error('Password should not contain your name or email');
+      setLoading(false);
+      return;
+    }
+  
+    // Optional: prevent common weak passwords
+    const weakPasswords = ['12345678', 'password', 'welcome123', 'admin123', 'qwerty'];
+    if (weakPasswords.includes(password.toLowerCase())) {
+      toast.error('Choose a stronger, less common password');
       setLoading(false);
       return;
     }
   
     try {
-      const response = await axios.post('/v1/users/register', registerData);
+      const response = await axios.post('/v1/users/register', {
+        fullName,
+        email,
+        phone,
+        password,
+      });
+  
       const { user, token } = response.data;
   
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       dispatch(login({ success: true, data: user, token }));
-      fetchUser(); 
+      fetchUser();
   
       toast.success('Registration successful!');
       navigate('/dashboard', { replace: true, state: { welcome: true } });
     } catch (error) {
-      const msg = error.response?.data?.message || 'Registration failed';
+      const msg = error?.response?.data?.message || 'Registration failed';
       toast.error(msg);
-      console.error('Registration error:', error);
+      console.error('Registration error:', msg);
     } finally {
       setLoading(false);
     }
   };
+  
 //google login
   const handleGoogleLogin = async () => {
     try {
@@ -396,22 +475,22 @@ const Auth = () => {
   
         {/* Footer - Always at the bottom */}
         <footer className="w-full border-t border-gray-200 bg-[#ebf3fe] py-4 text-sm text-gray-600">
-          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-between px-4 sm:px-20 gap-4">
-            <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
-              <div>India</div>
-              <div className="ml-2">|</div>
-              <div>LzyCrazy offered in:</div>
-              <button onClick={() => i18n.changeLanguage('hi')} className="ml-2 text-blue-600 hover:underline">हिन्दी</button>
-              <button onClick={() => i18n.changeLanguage('en')} className="ml-2 text-blue-600 hover:underline">English</button>
-              <button onClick={() => i18n.changeLanguage('bn')} className="ml-2 text-blue-600 hover:underline">বাংলা</button>
-              <button onClick={() => i18n.changeLanguage('ar')} className="ml-2 text-blue-600 hover:underline">العربية</button>
-            </div>
-            <div className="flex gap-6 justify-center sm:justify-end">
-              <Link to="/privacy" className="hover:underline">Privacy</Link>
-              <Link to="/terms" className="hover:underline">Terms</Link>
-            </div>
-          </div>
-        </footer>
+      <div className="flex flex-col sm:flex-row flex-wrap items-center justify-between px-4 sm:px-20 gap-4">
+        <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
+          <span>India</span>
+          <span className="mx-2">|</span>
+          <span>LzyCrazy offered in:</span>
+          <button onClick={() => i18n.changeLanguage('hi')} className="ml-2 text-blue-600 hover:underline">हिन्दी</button>
+          <button onClick={() => i18n.changeLanguage('en')} className="ml-2 text-blue-600 hover:underline">English</button>
+          <button onClick={() => i18n.changeLanguage('bn')} className="ml-2 text-blue-600 hover:underline">বাংলা</button>
+          <button onClick={() => i18n.changeLanguage('ar')} className="ml-2 text-blue-600 hover:underline">العربية</button>
+        </div>
+        <div className="flex gap-6 justify-center sm:justify-end">
+          <Link to="/privacy" className="hover:underline">Privacy</Link>
+          <Link to="/terms" className="hover:underline">Terms</Link>
+        </div>
+      </div>
+    </footer>
       </div>
     </>
   )};
