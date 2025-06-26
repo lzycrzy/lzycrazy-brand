@@ -148,8 +148,8 @@ export const forgotAdminPassword = catchAsyncErrors(async (req, res, next) => {
   const resetToken = admin.getResetPasswordToken();
   await admin.save({ validateBeforeSave: false });
 
-  const resetURL = `${req.protocol}://${req.get('host')}/api/v1/admin/password/reset/${resetToken}`;
-
+  const resetURL = `${process.env.DASHBOARD_URL}/password/reset/${resetToken}`;
+console.log(resetURL);
   const message = `Reset your password using the following link: \n\n ${resetURL}`;
 
   try {
@@ -158,7 +158,7 @@ export const forgotAdminPassword = catchAsyncErrors(async (req, res, next) => {
       subject: 'Admin Password Reset',
       message,
     });
-
+     
     res.status(200).json({ success: true, message: `Email sent to ${admin.email}` });
   } catch (error) {
     admin.resetPasswordToken = undefined;
@@ -179,13 +179,14 @@ export const resetAdminPassword = catchAsyncErrors(async (req, res, next) => {
   });
 
   if (!admin) return next(new ErrorHandler('Token is invalid or expired', 400));
-
+   console.log(req.body.password)
   admin.password = req.body.password;
   admin.resetPasswordToken = undefined;
   admin.resetPasswordExpire = undefined;
   await admin.save();
 
-  generateTokenAdmin(admin, 200, res);
+  generateTokenAdmin(admin, "Password reset successful", 200, res);
+
 });
 
 // GET ADMIN DASHBOARD DATA WITH STATISTICS
@@ -367,3 +368,42 @@ export const deleteApplication = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+export const requestAdminPasswordReset = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+    const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+    // Send email logic
+    await sendResetEmail(email, token, 'admin');
+
+    res.status(200).json({ message: 'Reset email sent' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to send reset email', error: err.message });
+  }
+};
+
+// Step 2: Reset Password
+// export const resetAdminPassword = async (req, res) => {
+//   const { token } = req.params;
+//   const { password } = req.body;
+
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     const admin = await Admin.findById(decoded.id);
+//     if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+//     const hashed = await bcrypt.hash(password, 12);
+//     admin.password = hashed;
+//     await admin.save();
+
+//     res.status(200).json({ message: 'Password reset successful' });
+//   } catch (err) {
+//     res.status(400).json({ message: 'Invalid or expired token', error: err.message });
+//   }
+// };

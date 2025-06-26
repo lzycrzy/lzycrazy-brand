@@ -12,13 +12,24 @@ const ResetPassword = () => {
   const handleReset = async (e) => {
     e.preventDefault();
 
+    // ✅ Regex validation
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      setError(
+        'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
+      );
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
     try {
-      const res = await axios.post(`/users/password/reset/${token}`, {
+      const res = await axios.put(`/admin/password/reset/${token}`, {
         password,
         confirmPassword,
       });
