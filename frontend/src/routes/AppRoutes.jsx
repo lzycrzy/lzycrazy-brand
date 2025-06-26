@@ -53,8 +53,7 @@ const AppRoutes = () => (
       <Route path="/profile" element={<Profile />} />
       <Route path="/ads" element={<AddAdvertisement />} />
       <Route path="/product" element={<AddProduct />} />
-          <Route path="/add" element={< AddPage/>} />
-
+      <Route path="/add" element={< AddPage/>} />
     </Route>
 
     {/* Fallback Routes */}
