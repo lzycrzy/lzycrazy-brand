@@ -19,6 +19,7 @@ import MarketplaceHome from '../pages/MarketPlace';
 import EnquiryForm from '../components/EnquiryForm';
 import AddAdvertisement from '../pages/AddAdvertisement';
 import VerifiedPage from '../pages/Verify';
+import AddPage from '../pages/AddPage';
 
 const AppRoutes = () => (
   <Routes>
@@ -44,12 +45,15 @@ const AppRoutes = () => (
     <Route path="/property-view" element={<PropertyViewPage />} />
     <Route path="/verify" element={<VerifiedPage />} />
          
+
+
     {/* Private Routes */}
     <Route element={<RequireAuth />}>
       <Route path="/dashboard" element={<Home />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/ads" element={<AddAdvertisement />} />
       <Route path="/product" element={<AddProduct />} />
+      <Route path="/add" element={< AddPage/>} />
     </Route>
 
     {/* Fallback Routes */}
