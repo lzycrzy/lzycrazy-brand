@@ -25,7 +25,7 @@ const ForgotPassword = ({ onClose }) => {
     setMsg('');
     setError('');
     try {
-      const res = await axios.post('/users/password/forgot', { email });
+      const res = await axios.post('/admin/password/forgot', { email });
       setMsg(res.data.message);
       setSubmitted(true);
     } catch (err) {
