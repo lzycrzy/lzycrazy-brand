@@ -1,15 +1,41 @@
 export const generateTokenAdmin = (admin, message, statusCode, res) => {
   const token = admin.generateJsonWebToken(); // must be defined on model
 
-  res.status(statusCode).json({
-    success: true,
-    message,
-    admin: {
-      _id: admin._id,
-      fullName: admin.fullName,
-      email: admin.email,
-      role: admin.role,
-    },
-    token,
-  });
+  const { password, ...adminSafe } = admin.toObject(); // remove password
+
+  // res.status(statusCode).json({
+  //   success: true,
+  //   message,
+  //   admin: {
+  //     _id: admin._id,
+  //     fullName: admin.fullName,
+  //     email: admin.email,
+  //     role: admin.role,
+  //   },
+  //   token,
+  // });
+
+  res
+    .status(statusCode)
+    .cookie('token', token, {
+      expires: new Date(
+        Date.now() + process.env.COOKIE_EXPIRES * 24 * 60 * 60 * 1000,
+      ),
+      httpOnly: true,
+      sameSite: 'None',
+      secure: true,
+      path: '/',
+    })
+    .json({
+      success: true,
+      message,
+      admin: {
+        _id: admin._id,
+        fullName: admin.fullName,
+        email: admin.email,
+        role: admin.role,
+      },
+      token,
+    });
+
 };

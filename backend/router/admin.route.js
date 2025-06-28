@@ -66,10 +66,10 @@ router.delete(
   authorizeRolesAdimin('admin'),
   deleteSingleUser,
 );
-router.get('/enquiry', getAllEnquiries); 
+router.get('/enquiry', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), getAllEnquiries); 
 
-router.get('/applications', getAllApplications);
+router.get('/applications', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), getAllApplications);
 
-router.delete('/applications/:id', deleteApplication);
+router.delete('/applications/:id', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), deleteApplication);
 
 export default router;
