@@ -496,3 +496,4 @@ if (!phoneRegex.test(phone1)) {
   )};
 
 export default Auth;
+
