@@ -20,3 +20,7 @@
     animation: spin 12s linear infinite;
   }
 }
+
+.no-scroll {
+  overflow: hidden;
+}

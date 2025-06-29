@@ -4,23 +4,16 @@ import ReactDOM from 'react-dom';
 import axios from '../../lib/axios/axiosInstance';
 import Loader from '../common/Spinner';
 import { toast } from 'react-toastify';
+import RecordingModal from './RecordingModal';
 
 const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess }) => {
-  const videoRef = useRef(null);
+
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
-  const [videoFile, setVideoFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Video recording states
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordedVideoURL, setRecordedVideoURL] = useState(null);
+  const [recordingMode, setRecordingMode] = useState(false);
+  const [videoFile, setVideoFile] = useState(null);
   const [recordedVideoBlob, setRecordedVideoBlob] = useState(null);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
-  const [recordingMode, setRecordingMode] = useState('upload'); // 'upload' or 'record'
-  const recordingTimerRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
 
   const [formData, setFormData] = useState({
     country: '',
@@ -29,7 +22,7 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
     education: '',
     experienceLevel: '',
     jobCategory: '',
-    introduction: '',
+    introduction: ''
   });
 
   const handleChange = (e) => {
@@ -47,171 +40,6 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleVideoChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const maxSize = 50 * 1024 * 1024; // 50MB (matching backend)
-    const acceptedTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/mov', 'video/avi', 'video/mkv'];
-
-    if (!acceptedTypes.includes(file.type)) {
-      toast.error('Invalid file type. Please upload a video file.');
-      return;
-    }
-
-    if (file.size > maxSize) {
-      toast.error('File too large. Please upload a video less than 50MB.');
-      return;
-    }
-
-    // Check video duration
-    const video = document.createElement('video');
-    video.preload = 'metadata';
-    
-    video.onloadedmetadata = () => {
-      window.URL.revokeObjectURL(video.src);
-      const duration = video.duration;
-      
-      if (duration > 15) {
-        toast.error('Video must be 15 seconds or less. Please upload a shorter video.');
-        e.target.value = ''; // Clear the input
-        return;
-      }
-      
-      // Video is valid
-      setVideoFile(file);
-      setRecordedVideoURL(null);
-      setRecordedVideoBlob(null);
-      toast.success('Video uploaded successfully!');
-    };
-    
-    video.onerror = () => {
-      toast.error('Error loading video file. Please try another file.');
-      e.target.value = ''; // Clear the input
-    };
-    
-    video.src = URL.createObjectURL(file);
-  };
-
-  // Start video recording
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: 'user'
-        },
-        audio: true,
-      });
-
-      // Set stream to video element for live preview during recording
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.muted = true; // Prevent feedback
-        videoRef.current.playsInline = true;
-        await videoRef.current.play();
-      }
-
-      // Set up MediaRecorder with better browser compatibility
-      let options = { mimeType: 'video/webm;codecs=vp9' };
-      
-      // Fallback for Safari and other browsers
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        options = { mimeType: 'video/webm' };
-        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-          options = { mimeType: 'video/mp4' };
-        }
-      }
-
-      const recorder = new MediaRecorder(stream, options);
-      const chunks = [];
-
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunks.push(event.data);
-        }
-      };
-
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: recorder.mimeType });
-        const url = URL.createObjectURL(blob);
-        setRecordedVideoURL(url);
-        setRecordedVideoBlob(blob);
-        setVideoFile(null); // Clear uploaded file if any
-        
-        // Stop all tracks and clear video element
-        stream.getTracks().forEach(track => track.stop());
-        if (videoRef.current) {
-          videoRef.current.srcObject = null;
-        }
-        
-        toast.success('Video recorded successfully!');
-      };
-
-      // Start recording
-      recorder.start();
-      setMediaRecorder(recorder);
-      mediaRecorderRef.current = recorder;
-      setIsRecording(true);
-      setRecordingTime(0);
-
-      // Start 15-second timer with automatic stop
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingTime(prev => {
-          const newTime = prev + 1;
-          
-          // Stop recording at exactly 15 seconds
-          if (newTime >= 15) {
-            if (recorder.state === 'recording') {
-              recorder.stop();
-            }
-            setIsRecording(false);
-            clearInterval(recordingTimerRef.current);
-            return 15;
-          }
-          return newTime;
-        });
-      }, 1000);
-
-    } catch (error) {
-      console.error('Error starting recording:', error);
-      toast.error('Unable to access camera and microphone. Please check permissions.');
-    }
-  };
-
-  // Stop video recording manually
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      if (mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.stop();
-      }
-      setIsRecording(false);
-      clearInterval(recordingTimerRef.current);
-    }
-  };
-
-  // Re-record video
-  const reRecord = () => {
-    if (recordedVideoURL) {
-      URL.revokeObjectURL(recordedVideoURL);
-    }
-    setRecordedVideoURL(null);
-    setRecordedVideoBlob(null);
-    setRecordingTime(0);
-  };
-
-  // Delete recorded video
-  const deleteRecording = () => {
-    if (recordedVideoURL) {
-      URL.revokeObjectURL(recordedVideoURL);
-    }
-    setRecordedVideoURL(null);
-    setRecordedVideoBlob(null);
-    setRecordingTime(0);
-    toast.success('Recording deleted');
-  };
-
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
     return () => {
@@ -227,7 +55,7 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
       education: 'Education',
       experienceLevel: 'Experience Level',
       jobCategory: 'Job Category',
-      introduction: 'Introduction'
+      introduction: 'Introduction',
     };
 
     for (const [field, label] of Object.entries(requiredFields)) {
@@ -267,6 +95,7 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
     
     setIsSubmitting(true);
 
+    console.log(formData)
     const form = new FormData();
     
     // Add form data
@@ -274,12 +103,13 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
       form.append(key, formData[key].trim());
     });
     
-    // Add video (either uploaded file or recorded blob)
+    // Add video (recorded blob)
     if (recordedVideoBlob) {
       // Convert blob to file for upload
       const videoFileFromBlob = new File([recordedVideoBlob], 'intro-video.webm', {
         type: 'video/webm',
       });
+      
       form.append('video', videoFileFromBlob);
     } else if (videoFile) {
       form.append('video', videoFile);
@@ -323,27 +153,8 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
     setVideoFile(null);
     
     // Clear recording states
-    setRecordedVideoURL(null);
     setRecordedVideoBlob(null);
-    setRecordingTime(0);
-    setIsRecording(false);
-    setRecordingMode('upload');
-    
-    // Clear timers
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-    }
-    
-    // Stop any ongoing recording
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-    }
-    
-    // Stop camera if running
-    if (videoRef.current?.srcObject) {
-      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      videoRef.current.srcObject = null;
-    }
+    setRecordingMode(false);
   };
 
   const handleClose = () => {
@@ -356,31 +167,6 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
     onBack();
   };
 
-  // Cleanup on component unmount
-  useEffect(() => {
-    return () => {
-      // Cleanup recording timer
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-      }
-      
-      // Cleanup video URL
-      if (recordedVideoURL) {
-        URL.revokeObjectURL(recordedVideoURL);
-      }
-      
-      // Stop any ongoing recording
-      if (mediaRecorderRef.current && isRecording) {
-        mediaRecorderRef.current.stop();
-      }
-      
-      // Stop camera
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-        videoRef.current.srcObject = null;
-      }
-    };
-  }, []);
 
   // Get current word count for introduction
   const getWordCount = () => {
@@ -418,9 +204,13 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
         >
           ← Back to login
         </button>
+        <div className='px-2 text-gray-600 text-sm mb-2'>
+          <span>Your LzyCrazyID: lcxxxxxxx{userData.tempUserData.companyId.slice(10)}</span>
+        </div>
 
-        <div className="max-h-[calc(95vh-200px)] flex-grow overflow-y-auto pr-2">
+        <div className="max-h-[calc(95vh-200px)] flex-grow overflow-y-auto pr-2 pl-2">
           <form className="space-y-4" onSubmit={handleSubmit}>
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
                 required
@@ -503,14 +293,15 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
               </div>
             </div>
 
-            <div>
+            <div className=''>
               <label className="mb-1 block text-sm font-medium text-gray-700">
                 15s Video Introduction <span className="text-red-500">*</span>
+                <span className={`${recordedVideoBlob ? "flex text-green-500" : "hidden"}`}>Video Recorded Successfully</span>
               </label>
               
               {/* Recording Mode Toggle */}
               <div className="mt-2 mb-4 flex rounded-lg border border-gray-300 p-1">
-                <button
+                {/* <button
                   type="button"
                   onClick={() => setRecordingMode('upload')}
                   className={`flex-1 rounded-md py-2 px-3 text-sm font-medium transition-colors ${
@@ -520,22 +311,19 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
                   }`}
                 >
                   Upload File
-                </button>
+                </button> */}
+
                 <button
                   type="button"
-                  onClick={() => setRecordingMode('record')}
-                  className={`flex-1 rounded-md py-2 px-3 text-sm font-medium transition-colors ${
-                    recordingMode === 'record'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  onClick={() => setRecordingMode(true)}
+                  className={` flex-1 rounded-md py-2 px-3 text-sm font-medium transition-colors`}
                 >
                   Record Video
                 </button>
               </div>
 
               {/* File Upload Mode */}
-              {recordingMode === 'upload' && (
+              {/* {recordingMode === 'upload' && (
                 <>
                   <input
                     type="file"
@@ -558,124 +346,13 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
                     </div>
                   )}
                 </>
-              )}
+              )} */}
 
-              {/* Video Recording Mode */}
-              {recordingMode === 'record' && (
-                <>
-                  {!recordedVideoURL && !isRecording && (
-                    <div className="mt-2">
-                      <button
-                        type="button"
-                        onClick={startRecording}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-md font-medium flex items-center justify-center gap-2"
-                      >
-                        <span className="w-3 h-3 bg-white rounded-full"></span>
-                        Start Recording (15s)
-                      </button>
-                      <p className="mt-2 text-xs text-gray-500">
-                        Click to start recording your 15-second introduction video. Camera will start automatically when recording begins.
-                      </p>
-                    </div>
-                  )}
-
-                  {isRecording && (
-                    <div className="mt-2">
-                      <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                            <span className="text-red-700 font-medium">Recording...</span>
-                          </div>
-                          <span className="text-red-700 font-mono text-lg">
-                            {recordingTime}/15s
-                          </span>
-                        </div>
-                        
-                        <div className="w-full bg-red-200 rounded-full h-2 mb-3">
-                          <div 
-                            className="bg-red-600 h-2 rounded-full transition-all duration-1000"
-                            style={{ width: `${(recordingTime / 15) * 100}%` }}
-                          ></div>
-                        </div>
-                        
-                        <button
-                          type="button"
-                          onClick={stopRecording}
-                          className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md"
-                        >
-                          Stop Recording
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {recordedVideoURL && (
-                    <div className="mt-2">
-                      <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                        <p className="text-green-700 font-medium mb-3">✅ Video recorded successfully!</p>
-                        
-                        <video
-                          src={recordedVideoURL}
-                          controls
-                          className="w-full rounded-md border mb-3"
-                          style={{ maxHeight: '200px' }}
-                        />
-                        
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={reRecord}
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-md text-sm"
-                          >
-                            Re-record
-                          </button>
-                          <button
-                            type="button"
-                            onClick={deleteRecording}
-                            className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-md text-sm"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
+              {recordingMode && <RecordingModal setRecordingMode={setRecordingMode} recordingMode={recordingMode} setRecordedVideoBlob={setRecordedVideoBlob} setVideoFile={setVideoFile} />}
             </div>
 
             {/* Recording Live Preview - Only show during recording */}
-            {isRecording && (
-              <div className="relative mt-4 rounded-md border-2 border-red-500 bg-red-50 p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                  <p className="text-sm text-red-600 font-medium">🔴 Recording Live - {recordingTime}/15s</p>
-                </div>
-                
-                <div className="relative w-full">
-                  <video
-                    ref={videoRef}
-                    className="w-full rounded-md bg-black border-2 border-red-400"
-                    muted
-                    autoPlay
-                    playsInline
-                    style={{ maxHeight: '400px' }}
-                  />
-                  {/* Recording indicator overlay */}
-                  <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded text-xs font-bold">
-                    REC
-                  </div>
-                  <div className="absolute top-2 right-2 bg-black bg-opacity-60 text-white px-2 py-1 rounded text-sm">
-                    {15 - recordingTime}s left
-                  </div>
-                </div>
-                
-                <p className="mt-2 text-center text-sm font-medium text-red-700">
-                  Speak clearly and introduce yourself! Recording will auto-stop at 15 seconds.
-                </p>
-              </div>
-            )}
+            
 
             <div className="flex justify-between gap-3 pt-6 border-t">
               <button
