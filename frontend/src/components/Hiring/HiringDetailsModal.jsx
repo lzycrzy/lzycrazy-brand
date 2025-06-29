@@ -8,8 +8,6 @@ import RecordingModal from './RecordingModal';
 
 const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess }) => {
 
-  const canvasRef = useRef(null);
-  const intervalRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [recordingMode, setRecordingMode] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
@@ -301,17 +299,6 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
               
               {/* Recording Mode Toggle */}
               <div className="mt-2 mb-4 flex rounded-lg border border-gray-300 p-1">
-                {/* <button
-                  type="button"
-                  onClick={() => setRecordingMode('upload')}
-                  className={`flex-1 rounded-md py-2 px-3 text-sm font-medium transition-colors ${
-                    recordingMode === 'upload'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  Upload File
-                </button> */}
 
                 <button
                   type="button"
@@ -321,32 +308,6 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
                   Record Video
                 </button>
               </div>
-
-              {/* File Upload Mode */}
-              {/* {recordingMode === 'upload' && (
-                <>
-                  <input
-                    type="file"
-                    accept="video/*"
-                    onChange={handleVideoChange}
-                    className="mt-1 w-full text-sm file:mr-4 file:rounded file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white hover:file:bg-blue-700"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Max size: 50MB, Max duration: 15 seconds. Formats: MP4, WebM, MOV, AVI, etc.</p>
-                  
-                  {videoFile && (
-                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
-                      <p className="text-sm text-green-700 font-medium">✅ Video uploaded successfully!</p>
-                      <p className="text-xs text-green-600 mt-1">File: {videoFile.name}</p>
-                      <video
-                        src={URL.createObjectURL(videoFile)}
-                        controls
-                        className="w-full rounded-md border mt-2"
-                        style={{ maxHeight: '150px' }}
-                      />
-                    </div>
-                  )}
-                </>
-              )} */}
 
               {recordingMode && <RecordingModal setRecordingMode={setRecordingMode} recordingMode={recordingMode} setRecordedVideoBlob={setRecordedVideoBlob} setVideoFile={setVideoFile} />}
             </div>
