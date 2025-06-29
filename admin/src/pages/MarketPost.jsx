@@ -25,6 +25,7 @@ const NewsDashboard = () => {
       thumbnail: '/api/placeholder/60/40',
       videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
     },
+    
     {
       id: 2,
       title: 'Breaking News Live Updates: Sri Lanka Speaker Recognises Ranil Wickremesinghe As Prime Minister',
