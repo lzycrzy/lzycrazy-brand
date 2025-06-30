@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { Counter } from './Counter.js'; // Make sure path is correct
+import { Counter } from './Counter.js';
 
 const userSchema = new mongoose.Schema({
   fullName: {
@@ -57,26 +57,20 @@ const userSchema = new mongoose.Schema({
   likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
   sharedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
   stories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Story' }],
-}, { timestamps: true }); //  this is important for tracking creation date
+}, { timestamps: true });
 
-//  Pre-save hook to generate companyId
 userSchema.pre('save', async function (next) {
   try {
+    // Only generate companyId for new users
     if (this.isNew && !this.companyId) {
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, '0');
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const yyyy = now.getFullYear();
-      const dateStr = `${dd}${mm}${yyyy}`;
-
       const counter = await Counter.findOneAndUpdate(
-        { date: dateStr },
+        {},
         { $inc: { count: 1 } },
         { new: true, upsert: true }
       );
 
-      const paddedCount = String(counter.count).padStart(3, '0');
-      this.companyId = `lc${dateStr}${paddedCount}`;
+      const paddedCount = String(counter.count).padStart(4, '0'); // e.g., 0001, 0002
+      this.companyId = `lc${paddedCount}`;
     }
 
     if (!this.isModified('password')) return next();
@@ -90,19 +84,16 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-//  Password comparison
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-//  JWT generation
 userSchema.methods.generateJsonWebToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES,
   });
 };
 
-// Forgot password token
 userSchema.methods.getResetPasswordToken = function () {
   const resetToken = crypto.randomBytes(20).toString('hex');
   this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
