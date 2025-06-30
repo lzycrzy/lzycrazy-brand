@@ -942,3 +942,28 @@ export const submitApplication = async (req, res) => {
     res.status(500).json({ message: 'Error submitting application' });
   }
 };
+
+
+
+export const checkEmail = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+
+  try {
+    const user = await userModel.findOne({ email: email.toLowerCase().trim() });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.companyId) {
+      return res.status(400).json({ message: 'Company ID not available yet' });
+    }
+
+    return res.status(200).json({ companyId: user.companyId,name: user.fullName });
+  } catch (error) {
+    console.error('Error checking companyId by email:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};

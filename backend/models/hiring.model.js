@@ -2,6 +2,11 @@
 import mongoose from 'mongoose';
 
 const hiringSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'Name is required'],
+    trim: true
+  },
   country: {
     type: String,
     required: [true, 'Country is required'],
