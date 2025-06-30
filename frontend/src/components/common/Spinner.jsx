@@ -81,71 +81,84 @@
 
 
 
-// src/components/Loader.jsx
+// // src/components/Loader.jsx
+// import React from 'react';
+
+// const Loader = () => {
+//   return (
+//     <div className="overlay">
+//       <div className="loading-bar">
+//         <div className="blue-bar"></div>
+//       </div>
+
+//       <style>
+//         {`
+//           * {
+//             margin: 0;
+//             padding: 0;
+//             box-sizing: border-box;
+//           }
+
+//           .overlay {
+//             position: fixed;
+//             top: 0;
+//             left: 0;
+//             width: 100vw;
+//             height: 100vh;
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             // background-color: rgba(255, 255, 255, 0.3); /* translucent */
+//             backdrop-filter: blur(8px); /* blur effect */
+//             -webkit-backdrop-filter: blur(8px); /* Safari support */
+//             z-index: 9999;
+//           }
+
+//           .loading-bar {
+//             width: 130px;
+//             height: 5px;
+//             border-radius: 2px;
+//             background-color: #fff;
+//             position: relative;
+//             overflow: hidden;
+//           }
+
+//           .blue-bar {
+//             height: 100%;
+//             width: 68px;
+//             position: absolute;
+//             transform: translate(-34px);
+//             background-color: #0a66c2;
+//             border-radius: 2px;
+//             animation: initial-loading 1.5s ease infinite;
+//           }
+
+//           @keyframes initial-loading {
+//             0% {
+//               transform: translate(-34px);
+//             }
+//             50% {
+//               transform: translate(96px);
+//             }
+//             100% {
+//               transform: translate(-34px);
+//             }
+//           }
+//         `}
+//       </style>
+//     </div>
+//   );
+// };
+
+// export default Loader;
+
+
 import React from 'react';
 
 const Loader = () => {
   return (
-    <div className="overlay">
-      <div className="loading-bar">
-        <div className="blue-bar"></div>
-      </div>
-
-      <style>
-        {`
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-
-          .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            // background-color: rgba(255, 255, 255, 0.3); /* translucent */
-            backdrop-filter: blur(8px); /* blur effect */
-            -webkit-backdrop-filter: blur(8px); /* Safari support */
-            z-index: 9999;
-          }
-
-          .loading-bar {
-            width: 130px;
-            height: 5px;
-            border-radius: 2px;
-            background-color: #fff;
-            position: relative;
-            overflow: hidden;
-          }
-
-          .blue-bar {
-            height: 100%;
-            width: 68px;
-            position: absolute;
-            transform: translate(-34px);
-            background-color: #0a66c2;
-            border-radius: 2px;
-            animation: initial-loading 1.5s ease infinite;
-          }
-
-          @keyframes initial-loading {
-            0% {
-              transform: translate(-34px);
-            }
-            50% {
-              transform: translate(96px);
-            }
-            100% {
-              transform: translate(-34px);
-            }
-          }
-        `}
-      </style>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-white/60">
+      <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 };
