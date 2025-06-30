@@ -4,6 +4,8 @@ import {
 } from 'lucide-react';
 
 import instance from '../utils/axios';
+import {toast} from 'react-toastify';
+import ConfirmModal from '../components/Product/ConfirmModal';
 
 const AddCategory = () => {
   const [categories, setCategories] = useState([]);
@@ -92,6 +94,7 @@ const AddCategory = () => {
   };
 
   const handleNameChange = (value, type = 'category', subIndex = null) => {
+
     if (type === 'category') {
       setCategoryData(prev => ({ ...prev, name: value }));
     } else {
@@ -266,14 +269,17 @@ const AddCategory = () => {
 
   const handleCreateCategory = async () => {
     if (!categoryData.imageData || !categoryData.name) {
-      alert('Please upload an image and enter a category name!');
+      toast.error('Please upload an image and enter a category name!');
       return;
     }
+
+    console.log(categoryData)
+    // return;
 
     setIsSubmitting(true);
     try {
       const validSubcategories = categoryData.subcategories
-        .filter(sub => sub.imageData && sub.name)
+        .filter(sub => sub.name !== '')
         .map(sub => ({
           name: sub.name,
           imageData: sub.imageData,
@@ -282,6 +288,12 @@ const AddCategory = () => {
           )
         }));
 
+       const isImageAvailable = validSubcategories.every(sub => sub.imageData);
+
+        if (!isImageAvailable) {
+          toast.error("Image is required for all categories and subcategories.");
+        }
+
       const payload = {
         name: categoryData.name,
         imageData: categoryData.imageData,
@@ -289,7 +301,11 @@ const AddCategory = () => {
         createdBy: null 
       };
 
-      const response = await instance.post('/categories', payload);
+      let response;
+      if (!editingId) 
+        response = await instance.post('/categories', payload)
+      else
+        response = await instance.put(`/categories/${editingId}`, payload);
 
       if (response.data.success) {
         const newCategory = {
@@ -302,10 +318,10 @@ const AddCategory = () => {
             cat.id === editingId ? { ...newCategory, id: editingId } : cat
           ));
           setEditingId(null);
-          alert('Category updated successfully!');
+          toast.success('Category Updated successfully')
         } else {
           setCategories(prev => [...prev, newCategory]);
-          alert('Category created successfully!');
+          toast.success('Category created successfully')
         }
 
         // Reset form
@@ -319,7 +335,7 @@ const AddCategory = () => {
       }
     } catch (error) {
       console.error('Error creating category:', error);
-      alert(error.message || 'Failed to create category');
+      toast.error(error.message || 'Failed to create category');
     } finally {
       setIsSubmitting(false);
     }
@@ -337,16 +353,7 @@ const AddCategory = () => {
     setEditingId(category.id);
   };
 
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this category?')) {
-      const response = await instance.delete(`/categories/${id}`);
-      if (response.data.success) {
-        console.log('Category deleted successfully');
-             setCategories(prev => prev.filter(cat => cat.id !== id));
-
-      }
-    }
-  };
+  const [deleteModal, setDeleteModal] = useState(null)
 
   const cancelEdit = () => {
     setEditingId(null);
@@ -358,7 +365,8 @@ const AddCategory = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-6">
+    <div className="relative min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-6">
+      {deleteModal && <ConfirmModal deleteModal={deleteModal} setDeleteModal={setDeleteModal} setCategories={setCategories} />}
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -677,7 +685,7 @@ const AddCategory = () => {
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDelete(category.id)}
+                        onClick={() => setDeleteModal(category.id)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
                         title="Delete Category"
                       >

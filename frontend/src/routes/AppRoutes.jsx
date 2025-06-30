@@ -50,9 +50,9 @@ const AppRoutes = () => (
     <Route element={<RequireAuth />}>
       <Route path="/dashboard" element={<Home />} />
       <Route path="/profile" element={<Profile />} />
-      <Route path="/ads" element={<AddAdvertisement />} />
-      {/* <Route path="/product" element={<AddProduct />} /> */}
-      <Route path="/add" element={< AddPage/>} />
+      
+      <Route path="/product" element={<AddProduct />} />
+      <Route path="/ads" element={< AddPage/>} />
     </Route>
 
     {/* Fallback Routes */}

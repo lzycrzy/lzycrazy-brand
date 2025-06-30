@@ -30,6 +30,7 @@ import Banner from './components/Business/Banner';
 import Category from './components/Business/Category';
 import Logo from './components/Business/Logo';
 import Card from './components/Business/Card';
+import HiringApplicationsTable from './components/Applications/Hiring';
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -49,12 +50,13 @@ const App = () => {
   return (
     <Provider store={store}>
       <Routes>
+        <Route path="/password/reset/:token" element={<ResetPassword />} />
         <Route path="/" element={<Layout />}>
           <Route path="auth" element={<Auth />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
           <Route path="/password/forgot" element={<ForgotPassword />} />
-          <Route path="/password/reset/:token" element={<ResetPassword />} />
+
           <Route
             path="/dashboard/users"
             element={
@@ -113,7 +115,12 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/edit-service/:id" element={<AddService />} />
+          
+          <Route path="/edit-service/:id" element={
+              <ProtectedRoute>
+                <AddService />
+              </ProtectedRoute>
+            }  />
 
           <Route
             path="/profile"
@@ -147,6 +154,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/Applications/Hiring"
+            element={
+              <ProtectedRoute>
+                <HiringApplicationsTable />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="/client-enquiry"
@@ -160,7 +175,7 @@ const App = () => {
             path="/market"
             element={
               <ProtectedRoute>
-                <AddServices1 />
+                <MarketPost />
               </ProtectedRoute>
             }
           />

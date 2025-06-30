@@ -84,6 +84,7 @@ router.post('/', upload.single('video'), async (req, res) => {
 
     // Extract form data from request body
     const {
+      name,
       country,
       state,
       city,
@@ -116,6 +117,7 @@ router.post('/', upload.single('video'), async (req, res) => {
 
     // Create new hiring record
     const newHiring = new Hiring({
+      name:name,
       country: country.trim(),
       state: state.trim(),
       city: city.trim(),

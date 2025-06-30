@@ -119,45 +119,42 @@ const Header = () => {
                 />
               </button>
 
-              {isDropdownOpen && (
-                <div
-                  ref={dropdownRef}
-                  className="absolute top-12 right-0 z-50 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow-md"
-                >
-                  <div className="px-4 py-3">
-                    <p
-                      onClick={() => {
-                        navigate('/profile');
-                        setIsDropdownOpen(false);
-                      }}
-                      className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
-                    >
-                      {displayName || 'User'}
-                    </p>
-                    {user?.profile?.companyId && (
-                      <p className="mt-1 text-xs text-gray-500">
-                        ID:{' '}
-                        <span className="font-mono">
-                          {user.profile.companyId.replace(/^lz\d{8}/, 'lz')}
-                        </span>
-                      </p>
-                    )}
-                    <p className="truncate text-sm text-gray-600">
-                      {user?.profile?.email || 'user@example.com'}
-                    </p>
-                  </div>
-                  <div className="py-2 hover:bg-gray-100">
-                    <button
-                      onClick={handleLogout}
-                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-700"
-                    >
-                      <FaSignOutAlt /> Sign out
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+    {isDropdownOpen && (
+      <div
+        ref={dropdownRef}
+        className="absolute top-12 right-0 z-50 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow-md"
+      >
+        <div className="px-4 py-3">
+          <p
+            onClick={() => {
+              navigate('/profile');
+              setIsDropdownOpen(false);
+            }}
+            className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
+          >
+            {displayName || 'User'}
+          </p>
+          {user?.profile?.companyId && (
+    <p className="text-xs text-gray-500 mt-1">
+      ID: <span className="font-mono">{user.profile.companyId.replace(/^lc\d{8}/, 'lc')}</span>
+    </p>
+  )}
+          <p className="truncate text-sm text-gray-600">
+            {user?.profile?.email || 'user@example.com'}
+          </p>
+        </div>
+        <div className="py-2 hover:bg-gray-100">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-700"
+          >
+            <FaSignOutAlt /> Sign out
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+)}
         </div>
       </div>
     </div>

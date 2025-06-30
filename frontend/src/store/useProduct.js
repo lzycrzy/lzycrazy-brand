@@ -7,3 +7,12 @@ export const useProduct = create((set, get) => ({
         set({isAddProductModal: value})
     }
 }))
+
+
+export const ProductDetails = create((set, get) => ({
+    product: [],
+
+    setProductDetails: (data) => {
+        set({product: data})
+    }
+}))
