@@ -1282,6 +1282,14 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
     }
     form.append('name', userData.name);
 
+    console.log(userData.name)
+    console.log('Appending name:', userData.name); // confirm right before append
+form.append('name', userData.name);
+form.append('companyId', userData.companyId);
+  
+    for (let [key, val] of form.entries()) {
+      console.log(`${key}: ${val}`);
+    }
     try {
       const response = await axios.post('/v1/hiring', form, {
         headers: { 'Content-Type': 'multipart/form-data' },

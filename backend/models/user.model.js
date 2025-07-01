@@ -61,7 +61,6 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save', async function (next) {
   try {
-    // Only generate companyId for new users
     if (this.isNew && !this.companyId) {
       const counter = await Counter.findOneAndUpdate(
         {},
@@ -69,10 +68,19 @@ userSchema.pre('save', async function (next) {
         { new: true, upsert: true }
       );
 
-      const paddedCount = String(counter.count).padStart(4, '0'); // e.g., 0001, 0002
-      this.companyId = `lc${paddedCount}`;
+      const paddedCount = String(counter.count).padStart(4, '0'); // 0001, 0002...
+
+      // Include today's date just as part of ID (not affecting counter)
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const datePart = `${yyyy}${mm}${dd}`;
+
+      this.companyId = `lc${datePart}${paddedCount}`; // e.g., lc202506290001
     }
 
+    // Hash password if modified
     if (!this.isModified('password')) return next();
 
     const salt = await bcrypt.genSalt(10);
@@ -83,6 +91,7 @@ userSchema.pre('save', async function (next) {
     next(err);
   }
 });
+
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
