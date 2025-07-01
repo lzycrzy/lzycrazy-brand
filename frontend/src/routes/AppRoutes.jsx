@@ -48,6 +48,7 @@ const AppRoutes = () => (
     <Route path="/property-view" element={<PropertyViewPage />} />
     <Route path="/verify" element={<VerifiedPage />} /> */}
          
+    <Route path="/onBoarding" element={<WorkInProgress />} /> // Work in Progress Page
     <Route path="/progress" element={<WorkInProgress />} /> // Work in Progress Page
     <Route path="/password/forgot" element={<ForgotPassword />} />
     <Route path="/password/reset/:token" element={<ResetPassword />} />
