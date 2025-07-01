@@ -182,11 +182,11 @@ const Searchbar = () => {
   const handleTabClick = (tab) => {
     setActiveTab(tab.name);
     if (tab.name === 'We Are Hiring') {
-      setShowHiring(true);
-      // navigate('/progress');
+      // setShowHiring(true);
+      navigate('/progress');
     } else if (tab.name === 'LzyCrazy News') {
-      setShowHiring(true);
-      // navigate('/progress');
+      
+      navigate('/progress');
     } else {
       navigate(tab.path);
     }
