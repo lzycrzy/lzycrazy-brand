@@ -3,7 +3,7 @@ import {
   Settings, Search, Plus, Edit, Trash2, Upload, X, Save, ChevronDown, ChevronUp
 } from 'lucide-react';
 
-import instance from '../utils/axios';
+import instance from '../lib/axios/axiosInstance';
 
 const AddCategory = () => {
   const [categories, setCategories] = useState([]);
