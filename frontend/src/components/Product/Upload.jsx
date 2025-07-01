@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CameraPlus from '../../assets/Camera.png';
+import { toast } from 'react-toastify';
 
 const Upload = ({ photos, setPhotos }) => {
   const totalImages = 8;
@@ -24,26 +25,59 @@ const Upload = ({ photos, setPhotos }) => {
     inputRefs.current[index]?.click();
   };
 
-  const handleChange = (e, index) => {
-    const files = Array.from(e.target.files);
-    const updated = [...images];
+  console.log(images)
 
+const handleChange = (e, index) => {
+  const files = Array.from(e.target.files);
+  const updated = [...images];
+  const isPhotosLimitFull = images.filter(item => item !== null);
+
+  if (files.length + isPhotosLimitFull.length > totalImages) {
+    toast.error('Only 8 photos are allowed.');
+    return;
+  }
+
+  let currentIndex = index;
+
+  const processFile = (file) => {
+    return new Promise((resolve) => {
+      const extension = file.name.split('.').pop();
+      const timestamp = Date.now().toString(36);
+      const randomPart = Math.random().toString(36).slice(2, 6);
+      const newName = `${timestamp}_${randomPart}.${extension}`;
+      const renamedFile = new File([file], newName, { type: file.type });
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve({
+          dataURL: reader.result,
+          file: renamedFile,
+        });
+      };
+
+      reader.readAsDataURL(renamedFile);
+    });
+  };
+
+  const processFiles = async () => {
     for (let file of files) {
-      if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          updated[index] = reader.result;
-          index++;
-          const filtered = updated.filter(img => img !== null);
-          setImages(updated);
-          setPhotos(filtered);
-        };
-        reader.readAsDataURL(file);
-        if (index >= totalImages) break;
+      if (file && file.type.startsWith('image/') && currentIndex < totalImages) {
+        const result = await processFile(file);
+        updated[currentIndex] = result;
+        currentIndex++;
       }
     }
-    e.target.value = null;
+
+    const filtered = updated.filter(img => img !== null);
+    setImages([...updated]);
+    setPhotos(filtered);
   };
+
+  processFiles();
+  e.target.value = null;
+};
+
+
 
   const removeSelectImage = (e, index) => {
     e.stopPropagation();
@@ -98,7 +132,7 @@ const Upload = ({ photos, setPhotos }) => {
               overflow-hidden relative group
             `}
             style={{
-              backgroundImage: images[index] ? `url(${images[index]})` : 'none',
+              backgroundImage: images[index]?.dataURL ? `url(${images[index]?.dataURL})` : 'none',
               backgroundPosition: 'center',
               backgroundSize: 'cover',
             }}

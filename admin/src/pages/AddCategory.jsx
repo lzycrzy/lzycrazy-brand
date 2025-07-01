@@ -292,6 +292,7 @@ const AddCategory = () => {
 
         if (!isImageAvailable) {
           toast.error("Image is required for all categories and subcategories.");
+          return;
         }
 
       const payload = {

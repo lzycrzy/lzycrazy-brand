@@ -40,7 +40,7 @@ function ConfirmLocation({ register, setValue, watch, errors }) {
 
       {/* State */}
       <div className="flex flex-col gap-2">
-        <label htmlFor="state">State <span>*</span></label>
+        <label htmlFor="state">State <span className='text-red-500'>*</span></label>
         <select
           id="state"
           {...register("state", { required: true })}
@@ -51,11 +51,16 @@ function ConfirmLocation({ register, setValue, watch, errors }) {
             <option key={i} value={state}>{state}</option>
           ))}
         </select>
+        {errors.state && (
+                    <p className="mt-1 text-sm text-red-600">
+                      state is required
+                    </p>
+                  )}
       </div>
 
       {/* City */}
       <div className="flex flex-col gap-2">
-        <label htmlFor="city">City <span>*</span></label>
+        <label htmlFor="city">City <span className='text-red-500'>*</span></label>
         <select
           id="city"
           {...register("city", { required: true })}
@@ -66,15 +71,20 @@ function ConfirmLocation({ register, setValue, watch, errors }) {
             <option key={i} value={city}>{city}</option>
           ))}
         </select>
+        {errors.city && (
+                    <p className="mt-1 text-sm text-red-600">
+                      city is required
+                    </p>
+                  )}
       </div>
 
       {/* Neighbourhood */}
       <div className="flex flex-col gap-2">
-        <label htmlFor="neighbourhood">Neighbourhood <span>*</span></label>
+        <label htmlFor="neighbourhood">Neighbourhood</label>
         <input
           type="text"
           id="neighbourhood"
-          {...register("neighbourhood", { required: true })}
+          {...register("neighbourhood", { required: false })}
           className={`rounded-md border-2 ${errors.neighbourhood ? "border-red-600" : "border-gray-400"} p-2`}
         />
       </div>

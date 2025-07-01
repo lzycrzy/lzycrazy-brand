@@ -4,6 +4,7 @@ const listingSchema = new mongoose.Schema({
   title: { type: String, required: true },
   price: { type: String, required: true },
   description: { type: String },
+  brand: {type: String},
 
   // Link to category and subcategory
   category: {
@@ -28,17 +29,24 @@ const listingSchema = new mongoose.Schema({
   },
 
   location: {
-    area: String,
+    state: String,
+    city: String,
+    neighbourhood: String,
     coordinates: {
-      type: [Number], // [lat, lng]
-      validate: {
-        validator: (v) => Array.isArray(v) && v.length === 2,
-        message: 'Coordinates must be [lat, lng]'
-      }
+      latitude: String,
+      longitude: String
     }
   },
 
-  images: [String],
+  isExpired: {
+    type: Boolean,
+  },
+  expiryDate: {
+    type: Date,
+    required: true,
+  },
+
+  images: [{url: String}],
 
   createdAt: { type: Date, default: Date.now }
 });

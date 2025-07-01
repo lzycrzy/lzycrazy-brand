@@ -11,7 +11,7 @@ import { ChevronLeft, X } from 'lucide-react';
 
 const AddProduct = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [categories, setCategories] = useState(null);
 
@@ -20,7 +20,6 @@ const AddProduct = () => {
         try {
             const res = await instance.get('/v1/categories/public');
             setCategories(res.data.data.categories)
-            console.log(res.data.data.categories)
         } catch (err) {
             console.log(err);
         }
@@ -50,7 +49,7 @@ const AddProduct = () => {
           <X />
           
           </div>
-          <div className={`mt-3 ml-3 lg:hidden w-[30px] h-[30px] ${selectedCategory !== '' ? 'flex': 'hidden'} justify-center items-center rounded-full border`} onClick={() => {
+          <div className={`mt-3 ml-3 lg:hidden w-[30px] h-[30px] ${selectedCategory ? 'flex': 'hidden'} justify-center items-center rounded-full border`} onClick={() => {
             if (selectedSubcategory === '') setSelectedCategory('')
             else setSelectedSubcategory('')
 
@@ -68,7 +67,7 @@ const AddProduct = () => {
                   Choose a Categories
                 </h2>
 
-                <ul className={`${selectedCategory !== '' ? 'lg:block hidden' : "block w-full" } space-y-1`}>
+                <ul className={`${selectedCategory ? 'lg:block hidden' : "block w-full" } space-y-1`}>
                   {categories?.map((category, index) => {
                     
                     return (
@@ -76,7 +75,7 @@ const AddProduct = () => {
                         <button
                           onClick={() =>{
                             setExpandedCategory(category.subcategories)
-                            setSelectedCategory(category.name);
+                            setSelectedCategory(category);
                           }}
                           className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-all ${
                             selectedCategory === category.name
