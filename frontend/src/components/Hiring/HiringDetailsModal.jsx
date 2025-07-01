@@ -766,6 +766,7 @@
 
 // export default HiringDetailsModal;
 
+
 // //new
 // HiringDetailsModal.jsx
 import React, { useState, useRef, useEffect } from 'react';
@@ -799,7 +800,6 @@ const HiringDetailsModal = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Handle introduction word count validation
     if (name === 'introduction') {
       setIntroWordCount(value.trim().split('').length);
       if (introWordCount + 1 >= 50) {
@@ -807,7 +807,6 @@ const HiringDetailsModal = ({
         return;
       }
     }
-
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -828,98 +827,53 @@ const HiringDetailsModal = ({
       jobCategory: 'Job Category',
       introduction: 'Introduction',
     };
-
     for (const [field, label] of Object.entries(requiredFields)) {
       if (!formData[field].trim()) {
         toast.error(`${label} is required`);
         return false;
       }
     }
-
-    // Validate introduction word count
-    const wordCount = formData.introduction
-      .trim()
-      .split(/\s+/)
-      .filter((word) => word.length > 0).length;
+    const wordCount = formData.introduction.trim().split(/\s+/).filter((word) => word.length > 0).length;
     if (wordCount > 50) {
       toast.error('Introduction must not exceed 50 words');
       return false;
     }
-
     if (wordCount === 0) {
       toast.error('Introduction is required');
       return false;
     }
-
-    // Check if video is provided
     if (!videoFile && !recordedVideoBlob) {
       toast.error('Please upload a video file or record a video introduction.');
       return false;
     }
-
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     setIsSubmitting(true);
-
-    console.log(formData);
     const form = new FormData();
-
-    // Add form data
     Object.keys(formData).forEach((key) => {
       form.append(key, formData[key].trim());
     });
-
-    // Add video (recorded blob)
     if (recordedVideoBlob) {
-      // Convert blob to file for upload
-      const videoFileFromBlob = new File(
-        [recordedVideoBlob],
-        'intro-video.webm',
-        {
-          type: 'video/webm',
-        },
-      );
-
+      const videoFileFromBlob = new File([recordedVideoBlob], 'intro-video.webm', { type: 'video/webm' });
       form.append('video', videoFileFromBlob);
     } else if (videoFile) {
       form.append('video', videoFile);
     }
-    console.log('userData before append:', userData);
-
-    console.log(userData.name);
-    console.log('Appending name:', userData.name); // confirm right before append
     form.append('name', userData.name);
-
-    for (let [key, val] of form.entries()) {
-      console.log(`${key}: ${val}`);
-    }
     try {
-      // API endpoint matching your backend route and baseURL
       const response = await axios.post('/v1/hiring', form, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-
       toast.success('Application submitted successfully!');
       if (onSubmitSuccess) onSubmitSuccess(true);
-
-      // Clear form and close modal
       clearForm();
       onClose();
     } catch (err) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.errors?.[0] ||
-        'Submission failed. Please try again.';
+      const msg = err?.response?.data?.message || err?.response?.data?.errors?.[0] || 'Submission failed. Please try again.';
       toast.error(msg);
       console.error('Submission error:', err);
     } finally {
@@ -929,18 +883,9 @@ const HiringDetailsModal = ({
 
   const clearForm = () => {
     setFormData({
-      name: '',
-      country: '',
-      state: '',
-      city: '',
-      education: '',
-      experienceLevel: '',
-      jobCategory: '',
-      introduction: '',
+      name: '', country: '', state: '', city: '', education: '', experienceLevel: '', jobCategory: '', introduction: '',
     });
     setVideoFile(null);
-
-    // Clear recording states
     setRecordedVideoBlob(null);
     setRecordingMode(false);
   };
@@ -954,20 +899,21 @@ const HiringDetailsModal = ({
     clearForm();
     onBack();
   };
+
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 z-[1000] flex h-screen w-screen items-center justify-center bg-white/40">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/30 px-4">
       {isSubmitting && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/70 backdrop-blur-sm">
           <Loader className="h-10 w-10 animate-spin text-blue-600" />
         </div>
       )}
 
-      <div className="relative flex h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-lg bg-white p-6 shadow-2xl">
+      <div className="relative w-full max-w-lg h-[90vh] sm:h-[85vh] overflow-hidden flex flex-col rounded-lg bg-white p-4 sm:p-6 shadow-2xl">
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-red-500"
+          className="absolute top-3 right-3 text-2xl text-gray-500 hover:text-red-500"
         >
           &times;
         </button>
@@ -981,78 +927,31 @@ const HiringDetailsModal = ({
 
         <button
           onClick={handleBackClick}
-          className="mb-4 flex items-center gap-1 self-start text-sm text-blue-600 hover:underline"
+          className="mb-3 sm:mb-4 flex items-center gap-1 self-start text-sm text-blue-600 hover:underline"
         >
           ← Back to login
         </button>
-        <div className="mb-2 px-2 text-lg font-semibold text-gray-600">
+
+        <div className="mb-2 px-2 text-sm sm:text-base font-semibold text-gray-600">
           <span>Your LzyCrazyID: lcxxxxxxx{userData?.companyId.slice(10)}</span>
         </div>
 
-        <div className="scrollbar max-[calc(95vh-200px)] flex-grow overflow-y-auto pr-2 pl-2">
-          <form className="space-y-1" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input
-                required
-                label="Country"
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                placeholder="Enter your country"
-              />
-              <Input
-                required
-                label="State"
-                name="state"
-                value={formData.state}
-                onChange={handleChange}
-                placeholder="Enter your state"
-              />
+        <div className="scrollbar flex-grow overflow-y-auto pr-1 sm:pr-2">
+          <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input required label="Country" name="country" value={formData.country} onChange={handleChange} placeholder="Enter your country" />
+              <Input required label="State" name="state" value={formData.state} onChange={handleChange} placeholder="Enter your state" />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input
-                required
-                label="City"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                placeholder="Enter your city"
-              />
-              <Input
-                required
-                label="Education"
-                name="education"
-                value={formData.education}
-                onChange={handleChange}
-                placeholder="Your highest education"
-              />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input required label="City" name="city" value={formData.city} onChange={handleChange} placeholder="Enter your city" />
+              <Input required label="Education" name="education" value={formData.education} onChange={handleChange} placeholder="Your highest education" />
             </div>
-            {/* Experiance and category */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Select
-                required
-                label="Experience Level"
-                name="experienceLevel"
-                value={formData.experienceLevel}
-                onChange={handleChange}
-                options={[
-                  ' Dream Job',
-                  'Experience ',
-                  'First Job',
-                  'Fresher',
-                  'Internship',
-                ]}
-              />
-              <Select
-              
-                size="5"
-                required
-                label="Job Category"
-                name="jobCategory"
-                value={formData.jobCategory}
-                onChange={handleChange}
-                options={[
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Select required label="Experience Level" name="experienceLevel" value={formData.experienceLevel} onChange={handleChange} options={[ 'Dream Job', 'Experience ', 'First Job', 'Fresher', 'Internship' ]} />
+              <Select required label="Job Category" name="jobCategory" value={formData.jobCategory} onChange={handleChange} 
+              options={[
                   '3D Designer',
                   'Architecture Designer',
                   'Area Manager',
@@ -1104,14 +1003,12 @@ const HiringDetailsModal = ({
                   'Tele-Caller Executive',
                   'UI UX Designer',
                   'VFX Designer',
-                ]}
-              />
+                ]} />
             </div>
 
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
-                Introduction (Max 50 Words){' '}
-                <span className="text-red-500">*</span>
+                Introduction (Max 50 Words) <span className="text-red-500">*</span>
               </label>
               <textarea
                 name="introduction"
@@ -1119,42 +1016,30 @@ const HiringDetailsModal = ({
                 onChange={handleChange}
                 required
                 placeholder="Tell us about yourself in 50 words or less..."
-                className="resize-vertical w-full rounded-md border border-gray-300 px-4 py-2 transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="w-full rounded-md border border-gray-300 px-4 py-2 resize-none focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
               />
               <div className="mt-1 flex items-center justify-between">
-                <p className="text-xs text-gray-500">
-                  Word count: {introWordCount}/50
-                </p>
-
+                <p className="text-xs text-gray-500">Word count: {introWordCount}/50</p>
                 {introWordCount > 45 && (
-                  <p className="text-xs font-medium text-orange-600">
-                    {50 - introWordCount} words remaining
-                  </p>
+                  <p className="text-xs font-medium text-orange-600">{50 - introWordCount} words remaining</p>
                 )}
               </div>
             </div>
 
-            <div className="">
+            <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
                 15s Video Introduction <span className="text-red-500">*</span>
-                <span
-                  className={`${recordedVideoBlob ? 'flex text-green-500' : 'hidden'}`}
-                >
-                  Video Recorded Successfully
-                </span>
+                <span className={`${recordedVideoBlob ? 'flex text-green-500' : 'hidden'}`}>Video Recorded Successfully</span>
               </label>
-
-              {/* Recording Mode Toggle */}
               <div className="mt-2 mb-4 flex rounded-lg border border-gray-300 p-1">
                 <button
                   type="button"
                   onClick={() => setRecordingMode(true)}
-                  className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors`}
+                  className="flex-1 rounded-md px-3 py-2 text-sm font-medium"
                 >
                   Record Video
                 </button>
               </div>
-
               {recordingMode && (
                 <RecordingModal
                   setRecordingMode={setRecordingMode}
@@ -1165,17 +1050,11 @@ const HiringDetailsModal = ({
               )}
             </div>
 
-            {/* Recording Live Preview - Only show during recording */}
-
-            <div className="flex justify-end gap-3 border-t pt-6">
+            <div className="flex justify-end gap-3 border-t pt-4 sm:pt-6">
               <button
                 type="submit"
                 disabled={isSubmitting || (!videoFile && !recordedVideoBlob)}
-                className={`rounded-md px-6 py-2 font-medium text-white transition-colors ${
-                  isSubmitting || (!videoFile && !recordedVideoBlob)
-                    ? 'cursor-not-allowed bg-gray-400'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+                className={`rounded-md px-6 py-2 font-medium text-white ${isSubmitting || (!videoFile && !recordedVideoBlob) ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
               >
                 {isSubmitting ? 'Submitting...' : 'SUBMIT APPLICATION'}
               </button>
@@ -1184,20 +1063,11 @@ const HiringDetailsModal = ({
         </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 };
 
-// Reusable Input Component
-const Input = ({
-  label,
-  name,
-  value,
-  onChange,
-  placeholder = '',
-  type = 'text',
-  required = false,
-}) => (
+const Input = ({ label, name, value, onChange, placeholder = '', type = 'text', required = false }) => (
   <div>
     <label className="mb-1 block text-sm font-medium text-gray-700">
       {label} {required && <span className="text-red-500">*</span>}
@@ -1209,20 +1079,12 @@ const Input = ({
       onChange={onChange}
       placeholder={placeholder}
       required={required}
-      className="w-full rounded-md border border-gray-300 px-4 py-2 transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none"
+      className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors text-sm"
     />
   </div>
 );
 
-// Reusable Select Component
-const Select = ({
-  label,
-  name,
-  value,
-  onChange,
-  options = [],
-  required = false,
-}) => (
+const Select = ({ label, name, value, onChange, options = [], required = false }) => (
   <div>
     <label className="mb-1 block text-sm font-medium text-gray-700">
       {label} {required && <span className="text-red-500">*</span>}
@@ -1232,13 +1094,11 @@ const Select = ({
       value={value}
       onChange={onChange}
       required={required}
-      className="w-full rounded-md border border-gray-300 px-4 py-2 transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none"
+      className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
     >
       <option value="">-- Select --</option>
       {options.map((opt, i) => (
-        <option key={i} value={opt}>
-          {opt}
-        </option>
+        <option key={i} value={opt}>{opt}</option>
       ))}
     </select>
   </div>
