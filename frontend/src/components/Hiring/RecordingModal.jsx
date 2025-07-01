@@ -416,12 +416,20 @@ function RecordingModal({ setVideoFile, setRecordingMode, recordingMode, setReco
 
   useEffect(() => {
     return () => {
-      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-      if (recordedVideoURL) URL.revokeObjectURL(recordedVideoURL);
-      if (mediaRecorderRef.current && isRecording) mediaRecorderRef.current.stop();
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-        videoRef.current.srcObject = null;
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+
+      if (recordedVideoURL) {
+        URL.revokeObjectURL(recordedVideoURL);
+      }
+
+      if (mediaRecorderRef.current && isRecording) {
+        mediaRecorderRef.current.stop();
+      }
+
+        if (streamRef?.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);
