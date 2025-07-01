@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ModalOverlay from "./Modal";
-import LocationModal from "./LocationModal"; 
+import LocationModal from "./LocationModal";
 
 const CreatePost = () => {
   const navigate = useNavigate();
@@ -16,10 +16,7 @@ const CreatePost = () => {
   const [feeling, setFeeling] = useState("");
   const [location, setLocation] = useState("");
   const [shareToWhatsApp, setShareToWhatsApp] = useState(false);
-  const [locationModalOpen, setLocationModalOpen] = useState(false); 
-
-  const audienceOptions = ["Public", "Friends", "Only Me"];
-
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
@@ -28,15 +25,13 @@ const CreatePost = () => {
   const [modalCallback, setModalCallback] = useState(() => {});
 
   const dummyUsers = [
-    "Ritu Singh",
-    "Ankur Sharma",
-    "Jaahid Hasan",
-    "Priya Mehta",
-    "Rahul Verma",
-    "Aisha Khan",
+    "Ritu Singh", "Ankur Sharma", "Jaahid Hasan",
+    "Priya Mehta", "Rahul Verma", "Aisha Khan"
   ];
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isTagging, setIsTagging] = useState(false);
+
+  const audienceOptions = ["Public", "Friends", "Only Me"];
 
   const openModal = (title, message, callback = null, input = false) => {
     setModalTitle(title);
@@ -72,18 +67,17 @@ const CreatePost = () => {
   };
 
   const handleMediaChange = (e) => {
+    e.preventDefault();
     const file = e.target.files[0];
     if (!file) return;
 
     const fileUrl = URL.createObjectURL(file);
+
     if (file.type.startsWith("image")) {
-      setImage(fileUrl);
-      setVideo(null);
+      // Navigate to image editor page (like Facebook)
       navigate("/image-detail", { state: { image: fileUrl } });
     } else if (file.type.startsWith("video")) {
-      setVideo(fileUrl);
-      setImage(null);
-      navigate("/video", { state: { video: fileUrl } });
+      navigate("/video-detail", { state: { video: fileUrl } }); // Optional
     } else {
       openModal("Unsupported File", "Please upload an image or video.");
     }
@@ -152,38 +146,12 @@ const CreatePost = () => {
             onChange={(e) => setCaption(e.target.value)}
           />
 
-          {image && (
-            <div className="mb-4 relative">
-              <p className="text-sm text-gray-500 mb-1">📷 Image Preview</p>
-              <img src={image} alt="Uploaded" className="w-full rounded-md" />
-              <div className="absolute top-2 right-2 flex gap-2">
-                <button
-                  onClick={() => navigate("/image-detail", { state: { image } })}
-                  className="bg-white px-3 py-1 text-sm rounded shadow border hover:bg-blue-100"
-                >
-                  ✏️ Edit
-                </button>
-                <button
-                  onClick={() => setImage(null)}
-                  className="bg-white px-3 py-1 text-sm rounded shadow border hover:bg-red-100"
-                >
-                  ❌ Delete
-                </button>
-              </div>
-            </div>
-          )}
-
           {video && (
             <div className="mb-4 relative group">
               <p className="text-sm text-gray-500 mb-1">🎥 Video Preview</p>
               <video src={video} controls className="w-full rounded-md" />
               <div className="absolute top-2 right-2 flex gap-2">
-                <button
-                  onClick={() => navigate("/video", { state: { video } })}
-                  className="bg-white px-3 py-1 text-sm rounded shadow border hover:bg-blue-100"
-                >
-                  ✏️ Edit
-                </button>
+                <button className="bg-white px-3 py-1 text-sm rounded shadow border hover:bg-blue-100">✏️ Edit</button>
                 <button
                   onClick={() => setVideo(null)}
                   className="bg-white px-3 py-1 text-sm rounded shadow border hover:bg-red-100"
@@ -210,15 +178,14 @@ const CreatePost = () => {
                   type="file"
                   accept="image/*,video/*"
                   className="hidden"
+                  onClick={(e) => (e.target.value = null)}
                   onChange={handleMediaChange}
                 />
               </label>
-              <button onClick={() => navigate("/video")} title="Record Video" className="hover:text-blue-600">
-                🎥
-              </button>
+              <button title="Record Video" className="hover:text-blue-600">🎥</button>
               <button onClick={openTagModal}>👥</button>
               <button onClick={() => openModal("Feeling", "How are you feeling?", setFeeling, true)}>😊</button>
-              <button onClick={() => setLocationModalOpen(true)}>📍</button> {/*  Updated */}
+              <button onClick={() => setLocationModalOpen(true)}>📍</button>
               <button
                 onClick={() => setShareToWhatsApp((prev) => !prev)}
                 className={shareToWhatsApp ? "text-green-500" : ""}
@@ -282,7 +249,6 @@ const CreatePost = () => {
         }
       />
 
-      {/*  Add new LocationModal */}
       <LocationModal
         isOpen={locationModalOpen}
         onClose={() => setLocationModalOpen(false)}

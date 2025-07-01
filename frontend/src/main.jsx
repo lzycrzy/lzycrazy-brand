@@ -12,9 +12,9 @@ import { UserProvider } from './context/UserContext';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-    <UserProvider>
-      <App />
-      <ToastContainer
+      <UserProvider>
+        <App />
+        {/* <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -26,8 +26,24 @@ createRoot(document.getElementById('root')).render(
         draggable
         pauseOnHover
         theme="light"
-      />
-       </UserProvider>
+      /> */}
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          toastClassName="!text-sm !md:text-base !rounded-lg !shadow-lg !p-4 !md:p-5 !w-full !max-w-xs md:!max-w-sm !break-words"
+          bodyClassName="!text-gray-800"
+          style={{ zIndex: 9999 }}
+        />
+
+      </UserProvider>
     </BrowserRouter>
   </StrictMode>,
 );

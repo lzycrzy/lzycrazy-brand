@@ -60,205 +60,222 @@ const Auth = () => {
   const handleRegisterChange = (e) =>
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
 
+  // const handleLoginSubmit = async (e) => {
+  //   e.preventDefault();
+  //   // navigate('/progress');
+  //   const { email, password } = loginData;
+  
+  //   // ✅ Basic validations before triggering loading or API call
+  //   if (!email || !password) {
+  //     toast.error('Please enter both email and password');
+  //     return;
+  //   }
+  
+  //   // ✅ Email validation
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   if (!emailRegex.test(email)) {
+  //     toast.error('Please enter a valid email address');
+  //     return;
+  //   }
+  
+  //   try {
+  //     setLoading(true); // ✅ Only show loading during API call
+  
+  //     const { data } = await axios.post('/v1/users/login', loginData);
+  
+  //     // ✅ Save to local storage
+  //     if (data?.token) localStorage.setItem('token', data.token);
+  //     if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
+  
+  //     // ✅ Update Redux store
+  //     dispatch(login({ success: true, data: data.user, token: data.token }));
+  
+  //     // ✅ Update context
+  //     fetchUser();
+  
+  //     // ✅ Success toast
+  //     toast.success(`🎉 Welcome back, ${data.user.fullName || 'User'}!`);
+  
+  //     // ✅ Delay navigation so toast appears
+  //     setTimeout(() => {
+  //       navigate('/dashboard', { replace: true, state: { welcome: true } });
+  //     }, 300);
+  
+  //   } catch (error) {
+  //     const msg = error?.response?.data?.message || 'Login failed. Try again.';
+  //     toast.error(msg);
+  //     console.error('Login error:', msg);
+  
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-  
-    const { email, password } = loginData;
-  
-    // ✅ Basic validations before triggering loading or API call
-    if (!email || !password) {
-      toast.error('Please enter both email and password');
-      return;
-    }
-  
-    // ✅ Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error('Please enter a valid email address');
-      return;
-    }
-  
-    try {
-      setLoading(true); // ✅ Only show loading during API call
-  
-      const { data } = await axios.post('/v1/users/login', loginData);
-  
-      // ✅ Save to local storage
-      if (data?.token) localStorage.setItem('token', data.token);
-      if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
-  
-      // ✅ Update Redux store
-      dispatch(login({ success: true, data: data.user, token: data.token }));
-  
-      // ✅ Update context
-      fetchUser();
-  
-      // ✅ Success toast
-      toast.success(`🎉 Welcome back, ${data.user.fullName || 'User'}!`);
-  
-      // ✅ Delay navigation so toast appears
-      setTimeout(() => {
-        navigate('/dashboard', { replace: true, state: { welcome: true } });
-      }, 300);
-  
-    } catch (error) {
-      const msg = error?.response?.data?.message || 'Login failed. Try again.';
-      toast.error(msg);
-      console.error('Login error:', msg);
-  
-    } finally {
-      setLoading(false);
-    }
-  };
-  
+e.preventDefault();
+navigate('/progress');
+
+  }
   
 
-  const handleRegisterSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+//   const handleRegisterSubmit = async (e) => {
+//     e.preventDefault();
+//     setLoading(true);
   
-    // Trim inputs first
-    const fullName = registerData.fullName?.trim();
-    const email = registerData.email?.trim();
-    const phone = registerData.phone?.trim();
-    const password = registerData.password?.trim();
+//     // Trim inputs first
+//     const fullName = registerData.fullName?.trim();
+//     const email = registerData.email?.trim();
+//     const phone = registerData.phone?.trim();
+//     const password = registerData.password?.trim();
   
-    // Check all fields
-    if (!fullName || !email || !phone || !password) {
-      toast.error('All fields are required');
-      setLoading(false);
-      return;
-    }
+//     // Check all fields
+//     if (!fullName || !email || !phone || !password) {
+//       toast.error('All fields are required');
+//       setLoading(false);
+//       return;
+//     }
   
-    // Name validation: only letters and spaces, min 3 characters
-    const nameRegex = /^[A-Za-z\s.]{2,}$/;
-    if (!nameRegex.test(fullName)) {
-      toast.error('Name must be at least 2 characters and only contain letters/spaces');
-      setLoading(false);
-      return;
-    }
+//     // Name validation: only letters and spaces, min 3 characters
+//     const nameRegex = /^[A-Za-z\s.]{2,}$/;
+//     if (!nameRegex.test(fullName)) {
+//       toast.error('Name must be at least 2 characters and only contain letters/spaces');
+//       setLoading(false);
+//       return;
+//     }
   
-    // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error('Invalid email format');
-      setLoading(false);
-      return;
-    }
+//     // Email format validation
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(email)) {
+//       toast.error('Invalid email format');
+//       setLoading(false);
+//       return;
+//     }
   
-    // Optional: block temporary email domains
-    const blockedDomains = ['tempmail.com', '10minutemail.com', 'mailinator.com'];
-    if (blockedDomains.some(domain => email.endsWith(`@${domain}`))) {
-      toast.error('Temporary email addresses are not allowed');
-      setLoading(false);
-      return;
-    }
+//     // Optional: block temporary email domains
+//     const blockedDomains = ['tempmail.com', '10minutemail.com', 'mailinator.com'];
+//     if (blockedDomains.some(domain => email.endsWith(`@${domain}`))) {
+//       toast.error('Temporary email addresses are not allowed');
+//       setLoading(false);
+//       return;
+//     }
   
-    // Phone validation (India)
-    const rawPhone = registerData.phone?.trim();
-const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10);  // keep last 10 digits
+//     // Phone validation (India)
+//     const rawPhone = registerData.phone?.trim();
+// const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10);  // keep last 10 digits
 
-const phoneRegex = /^[6-9]\d{9}$/;
-if (!phoneRegex.test(phone1)) {
-  toast.error('Enter a valid 10-digit Indian mobile number');
-  setLoading(false);
-  return;
+// const phoneRegex = /^[6-9]\d{9}$/;
+// if (!phoneRegex.test(phone1)) {
+//   toast.error('Enter a valid 10-digit Indian mobile number');
+//   setLoading(false);
+//   return;
+// }
+  
+//     // Password validation
+//     const passwordRegex =
+//       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).{8,}$/;
+//     if (!passwordRegex.test(password)) {
+//       toast.error('Password must be 8+ characters and include uppercase, lowercase, number, and special character');
+//       setLoading(false);
+//       return;
+//     }
+  
+//     // Prevent password that contains name or email
+//     if (
+//       password.toLowerCase().includes(fullName.toLowerCase()) ||
+//       password.includes(email)
+//     ) {
+//       toast.error('Password should not contain your name or email');
+//       setLoading(false);
+//       return;
+//     }
+  
+//     // Optional: prevent common weak passwords
+//     const weakPasswords = ['12345678', 'password', 'welcome123', 'admin123', 'qwerty'];
+//     if (weakPasswords.includes(password.toLowerCase())) {
+//       toast.error('Choose a stronger, less common password');
+//       setLoading(false);
+//       return;
+//     }
+  
+//     try {
+//       const response = await axios.post('/v1/users/register', {
+//         fullName,
+//         email,
+//         phone,
+//         password,
+//       });
+  
+//       const { user, token } = response.data;
+  
+//       localStorage.setItem('token', token);
+//       localStorage.setItem('user', JSON.stringify(user));
+//       dispatch(login({ success: true, data: user, token }));
+//       fetchUser();
+  
+//       toast.success('Registration successful!');
+//       navigate('/dashboard', { replace: true, state: { welcome: true } });
+//     } catch (error) {
+//       const msg = error?.response?.data?.message || 'Registration failed';
+//       toast.error(msg);
+//       console.error('Registration error:', msg);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+const handleRegisterSubmit = async (e) => {
+  e.preventDefault();
+navigate('/progress');
 }
   
-    // Password validation
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).{8,}$/;
-    if (!passwordRegex.test(password)) {
-      toast.error('Password must be 8+ characters and include uppercase, lowercase, number, and special character');
-      setLoading(false);
-      return;
-    }
-  
-    // Prevent password that contains name or email
-    if (
-      password.toLowerCase().includes(fullName.toLowerCase()) ||
-      password.includes(email)
-    ) {
-      toast.error('Password should not contain your name or email');
-      setLoading(false);
-      return;
-    }
-  
-    // Optional: prevent common weak passwords
-    const weakPasswords = ['12345678', 'password', 'welcome123', 'admin123', 'qwerty'];
-    if (weakPasswords.includes(password.toLowerCase())) {
-      toast.error('Choose a stronger, less common password');
-      setLoading(false);
-      return;
-    }
-  
-    try {
-      const response = await axios.post('/v1/users/register', {
-        fullName,
-        email,
-        phone,
-        password,
-      });
-  
-      const { user, token } = response.data;
-  
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      dispatch(login({ success: true, data: user, token }));
-      fetchUser();
-  
-      toast.success('Registration successful!');
-      navigate('/dashboard', { replace: true, state: { welcome: true } });
-    } catch (error) {
-      const msg = error?.response?.data?.message || 'Registration failed';
-      toast.error(msg);
-      console.error('Registration error:', msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
 //google login
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     const result = await signInWithPopup(auth, googleProvider);
+  //     const user = result.user;
+  //     const idToken = await user.getIdToken(true);
+  //     console.log("ID Token:", idToken); // add before axios.post
+
+  //     const response = await axios.post('/v1/users/google-login', { idToken });
+  //     const { token, user: backendUser } = response.data;
+  //     localStorage.setItem('token', token);
+  //     localStorage.setItem('user', JSON.stringify(backendUser));
+  //     dispatch(login({ success: true, data: backendUser, token }));
+  //     await fetchUser(); 
+  //     toast.success(`🎉 Welcome back`);
+  //     navigate('/dashboard',{ replace: true, state: { welcome: true } });
+  //   } catch (error) {
+  //     alert(error.response?.data?.message || 'Google login failed');
+  //     console.error('Google login error:', error);
+  //   }
+  // };
   const handleGoogleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      const idToken = await user.getIdToken(true);
-      console.log("ID Token:", idToken); // add before axios.post
+navigate('/progress');
 
-      const response = await axios.post('/v1/users/google-login', { idToken });
-      const { token, user: backendUser } = response.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(backendUser));
-      dispatch(login({ success: true, data: backendUser, token }));
-      await fetchUser(); 
-      toast.success(`🎉 Welcome back`);
-      navigate('/dashboard',{ replace: true, state: { welcome: true } });
-    } catch (error) {
-      alert(error.response?.data?.message || 'Google login failed');
-      console.error('Google login error:', error);
-    }
-  };
+  }
 
+  // const handleFacebookLogin = async () => {
+  //   try {
+  //     facebookProvider.addScope('email');
+  //     const result = await signInWithPopup(auth, facebookProvider);
+  //     const user = result.user;
+  //     const idToken = await user.getIdToken();
+  //     const response = await axios.post('/v1/users/facebook-login', {
+  //       idToken,
+  //     });
+  //     const { token, user: backendUser } = response.data;
+  //     localStorage.setItem('token', token);
+  //     localStorage.setItem('user', JSON.stringify(backendUser));
+  //     dispatch(login({ success: true, data: backendUser, token }));
+  //     navigate('/dashboard',{ replace: true, state: { welcome: true } });
+  //   } catch (error) {
+  //     alert(error.response?.data?.message || 'Facebook login failed');
+  //     console.error('Facebook login error:', error);
+  //   }
+  // };
   const handleFacebookLogin = async () => {
-    try {
-      facebookProvider.addScope('email');
-      const result = await signInWithPopup(auth, facebookProvider);
-      const user = result.user;
-      const idToken = await user.getIdToken();
-      const response = await axios.post('/v1/users/facebook-login', {
-        idToken,
-      });
-      const { token, user: backendUser } = response.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(backendUser));
-      dispatch(login({ success: true, data: backendUser, token }));
-      navigate('/dashboard',{ replace: true, state: { welcome: true } });
-    } catch (error) {
-      alert(error.response?.data?.message || 'Facebook login failed');
-      console.error('Facebook login error:', error);
-    }
-  };
+navigate('/progress');
+
+  }
+
 
   const inputClass =
     'w-full rounded border border-gray-300 py-3 pr-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400';
