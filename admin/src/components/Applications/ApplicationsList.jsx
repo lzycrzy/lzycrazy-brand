@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "../../lib/axios/axiosInstance";
 import { FaEye, FaTrash, FaPlay } from "react-icons/fa";
 import ApplicationModal from "./ApplicationModal";
+import instance from '../utils/axios';
 
 const ApplicationsList = () => {
   const [applications, setApplications] = useState([]);
@@ -9,7 +9,7 @@ const ApplicationsList = () => {
 
   const fetchApplications = async () => {
     try {
-      const res = await axios.get("/admin/applications");
+      const res = await instance.get("/admin/applications");
       setApplications(res.data);
     } catch (err) {
       console.error("Error fetching applications", err);
@@ -18,7 +18,7 @@ const ApplicationsList = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/admin/applications/${id}`);
+      await instance.delete(`/admin/applications/${id}`);
       setApplications(applications.filter((a) => a._id !== id));
     } catch (err) {
       console.error("Delete failed", err);

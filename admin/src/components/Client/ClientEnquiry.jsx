@@ -177,6 +177,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from '../../lib/axios/axiosInstance'; // Adjust path if needed
+import instance from '../utils/axios';
 
 const ClientEnquiry = () => {
   const [data, setData] = useState([]);
@@ -198,7 +199,7 @@ const ClientEnquiry = () => {
 
   const fetchEnquiries = async () => {
     try {
-      const res = await axios.get('/admin/enquiry');
+      const res = await instance.get('/admin/enquiry');
       setData(res.data);
       setFiltered(res.data);
     } catch (error) {
