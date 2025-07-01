@@ -921,7 +921,7 @@ export const submitApplication = async (req, res) => {
     } = req.body;
 
     console.log(req.file); // includes path, size, filename, etc.
-
+    console.log(lycrazyId);
     const result = req.file?.path || null;
     const videoUrl = await uploadToCloudinary(result);
     console.log(videoUrl)

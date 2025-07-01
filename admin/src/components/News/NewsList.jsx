@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaEye, FaUser, FaPlay, FaTrash } from 'react-icons/fa';
-import axios from '../../lib/axios/axiosInstance'; //  axios instance
+import instance from '../../lib/axios/axiosInstance'; //  axios instance
 import { toast } from 'react-hot-toast';
 
 const NewsList = () => {
@@ -11,7 +11,7 @@ const NewsList = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await axios.get('/news');
+        const res = await instance.get('/news');
         console.log(res.data)
         setNewsList(res.data);
       } catch (err) {

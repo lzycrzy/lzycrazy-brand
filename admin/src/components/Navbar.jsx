@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { logout } from '../lib/redux/authSlice';
-import axios from '../lib/axios/axiosInstance';
+import instance from '../lib/axios/axiosInstance';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation, Link } from 'react-router';
 
@@ -58,7 +58,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get('/admin/logout', { withCredentials: true }); // send cookie
+      await instance.get('/admin/logout', { withCredentials: true }); // send cookie
       dispatch(logout()); // clear redux & localStorage
       navigate('/auth'); // redirect to login page
     } catch (error) {

@@ -236,9 +236,9 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
       const { data } = await axios.post('/v1/users/company-id-by-email', { email });
 
       if (!data?.companyId) throw new Error('User not found or no company ID assigned');
-
+     console.log(data.companyId)
       dispatch(setHiringInProgress(true));
-
+       
       toast.success(`Welcome back! Company ID: lc${data.companyId.slice(-3)}`);
       setTimeout(() => {
         onLoginSuccess({

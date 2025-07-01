@@ -149,7 +149,7 @@ export const forgotAdminPassword = catchAsyncErrors(async (req, res, next) => {
   await admin.save({ validateBeforeSave: false });
 
   const resetURL = `${process.env.DASHBOARD_URL}/password/reset/${resetToken}`;
-  // console.log(resetURL);
+  console.log(resetURL);
   // const message = `Reset your password using the following link: \n\n ${resetURL}`;
   const message = `
       Hi ${admin.fullName || 'Admin'},\n\n

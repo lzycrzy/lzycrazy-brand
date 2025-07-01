@@ -17,7 +17,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../lib/axios/axiosInstance'; // tu already import kar raha hai
+import instance from '../lib/axios/axiosInstance'; // tu already import kar raha hai
 
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const SuperAdminDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('/admin/dashboard', {
+        const res = await instance.get('/admin/dashboard', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

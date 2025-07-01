@@ -891,6 +891,7 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
     console.log(userData.name)
     console.log('Appending name:', userData.name); // confirm right before append
 form.append('name', userData.name);
+form.append('companyId', userData.companyId);
   
     for (let [key, val] of form.entries()) {
       console.log(`${key}: ${val}`);

@@ -20,6 +20,7 @@ import EnquiryForm from '../components/EnquiryForm';
 import AddAdvertisement from '../pages/AddAdvertisement';
 import VerifiedPage from '../pages/Verify';
 import AddPage from '../pages/AddPage';
+import ImageDetail from '../components/Posts/ImageDetail';
 
 const AppRoutes = () => (
   <Routes>
@@ -45,11 +46,13 @@ const AppRoutes = () => (
     <Route path="/property-view" element={<PropertyViewPage />} />
     <Route path="/verify" element={<VerifiedPage />} />
          
-
+   
 
     {/* Private Routes */}
     <Route element={<RequireAuth />}>
       <Route path="/dashboard" element={<Home />} />
+      <Route path="/image-detail" element={<ImageDetail />} />
+
       <Route path="/profile" element={<Profile />} />
       
       <Route path="/product" element={<AddProduct />} />

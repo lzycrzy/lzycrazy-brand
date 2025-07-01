@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlusCircle, FaCameraRetro } from 'react-icons/fa';
-import instance from '../../utils/axios';
+import instance from '../../lib/axios/axiosInstance'; 
 import { useParams } from 'react-router-dom';
 
 function AddServiceCard() {

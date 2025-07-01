@@ -1,6 +1,6 @@
 // HiringApplicationsTable.jsx
 import React, { useState, useEffect } from 'react';
-import axios from '../../lib/axios/axiosInstance';
+import instance from '../../lib/axios/axiosInstance';
 import { toast } from 'react-toastify';
 
 const HiringApplicationsTable = () => {
@@ -50,7 +50,7 @@ const HiringApplicationsTable = () => {
         ),
       };
 
-      const response = await axios.get('/hiring', { params });
+      const response = await instance.get('/hiring', { params });
 
       if (response.data.success) {
         console.log(response.data.data)
