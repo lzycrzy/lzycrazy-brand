@@ -780,8 +780,6 @@ import RecordingModal from './RecordingModal';
 
 const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess }) => {
 
-  const canvasRef = useRef(null);
-  const intervalRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [recordingMode, setRecordingMode] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
