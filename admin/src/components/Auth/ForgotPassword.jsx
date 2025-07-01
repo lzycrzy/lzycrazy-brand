@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { IoClose } from 'react-icons/io5';
-import instance from '../utils/axios';
+import instance from '../../utils/axios';
 
 const ForgotPassword = ({ onClose }) => {
   const [email, setEmail] = useState('');

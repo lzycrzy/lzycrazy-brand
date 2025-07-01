@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaEye, FaUser, FaPlay, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import instance from '../utils/axios';
+import instance from '../../utils/axios';
 
 const NewsList = () => {
   const [newsList, setNewsList] = useState([]);

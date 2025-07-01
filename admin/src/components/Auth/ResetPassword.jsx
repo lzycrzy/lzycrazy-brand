@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
-import instance from '../utils/axios';
+import instance from '../../utils/axios';
 
 const ResetPassword = () => {
   const { token } = useParams();

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaEye, FaTrash, FaPlay } from "react-icons/fa";
 import ApplicationModal from "./ApplicationModal";
-import instance from '../utils/axios';
+import instance from '../../utils/axios';
 
 const ApplicationsList = () => {
   const [applications, setApplications] = useState([]);
