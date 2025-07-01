@@ -377,7 +377,12 @@ navigate('/progress');
                             ? 'bg-gradient-to-r from-purple-600 to-pink-400 text-white'
                             : 'bg-gray-100'
                         }`}
-                        onClick={() => setActiveTab('register')}
+                        onClick={() => {
+                          navigate('/progress');
+                          // setActiveTab('register')
+
+
+                        }}
                       >
                         Create New Account
                       </button>

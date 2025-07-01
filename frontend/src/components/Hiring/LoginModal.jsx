@@ -359,42 +359,52 @@ const Input = ({
 
 const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
-  const [isChecking, setIsChecking] = useState(false);
+const [isChecking, setIsChecking] = useState(false);
+const [formError, setFormError] = useState('');
+
   const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!email) return toast.error('Please enter your email address');
-
+    setFormError(''); // Reset previous error
+  
+    if (!email) {
+      setFormError('Please enter your email address');
+      return;
+    }
+  
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) return toast.error('Enter a valid email address');
-
+    if (!emailRegex.test(email)) {
+      setFormError('Enter a valid email address');
+      return;
+    }
+  
     try {
       setIsChecking(true);
       const { data } = await axios.post('/v1/users/company-id-by-email', { email });
-
+  
       if (!data?.companyId) throw new Error('User not found or no company ID assigned');
-     console.log(data.companyId)
+  
       dispatch(setHiringInProgress(true));
-       
+  
       toast.success(`Welcome back! Company ID: lc${data.companyId.slice(-3)}`);
       setTimeout(() => {
         onLoginSuccess({ name: data.name, companyId: data.companyId });
       }, 800);
     } catch (error) {
       const msg = error?.response?.data?.message || 'No user found with this email.';
-      if (msg.toLowerCase().includes('not found')) {
-        toast.error('User not found. Please sign up first.');
+      if (msg.toLowerCase().includes('no user found')) {
+        setFormError('User not found. Please sign up first then fill hiring form.');
       } else {
-        toast.error(msg);
+        setFormError(msg);
       }
+      
       console.error('Email check error:', msg);
     } finally {
       setIsChecking(false);
     }
   };
-
+  
   const handleClose = () => {
     setEmail('');
     onClose();
@@ -424,6 +434,11 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
         <p className="mb-6 text-center text-sm text-gray-600">
           We'll verify your email and continue to the hiring form.
         </p>
+        {formError && (
+  <div className="mb-4 rounded-md bg-red-100 text-red-700 px-4 py-2 text-sm font-medium">
+    {formError}
+  </div>
+)}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
