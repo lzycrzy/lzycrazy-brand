@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, ChevronLeft, ChevronRight, Edit, Trash2 } from 'lucide-react';
-import axios from '../lib/axios/axiosInstance'; // Adjust the import path as necessary
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import instance from '../utils/axios';
 
 const UserTable = () => {
   const [users, setUsers] = useState([]); 
@@ -27,7 +27,7 @@ const UserTable = () => {
           throw new Error('No token found, please log in.');
         }
 
-        const response = await axios.get('/admin/userslist', {
+        const response = await instance.get('/admin/userslist', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -95,7 +95,7 @@ const UserTable = () => {
                 throw new Error('No token found, please log in.');
               }
 
-              const response = await axios.delete(`/admin/user/delete/${userId}`, {
+              const response = await instance.delete(`/admin/user/delete/${userId}`, {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },

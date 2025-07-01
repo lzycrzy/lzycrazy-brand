@@ -22,6 +22,8 @@ const listingSchema = new mongoose.Schema({
     default: {}
   },
 
+
+
   postedBy: {
     name: String,
     memberSince: String,
