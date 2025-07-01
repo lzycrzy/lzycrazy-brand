@@ -1,9 +1,5 @@
-
-
-
 import React, { useState, useEffect } from 'react';
-import axios from '../../lib/axios/axiosInstance'; // Adjust path if needed
-import instance from '../utils/axios';
+import instance from '../../utils/axios';
 
 const ClientEnquiry = () => {
   const [data, setData] = useState([]);

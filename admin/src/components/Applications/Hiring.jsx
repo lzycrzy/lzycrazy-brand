@@ -1,7 +1,7 @@
 // HiringApplicationsTable.jsx
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import instance from '../utils/axios';
+import instance from '../../utils/axios';
 
 const HiringApplicationsTable = () => {
   const [applications, setApplications] = useState([]);
