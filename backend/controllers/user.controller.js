@@ -605,41 +605,80 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 
 
-export const uploadStory = async (req, res) => {
-  try {
-    // Ensure file is uploaded
-    if (!req.file) {
-      return res.status(400).json({ message: "Image file is required" });
+// export const uploadStory = async (req, res) => {
+//   try {
+//     // Ensure file is uploaded
+//     if (!req.file) {
+//       return res.status(400).json({ message: "Image file is required" });
        
-    }
-    console.log("Uploading story for user:", req.user); // Make sure _id is there
-    console.log("File received:", req.file?.path);
-    // Upload to Cloudinary
-    const result = await uploadToCloudinary(req.file.path, {
-      resource_type: "image",
-    });
+//     }
+//     console.log("Uploading story for user:", req.user); // Make sure _id is there
+//     console.log("File received:", req.file?.path);
+//     // Upload to Cloudinary
+//     const result = await uploadToCloudinary(req.file.path, {
+//       resource_type: "image",
+//     });
 
-    // If upload failed
+//     // If upload failed
     
 
-    // Create story
+//     // Create story
+//     const story = await Story.create({
+//       user: req.user._id,
+//       image: result,
+//       createdAt: new Date(),
+//       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24hr
+//       views: [],
+//     });
+//     console.log(" Story saved in DB:", story); 
+
+//     // Delete local file
+//     fs.unlink(req.file.path, (err) => {
+//       if (err) console.error("Failed to delete temp file:", err);
+//     });
+
+//     res.status(201).json(story);
+//   } catch (err) {
+//     console.error("Upload story error:", err.message || err);
+//     res.status(500).json({ message: "Failed to upload story", error: err.message });
+//   }
+// };
+export const uploadStory = async (req, res) => {
+  try {
+    const { textContent, backgroundColor, fontStyle } = req.body;
+    let image = null;
+    let video = null;
+
+    if (req.file) {
+      const fileType = req.file.mimetype.startsWith("video") ? "video" : "image";
+      const result = await uploadToCloudinary(req.file.path, {
+        resource_type: fileType,
+      });
+
+      if (fileType === "image") image = result;
+      else video = result;
+
+      fs.unlink(req.file.path, err => {
+        if (err) console.error("File cleanup error:", err);
+      });
+    }
+
     const story = await Story.create({
       user: req.user._id,
-      image: result,
+      image,
+      video,
+      text: textContent ? {
+        content: textContent,
+        backgroundColor,
+        fontStyle,
+      } : undefined,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24hr
-      views: [],
-    });
-    console.log(" Story saved in DB:", story); 
-
-    // Delete local file
-    fs.unlink(req.file.path, (err) => {
-      if (err) console.error("Failed to delete temp file:", err);
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
     res.status(201).json(story);
   } catch (err) {
-    console.error("Upload story error:", err.message || err);
+    console.error("Upload story error:", err);
     res.status(500).json({ message: "Failed to upload story", error: err.message });
   }
 };

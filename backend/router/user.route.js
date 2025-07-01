@@ -83,7 +83,17 @@ router.get('/getMe',isAuthenticated,  getMe);
 
 //story
 router.get('/story', isAuthenticated, getStories);
-router.post('/story',isAuthenticated,upload.single('image'), uploadStory);
+// router.post('/story',isAuthenticated,upload.single('image'), uploadStory);
+router.post(
+  '/story',
+  isAuthenticated,
+  upload.fields([
+    { name: 'image', maxCount: 1 },  // for photo stories
+    { name: 'media', maxCount: 1 },  // for video stories, or you can use 'video' if you prefer
+  ]),
+  uploadStory
+);
+
 
 // User profile update route
 router.put('/updateMe', isAuthenticated, upload.single('photo'), updateMe);
