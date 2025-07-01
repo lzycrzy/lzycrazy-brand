@@ -32,7 +32,7 @@ const hiringSchema = new mongoose.Schema({
     required: [true, 'Experience level is required'],
     enum: [
                   'Dream Job',
-                  'Experience ',
+                  'Experience',
                   'First Job',
                   'Fresher',
                   'Internship',
