@@ -541,7 +541,7 @@ export const updatePassword = catchAsyncErrors(async (req, res, next) => {
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   const { email } = req.body;
   const user = await userModel.findOne({ email });
-   console.log(user.email);
+  //  console.log(user.email);
   if (!user) {
     return next(new ErrorHandler('User not Found', 404));
   }
@@ -550,10 +550,18 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   const resetURL = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
-  const message = `Your password reset link is: \n\n ${resetURL} \n\n If you did not request this, please ignore this email.`;
+  // const message = `Your password reset link is: \n\n ${resetURL} \n\n If you did not request this, please ignore this email.`;
+    const message = `
+      Hi ${user.fullName || 'User'},\n\n
+      You (or someone else) requested a password reset for your account.\n
+      Please click on the following link to reset your password:\n
+      ${resetURL}\n\n
+      If you did not request this, please ignore this email.\n
+      Thank you.
+    `;
 
   try {
-    console.log("Sending email with link:", message);
+    // console.log("Sending email with link:", message);
     await sendEmail({
       email: user.email,
       subject: 'Password Recovery',
@@ -913,7 +921,7 @@ export const submitApplication = async (req, res) => {
     } = req.body;
 
     console.log(req.file); // includes path, size, filename, etc.
-
+    console.log(lycrazyId);
     const result = req.file?.path || null;
     const videoUrl = await uploadToCloudinary(result);
     console.log(videoUrl)

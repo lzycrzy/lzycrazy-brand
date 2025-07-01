@@ -43,6 +43,7 @@ const HiringTasksModal = ({ isOpen, onClose, onSubmitSuccess }) => {
           }}
         >
           {/* Task 1 */}
+          {/* Task 1 */}
           <div>
             <label className="mb-1 block text-sm font-semibold text-gray-800">
               Task 1
@@ -64,6 +65,7 @@ const HiringTasksModal = ({ isOpen, onClose, onSubmitSuccess }) => {
             </div>
           </div>
 
+          {/* Task 2 */}
           {/* Task 2 */}
           <div>
             <label className="mb-1 block text-sm font-semibold text-gray-800">
@@ -105,3 +107,4 @@ const HiringTasksModal = ({ isOpen, onClose, onSubmitSuccess }) => {
 };
 
 export default HiringTasksModal;
+

@@ -200,7 +200,7 @@ const Input = ({
   type = 'text',
   required = false,
 }) => (
-  <div>
+  <div className="w-full">
     <label className="mb-1 block text-sm font-medium text-gray-700">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
@@ -234,9 +234,9 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
       const { data } = await axios.post('/v1/users/company-id-by-email', { email });
 
       if (!data?.companyId) throw new Error('User not found or no company ID assigned');
-
+     console.log(data.companyId)
       dispatch(setHiringInProgress(true));
-
+       
       toast.success(`Welcome back! Company ID: lc${data.companyId.slice(-3)}`);
       setTimeout(() => {
         onLoginSuccess({

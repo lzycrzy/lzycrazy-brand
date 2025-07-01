@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Settings, Edit, Delete, Save, Plus, X, Search, Upload, Image
 } from 'lucide-react';
-import instance from '../utils/axios';
+import instance from '../lib/axios/axiosInstance';
 
 const AddServices1 = () => {
   const [services, setServices] = useState([]);

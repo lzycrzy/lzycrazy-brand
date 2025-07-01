@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import axios from '../../lib/axios/axiosInstance';
 import { IoClose } from 'react-icons/io5';
+import instance from '../../utils/axios';
 
 const ForgotPassword = ({ onClose }) => {
   const [email, setEmail] = useState('');
@@ -25,7 +25,7 @@ const ForgotPassword = ({ onClose }) => {
     setMsg('');
     setError('');
     try {
-      const res = await axios.post('/admin/password/forgot', { email });
+      const res = await instance.post('/admin/password/forgot', { email });
       setMsg(res.data.message);
       setSubmitted(true);
     } catch (err) {

@@ -20,6 +20,8 @@ import EnquiryForm from '../components/EnquiryForm';
 import AddAdvertisement from '../pages/AddAdvertisement';
 import VerifiedPage from '../pages/Verify';
 import AddPage from '../pages/AddPage';
+import WorkInProgress from '../components/workInProgress/WorkInProgress';
+import ImageDetail from '../components/Posts/ImageDetail';
 
 const AppRoutes = () => (
   <Routes>
@@ -32,24 +34,42 @@ const AppRoutes = () => (
         </AuthRedirect>
       }
     />
+    {/* <Route path="/progress" element={<WorkInProgress />} /> // Work in Progress Page
     <Route path="/password/forgot" element={<ForgotPassword />} />
     <Route path="/password/reset/:token" element={<ResetPassword />} />
+    <Route path="/enquire" element={<EnquiryForm />} />
+    <Route path="/about" element={<AboutUs />} />
+    <Route path="/services" element={<Services />} />
+    <Route path="/news" element={<WorkInProgress />} />
+    <Route path="/terms" element={<TermPage />} />
+    <Route path="/privacy" element={<PrivacyPolicyPage />} />
+    <Route path="/market" element={<WorkInProgress />} />
+    <Route path="/property" element={<PropertyListing />} />
+    <Route path="/property-view" element={<PropertyViewPage />} />
+    <Route path="/verify" element={<VerifiedPage />} /> */}
+         
+    <Route path="/progress" element={<WorkInProgress />} /> // Work in Progress Page
+    <Route path="/password/forgot" element={<WorkInProgress />} />
+    <Route path="/password/reset/:token" element={<WorkInProgress />} />
     <Route path="/enquire" element={<EnquiryForm />} />
     <Route path="/about" element={<AboutUs />} />
     <Route path="/services" element={<Services />} />
     <Route path="/news" element={<NewsFeed />} />
     <Route path="/terms" element={<TermPage />} />
     <Route path="/privacy" element={<PrivacyPolicyPage />} />
-    <Route path="/market" element={<MarketplaceHome />} />
+    <Route path="/market" element={<WorkInProgress />} />
+    {/* <Route path="/market" element={<MarketplaceHome />} /> */}
     <Route path="/property" element={<PropertyListing />} />
     <Route path="/property-view" element={<PropertyViewPage />} />
     <Route path="/verify" element={<VerifiedPage />} />
          
-
+   
 
     {/* Private Routes */}
     <Route element={<RequireAuth />}>
       <Route path="/dashboard" element={<Home />} />
+      <Route path="/image-detail" element={<ImageDetail />} />
+
       <Route path="/profile" element={<Profile />} />
       
       <Route path="/product" element={<AddProduct />} />

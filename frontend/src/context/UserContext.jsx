@@ -39,9 +39,15 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  // useEffect(() => {
+  //   fetchUser();
+  // }, []);
   useEffect(() => {
+   
+  
     fetchUser();
   }, []);
+  
 
   const logout1 = () => {
     localStorage.clear();

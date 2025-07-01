@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
-import axios from '../../lib/axios/axiosInstance';
+import instance from '../../utils/axios';
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -29,7 +29,7 @@ const ResetPassword = () => {
     }
 
     try {
-      const res = await axios.put(`/admin/password/reset/${token}`, {
+      const res = await instance.put(`/admin/password/reset/${token}`, {
         password,
         confirmPassword,
       });
