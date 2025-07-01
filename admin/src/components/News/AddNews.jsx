@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaCamera } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import instance from '../utils/axios';
+import instance from '../../utils/axios';
 
 const MAX_VIDEO_SIZE_MB = 50;
 const MAX_IMAGE_SIZE_MB = 5;

@@ -317,6 +317,7 @@ const Services = () => {
     const fetchServices = async () => {
       try {
         const response = await axios.get('/v1/services');
+        console.log("Services API response:", response.data);
         setServices(response.data || []);
       } catch (error) {
         console.error('Error fetching services:', error);
@@ -329,6 +330,7 @@ const Services = () => {
   const handleCardClick = (service) => {
     setSelectedService(service);
   };
+  
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
