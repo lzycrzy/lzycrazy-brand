@@ -60,61 +60,57 @@ const Auth = () => {
   const handleRegisterChange = (e) =>
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
 
-  // const handleLoginSubmit = async (e) => {
-  //   e.preventDefault();
-  //   // navigate('/progress');
-  //   const { email, password } = loginData;
-  
-  //   // ✅ Basic validations before triggering loading or API call
-  //   if (!email || !password) {
-  //     toast.error('Please enter both email and password');
-  //     return;
-  //   }
-  
-  //   // ✅ Email validation
-  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //   if (!emailRegex.test(email)) {
-  //     toast.error('Please enter a valid email address');
-  //     return;
-  //   }
-  
-  //   try {
-  //     setLoading(true); // ✅ Only show loading during API call
-  
-  //     const { data } = await axios.post('/v1/users/login', loginData);
-  
-  //     // ✅ Save to local storage
-  //     if (data?.token) localStorage.setItem('token', data.token);
-  //     if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
-  
-  //     // ✅ Update Redux store
-  //     dispatch(login({ success: true, data: data.user, token: data.token }));
-  
-  //     // ✅ Update context
-  //     fetchUser();
-  
-  //     // ✅ Success toast
-  //     toast.success(`🎉 Welcome back, ${data.user.fullName || 'User'}!`);
-  
-  //     // ✅ Delay navigation so toast appears
-  //     setTimeout(() => {
-  //       navigate('/dashboard', { replace: true, state: { welcome: true } });
-  //     }, 300);
-  
-  //   } catch (error) {
-  //     const msg = error?.response?.data?.message || 'Login failed. Try again.';
-  //     toast.error(msg);
-  //     console.error('Login error:', msg);
-  
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handleLoginSubmit = async (e) => {
-e.preventDefault();
-navigate('/progress');
-
-  }
+    e.preventDefault();
+    // navigate('/progress');
+    const { email, password } = loginData;
+  
+    // ✅ Basic validations before triggering loading or API call
+    if (!email || !password) {
+      toast.error('Please enter both email and password');
+      return;
+    }
+  
+    // ✅ Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+  
+    try {
+      setLoading(true); // ✅ Only show loading during API call
+  
+      const { data } = await axios.post('/v1/users/login', loginData);
+  
+      // ✅ Save to local storage
+      if (data?.token) localStorage.setItem('token', data.token);
+      if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
+  
+      // ✅ Update Redux store
+      dispatch(login({ success: true, data: data.user, token: data.token }));
+  
+      // ✅ Update context
+      fetchUser();
+  
+      // ✅ Success toast
+      toast.success(`🎉 Welcome back, ${data.user.fullName || 'User'}!`);
+  
+      // ✅ Delay navigation so toast appears
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true, state: { welcome: true } });
+      }, 300);
+  
+    } catch (error) {
+      const msg = error?.response?.data?.message || 'Login failed. Try again.';
+      toast.error(msg);
+      console.error('Login error:', msg);
+  
+    } finally {
+      setLoading(false);
+    }
+  };
+ 
   
 
 //   const handleRegisterSubmit = async (e) => {
