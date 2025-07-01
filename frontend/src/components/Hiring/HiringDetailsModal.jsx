@@ -34,7 +34,7 @@
 
 //   const handleChange = (e) => {
 //     const { name, value } = e.target;
-    
+
 //     // Handle introduction word count validation
 //     if (name === 'introduction') {
 //       const wordCount = value.trim().split(/\s+/).filter(word => word.length > 0).length;
@@ -43,7 +43,7 @@
 //         return;
 //       }
 //     }
-    
+
 //     setFormData((prev) => ({ ...prev, [name]: value }));
 //   };
 
@@ -67,29 +67,29 @@
 //     // Check video duration
 //     const video = document.createElement('video');
 //     video.preload = 'metadata';
-    
+
 //     video.onloadedmetadata = () => {
 //       window.URL.revokeObjectURL(video.src);
 //       const duration = video.duration;
-      
+
 //       if (duration > 15) {
 //         toast.error('Video must be 15 seconds or less. Please upload a shorter video.');
 //         e.target.value = ''; // Clear the input
 //         return;
 //       }
-      
+
 //       // Video is valid
 //       setVideoFile(file);
 //       setRecordedVideoURL(null);
 //       setRecordedVideoBlob(null);
 //       toast.success('Video uploaded successfully!');
 //     };
-    
+
 //     video.onerror = () => {
 //       toast.error('Error loading video file. Please try another file.');
 //       e.target.value = ''; // Clear the input
 //     };
-    
+
 //     video.src = URL.createObjectURL(file);
 //   };
 
@@ -97,7 +97,7 @@
 //   const startRecording = async () => {
 //     try {
 //       const stream = await navigator.mediaDevices.getUserMedia({
-//         video: { 
+//         video: {
 //           width: { ideal: 1280 },
 //           height: { ideal: 720 },
 //           facingMode: 'user'
@@ -115,7 +115,7 @@
 
 //       // Set up MediaRecorder with better browser compatibility
 //       let options = { mimeType: 'video/webm;codecs=vp9' };
-      
+
 //       // Fallback for Safari and other browsers
 //       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
 //         options = { mimeType: 'video/webm' };
@@ -139,13 +139,13 @@
 //         setRecordedVideoURL(url);
 //         setRecordedVideoBlob(blob);
 //         setVideoFile(null); // Clear uploaded file if any
-        
+
 //         // Stop all tracks and clear video element
 //         stream.getTracks().forEach(track => track.stop());
 //         if (videoRef.current) {
 //           videoRef.current.srcObject = null;
 //         }
-        
+
 //         toast.success('Video recorded successfully!');
 //       };
 
@@ -160,7 +160,7 @@
 //       recordingTimerRef.current = setInterval(() => {
 //         setRecordingTime(prev => {
 //           const newTime = prev + 1;
-          
+
 //           // Stop recording at exactly 15 seconds
 //           if (newTime >= 15) {
 //             if (recorder.state === 'recording') {
@@ -222,7 +222,7 @@
 //   const validateForm = () => {
 //     const requiredFields = {
 //       country: 'Country',
-//       state: 'State', 
+//       state: 'State',
 //       city: 'City',
 //       education: 'Education',
 //       experienceLevel: 'Experience Level',
@@ -260,20 +260,20 @@
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
-    
+
 //     if (!validateForm()) {
 //       return;
 //     }
-    
+
 //     setIsSubmitting(true);
 
 //     const form = new FormData();
-    
+
 //     // Add form data
 //     Object.keys(formData).forEach((key) => {
 //       form.append(key, formData[key].trim());
 //     });
-    
+
 //     // Add video (either uploaded file or recorded blob)
 //     if (recordedVideoBlob) {
 //       // Convert blob to file for upload
@@ -288,20 +288,20 @@
 //     try {
 //       // API endpoint matching your backend route and baseURL
 //       const response = await axios.post('/v1/hiring', form, {
-//         headers: { 
+//         headers: {
 //           'Content-Type': 'multipart/form-data',
 //         },
 //       });
-     
+
 //       toast.success('Application submitted successfully!');
 //       if (onSubmitSuccess) onSubmitSuccess(true);
-      
+
 //       // Clear form and close modal
 //       clearForm();
 //       onClose();
 //     } catch (err) {
-//       const msg = err?.response?.data?.message || 
-//                   err?.response?.data?.errors?.[0] || 
+//       const msg = err?.response?.data?.message ||
+//                   err?.response?.data?.errors?.[0] ||
 //                   'Submission failed. Please try again.';
 //       toast.error(msg);
 //       console.error('Submission error:', err);
@@ -321,24 +321,24 @@
 //       introduction: '',
 //     });
 //     setVideoFile(null);
-    
+
 //     // Clear recording states
 //     setRecordedVideoURL(null);
 //     setRecordedVideoBlob(null);
 //     setRecordingTime(0);
 //     setIsRecording(false);
 //     setRecordingMode('upload');
-    
+
 //     // Clear timers
 //     if (recordingTimerRef.current) {
 //       clearInterval(recordingTimerRef.current);
 //     }
-    
+
 //     // Stop any ongoing recording
 //     if (mediaRecorderRef.current && isRecording) {
 //       mediaRecorderRef.current.stop();
 //     }
-    
+
 //     // Stop camera if running
 //     if (videoRef.current?.srcObject) {
 //       videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
@@ -363,17 +363,17 @@
 //       if (recordingTimerRef.current) {
 //         clearInterval(recordingTimerRef.current);
 //       }
-      
+
 //       // Cleanup video URL
 //       if (recordedVideoURL) {
 //         URL.revokeObjectURL(recordedVideoURL);
 //       }
-      
+
 //       // Stop any ongoing recording
 //       if (mediaRecorderRef.current && isRecording) {
 //         mediaRecorderRef.current.stop();
 //       }
-      
+
 //       // Stop camera
 //       if (videoRef.current?.srcObject) {
 //         videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
@@ -396,7 +396,7 @@
 //           <Loader className="h-10 w-10 animate-spin text-blue-600" />
 //         </div>
 //       )}
-      
+
 //       <div className="relative flex h-[95vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg bg-white p-6 shadow-2xl">
 //         <button
 //           onClick={handleClose}
@@ -509,7 +509,7 @@
 //               <label className="mb-1 block text-sm font-medium text-gray-700">
 //                 15s Video Introduction <span className="text-red-500">*</span>
 //               </label>
-              
+
 //               {/* Recording Mode Toggle */}
 //               <div className="mt-2 mb-4 flex rounded-lg border border-gray-300 p-1">
 //                 <button
@@ -546,7 +546,7 @@
 //                     className="mt-1 w-full text-sm file:mr-4 file:rounded file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white hover:file:bg-blue-700"
 //                   />
 //                   <p className="mt-1 text-xs text-gray-500">Max size: 50MB, Max duration: 15 seconds. Formats: MP4, WebM, MOV, AVI, etc.</p>
-                  
+
 //                   {videoFile && (
 //                     <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
 //                       <p className="text-sm text-green-700 font-medium">✅ Video uploaded successfully!</p>
@@ -593,14 +593,14 @@
 //                             {recordingTime}/15s
 //                           </span>
 //                         </div>
-                        
+
 //                         <div className="w-full bg-red-200 rounded-full h-2 mb-3">
-//                           <div 
+//                           <div
 //                             className="bg-red-600 h-2 rounded-full transition-all duration-1000"
 //                             style={{ width: `${(recordingTime / 15) * 100}%` }}
 //                           ></div>
 //                         </div>
-                        
+
 //                         <button
 //                           type="button"
 //                           onClick={stopRecording}
@@ -616,14 +616,14 @@
 //                     <div className="mt-2">
 //                       <div className="bg-green-50 border border-green-200 rounded-md p-4">
 //                         <p className="text-green-700 font-medium mb-3">✅ Video recorded successfully!</p>
-                        
+
 //                         <video
 //                           src={recordedVideoURL}
 //                           controls
 //                           className="w-full rounded-md border mb-3"
 //                           style={{ maxHeight: '200px' }}
 //                         />
-                        
+
 //                         <div className="flex gap-2">
 //                           <button
 //                             type="button"
@@ -654,7 +654,7 @@
 //                   <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
 //                   <p className="text-sm text-red-600 font-medium">🔴 Recording Live - {recordingTime}/15s</p>
 //                 </div>
-                
+
 //                 <div className="relative w-full">
 //                   <video
 //                     ref={videoRef}
@@ -672,7 +672,7 @@
 //                     {15 - recordingTime}s left
 //                   </div>
 //                 </div>
-                
+
 //                 <p className="mt-2 text-center text-sm font-medium text-red-700">
 //                   Speak clearly and introduce yourself! Recording will auto-stop at 15 seconds.
 //                 </p>
@@ -687,13 +687,13 @@
 //               >
 //                 Clear Form
 //               </button>
-              
+
 //               <button
 //                 type="submit"
 //                 disabled={isSubmitting || (!videoFile && !recordedVideoBlob)}
 //                 className={`rounded-md px-6 py-2 text-white font-medium transition-colors ${
 //                   isSubmitting || (!videoFile && !recordedVideoBlob)
-//                     ? 'bg-gray-400 cursor-not-allowed' 
+//                     ? 'bg-gray-400 cursor-not-allowed'
 //                     : 'bg-blue-600 hover:bg-blue-700'
 //                 }`}
 //               >
@@ -766,9 +766,6 @@
 
 // export default HiringDetailsModal;
 
-
-
-
 // //new
 // HiringDetailsModal.jsx
 import React, { useState, useRef, useEffect } from 'react';
@@ -778,37 +775,39 @@ import Loader from '../common/Spinner';
 import { toast } from 'react-toastify';
 import RecordingModal from './RecordingModal';
 
-const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess }) => {
-
+const HiringDetailsModal = ({
+  isOpen,
+  onClose,
+  onBack,
+  userData,
+  onSubmitSuccess,
+}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [recordingMode, setRecordingMode] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
   const [recordedVideoBlob, setRecordedVideoBlob] = useState(null);
-
+  const [introWordCount, setIntroWordCount] = useState(0);
   const [formData, setFormData] = useState({
-   
     country: '',
     state: '',
     city: '',
     education: '',
     experienceLevel: '',
     jobCategory: '',
-    introduction: ''
+    introduction: '',
   });
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
     // Handle introduction word count validation
     if (name === 'introduction') {
-      const wordCount = value.trim().split(/\s+/).filter(word => word.length > 0).length;
-      if (wordCount > 50) {
+      setIntroWordCount(value.trim().split('').length);
+      if (introWordCount + 1 >= 50) {
         toast.error('Introduction cannot exceed 50 words');
         return;
       }
     }
-    
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -822,7 +821,7 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
   const validateForm = () => {
     const requiredFields = {
       country: 'Country',
-      state: 'State', 
+      state: 'State',
       city: 'City',
       education: 'Education',
       experienceLevel: 'Experience Level',
@@ -838,7 +837,10 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
     }
 
     // Validate introduction word count
-    const wordCount = formData.introduction.trim().split(/\s+/).filter(word => word.length > 0).length;
+    const wordCount = formData.introduction
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
     if (wordCount > 50) {
       toast.error('Introduction must not exceed 50 words');
       return false;
@@ -860,59 +862,64 @@ const HiringDetailsModal = ({ isOpen, onClose, onBack, userData, onSubmitSuccess
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsSubmitting(true);
 
-    console.log(formData)
+    console.log(formData);
     const form = new FormData();
-    
+
     // Add form data
     Object.keys(formData).forEach((key) => {
       form.append(key, formData[key].trim());
     });
-    
+
     // Add video (recorded blob)
     if (recordedVideoBlob) {
       // Convert blob to file for upload
-      const videoFileFromBlob = new File([recordedVideoBlob], 'intro-video.webm', {
-        type: 'video/webm',
-      });
-      
+      const videoFileFromBlob = new File(
+        [recordedVideoBlob],
+        'intro-video.webm',
+        {
+          type: 'video/webm',
+        },
+      );
+
       form.append('video', videoFileFromBlob);
     } else if (videoFile) {
       form.append('video', videoFile);
     }
-    console.log("userData before append:", userData);
+    console.log('userData before append:', userData);
 
-    console.log(userData.name)
+    console.log(userData.name);
     console.log('Appending name:', userData.name); // confirm right before append
-form.append('name', userData.name);
-  
+    form.append('name', userData.name);
+
     for (let [key, val] of form.entries()) {
       console.log(`${key}: ${val}`);
     }
     try {
       // API endpoint matching your backend route and baseURL
       const response = await axios.post('/v1/hiring', form, {
-        headers: { 
+        headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-     
+
       toast.success('Application submitted successfully!');
       if (onSubmitSuccess) onSubmitSuccess(true);
-      
+
       // Clear form and close modal
       clearForm();
       onClose();
     } catch (err) {
-      const msg = err?.response?.data?.message || 
-                  err?.response?.data?.errors?.[0] || 
-                  'Submission failed. Please try again.';
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.errors?.[0] ||
+        'Submission failed. Please try again.';
       toast.error(msg);
       console.error('Submission error:', err);
     } finally {
@@ -922,7 +929,7 @@ form.append('name', userData.name);
 
   const clearForm = () => {
     setFormData({
-      name:'',
+      name: '',
       country: '',
       state: '',
       city: '',
@@ -932,7 +939,7 @@ form.append('name', userData.name);
       introduction: '',
     });
     setVideoFile(null);
-    
+
     // Clear recording states
     setRecordedVideoBlob(null);
     setRecordingMode(false);
@@ -947,24 +954,17 @@ form.append('name', userData.name);
     clearForm();
     onBack();
   };
-
-
-  // Get current word count for introduction
-  const getWordCount = () => {
-    return formData.introduction.trim().split(/\s+/).filter(word => word.length > 0).length;
-  };
-
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 z-[1000] flex h-screen w-screen items-center justify-center backdrop-blur-sm">
+    <div className="fixed inset-0 z-[1000] flex h-screen w-screen items-center justify-center bg-white/40">
       {isSubmitting && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/70 backdrop-blur-sm">
           <Loader className="h-10 w-10 animate-spin text-blue-600" />
         </div>
       )}
-      
-      <div className="relative flex h-[95vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg bg-white p-6 shadow-2xl">
+
+      <div className="relative flex h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-lg bg-white p-6 shadow-2xl">
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-red-500"
@@ -976,23 +976,22 @@ form.append('name', userData.name);
           COMPLETE YOUR APPLICATION
         </h2>
         <p className="mb-2 text-center text-sm text-gray-600">
-          Welcome, <strong>{userData?.name || 'User'}</strong>! Please complete your hiring form.
+          Welcome, {userData?.name || 'User'}! Please complete your hiring form.
         </p>
-        
+
         <button
           onClick={handleBackClick}
-          className="mb-4 self-start text-sm text-blue-600 hover:underline flex items-center gap-1"
+          className="mb-4 flex items-center gap-1 self-start text-sm text-blue-600 hover:underline"
         >
           ← Back to login
         </button>
-        <div className='px-2 text-gray-600 text-sm mb-2'>
+        <div className="mb-2 px-2 text-lg font-semibold text-gray-600">
           <span>Your LzyCrazyID: lcxxxxxxx{userData?.companyId.slice(10)}</span>
         </div>
 
-        <div className="max-h-[calc(95vh-200px)] flex-grow overflow-y-auto pr-2 pl-2">
-          <form className="space-y-4" onSubmit={handleSubmit}>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="scrollbar max-[calc(95vh-200px)] flex-grow overflow-y-auto pr-2 pl-2">
+          <form className="space-y-1" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 required
                 label="Country"
@@ -1011,7 +1010,7 @@ form.append('name', userData.name);
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 required
                 label="City"
@@ -1029,90 +1028,152 @@ form.append('name', userData.name);
                 placeholder="Your highest education"
               />
             </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Experiance and category */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Select
                 required
                 label="Experience Level"
                 name="experienceLevel"
                 value={formData.experienceLevel}
                 onChange={handleChange}
-                options={['Fresher', 'Junior', 'Mid-level', 'Senior', 'Expert']}
+                options={[
+                  ' Dream Job',
+                  'Experience ',
+                  'First Job',
+                  'Fresher',
+                  'Internship',
+                ]}
               />
               <Select
+              
+                size="5"
                 required
                 label="Job Category"
                 name="jobCategory"
                 value={formData.jobCategory}
                 onChange={handleChange}
-                options={['Marketing', 'Sales', 'Development', 'Operations', 'Design', 'HR', 'Finance', 'Engineering', 'Customer Service', 'Content Writing', 'Data Analysis', 'Project Management']}
+                options={[
+                  '3D Designer',
+                  'Architecture Designer',
+                  'Area Manager',
+                  'Bank Manager',
+                  'Billing Executive',
+                  'Business Analyst',
+                  'Business Development Executive',
+                  'CA CS ',
+                  'Civil Engineer',
+                  'Construction Engineer',
+                  'Content Writer',
+                  'Cricket Coach',
+                  'Customer Service Executive',
+                  'Delivery Executive',
+                  'Django Developer',
+                  'E-Commerce Manager',
+                  'Ethical Hacker Engineer',
+                  'Event Management Executive',
+                  'Fashion Designer',
+                  'Field Executive',
+                  'Finance Advisor',
+                  'Football Coach ',
+                  'Graphic Designer',
+                  'Hardware Engineer',
+                  'Interior Designer',
+                  'Java, Developer',
+                  'Kotlin, Developer',
+                  'Laser Engineer',
+                  'Legal Advisor',
+                  'Lens Engineer',
+                  'Light Technology Engineer',
+                  'Marketing & Sales Executive',
+                  'Marketing Boys',
+                  'Marketing Girls',
+                  'Motion Graphic',
+                  'Network Engineer',
+                  'Node Developer',
+                  'Payment Gateway Engineer',
+                  'Property Sales Executive',
+                  'Python Developer',
+                  'React Developer',
+                  'Real State Manager',
+                  'Sales Manager',
+                  'Scanner Engineer',
+                  'Security Executive',
+                  'Software Developer',
+                  'Software Engineer',
+                  'Swift, Developer',
+                  'Tele-Caller Executive',
+                  'UI UX Designer',
+                  'VFX Designer',
+                ]}
               />
             </div>
 
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
-                Introduction (Max 50 Words) <span className="text-red-500">*</span>
+                Introduction (Max 50 Words){' '}
+                <span className="text-red-500">*</span>
               </label>
               <textarea
                 name="introduction"
                 value={formData.introduction}
                 onChange={handleChange}
-                rows={4}
                 required
                 placeholder="Tell us about yourself in 50 words or less..."
-                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors resize-vertical"
+                className="resize-vertical w-full rounded-md border border-gray-300 px-4 py-2 transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
-              <div className="flex justify-between items-center mt-1">
+              <div className="mt-1 flex items-center justify-between">
                 <p className="text-xs text-gray-500">
-                  Word count: {getWordCount()}/50
+                  Word count: {introWordCount}/50
                 </p>
-                {getWordCount() > 45 && (
-                  <p className="text-xs text-orange-600 font-medium">
-                    {50 - getWordCount()} words remaining
+
+                {introWordCount > 45 && (
+                  <p className="text-xs font-medium text-orange-600">
+                    {50 - introWordCount} words remaining
                   </p>
                 )}
               </div>
             </div>
 
-            <div className=''>
+            <div className="">
               <label className="mb-1 block text-sm font-medium text-gray-700">
                 15s Video Introduction <span className="text-red-500">*</span>
-                <span className={`${recordedVideoBlob ? "flex text-green-500" : "hidden"}`}>Video Recorded Successfully</span>
+                <span
+                  className={`${recordedVideoBlob ? 'flex text-green-500' : 'hidden'}`}
+                >
+                  Video Recorded Successfully
+                </span>
               </label>
-              
+
               {/* Recording Mode Toggle */}
               <div className="mt-2 mb-4 flex rounded-lg border border-gray-300 p-1">
-
                 <button
                   type="button"
                   onClick={() => setRecordingMode(true)}
-                  className={` flex-1 rounded-md py-2 px-3 text-sm font-medium transition-colors`}
+                  className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors`}
                 >
                   Record Video
                 </button>
               </div>
 
-              {recordingMode && <RecordingModal setRecordingMode={setRecordingMode} recordingMode={recordingMode} setRecordedVideoBlob={setRecordedVideoBlob} setVideoFile={setVideoFile} />}
+              {recordingMode && (
+                <RecordingModal
+                  setRecordingMode={setRecordingMode}
+                  recordingMode={recordingMode}
+                  setRecordedVideoBlob={setRecordedVideoBlob}
+                  setVideoFile={setVideoFile}
+                />
+              )}
             </div>
 
             {/* Recording Live Preview - Only show during recording */}
-            
 
-            <div className="flex justify-between gap-3 pt-6 border-t">
-              <button
-                type="button"
-                onClick={clearForm}
-                className="rounded-md bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300 transition-colors"
-              >
-                Clear Form
-              </button>
-              
+            <div className="flex justify-end gap-3 border-t pt-6">
               <button
                 type="submit"
                 disabled={isSubmitting || (!videoFile && !recordedVideoBlob)}
-                className={`rounded-md px-6 py-2 text-white font-medium transition-colors ${
+                className={`rounded-md px-6 py-2 font-medium text-white transition-colors ${
                   isSubmitting || (!videoFile && !recordedVideoBlob)
-                    ? 'bg-gray-400 cursor-not-allowed' 
+                    ? 'cursor-not-allowed bg-gray-400'
                     : 'bg-blue-600 hover:bg-blue-700'
                 }`}
               >
@@ -1148,7 +1209,7 @@ const Input = ({
       onChange={onChange}
       placeholder={placeholder}
       required={required}
-      className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors"
+      className="w-full rounded-md border border-gray-300 px-4 py-2 transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none"
     />
   </div>
 );
@@ -1171,7 +1232,7 @@ const Select = ({
       value={value}
       onChange={onChange}
       required={required}
-      className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors"
+      className="w-full rounded-md border border-gray-300 px-4 py-2 transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none"
     >
       <option value="">-- Select --</option>
       {options.map((opt, i) => (

@@ -45,7 +45,6 @@ function RecordingModal({ setVideoFile, setRecordingMode, recordingMode, setReco
 
   const startRecording = async () => {
     setIsRecording(true);
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -164,9 +163,8 @@ function RecordingModal({ setVideoFile, setRecordingMode, recordingMode, setReco
         mediaRecorderRef.current.stop();
       }
 
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-        videoRef.current.srcObject = null;
+        if (streamRef?.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);

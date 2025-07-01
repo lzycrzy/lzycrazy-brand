@@ -20,3 +20,7 @@
     animation: spin 12s linear infinite;
   }
 }
+.scrollbar{
+    -ms-overflow-style:none;
+  scrollbar-width:none;
+}
