@@ -132,7 +132,7 @@ const Header = () => {
           </p>
           {user?.profile?.companyId && (
     <p className="text-xs text-gray-500 mt-1">
-      ID: <span className="font-mono">{user.profile.companyId.replace(/^lz\d{8}/, 'lz')}</span>
+      ID: <span className="font-mono">{user.profile.companyId.replace(/^lc\d{8}/, 'lc')}</span>
     </p>
   )}
           <p className="truncate text-sm text-gray-600">

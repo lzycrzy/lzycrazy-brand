@@ -23,6 +23,7 @@ export const getServiceById = async (req, res) => {
 
 //  Create a new service
 export const createService = async (req, res) => {
+  console.log("call create Services");
   const { title, description, icon } = req.body;
   console.log(title, description, icon)
 

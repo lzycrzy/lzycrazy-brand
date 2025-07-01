@@ -53,8 +53,8 @@ app.use(
 );
 
 app.use(cookieParser()); //--for accessing cokkies--
-app.use(express.json({ limit: '100mb' })); //--for parsing JSON bodies
-app.use(express.urlencoded({ limit: '100mb', extended: true })); //--for parsing URL-encoded bodies
+app.use(express.json({ limit: '500mb' })); //--for parsing JSON bodies
+app.use(express.urlencoded({ limit: '500mb', extended: true })); //--for parsing URL-encoded bodies
 app.use(express.urlencoded({ extended: true })); 
 
 //--setting up routes

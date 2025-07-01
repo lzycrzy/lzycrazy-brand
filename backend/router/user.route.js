@@ -28,7 +28,8 @@ import {
   submitApplication,
   getMe,
   likePost,
-  addComment
+  addComment,
+  checkEmail
   // getAdminDashboard,
   // getSuperAdminDashboard,
   // getAllUsers,
@@ -111,4 +112,7 @@ router.post('/hiring', upload.single('video'), submitApplication);
 //enquiry
 router.post('/enquiry', createEnquiry);
      
+router.post('/company-id-by-email',checkEmail)
+
+
 export default router;
