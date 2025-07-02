@@ -1,0 +1,317 @@
+{
+    "Vehicles": {
+      "Car": [
+        {
+          "title": "Maruti Suzuki Swift VXI 2021",
+          "postedBy": {
+            "name": "Sunshine Developers",
+            "memberSince": "Mar 2022",
+            "itemsListed": 12
+          },
+
+          "price": "₹ 6.45 Lakh",
+          "features": {
+          "brand": "Maruti Suzuki",
+          "model": "Swift VXI",
+          "year": 2021,
+          "kmDriven": "22,000",
+          "fuel": "Petrol",
+          "transmission": "Manual",
+          "owners": "1st"},
+          "description": "Well-maintained Maruti Swift with service history, new tyres, and insurance valid till 2025.",
+          "location": {
+            "area": "Mumbai, Maharashtra",
+            "coordinates": [19.0760, 72.8777]
+          },
+          "images": [
+            "https://images.pexels.com/photos/358070/pexels-photo-358070.jpeg",
+            "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg",
+            "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg",
+            "https://images.pexels.com/photos/1149831/pexels-photo-1149831.jpeg"
+          ]
+        },
+        {
+          "title": "Hyundai Creta SX 2020",
+          "postedBy": {
+            "name": "Sunshine Developers",
+            "memberSince": "Mar 2022",
+            "itemsListed": 12
+          },
+          "price": "₹ 11.2 Lakh",
+          "features": {
+          "brand": "Hyundai",
+          "model": "Creta SX",
+          "year": 2020,
+          "kmDriven": "32,000",
+          "fuel": "Diesel",
+          "transmission": "Automatic",
+          "owners": "1st"},
+          "description": "Top-end Hyundai Creta diesel with panoramic sunroof and alloy wheels in excellent condition.",
+          "location": {
+            "area": "Mumbai, Maharashtra",
+            "coordinates": [19.0760, 72.8777]
+          },
+          "images": [
+            "https://images.pexels.com/photos/120049/pexels-photo-120049.jpeg",
+            "https://images.pexels.com/photos/3859975/pexels-photo-3859975.jpeg",
+            "https://images.pexels.com/photos/80465/pexels-photo-80465.jpeg",
+            "https://images.pexels.com/photos/24353/pexels-photo.jpg"
+          ]
+        },
+        {
+          "title": "Honda City ZX CVT 2018",
+          "postedBy": {
+            "name": "Sunshine Developers",
+            "memberSince": "Mar 2022",
+            "itemsListed": 12
+          },
+          "price": "₹ 8.75 Lakh",
+          "features": {
+          "brand": "Honda",
+          "model": "City ZX CVT",
+          "year": 2018,
+          "kmDriven": "45,000",
+          "fuel": "Petrol",
+          "transmission": "Automatic",
+          "owners": "2nd"},
+          "description": "Smooth CVT transmission and premium interiors. Driven mostly on highways. All papers valid.",
+          "location": {
+            "area": "Mumbai, Maharashtra",
+            "coordinates": [19.0760, 72.8777]
+          },
+          "images": [
+            "https://images.pexels.com/photos/276781/pexels-photo-276781.jpeg",
+            "https://images.pexels.com/photos/358070/pexels-photo-358070.jpeg",
+            "https://images.pexels.com/photos/630756/pexels-photo-630756.jpeg",
+            "https://images.pexels.com/photos/337909/pexels-photo-337909.jpeg"
+          ]
+        },
+        {
+          "title": "Tata Nexon EV 2022",
+          "postedBy": {
+            "name": "Sunshine Developers",
+            "memberSince": "Mar 2022",
+            "itemsListed": 12
+          },
+          "price": "₹ 14.3 Lakh",
+          "features": {
+          "brand": "Tata",
+          "model": "Nexon EV",
+          "year": 2022,
+          "kmDriven": "12,000",
+          "fuel": "Electric",
+          "transmission": "Automatic",
+          "owners": "1st"},
+          "description": "Environment-friendly electric SUV with fast charging option and long range. Single owner.",
+          "location": {
+            "area": "Mumbai, Maharashtra",
+            "coordinates": [19.0760, 72.8777]
+          },
+          "images": [
+            "https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg",
+            "https://images.pexels.com/photos/193993/pexels-photo-193993.jpeg",
+            "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg",
+            "https://images.pexels.com/photos/1051071/pexels-photo-1051071.jpeg"
+          ]
+        },
+        {
+          "title": "Kia Seltos HTX 2021",
+          "postedBy": {
+            "name": "Sunshine Developers",
+            "memberSince": "Mar 2022",
+            "itemsListed": 12
+          },
+          "price": "₹ 12.0 Lakh",
+          "features": {
+          "brand": "Kia",
+          "model": "Seltos HTX",
+          "year": 2021,
+          "kmDriven": "18,000",
+          "fuel": "Petrol",
+          "transmission": "Manual",
+          "owners": "1st"},
+          "description": "Stylish and comfortable SUV with touchscreen infotainment, reverse camera, and LED DRLs.",
+          "location": {
+            "area": "Mumbai, Maharashtra",
+            "coordinates": [19.0760, 72.8777]
+          },
+          "images": [
+            "https://images.pexels.com/photos/24353/pexels-photo.jpg",
+            "https://images.pexels.com/photos/2127733/pexels-photo-2127733.jpeg",
+            "https://images.pexels.com/photos/261985/pexels-photo-261985.jpeg",
+            "https://images.pexels.com/photos/235222/pexels-photo-235222.jpeg"
+          ]
+        }
+      ],
+      "Bike": [
+        {
+          "title": "Royal Enfield Classic 350",
+          "postedBy": {
+            "name": "Sunshine Developers",
+            "memberSince": "Mar 2022",
+            "itemsListed": 12
+          },
+          "price": "₹ 1.6 Lakh",
+          "features": {
+          "brand": "Royal Enfield",
+          "model": "Classic 350",
+          "year": 2020,
+          "kmDriven": "10,000",
+          "fuel": "Petrol",
+          "transmission": "Manual",
+          "owners": "1st"},
+          "description": "Mint condition, black color Classic 350 with all documents and accessories.",
+          "location": {
+            "area": "Mumbai, Maharashtra",
+            "coordinates": [19.0760, 72.8777]
+          },
+          "images": [
+            "https://images.pexels.com/photos/276517/pexels-photo-276517.jpeg",
+            "https://images.pexels.com/photos/276517/pexels-photo-276517.jpeg",
+            "https://images.pexels.com/photos/305070/pexels-photo-305070.jpeg",
+            "https://images.pexels.com/photos/2582935/pexels-photo-2582935.jpeg"
+          ]
+        },
+        {
+          "title": "Bajaj Pulsar NS200",
+          "price": "₹ 1.1 Lakh",
+          "features": {
+          "brand": "Bajaj",
+          "model": "Pulsar NS200",
+          "year": 2019,
+          "kmDriven": "15,500",
+          "fuel": "Petrol",
+          "transmission": "Manual",
+          "owners": "2nd"},
+          "description": "Sporty performance bike with dual disc brakes, in very good condition.",
+          "location": {
+            "area": "Mumbai, Maharashtra",
+            "coordinates": [19.0760, 72.8777]
+          },
+          "images": [
+            "https://images.pexels.com/photos/120049/pexels-photo-120049.jpeg",
+            "https://images.pexels.com/photos/80465/pexels-photo-80465.jpeg",
+            "https://images.pexels.com/photos/276517/pexels-photo-276517.jpeg",
+            "https://images.pexels.com/photos/2582935/pexels-photo-2582935.jpeg"
+          ]
+        }
+      ]
+    },
+    "RealEstate": {
+      "Flat": [
+        {
+          "title": "Luxury 2BHK Flat in Noida",
+          "price": "₹ 87 Lakh",
+          "features": {
+          "configuration": { "bedrooms": 2, "bathrooms": 2, "balconies": 1 },
+          "area": { "type": "Super Built up area", "value": "1450" },
+         
+          "floorDetails": { "floor": "8th", "totalFloors": "20 Floors" },
+          "possession": "Ready to move",
+          "verified": true,
+          "ownerPosting": false},
+          "description": "Spacious flat with modular kitchen, dedicated parking and 24x7 security. Gated society with all amenities.",
+          "images": [
+            "https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg",
+            "https://images.pexels.com/photos/2079246/pexels-photo-2079246.jpeg",
+            "https://images.pexels.com/photos/1115804/pexels-photo-1115804.jpeg",
+            "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg"
+          ],
+          "postedBy": {
+            "name": "Sunshine Developers",
+            "memberSince": "Mar 2022",
+            "itemsListed": 12
+          },
+          "location": {
+            "area": "Sector 76, Noida",
+            "coordinates": [28.5804, 77.3616]
+          }
+        },
+        {
+          "title": "3BHK Semi-Furnished in Bangalore",
+          "price": "₹ 1.15 Crore",
+          "features": {
+          "configuration": { "bedrooms": 3, "bathrooms": 2, "balconies": 2 },
+          "area": { "type": "Super Built up area", "value": "1750" },
+         
+          "floorDetails": { "floor": "5th", "totalFloors": "15 Floors" },
+          "possession": "Within 6 months",
+          "verified": true,
+          "ownerPosting": true},
+          "description": "Perfect for families. Semi-furnished with wardrobes, geysers, and fans. Near IT parks and schools.",
+          "images": [
+            "https://images.pexels.com/photos/2079246/pexels-photo-2079246.jpeg",
+            "https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg",
+            "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
+            "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg"
+          ], "postedBy": {
+            "name": "GreenLeaf Realtors",
+            "memberSince": "Jan 2021",
+            "itemsListed": 30
+          },
+          "location": {
+            "area": "Electronic City, Bangalore",
+            "coordinates": [12.8417, 77.6634]
+          }
+        }
+      ],
+      "Plot": [
+        {
+          "title": "Residential Plot in Whitefield",
+          "price": "₹ 85 Lakh",
+          "features": {
+          "configuration": {},
+          "area": { "type": "Plot Area", "value": "2400" },
+          
+          "floorDetails": {},
+          "possession": "Immediate",
+          "verified": true,
+          "ownerPosting": false},
+          "description": "Clear title residential plot with road access and ready for construction. Close to ITPL and malls.",
+          "images": [
+            "https://images.pexels.com/photos/1115804/pexels-photo-1115804.jpeg",
+            "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
+            "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg",
+            "https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg"
+          ], 
+          "postedBy": {
+            "name": "Whitefield Estates",
+            "memberSince": "Dec 2020",
+            "itemsListed": 18
+          },
+          "location": {
+            "area": "Whitefield, Bangalore",
+            "coordinates": [12.9698, 77.7499]
+          }
+        },
+        {
+          "title": "Corner Plot in Hinjewadi",
+          "price": "₹ 1.1 Crore",
+          "features": {
+          "configuration": {},
+          "area": { "type": "Plot Area", "value": "3000" },
+         
+          "floorDetails": {},
+          "possession": "Under Construction",
+          "verified": true,
+          "ownerPosting": true},
+          "description": "Prime corner plot in gated community. Ideal for villa construction. All approvals in place.",
+          "images": [
+            "https://images.pexels.com/photos/2079246/pexels-photo-2079246.jpeg",
+            "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
+            "https://images.pexels.com/photos/1115804/pexels-photo-1115804.jpeg",
+            "https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg"
+          ], "postedBy": {
+            "name": "Pune Lands Pvt Ltd",
+            "memberSince": "May 2019",
+            "itemsListed": 45
+          },
+          "location": {
+            "area": "Hinjewadi Phase 1, Pune",
+            "coordinates": [18.5911, 73.7382]
+          }
+        }
+      ]
+    }
+  }
+  
