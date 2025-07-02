@@ -6,26 +6,18 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const timerRef = useRef(null);
 
-  // Filter expired stories (24hr rule)
   const validStories = stories.filter(
     (story) =>
       !story.createdAt ||
       Date.now() - new Date(story.createdAt).getTime() < 24 * 60 * 60 * 1000
   );
-  
-  console.log("Stories array:", stories);
-  console.log("Initial index:", initialIndex);
-  console.log("Current story:", stories?.[initialIndex]);
-  
+
   const story = validStories[currentIndex];
-  console.log("🟢 Rendering story:", story);
-  console.log("🟢 Rendering story:", story);
-  // Reset index when initialIndex changes
+
   useEffect(() => {
     setCurrentIndex(initialIndex);
   }, [initialIndex]);
 
-  // Auto advance story every 5s
   useEffect(() => {
     clearTimeout(timerRef.current);
     if (isPlaying) {
@@ -36,7 +28,6 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
     return () => clearTimeout(timerRef.current);
   }, [currentIndex, isPlaying]);
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === "ArrowRight") handleNext();
@@ -47,7 +38,6 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  // Prevent scroll behind story viewer
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -73,58 +63,46 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[100] bg-black bg-opacity-90 flex flex-col justify-between p-4 text-white select-none">
-      {/* Top Controls */}
       <div className="flex justify-between items-center">
-        <button
-          className="text-3xl font-bold"
-          onClick={onClose}
-          aria-label="Close story viewer"
-        >
+        <button className="text-3xl font-bold" onClick={onClose}>
           ×
         </button>
 
-        {/* Progress Bar */}
         <div className="flex gap-1 flex-1 mx-4">
           {validStories.map((_, i) => (
             <div key={i} className="flex-1 h-1 bg-white/25 rounded overflow-hidden">
               <div
-                className={`h-full ${
-                  i < currentIndex
-                    ? "bg-white w-full"
-                    : i === currentIndex && isPlaying
-                    ? "bg-white animate-story-progress"
-                    : "bg-white w-0"
-                }`}
+                className={`h-full ${i < currentIndex ? "bg-white w-full" : i === currentIndex && isPlaying ? "bg-white animate-story-progress" : "bg-white w-0"}`}
               />
             </div>
           ))}
         </div>
 
-        {/* Play/Pause */}
-        <button
-          className="text-2xl font-bold"
-          onClick={togglePlayPause}
-          aria-label={isPlaying ? "Pause story" : "Play story"}
-        >
+        <button className="text-2xl font-bold" onClick={togglePlayPause}>
           {isPlaying ? "⏸" : "▶"}
         </button>
       </div>
 
-      {/* Story Content */}
       <div className="flex-1 flex items-center justify-center relative cursor-pointer">
-        {/* Click zones for next/prev */}
         <div className="flex absolute inset-0 z-10">
           <div className="flex-1" onClick={handlePrev} />
           <div className="flex-1" onClick={handleNext} />
         </div>
 
-        {/* Text Story */}
         {story.type === "text" && (
           <div
-            className="w-[360px] h-[640px] rounded-xl flex items-center justify-center px-4 text-white text-3xl text-center font-bold z-0"
+            className="w-[360px] h-[640px] rounded-xl flex items-center justify-center px-4 text-3xl text-center font-bold z-0"
             style={{
-              backgroundColor: story.bgColor,
+              backgroundColor:
+                story.text.backgroundColor && !story.backgroundColor.includes("gradient")
+                  ? story.text.backgroundColor
+                  : "#000",
+              background:
+                story.text.backgroundColor && story.backgroundColor.includes("gradient")
+                  ? story.backgroundColor
+                  : "none",
               fontFamily: story.fontStyle || "sans-serif",
+              color: story.text.backgroundColor === "#ffffff" ? "#000" : "#fff",
               overflowWrap: "break-word",
               wordBreak: "break-word",
             }}
@@ -133,7 +111,6 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
           </div>
         )}
 
-        {/* Photo Story */}
         {story.type === "photo" && (
           <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden z-0">
             <img
@@ -143,7 +120,34 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
             />
             {story.overlayText && (
               <div
-                className="absolute top-1/2 left-1/2 text-white text-xl font-bold text-center px-2"
+                className="absolute top-1/2 left-1/2 text-white text-3xl font-bold text-center px-2"
+                style={{
+                  transform: "translate(-50%, -50%)",
+                  fontFamily: story.fontStyle || "sans-serif",
+                  pointerEvents: "none",
+                  zIndex: 10,
+                }}
+              >
+                {story.overlayText}
+              </div>
+            )}
+          </div>
+        )}
+
+        {story.type === "video" && (
+          <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden bg-black flex items-center justify-center z-0">
+            <video
+              key={story._id}
+              src={story.video}
+              autoPlay
+              muted
+              playsInline
+              controls={false}
+              className="w-full h-full object-contain"
+            />
+            {story.overlayText && (
+              <div
+                className="absolute top-1/2 left-1/2 text-white text-3xl font-bold text-center px-2"
                 style={{
                   transform: "translate(-50%, -50%)",
                   fontFamily: story.fontStyle || "sans-serif",
@@ -153,36 +157,9 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
                 {story.overlayText}
               </div>
             )}
+         
           </div>
         )}
-
-        {/* Video Story */}
-        {story.type === "video" && (
-  <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden bg-black flex items-center justify-center z-0">
-    <video
-      key={story._id} // force re-render on index change
-      src={story.video}
-      autoPlay
-      muted
-      playsInline
-      controls={false}
-      className="w-full h-full object-contain"
-    />
-    {story.overlayText && (
-      <div
-        className="absolute top-1/2 left-1/2 text-white text-xl font-bold text-center px-2"
-        style={{
-          transform: "translate(-50%, -50%)",
-          fontFamily: story.fontStyle || "sans-serif",
-          pointerEvents: "none",
-        }}
-      >
-        {story.overlayText}
-      </div>
-    )}
-  </div>
-)}
-
       </div>
     </div>
   );

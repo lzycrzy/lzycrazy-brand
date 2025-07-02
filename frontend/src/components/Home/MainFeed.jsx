@@ -201,7 +201,7 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
 
       const userStories = res.data.map((s) => {
         if (s.text?.content) {
-          return { ...s, type: 'text', text: s.text.content };
+          return { ...s, type: 'text', bgColor:s.text.backgroundColor, text: s.text.content };
         } else if (s.video) {
           return { ...s, type: 'video' };
         }
