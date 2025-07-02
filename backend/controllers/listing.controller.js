@@ -51,16 +51,9 @@ export const createListing = async (req, res) => {
 
     let user = req.user;
 
-    const parsedImages = JSON.parse(photos);
+    const parsedImages = typeof photos === 'string' ? JSON.parse(photos): photos
     console.log(parsedImages);
-
-    if (!photos || photos.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'At least two image is required.',
-      });
-    }
-
+    
     const coordinates = await getCoordinates(city, state);
 
     const location = {
@@ -115,6 +108,7 @@ export const createListing = async (req, res) => {
       freeLimit: true,
       message: 'Product listed successfully',
       data: newProductListing,
+      userDetails
     });
   } catch (error) {
     console.error('Create Listing Error:', error);
@@ -127,7 +121,7 @@ export const updateViews = async (req, res) => {
   try {
     const userId = req.user._id;
     const listingId = req.params.id;
-    
+
     const listing = await ListModel.findByIdAndUpdate(listingId, {
       $push: {
         views: {

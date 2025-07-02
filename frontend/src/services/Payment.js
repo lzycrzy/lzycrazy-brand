@@ -167,8 +167,8 @@ export async function createListing(formData) {
 
     if (res.data?.success) {
         toast.success('product successfully listed.')
+        localStorage.setItem('user', JSON.stringify(res.data?.userDetails));
     } else {
-      
       console.error('Listing creation failed:', res.data.message);
     }
   } catch (err) {

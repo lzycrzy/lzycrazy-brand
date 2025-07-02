@@ -236,7 +236,7 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
 
     // Fetch full user info including relationships
     const user = await userModel.findById(userId)
-      .select('fullName email image companyId friends friendRequestsSent friendRequestsReceived phone role');
+      .select('fullName email image companyId friends friendRequestsSent friendRequestsReceived phone role productListed');
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
