@@ -9,14 +9,26 @@ export const getAllListing = async (req, res) => {
 
         return res.status(200).json({message: 'Total Listing', response});
     } catch (error) {
-        console.log(error);
+        console.log(error.message);
+
+        return res.status(500).json({
+          message: "Error in fetching all listrings",
+          errror: error.message
+        })
     }
 }
 export const getUserListing = async (req, res) => {
     try {
-        
+      const userId = req.user._id;
+
+      const user = await userModel.find(userId).populate('productListed');
+      return res.status(200).json(user);
     } catch (error) {
-        
+        console.log(error.message);
+        return res.status(500).json({
+          message: "Error in fetching listings",
+          error: error.message
+        })
     }
 }
 
@@ -32,27 +44,21 @@ export const createListing = async (req, res) => {
       neighbourhood,
       features,
       category,
-      subCategory
+      subCategory,
+      payment,
+      photos
     } = req.body;
 
     let user = req.user;
-    const photos = req.files;
+
+    const parsedImages = JSON.parse(photos);
+    console.log(parsedImages);
 
     if (!photos || photos.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'At least one image is required.',
+        message: 'At least two image is required.',
       });
-    }
-
-    if (user.productListed.length > 0) {
-
-      return res.status(200).json({
-        freeLimit: false,
-        success: true,
-        message: "You have out of free limit. Please pay amount"
-      })
-
     }
 
     const coordinates = await getCoordinates(city, state);
@@ -66,24 +72,16 @@ export const createListing = async (req, res) => {
         : coordinates,
     };
 
-    const images = [];
-
-    for (const file of photos) {
-      const uploaded = await uploadToCloudinary(file.path, 'user_uploads');
-      if (uploaded) {
-        images.push({ url: uploaded }); // or include public_id if needed
-      }
-    }
-    
     const parsedFeatures = typeof features === 'string'
       ? JSON.parse(features)
       : features;
 
     const userPayload = {
         name: user.fullName,
-        memberSince: formatDate(user.createdAt),
-        itemsListed: user.productListed.length+1
+        memberSince: formatDate(user.createdAt)
     }
+
+    const expiryDate = formatDate(new Date(Date.now() + 30*24*60*60*1000))
       
     const newProductListing = ListModel({
       title,
@@ -92,14 +90,14 @@ export const createListing = async (req, res) => {
       subcategory: subCategory,
       brand,
       price: price ? price.replace(/,/g, '') : '',
-      images,
+      images: parsedImages,
       state,
       city,
       features: parsedFeatures,
       location,
       postedBy: userPayload,
       isExpired: false,
-      expiryDate: formatDate(new Date(Date.now() + 30*24*60*60*1000))
+      expiryDate: expiryDate
     });
 
     await newProductListing.save();
@@ -125,3 +123,35 @@ export const createListing = async (req, res) => {
 };
 
 
+export const updateViews = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const listingId = req.params.id;
+    
+    const listing = await ListModel.findByIdAndUpdate(listingId, {
+      $push: {
+        views: {
+          userId
+        }
+      }
+    })
+
+    if (!listing) {
+      return res.status(404).json({
+        message: "Listing not found."
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Listing views updated"
+    })
+  } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({
+        success: false,
+        message: "Server error",
+        error: error.message
+      })
+  }
+}

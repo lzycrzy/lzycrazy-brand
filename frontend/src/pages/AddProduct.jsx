@@ -128,7 +128,6 @@ const AddProduct = () => {
                   ))}
                 </ul>
               ) : null}
-              
             </div>
           )}
 
