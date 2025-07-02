@@ -1,17 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import PhotoStoryUploader from "./PhotoStoryUploader";
 import TextStoryEditor from "./TextStoryEditor";
-import axios from '../../lib/axios/axiosInstance';
-import instance from "../../lib/axios/axiosInstance";
 
-const StoryCreationModal = ({ onClose, onSubmit, user }) => {
+const StoryCreationModal = ({ onClose, onSubmit }) => {
   const [mode, setMode] = useState(null);
   const fileInputRef = useRef(null);
   const photoUploaderRef = useRef(null);
-
-  const [profileImage, setProfileImage] = useState(
-    user?.profileImage || "https://i.pravatar.cc/150?u=you"
-  );
+  const [profileImage, setProfileImage] = useState("https://i.pravatar.cc/150?u=you");
   const [fontStyle, setFontStyle] = useState("sans-serif");
   const [bgColor, setBgColor] = useState("#ffb6c1");
   const [overlayText, setOverlayText] = useState("");
@@ -28,13 +23,14 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
   ];
 
   const backgroundOptions = [
-    "#1877F2", "#E1306C", "#FCAF45", "#8E44AD",
-    "#FFC107", "#34A853", "#F28B82", "#FFB6C1",
-    "#000000", "#ffffff",
+    "#1877F2", "#E1306C", "#FCAF45", "#8E44AD", "#FFC107",
+    "#34A853", "#F28B82", "#FFB6C1", "#000000", "#ffffff",
   ];
 
-  const getFontLabel = (value) =>
-    fontOptions.find((f) => f.value === value)?.label || value;
+  const getFontLabel = (value) => {
+    const match = fontOptions.find((f) => f.value === value);
+    return match ? match.label : value;
+  };
 
   useEffect(() => {
     setOverlayText("");
@@ -42,13 +38,6 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
     setVideoFile(null);
     setVideoPreview(null);
   }, [mode]);
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -67,54 +56,39 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
 
   const handleShare = async () => {
     const createdAt = Date.now();
-    const formData = new FormData();
 
-    try {
-      if (mode === "photo") {
-        const story = await photoUploaderRef.current?.getFinalCroppedStory();
-        if (!story || !story.file) {
-          alert("No photo selected");
-          return;
-        }
-        formData.append("image", story.file);
-        formData.append("overlayText", overlayText);
-        formData.append("fontStyle", fontStyle);
-      } else if (mode === "video") {
-        if (!videoFile) {
-          alert("No video selected");
-          return;
-        }
-        formData.append("media", videoFile);
-        formData.append("overlayText", overlayText);
-        formData.append("fontStyle", fontStyle);
-      } else if (mode === "text") {
-        if (!textStoryContent.trim()) {
-          alert("Please enter text for your story");
-          return;
-        }
-        formData.append("textContent", textStoryContent);
-        formData.append("fontStyle", fontStyle);
-        formData.append("backgroundColor", bgColor);
+    if (mode === "photo") {
+      const story = await photoUploaderRef.current?.getFinalCroppedStory();
+      if (story) {
+        onSubmit({
+          ...story,
+          overlayText,
+          fontStyle,
+          user: "You",
+          createdAt,
+        });
       }
-console.log(formData)
-      const res = await instance.post(
-        '/v1/users/story',
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      const storyData = res.data;
-      onSubmit({ ...storyData, user: user?.name || "You", createdAt });
-      setMode(null);
-    } catch (err) {
-      console.error("Error sharing story:", err);
-      alert("Error uploading story");
+    } else if (mode === "text") {
+      onSubmit({
+        type: "text",
+        fontStyle,
+        bgColor,
+        text: textStoryContent,
+        user: "You",
+        createdAt,
+      });
+    } else if (mode === "video" && videoPreview) {
+      onSubmit({
+        type: "video",
+        video: videoPreview,
+        overlayText,
+        fontStyle,
+        user: "You",
+        createdAt,
+      });
     }
+
+    setMode(null);
   };
 
   const handleDiscard = () => {
@@ -126,17 +100,15 @@ console.log(formData)
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex bg-[#f0f2f5] text-black">
-      {/* Left Panel */}
+    <div className="fixed inset-0 z-50 flex bg-[#f0f2f5] text-black">
+      {/* Left panel */}
       <div className="w-[360px] bg-white border-r flex flex-col justify-between shadow-md">
         <div>
-          {/* Header */}
           <div className="flex items-center gap-2 p-4 border-b">
             <button onClick={onClose} className="text-2xl text-gray-600 hover:text-black">✕</button>
             <h2 className="text-lg font-semibold">Add to Story</h2>
           </div>
 
-          {/* Profile */}
           <div className="p-4 flex items-center gap-3 border-b">
             <div>
               <img
@@ -153,20 +125,19 @@ console.log(formData)
                 onChange={handleImageChange}
               />
             </div>
-            <span className="font-medium text-md">{user?.name || "You"}</span>
+            <span className="font-medium text-md">Ritu Singh</span>
           </div>
 
-          {/* Controls */}
           {(mode === "photo" || mode === "video") && (
             <div className="p-4 border-b space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Add Text</label>
                 <input
                   type="text"
+                  placeholder="Write overlay text..."
                   value={overlayText}
                   onChange={(e) => setOverlayText(e.target.value)}
                   className="w-full border px-3 py-1 rounded"
-                  placeholder="Write overlay text..."
                 />
               </div>
 
@@ -174,7 +145,7 @@ console.log(formData)
                 <label className="block text-sm font-medium mb-1">Font</label>
                 <div className="relative">
                   <button
-                    onClick={() => setShowFontDropdown(!showFontDropdown)}
+                    onClick={() => setShowFontDropdown((prev) => !prev)}
                     className="w-full flex items-center justify-between px-3 py-2 border rounded text-left"
                     style={{ fontFamily: fontStyle }}
                   >
@@ -182,12 +153,12 @@ console.log(formData)
                     <span>▼</span>
                   </button>
                   {showFontDropdown && (
-                    <div className="absolute z-10 mt-1 w-full border rounded bg-white shadow max-h-40 overflow-auto">
+                    <div className="absolute z-10 mt-1 w-full border rounded bg-white shadow">
                       {fontOptions.map((font) => (
                         <div
                           key={font.value}
-                          style={{ fontFamily: font.value }}
                           className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                          style={{ fontFamily: font.value }}
                           onClick={() => {
                             setFontStyle(font.value);
                             setShowFontDropdown(false);
@@ -204,12 +175,12 @@ console.log(formData)
           )}
 
           {mode === "text" && (
-            <div className="p-4 border-b space-y-4">
-              <div>
+            <div className="p-4 border-b">
+              <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Font</label>
                 <div className="relative">
                   <button
-                    onClick={() => setShowFontDropdown(!showFontDropdown)}
+                    onClick={() => setShowFontDropdown((prev) => !prev)}
                     className="w-full flex items-center justify-between px-3 py-2 border rounded text-left"
                     style={{ fontFamily: fontStyle }}
                   >
@@ -217,12 +188,12 @@ console.log(formData)
                     <span>▼</span>
                   </button>
                   {showFontDropdown && (
-                    <div className="absolute z-10 mt-1 w-full border rounded bg-white shadow max-h-40 overflow-auto">
+                    <div className="absolute z-10 mt-1 w-full border rounded bg-white shadow">
                       {fontOptions.map((font) => (
                         <div
                           key={font.value}
-                          style={{ fontFamily: font.value }}
                           className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                          style={{ fontFamily: font.value }}
                           onClick={() => {
                             setFontStyle(font.value);
                             setShowFontDropdown(false);
@@ -243,7 +214,7 @@ console.log(formData)
                     <button
                       key={color}
                       onClick={() => setBgColor(color)}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full border"
                       style={{
                         backgroundColor: color,
                         border: bgColor === color ? "2px solid black" : "",
@@ -256,49 +227,45 @@ console.log(formData)
           )}
         </div>
 
-        {/* Footer Actions */}
         {mode && (
           <div className="p-4 border-t flex gap-2">
-            <button
-              onClick={handleDiscard}
-              className="flex-1 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            >
+            <button onClick={handleDiscard} className="flex-1 py-2 bg-gray-200 rounded hover:bg-gray-300">
               Discard
             </button>
-            <button
-              onClick={handleShare}
-              className="flex-1 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
+            <button onClick={handleShare} className="flex-1 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
               Share to Story
             </button>
           </div>
         )}
       </div>
 
-      {/* Right Panel */}
+      {/* Right preview panel */}
       <div className="flex-1 flex items-center justify-center bg-[#f0f2f5]">
         {!mode && (
           <div className="flex gap-10">
-            {["photo", "text", "video"].map((type) => (
-              <div
-                key={type}
-                onClick={() => setMode(type)}
-                className={`w-[200px] h-[300px] rounded-xl flex flex-col items-center justify-center text-white cursor-pointer shadow hover:scale-105 transition ${
-                  type === "photo"
-                    ? "bg-gradient-to-br from-blue-500 to-blue-300"
-                    : type === "text"
-                    ? "bg-gradient-to-br from-pink-500 to-purple-500"
-                    : "bg-gradient-to-br from-gray-700 to-gray-500"
-                }`}
-              >
-                <div className="bg-white text-black rounded-full w-12 h-12 flex items-center justify-center text-xl mb-3">
-                  {type === "photo" ? "📷" : type === "text" ? "Aa" : "🎥"}
-                </div>
-                <p className="font-semibold">
-                  Create a {type.charAt(0).toUpperCase() + type.slice(1)} Story
-                </p>
-              </div>
-            ))}
+            <div
+              onClick={() => setMode("photo")}
+              className="w-[200px] h-[300px] rounded-xl bg-gradient-to-br from-blue-500 to-blue-300 flex flex-col items-center justify-center text-white cursor-pointer shadow hover:scale-105 transition"
+            >
+              <div className="bg-white text-black rounded-full w-12 h-12 flex items-center justify-center text-xl mb-3">📷</div>
+              <p className="font-semibold">Create a Photo Story</p>
+            </div>
+
+            <div
+              onClick={() => setMode("text")}
+              className="w-[200px] h-[300px] rounded-xl bg-gradient-to-br from-pink-500 to-purple-500 flex flex-col items-center justify-center text-white cursor-pointer shadow hover:scale-105 transition"
+            >
+              <div className="bg-white text-black rounded-full w-12 h-12 flex items-center justify-center text-xl mb-3">Aa</div>
+              <p className="font-semibold">Create a Text Story</p>
+            </div>
+
+            <div
+              onClick={() => setMode("video")}
+              className="w-[200px] h-[300px] rounded-xl bg-gradient-to-br from-gray-700 to-gray-500 flex flex-col items-center justify-center text-white cursor-pointer shadow hover:scale-105 transition"
+            >
+              <div className="bg-white text-black rounded-full w-12 h-12 flex items-center justify-center text-xl mb-3">🎥</div>
+              <p className="font-semibold">Create a Video Story</p>
+            </div>
           </div>
         )}
 
@@ -363,3 +330,4 @@ console.log(formData)
 };
 
 export default StoryCreationModal;
+

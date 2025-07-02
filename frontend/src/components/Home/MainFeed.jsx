@@ -131,7 +131,10 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("stories")) || [];
     const valid = stored.filter(
-      (story) => Date.now() - story.createdAt < 24 * 60 * 60 * 1000
+      (story) =>
+        story &&
+        story.createdAt &&
+        (Date.now() - new Date(story.createdAt).getTime()) < 24 * 60 * 60 * 1000
     );
     setStories(valid);
   }, []);

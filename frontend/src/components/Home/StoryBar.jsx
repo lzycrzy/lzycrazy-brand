@@ -1,10 +1,9 @@
 import React from "react";
-import TextStoryCreator from "./TextStoryCreator"; // Used for live text preview
+import TextStoryCreator from "./TextStoryCreator";
 
-const StoryBar = ({ stories, onAddStory, onStoryClick }) => {
+const StoryBar = ({ stories = [], onAddStory, onStoryClick }) => {
   return (
     <div className="flex space-x-3 overflow-x-auto p-2">
-      {/* Add Story Button */}
       <button
         onClick={onAddStory}
         className="w-24 h-40 bg-white rounded-lg flex flex-col items-center justify-center text-sm text-blue-600 font-semibold shadow hover:bg-blue-50 transition"
@@ -12,14 +11,15 @@ const StoryBar = ({ stories, onAddStory, onStoryClick }) => {
         + Add Story
       </button>
 
-      {/* Story Items */}
-      {stories.map((story, index) => (
-        <StoryItem
-          key={story.id || index}
-          story={story}
-          onClick={() => onStoryClick(index)}
-        />
-      ))}
+      {stories
+        .filter(story => story) // filter out null/undefined
+        .map((story, index) => (
+          <StoryItem
+            key={story.id || index}
+            story={story}
+            onClick={() => onStoryClick(index)}
+          />
+        ))}
     </div>
   );
 };
@@ -53,7 +53,6 @@ const StoryItem = ({ story, onClick }) => {
     );
   }
 
-  // Default: photo story
   return (
     <div onClick={onClick} className={baseClasses} title="View Photo Story">
       <img
