@@ -58,7 +58,8 @@ const AppRoutes = () => (
     <Route path="/news" element={<NewsFeed />} />
     <Route path="/terms" element={<TermPage />} />
     <Route path="/privacy" element={<PrivacyPolicyPage />} />
-    <Route path="/market" element={<MarketplaceHome />} />
+    <Route path="/market" element={<WorkInProgress />} />
+    {/* <Route path="/market" element={<MarketplaceHome />} /> */}
     <Route path="/property" element={<PropertyListing />} />
     <Route path="/property-view" element={<PropertyViewPage />} />
     <Route path="/verify" element={<VerifiedPage />} />
