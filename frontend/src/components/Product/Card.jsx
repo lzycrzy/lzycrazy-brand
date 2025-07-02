@@ -6,8 +6,13 @@ import instance from '../../lib/axios/axiosInstance';
 import { initiatePayment } from '../../services/Payment';
 import { useState } from 'react';
 import ConfirmListing from './ConfirmListing';
+import PaymentModal from './PaymentModal';
 
 function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
+
+  const user = JSON.parse(localStorage.getItem('user'));
+  // console.log("User: ",user);
+
   const {
     register,
     handleSubmit,
@@ -39,7 +44,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
 
   const onSubmit = async (data) => {
     setConfirmListing(null);
-    if (!data.photos || data.photos.length < 2 || data.photos[0] === 'empty') {
+    if (data.photos[0] === 'empty') {
       toast.error('Please choose at least 2 images.');
       return;
     }
@@ -48,52 +53,25 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
       toast.error('Price exceeds limit');
       return;
     }
+    const formData = new FormData();
 
     const features = {};
 
-    // Collect file reading promises
-    const fileReadPromises = selectedSubcategory.formStructure.map(
+    selectedSubcategory.formStructure.map(
       async (element) => {
         if (element.type === 'file') {
           const file = getValues(element.fieldName)[0];
-
-          if (!(file instanceof File)) {
-            console.error('Expected a File object');
-            return;
-          }
-
-          const form = new FormData();
-          form.append('file', file);
-
-          try {
-            const response = await instance.post('/v1/image/upload', form, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-              },
-              skipAuth: false,
-            });
-            console.log('Upload successful:', response.data);
-            features[element.fieldName] = response.data.url;
-          } catch (error) {
-            console.error('Custom File upload error:', error);
-          }
+          formData.append('featureFile', file)
         } else {
           features[element.fieldName] = getValues(element.fieldName);
         }
       },
     );
 
-    console.log(features);
-    await Promise.all(fileReadPromises); // Wait for all file reads to finish
-
-    const formData = new FormData();
-
-    // Add photos (array of { file, name, etc. })
     data.photos.forEach((photo) => {
-      formData.append('photos', photo.file);
+      formData.append('file', photo.file);
     });
 
-    // Append standard fields
     formData.append('title', data.title);
     formData.append('description', data.description || '');
     formData.append('brand', data.brand);
@@ -105,32 +83,23 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
     formData.append('subCategory', selectedSubcategory.name);
     formData.append('features', JSON.stringify(features));
 
-    try {
-      const res = await instance.post('/v1/listing/create', formData);
-
-      if (res.data?.success) {
-        toast.success('Product listed.');
-
-        if (!res.data?.freeLimit) {
-          initiatePayment("Chhatish Kumar", "kumarchhatishyadav2@gmail.com");
-        } else {
-          reset();
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error('Listing failed.');
-    }
+    setConfirmListing(formData);
+    // reset();
   };
+  
 
   const [confirmListing, setConfirmListing] = useState(null);
+  const [paymentModal, setPaymentModal] = useState(null);
 
   return (
     <div className='relative'>
-      {confirmListing && <ConfirmListing confirmListing={confirmListing} onSubmit={onSubmit} setConfirmListing={setConfirmListing} />}
+      {confirmListing && <ConfirmListing data={confirmListing} setPaymentModal={setPaymentModal} setConfirmListing={setConfirmListing} />}
+
+      {paymentModal && <PaymentModal data={paymentModal} setPaymentModal={setPaymentModal} />}
+
       <div className="mx-auto mb-20 flex w-full items-center justify-center px-2">
         <form
-          onSubmit={handleSubmit((data) => setConfirmListing(data))}
+          onSubmit={handleSubmit(onSubmit)}
           className="mt-10 w-full rounded-md border-2 border-gray-400"
         >
           <div className="w-full border-b-2 border-b-gray-400 p-4 lg:px-10">

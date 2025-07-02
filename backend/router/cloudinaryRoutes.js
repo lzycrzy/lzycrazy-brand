@@ -6,6 +6,7 @@ const router = express.Router();
 
 
 router.post('/upload', uploads.single('file'), async (req, res) => {
+  console.log('uploading image')
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
     const cloudUrl = await uploadToCloudinary(req.file.path);

@@ -1,4 +1,6 @@
 import {razorpayInstance} from "../utils/razorpay.js";
+import { createListing } from "./listing.controller.js";
+import crypto from 'crypto'
 
 export const capturePayment = async (req, res) => {
   const options = {
@@ -12,7 +14,7 @@ export const capturePayment = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Courses purchased',
+      message: 'Payment done',
       data: paymentResponse,
     });
   } catch (error) {
@@ -35,7 +37,6 @@ export const verifyPayment = async (req, res) => {
       !razorpay_order_id ||
       !razorpay_payment_id ||
       !razorpay_signature ||
-      !courses ||
       !userId
     ) {
       return res.status(200).json({
@@ -50,17 +51,12 @@ export const verifyPayment = async (req, res) => {
       .createHmac('sha256', process.env.RAZORPAY_SECRET)
       .update(body.toString())
       .digest('hex');
-
-    if (expectedSignature === razorpay_signature) {
-      // enroll the student
-      await enrollStudents(courses, userId, res);
-
-      // return res
-      return res.status(200).json({
-        success: true,
-        message: 'Payment verified',
-      });
-    }
+      if (expectedSignature === razorpay_signature) {
+        return res.status(200).json({
+          success: true,
+          message: 'Payment verified',
+        });
+      }
 
     return res.status(200).json({
       success: false,
@@ -72,19 +68,6 @@ export const verifyPayment = async (req, res) => {
       success: false,
       message: 'Payment Verification Failed',
       error: error.message,
-    });
-  }
-};
-
-export const sendPaymentSuccessEmail = async (req, res) => {
-  const { orderId, paymentId, amount } = req.body;
-
-  const userId = req.user.id;
-
-  if (!orderId || !paymentId || !amount || !userId) {
-    return res.status(400).json({
-      success: false,
-      message: 'Please provide all the fields',
     });
   }
 };

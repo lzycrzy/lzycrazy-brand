@@ -63,8 +63,6 @@ const AppRoutes = () => (
     <Route path="/property" element={<PropertyListing />} />
     <Route path="/property-view" element={<PropertyViewPage />} />
     <Route path="/verify" element={<VerifiedPage />} />
-         
-   
 
     {/* Private Routes */}
     <Route element={<RequireAuth />}>
