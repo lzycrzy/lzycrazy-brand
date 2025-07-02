@@ -125,42 +125,51 @@ import PostCard from '../Posts/PostCard';
 
 const MainFeed = ({ posts, onPostCreated, user }) => {
   const [stories, setStories] = useState([]);
+  const [uniqueUserStories, setUniqueUserStories] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [viewerStartIndex, setViewerStartIndex] = useState(null);
+  const [viewerStories, setViewerStories] = useState([]);
+  const [viewerVisible, setViewerVisible] = useState(false);
 
+  // Fetch stories
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("stories")) || [];
-    const valid = stored.filter(
-      (story) =>
-        story &&
-        story.createdAt &&
-        (Date.now() - new Date(story.createdAt).getTime()) < 24 * 60 * 60 * 1000
-    );
-    setStories(valid);
+    const fetchStories = async () => {
+      try {
+        const res = await instance.get('/v1/users/story', {
+          withCredentials: true,
+        });
+
+        const allStories = res.data.map((story) => {
+          if (story.text?.content) {
+            return { ...story, type: 'text', text: story.text.content };
+          } else if (story.video) {
+            return { ...story, type: 'video' };
+          }
+          return { ...story, type: 'photo' };
+        });
+
+        setStories(allStories);
+
+        // Filter: show only latest story per user in StoryBar
+        const seen = new Set();
+        const unique = [];
+        for (const s of allStories) {
+          const uid = typeof s.user === 'object' ? s.user._id : s.user;
+          if (!seen.has(uid)) {
+            unique.push(s);
+            seen.add(uid);
+          }
+        }
+        setUniqueUserStories(unique);
+      } catch (err) {
+        console.error('Failed to load stories:', err.response?.data || err.message);
+      }
+    };
+
+    fetchStories();
   }, []);
 
-  const handleStorySubmit = async (story) => {
-    const formData = new FormData();
-
-    if (story.type === "photo" || story.blob) {
-      formData.append("type", "photo");
-      formData.append("image", story.blob);
-      if (story.overlayText) formData.append("overlayText", story.overlayText);
-      if (story.fontStyle) formData.append("fontStyle", story.fontStyle);
-    } else if (story.type === "video" && story.video) {
-      formData.append("type", "video");
-      const response = await fetch(story.video);
-      const blob = await response.blob();
-      formData.append("media", blob);
-      if (story.overlayText) formData.append("overlayText", story.overlayText);
-      if (story.fontStyle) formData.append("fontStyle", story.fontStyle);
-    } else if (story.type === "text") {
-      formData.append("type", "text");
-      formData.append("text", story.text);
-      formData.append("fontStyle", story.fontStyle);
-      formData.append("bgColor", story.bgColor);
-    }
-
+  // Submit new story
+  const handleStorySubmit = async (formData) => {
     try {
       const res = await instance.post('/v1/users/story', formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -170,7 +179,6 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
       const savedStory = res.data.story;
       const updated = [...stories, savedStory];
       setStories(updated);
-      localStorage.setItem("stories", JSON.stringify(updated));
       setShowCreateModal(false);
     } catch (err) {
       console.error("Story upload failed:", err.response?.data || err.message);
@@ -178,19 +186,50 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
     }
   };
 
-  const openViewer = (index) => setViewerStartIndex(index);
-  const closeViewer = () => setViewerStartIndex(null);
+  // When a story is clicked: fetch all stories for that user
+  const openViewer = async (story) => {
+    const userId = typeof story.user === 'object' ? story.user._id : story.user;
+    if (!userId) {
+      console.error('Invalid user in story:', story);
+      return;
+    }
+
+    try {
+      const res = await instance.get(`/v1/users/story/view/${userId}`, {
+        withCredentials: true,
+      });
+
+      const userStories = res.data.map((s) => {
+        if (s.text?.content) {
+          return { ...s, type: 'text', text: s.text.content };
+        } else if (s.video) {
+          return { ...s, type: 'video' };
+        }
+        return { ...s, type: 'photo' };
+      });
+
+      setViewerStories(userStories);
+      setViewerVisible(true);
+    } catch (err) {
+      console.error('Failed to load user stories:', err);
+    }
+  };
+
+  const closeViewer = () => {
+    setViewerVisible(false);
+    setViewerStories([]);
+  };
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      {/* Story bar */}
+      {/* Story Bar with one story per user */}
       <StoryBar
-        stories={stories}
+        stories={uniqueUserStories}
         onAddStory={() => setShowCreateModal(true)}
         onStoryClick={openViewer}
       />
 
-      {/* Story creation modal */}
+      {/* Story Creation Modal */}
       {showCreateModal && (
         <StoryCreationModal
           onClose={() => setShowCreateModal(false)}
@@ -199,19 +238,19 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
         />
       )}
 
-      {/* Story viewer */}
-      {viewerStartIndex !== null && (
+      {/* Story Viewer */}
+      {viewerVisible && viewerStories.length > 0 && (
         <StoryViewer
-          stories={stories}
-          initialIndex={viewerStartIndex}
+          stories={viewerStories}
+          initialIndex={0}
           onClose={closeViewer}
         />
       )}
 
-      {/* Create post */}
+      {/* Post Creation */}
       <PostCreateBox onPostCreated={onPostCreated} />
 
-      {/* Feed posts */}
+      {/* Posts */}
       {posts?.length > 0 ? (
         posts.map((post, idx) => (
           <PostCard key={post._id || idx} post={post} />

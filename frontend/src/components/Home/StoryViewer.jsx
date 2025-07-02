@@ -1,18 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./StoryViewer.css";
 
-const StoryViewer = ({ stories = [], initialIndex = 0, onClose }) => {
+const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isPlaying, setIsPlaying] = useState(true);
   const timerRef = useRef(null);
 
   // Filter expired stories (24hr rule)
   const validStories = stories.filter(
-    (story) => !story.createdAt || Date.now() - story.createdAt < 24 * 60 * 60 * 1000
+    (story) =>
+      !story.createdAt ||
+      Date.now() - new Date(story.createdAt).getTime() < 24 * 60 * 60 * 1000
   );
-
+  
+  console.log("Stories array:", stories);
+  console.log("Initial index:", initialIndex);
+  console.log("Current story:", stories?.[initialIndex]);
+  
   const story = validStories[currentIndex];
-
+  console.log("🟢 Rendering story:", story);
+  console.log("🟢 Rendering story:", story);
   // Reset index when initialIndex changes
   useEffect(() => {
     setCurrentIndex(initialIndex);
@@ -151,28 +158,31 @@ const StoryViewer = ({ stories = [], initialIndex = 0, onClose }) => {
 
         {/* Video Story */}
         {story.type === "video" && (
-          <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden bg-black flex items-center justify-center z-0">
-            <video
-              src={story.video}
-              autoPlay
-              muted
-              playsInline
-              className="w-full h-full object-contain"
-            />
-            {story.overlayText && (
-              <div
-                className="absolute top-1/2 left-1/2 text-white text-xl font-bold text-center px-2"
-                style={{
-                  transform: "translate(-50%, -50%)",
-                  fontFamily: story.fontStyle || "sans-serif",
-                  pointerEvents: "none",
-                }}
-              >
-                {story.overlayText}
-              </div>
-            )}
-          </div>
-        )}
+  <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden bg-black flex items-center justify-center z-0">
+    <video
+      key={story._id} // force re-render on index change
+      src={story.video}
+      autoPlay
+      muted
+      playsInline
+      controls={false}
+      className="w-full h-full object-contain"
+    />
+    {story.overlayText && (
+      <div
+        className="absolute top-1/2 left-1/2 text-white text-xl font-bold text-center px-2"
+        style={{
+          transform: "translate(-50%, -50%)",
+          fontFamily: story.fontStyle || "sans-serif",
+          pointerEvents: "none",
+        }}
+      >
+        {story.overlayText}
+      </div>
+    )}
+  </div>
+)}
+
       </div>
     </div>
   );

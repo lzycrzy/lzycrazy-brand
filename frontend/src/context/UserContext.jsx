@@ -18,6 +18,7 @@ export const UserProvider = ({ children }) => {
 
   const fetchUser = async () => {
     console.log('[Auth] Fetching user...');
+   
     try {
       const res = await axios.get('/v1/users/me');
       const data = res.data;
@@ -39,9 +40,15 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  // useEffect(() => {
+  //   fetchUser();
+  // }, []);
   useEffect(() => {
+   
+  
     fetchUser();
   }, []);
+  
 
   const logout1 = () => {
     localStorage.clear();

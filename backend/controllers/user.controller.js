@@ -4,6 +4,7 @@ import ErrorHandler from '../middlewares/error.middleware.js';
 import { generateToken } from '../utils/jwtToken.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';// Import the uploadToCloudinary function 
 import { sendEmail } from '../utils/sendEmail.js';
+import cloudinary from '../utils/cloudinary.js';
 import { userModel } from '../models/user.model.js';
 import firebaseadmin from '../config/firebaseAdmin.js';
 import UserAbout from '../models/user.about.js';
@@ -541,7 +542,7 @@ export const updatePassword = catchAsyncErrors(async (req, res, next) => {
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   const { email } = req.body;
   const user = await userModel.findOne({ email });
-   console.log(user.email);
+  //  console.log(user.email);
   if (!user) {
     return next(new ErrorHandler('User not Found', 404));
   }
@@ -550,10 +551,18 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   const resetURL = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
-  const message = `Your password reset link is: \n\n ${resetURL} \n\n If you did not request this, please ignore this email.`;
+  // const message = `Your password reset link is: \n\n ${resetURL} \n\n If you did not request this, please ignore this email.`;
+    const message = `
+      Hi ${user.fullName || 'User'},\n\n
+      You (or someone else) requested a password reset for your account.\n
+      Please click on the following link to reset your password:\n
+      ${resetURL}\n\n
+      If you did not request this, please ignore this email.\n
+      Thank you.
+    `;
 
   try {
-    console.log("Sending email with link:", message);
+    // console.log("Sending email with link:", message);
     await sendEmail({
       email: user.email,
       subject: 'Password Recovery',
@@ -645,41 +654,53 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 // };
 export const uploadStory = async (req, res) => {
   try {
-    const { textContent, backgroundColor, fontStyle } = req.body;
-    let image = null;
-    let video = null;
+    const imageFile = req.files?.image?.[0];
+    const videoFile = req.files?.media?.[0];
+    const textContent = req.body?.textContent?.trim();
 
-    if (req.file) {
-      const fileType = req.file.mimetype.startsWith("video") ? "video" : "image";
-      const result = await uploadToCloudinary(req.file.path, {
-        resource_type: fileType,
-      });
+    console.log('📦 Incoming files:', req.files);
+    console.log('📨 Body:', req.body);
 
-      if (fileType === "image") image = result;
-      else video = result;
-
-      fs.unlink(req.file.path, err => {
-        if (err) console.error("File cleanup error:", err);
-      });
+    if (!imageFile && !videoFile && !textContent) {
+      return res
+        .status(400)
+        .json({ message: 'Story must have image, video, or text content' });
     }
 
-    const story = await Story.create({
-      user: req.user._id,
-      image,
-      video,
-      text: textContent ? {
-        content: textContent,
-        backgroundColor,
-        fontStyle,
-      } : undefined,
-      createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    });
+    let storyData = {
+      user: req.user._id, // or req.user.id based on your auth setup
+    };
 
-    res.status(201).json(story);
-  } catch (err) {
-    console.error("Upload story error:", err);
-    res.status(500).json({ message: "Failed to upload story", error: err.message });
+    // Handle photo story
+    if (imageFile) {
+      const result = await cloudinary.uploader.upload(imageFile.path);
+      storyData.image = result.secure_url;
+      fs.unlinkSync(imageFile.path); // clean up
+    }
+
+    // Handle video story
+    if (videoFile) {
+      const result = await cloudinary.uploader.upload(videoFile.path, {
+        resource_type: 'video',
+      });
+      storyData.video = result.secure_url;
+      fs.unlinkSync(videoFile.path); // clean up
+    }
+
+    // Handle text story
+    if (textContent) {
+      storyData.text = {
+        content: textContent,
+        backgroundColor: req.body.backgroundColor || '#ffffff',
+        fontStyle: req.body.fontStyle || 'sans-serif',
+      };
+    }
+
+    const newStory = await Story.create(storyData);
+    return res.status(201).json({ story: newStory });
+  } catch (error) {
+    console.error('❌ Error uploading story:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -952,7 +973,7 @@ export const submitApplication = async (req, res) => {
     } = req.body;
 
     console.log(req.file); // includes path, size, filename, etc.
-
+    console.log(lycrazyId);
     const result = req.file?.path || null;
     const videoUrl = await uploadToCloudinary(result);
     console.log(videoUrl)
