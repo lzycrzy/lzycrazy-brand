@@ -4,6 +4,7 @@ import ErrorHandler from '../middlewares/error.middleware.js';
 import { generateToken } from '../utils/jwtToken.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';// Import the uploadToCloudinary function 
 import { sendEmail } from '../utils/sendEmail.js';
+import cloudinary from '../utils/cloudinary.js';
 import { userModel } from '../models/user.model.js';
 import firebaseadmin from '../config/firebaseAdmin.js';
 import UserAbout from '../models/user.about.js';
@@ -613,42 +614,93 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 
 
-export const uploadStory = async (req, res) => {
-  try {
-    // Ensure file is uploaded
-    if (!req.file) {
-      return res.status(400).json({ message: "Image file is required" });
+// export const uploadStory = async (req, res) => {
+//   try {
+//     // Ensure file is uploaded
+//     if (!req.file) {
+//       return res.status(400).json({ message: "Image file is required" });
        
-    }
-    console.log("Uploading story for user:", req.user); // Make sure _id is there
-    console.log("File received:", req.file?.path);
-    // Upload to Cloudinary
-    const result = await uploadToCloudinary(req.file.path, {
-      resource_type: "image",
-    });
+//     }
+//     console.log("Uploading story for user:", req.user); // Make sure _id is there
+//     console.log("File received:", req.file?.path);
+//     // Upload to Cloudinary
+//     const result = await uploadToCloudinary(req.file.path, {
+//       resource_type: "image",
+//     });
 
-    // If upload failed
+//     // If upload failed
     
 
-    // Create story
-    const story = await Story.create({
-      user: req.user._id,
-      image: result,
-      createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24hr
-      views: [],
-    });
-    console.log(" Story saved in DB:", story); 
+//     // Create story
+//     const story = await Story.create({
+//       user: req.user._id,
+//       image: result,
+//       createdAt: new Date(),
+//       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24hr
+//       views: [],
+//     });
+//     console.log(" Story saved in DB:", story); 
 
-    // Delete local file
-    fs.unlink(req.file.path, (err) => {
-      if (err) console.error("Failed to delete temp file:", err);
-    });
+//     // Delete local file
+//     fs.unlink(req.file.path, (err) => {
+//       if (err) console.error("Failed to delete temp file:", err);
+//     });
 
-    res.status(201).json(story);
-  } catch (err) {
-    console.error("Upload story error:", err.message || err);
-    res.status(500).json({ message: "Failed to upload story", error: err.message });
+//     res.status(201).json(story);
+//   } catch (err) {
+//     console.error("Upload story error:", err.message || err);
+//     res.status(500).json({ message: "Failed to upload story", error: err.message });
+//   }
+// };
+export const uploadStory = async (req, res) => {
+  try {
+    const imageFile = req.files?.image?.[0];
+    const videoFile = req.files?.media?.[0];
+    const textContent = req.body?.textContent?.trim();
+
+    console.log('📦 Incoming files:', req.files);
+    console.log('📨 Body:', req.body);
+
+    if (!imageFile && !videoFile && !textContent) {
+      return res
+        .status(400)
+        .json({ message: 'Story must have image, video, or text content' });
+    }
+
+    let storyData = {
+      user: req.user._id, // or req.user.id based on your auth setup
+    };
+
+    // Handle photo story
+    if (imageFile) {
+      const result = await cloudinary.uploader.upload(imageFile.path);
+      storyData.image = result.secure_url;
+      fs.unlinkSync(imageFile.path); // clean up
+    }
+
+    // Handle video story
+    if (videoFile) {
+      const result = await cloudinary.uploader.upload(videoFile.path, {
+        resource_type: 'video',
+      });
+      storyData.video = result.secure_url;
+      fs.unlinkSync(videoFile.path); // clean up
+    }
+
+    // Handle text story
+    if (textContent) {
+      storyData.text = {
+        content: textContent,
+        backgroundColor: req.body.backgroundColor || '#ffffff',
+        fontStyle: req.body.fontStyle || 'sans-serif',
+      };
+    }
+
+    const newStory = await Story.create(storyData);
+    return res.status(201).json({ story: newStory });
+  } catch (error) {
+    console.error('❌ Error uploading story:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

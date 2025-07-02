@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 node_modules
 build
 dist
@@ -5,4 +6,13 @@ coverage
 *.svg
 *.log
 .vscode
+=======
+node_modules
+build
+dist
+coverage
+*.svg
+*.log
+.vscode
+>>>>>>> Bikash2
 *.lock

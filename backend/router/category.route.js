@@ -15,8 +15,6 @@ import {
 
 const router = express.Router();
 
-router.route('/public').get(getAllCategories);
-
 router
   .route('/')
   .post(isAuthenticatedAdmin, createCategory)
@@ -31,9 +29,8 @@ router
   .get(getCategoryById)
   .put(isAuthenticatedAdmin, updateCategory)
   .delete(isAuthenticatedAdmin, deleteCategory);
-
+  
 router
   .route('/:id/toggle')
   .patch(isAuthenticatedAdmin, toggleCategoryStatus); 
 export default router;
- 

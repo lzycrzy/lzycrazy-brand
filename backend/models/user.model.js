@@ -42,22 +42,14 @@ const userSchema = new mongoose.Schema({
     unique: true,
     sparse: true,
   },
-  
   resetPasswordToken: {
     type: String,
     select: false,
   },
-
   resetPasswordExpire: {
     type: Date,
     select: false,
   },
-
-  productListed: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Listing'
-  }],
-
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   friendRequestsSent: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   friendRequestsReceived: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

@@ -20,14 +20,7 @@
     animation: spin 12s linear infinite;
   }
 }
-<<<<<<< HEAD
-
-.no-scroll {
-  overflow: hidden;
-}
-=======
 .scrollbar{
     -ms-overflow-style:none;
   scrollbar-width:none;
 }
->>>>>>> 7a91cd55126ddc87d65624ae5f81b4f92d11bc5b

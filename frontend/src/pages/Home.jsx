@@ -11,8 +11,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from '../components/common/Spinner';
 import { useUser } from '../context/UserContext';
-import { useProduct } from '../store/useProduct';
-import AddProduct from './AddProduct';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -75,7 +73,6 @@ const Home = () => {
   }, [location]);
 
   if (loading) return <Loader />;
-  const {isAddProductModal} = useProduct();
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden bg-gray-100">
@@ -87,7 +84,6 @@ const Home = () => {
         </div>
       )}
 
-      {isAddProductModal && <AddProduct />}
       {/* Top Header */}
       <Header />
 

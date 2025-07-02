@@ -400,8 +400,6 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import ProductCard from '../components/Market/ProductCard';
 import listings from '../data/mockListings.json'; // ✅ Updated to use external data
-import AddProduct from './AddProduct';
-import { useProduct } from '../store/useProduct';
 
 const categoriesWithSub = Object.keys(listings).reduce((acc, category) => {
   acc[category] = Object.keys(listings[category]);
@@ -439,12 +437,9 @@ const MarketplaceHome = () => {
   };
 
   const selectedListings = listings[selectedCategory]?.[selectedSubcategory] || [];
-  const {isAddProductModal} = useProduct();
-  return (
-    <div className="relative w-full min-h-screen bg-gray-100">
 
-      {isAddProductModal && <AddProduct />}
-      
+  return (
+    <div className="min-h-screen bg-gray-100">
       <Header />
       <div className="flex">
         <aside className="sticky top-0 min-h-screen w-64 bg-white px-6 py-8 shadow-sm">

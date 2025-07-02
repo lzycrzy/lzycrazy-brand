@@ -4,7 +4,7 @@ import Header from '../components/static/Header';
 import Sidebar from '../components/Home/Sidebar1';
 
 
-function AddPage({setAddPage}) {
+function AddPage() {
   const statsData = [
     { label: 'All Response', value: '400', color: 'bg-blue-50 text-blue-700' },
     { label: 'Active Add', value: '102', color: 'bg-green-50 text-green-700' },
@@ -49,7 +49,7 @@ function AddPage({setAddPage}) {
 
     <Header></Header>
 
-    <div className="min-h-screen bg-black z-1000">
+    <div className="min-h-screen bg-gray-50">
       <div className=' flex flex-col lg:flex-row gap-4'>
         <div className="hidden w-64 lg:block">
           <Sidebar />
