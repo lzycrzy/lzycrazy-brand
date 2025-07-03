@@ -61,12 +61,14 @@ export default function AddBanner() {
 
     alert('News entry added successfully!');
   };
+  console.log(new Date().toISOString().split('T')[0]);
+  
   return (
     <div className="mb-8 rounded-lg w-[60vw] flex justify-self-center bg-white p-6 shadow-xl">
       <div className="w-full grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Video Upload Section */}
         <div className="lg:col-span-1">
-          <h3 className="mb-4 text-lg font-semibold text-gray-800">Video</h3>
+          <h3 className="mb-4 text-lg font-semibold text-gray-800">Video/Image</h3>
           <div className="relative">
             {filePreview?.url ? (
               <div className="relative h-48 w-full overflow-hidden rounded-lg bg-gray-100">
@@ -167,6 +169,7 @@ export default function AddBanner() {
                   <input
                     type="text"
                     name="date"
+                    defaultValue={new Date().toISOString().split('T')[0]}
                     value={formData.date}
                     onChange={handleInputChange}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10 focus:border-transparent focus:ring-2 focus:ring-blue-500"
