@@ -46,7 +46,8 @@
     "recharts": "^2.15.3",
     "rsuite": "^5.82.0",
     "tailwind-scrollbar-hide": "^4.0.0",
-    "tailwindcss": "^4.1.7"
+    "tailwindcss": "^4.1.7",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
