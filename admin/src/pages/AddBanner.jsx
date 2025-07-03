@@ -4,7 +4,7 @@ export default function AddBanner() {
   const [formData, setFormData] = useState({
     title: 'Lorem ipsum jewfin jsdnfaskjfn',
     name: '',
-    date: '12-06-2025',
+    date: new Date().toISOString().split('T')[0],
   });
   const [videoFile, setVideoFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
@@ -61,7 +61,6 @@ export default function AddBanner() {
 
     alert('News entry added successfully!');
   };
-  console.log(new Date().toISOString().split('T')[0]);
   
   return (
     <div className="mb-8 rounded-lg w-[60vw] flex justify-self-center bg-white p-6 shadow-xl">
@@ -123,37 +122,15 @@ export default function AddBanner() {
         </div>
 
         {/* Form Fields Section */}
-        <div className="space-y-6 lg:col-span-2">
-          {/* Title Field */}
-          <div>
-            <label className="mb-3 block text-lg font-semibold text-gray-800">
-              Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter video title"
-              required
-            />
-          </div>
-
-          {/* Profile Section */}
-          <div>
-            <label className="mb-3 block text-lg font-semibold text-gray-800">
-              Profile
-            </label>
+        <div className=" justify-between space-y-6 lg:col-span-2">
+          {/* Name section */}
+               <div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="md:col-span-1">
-                <div className="flex h-16 w-16 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-100">
-                  <User className="h-6 w-6 text-gray-400" />
-                </div>
-              </div>
-
               <div className="space-y-4 md:col-span-2">
                 <div>
+                    <label className="mb-3 block text-lg font-semibold text-gray-800">
+              Name
+               </label>
                   <input
                     type="text"
                     name="name"
@@ -164,10 +141,22 @@ export default function AddBanner() {
                     required
                   />
                 </div>
+                 <div>
+                   {/* url */}
+                  <input
+                    type="url"
+                    name="url"
+                    value={formData.url}
+                    onChange={handleInputChange}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    placeholder="Past Url..."
+                    required
+                  />
+                </div>
 
                 <div className="relative">
                   <input
-                    type="text"
+                    type="date"
                     name="date"
                     defaultValue={new Date().toISOString().split('T')[0]}
                     value={formData.date}
@@ -176,14 +165,13 @@ export default function AddBanner() {
                     placeholder="DD-MM-YYYY"
                     pattern="\d{2}-\d{2}-\d{4}"
                   />
-                  <Calendar className="absolute top-2.5 right-3 h-4 w-4 text-gray-400" />
+                  {/* <Calendar className="absolute top-2.5 right-3 h-4 w-4 text-gray-400" /> */}
                 </div>
               </div>
             </div>
           </div>
-
           {/* Submit Button */}
-          <div className="flex justify-end">
+          <div className="flex  justify-end">
             <button
               onClick={handleSubmit}
               className="cursor-pointer rounded-lg bg-blue-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
