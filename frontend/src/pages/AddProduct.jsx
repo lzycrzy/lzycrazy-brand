@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useProduct } from '../store/useProduct';
 import Card from '../components/Product/Card';
@@ -16,8 +16,7 @@ const AddProduct = () => {
     async function getAllCategories() {
       try {
         const res = await instance.get('/v1/categories/public');
-        setCategories(res.data.data);
-        console.log(res);
+        setCategories(res.data.data.categories);
       } catch (err) {
         console.log(err);
       }
@@ -48,7 +47,7 @@ const AddProduct = () => {
   },  [])
 
   return (
-    <div ref={AddProductRef}
+    <div
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
       className="fixed inset-0 z-[999] flex items-center justify-center overflow-auto p-4"
     >
