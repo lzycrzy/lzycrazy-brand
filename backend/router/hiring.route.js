@@ -71,7 +71,6 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-
 // POST /api/v1/hiring - Create new hiring form submission
 router.post('/', upload.single('video'), async (req, res) => {
   try {

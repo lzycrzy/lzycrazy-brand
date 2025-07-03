@@ -237,7 +237,7 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
 
     // Fetch full user info including relationships
     const user = await userModel.findById(userId)
-      .select('fullName email image companyId friends friendRequestsSent friendRequestsReceived phone role');
+      .select('fullName email image companyId friends friendRequestsSent friendRequestsReceived phone role productListed');
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -611,9 +611,6 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 });
 
 
-
-
-
 // export const uploadStory = async (req, res) => {
 //   try {
 //     // Ensure file is uploaded
@@ -769,12 +766,7 @@ export const recordStoryView = async (req, res) => {
 };
 
 
-
-
 //friends
-
-
-
 
 // Send Friend Request
 export const sendFriendRequest = async (req, res) => {
@@ -893,8 +885,6 @@ export const searchUsers = async (req, res) => {
   res.json(enhanced);
 };
 
-
-
 export const storyView = async (req, res) => {
   const storyId = req.params.storyId;
   const viewerId = req.user._id;
@@ -916,6 +906,7 @@ export const storyView = async (req, res) => {
     res.status(500).json({ message: "Failed to record story view" });
   }
 };
+
 export const getUserStories = async (req, res) => {
   const { userId } = req.params;
 
@@ -933,8 +924,6 @@ export const getUserStories = async (req, res) => {
   }
 };
 
-
-
 export const getStoryViews = async (req, res) => {
   const { storyId } = req.params;
 
@@ -950,8 +939,6 @@ export const getStoryViews = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch viewers" });
   }
 };
-
-
 
 export const submitApplication = async (req, res) => {
   try {
@@ -1002,8 +989,6 @@ export const submitApplication = async (req, res) => {
     res.status(500).json({ message: 'Error submitting application' });
   }
 };
-
-
 
 export const checkEmail = async (req, res) => {
   const { email } = req.body;

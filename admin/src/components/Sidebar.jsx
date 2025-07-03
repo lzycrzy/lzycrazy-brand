@@ -242,7 +242,7 @@ export function Sidebar() {
     {
       icon: FileBarChart,
       label: 'We are hiring',
-      path: '/Applications/Hiring'
+      path: '/applications'
     },
     { icon: FileBarChart, label: 'Client Enquiry', path: '/client-enquiry' },
     { icon: LogOut, label: 'Logout', path: '/logout' }

@@ -159,29 +159,33 @@ import AppRoutes from './routes/AppRoutes';
 import { setCurrentPathname } from './lib/axios/axiosInstance';
 
 import 'react-toastify/dist/ReactToastify.css';
+import AddProduct from './pages/AddProduct';
+import { useProduct } from './store/useProduct';
 
-const AppWrapper = () => {
-  const location = useLocation();
+const App = () => {
 
-  // Sync the current path with axiosInstance for toast suppression
-  useEffect(() => {
-    setCurrentPathname(location.pathname);
-  }, [location.pathname]);
-
+  const {isAddProductModal} = useProduct();
   return (
-    <>
-     
-      <AppRoutes />
-    </>
-  );
-};
-
-const App = () => (
   <Provider store={store}>
+     {isAddProductModal && <AddProduct />}
     <UserProvider>
-      <AppWrapper />
+    
+        {/* <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          theme="colored"
+          style={{ zIndex: 9999 }}
+        
+        
+          pauseOnHover
+        /> */}
+        <AppRoutes />
+
+      
     </UserProvider>
   </Provider>
-);
+  
+)
+}
 
 export default App;

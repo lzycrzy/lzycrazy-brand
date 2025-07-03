@@ -402,6 +402,9 @@ import ProductCard from '../components/Market/ProductCard';
 import listings from '../data/mockListings.json'; // ✅ Updated to use external data
 import { BiSkipPrevious } from 'react-icons/bi';
 import{GrPrevious,GrNext} from 'react-icons/gr'
+import AddProduct from './AddProduct';
+import { useProduct } from '../store/useProduct';
+
 const categoriesWithSub = Object.keys(listings).reduce((acc, category) => {
   acc[category] = Object.keys(listings[category]);
   return acc;
@@ -530,8 +533,12 @@ const imgHalfPortion=Math.floor(imageBanner.length/2)
     seSecVideoBannerIndex(prev=>prev+1)
   }
  }
+  const {isAddProductModal} = useProduct();
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="relative w-full min-h-screen bg-gray-100">
+
+      {isAddProductModal && <AddProduct />}
+      
       <Header />
       <div className="flex">
         <aside className="sticky top-0 min-h-screen w-64 bg-white px-6 py-8 shadow-sm">
