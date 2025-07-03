@@ -91,19 +91,19 @@ export const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
     try {
       console.log('Uploading image to Cloudinary...');
       console.log('File path:', req.file.path);
-      
+
       // Delete old image if exists
       if (admin.image && admin.image !== '') {
         console.log('Deleting old image...');
         await deleteFromCloudinary(admin.image);
       }
-      
+
       // Upload to Cloudinary using your utility function
       const imageUrl = await uploadToCloudinary(req.file.path, 'admin_profiles');
-      
+
       // Set new image URL
       admin.image = imageUrl;
-      
+
       console.log('Image uploaded successfully:', imageUrl);
     } catch (error) {
       console.error('Image upload failed:', error);
@@ -112,9 +112,9 @@ export const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
   }
 
   await admin.save();
-  
-  res.status(200).json({ 
-    success: true, 
+
+  res.status(200).json({
+    success: true,
     message: 'Profile updated successfully',
     admin: {
       _id: admin._id,
@@ -144,14 +144,22 @@ export const updateAdminPassword = catchAsyncErrors(async (req, res, next) => {
 // FORGOT PASSWORD
 export const forgotAdminPassword = catchAsyncErrors(async (req, res, next) => {
   const admin = await adminModel.findOne({ email: req.body.email });
-  if (!admin) return next(new ErrorHandler('Admin not found', 404));
+  if (!admin) return next(new ErrorHandler('Email not found', 404));
 
   const resetToken = admin.getResetPasswordToken();
   await admin.save({ validateBeforeSave: false });
 
   const resetURL = `${process.env.DASHBOARD_URL}/password/reset/${resetToken}`;
-console.log(resetURL);
-  const message = `Reset your password using the following link: \n\n ${resetURL}`;
+  console.log(resetURL);
+  // const message = `Reset your password using the following link: \n\n ${resetURL}`;
+  const message = `
+      Hi ${admin.fullName || 'Admin'},\n\n
+      You (or someone else) requested a password reset for your admin account.\n
+      Please click on the following link to reset your password:\n
+      ${resetURL}\n\n
+      If you did not request this, please ignore this email.\n
+      Thank you.
+    `;
 
   try {
     await sendEmail({
@@ -159,7 +167,7 @@ console.log(resetURL);
       subject: 'Admin Password Reset',
       message,
     });
-     
+
     res.status(200).json({ success: true, message: `Email sent to ${admin.email}` });
   } catch (error) {
     admin.resetPasswordToken = undefined;
@@ -180,7 +188,7 @@ export const resetAdminPassword = catchAsyncErrors(async (req, res, next) => {
   });
 
   if (!admin) return next(new ErrorHandler('Token is invalid or expired', 400));
-   console.log(req.body.password)
+  console.log(req.body.password)
   admin.password = req.body.password;
   admin.resetPasswordToken = undefined;
   admin.resetPasswordExpire = undefined;
@@ -201,10 +209,10 @@ export const getAdminDashboard = catchAsyncErrors(async (req, res, next) => {
 
     const totalUsers = await userModel.countDocuments();
     const totalAdmins = await adminModel.countDocuments({ role: 'admin' });
-    
+
     // Active users 
-    const activeUsers = await userModel.countDocuments({ 
-      isActive: true 
+    const activeUsers = await userModel.countDocuments({
+      isActive: true
     });
 
     // Recent registrations
@@ -224,7 +232,7 @@ export const getAdminDashboard = catchAsyncErrors(async (req, res, next) => {
     const usersByStatus = await userModel.aggregate([
       {
         $group: {
-          _id: '$status', 
+          _id: '$status',
           count: { $sum: 1 }
         }
       }
@@ -318,8 +326,8 @@ export const getAllUsersList = catchAsyncErrors(async (req, res, next) => {
   const totalUsers = await userModel.countDocuments(query);
   const totalPages = Math.ceil(totalUsers / limit);
 
-  res.status(200).json({ 
-    success: true, 
+  res.status(200).json({
+    success: true,
     users,
     pagination: {
       currentPage: parseInt(page),

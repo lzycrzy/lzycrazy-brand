@@ -1,9 +1,11 @@
+import { useNavigate } from "react-router";
 import { createListing } from "../../services/Payment";
 
 
 function ConfirmListing({data, setPaymentModal, setConfirmListing}) {
 
   const user = JSON.parse(localStorage.getItem('user'));
+  const navigate = useNavigate();
 
   function handleSubmit(data) {
     if (user.productListed.length > 0) {
@@ -11,7 +13,7 @@ function ConfirmListing({data, setPaymentModal, setConfirmListing}) {
       setPaymentModal(data)
     } else {
       setConfirmListing(null);
-      createListing(data);
+      createListing(data, navigate);
     }
   }
 

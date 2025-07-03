@@ -1,5 +1,3 @@
-
-
 // import React, { useState,useEffect } from 'react';
 // import Header from '../Header';
 // import CategoryPostForm from '../CategoryPostForm';
@@ -8,7 +6,6 @@
 // import { useUser } from '../../context/UserContext';
 // import { mockPosts } from '../../data/mockPosts';
 // import ProductCard from './ProductCard';
-
 
 // const categoriesWithSub = {
 //   Vehicles: ['Car', 'Bike', 'Bus'],
@@ -72,7 +69,7 @@
 //         },
 //       ],
 //     },
-  
+
 //     RealEstate: {
 //       categoryOptions: ['Flats', 'Plots', 'Villa'],
 //       subCategoryOptions: ['1 BHK', '2 BHK', '3 BHK', 'Villa'],
@@ -101,7 +98,7 @@
 //         },
 //       ],
 //     },
-  
+
 //     Electronics: {
 //       categoryOptions: ['Mobiles', 'Laptops', 'Tablets', 'TVs'],
 //       subCategoryOptions: ['Apple', 'Samsung', 'Dell', 'HP'],
@@ -120,7 +117,7 @@
 //         },
 //       ],
 //     },
-  
+
 //     Fashion: {
 //       categoryOptions: ['Men', 'Women', 'Kids'],
 //       subCategoryOptions: ['Shirts', 'Jeans', 'Dresses', 'Shoes'],
@@ -133,7 +130,7 @@
 //       ],
 //       checkboxGroups: [],
 //     },
-  
+
 //     Jobs: {
 //       categoryOptions: ['IT', 'Marketing', 'Finance'],
 //       subCategoryOptions: ['Full-time', 'Part-time', 'Internship'],
@@ -152,7 +149,7 @@
 //         },
 //       ],
 //     },
-  
+
 //     Services: {
 //       categoryOptions: ['Repair', 'Tutoring', 'Cleaning'],
 //       subCategoryOptions: ['Electrician', 'Plumber', 'Home Tutor', 'Car Wash'],
@@ -164,7 +161,7 @@
 //       ],
 //       checkboxGroups: [],
 //     },
-  
+
 //     Pets: {
 //       categoryOptions: ['Dogs', 'Cats', 'Birds'],
 //       subCategoryOptions: ['Labrador', 'Persian Cat', 'Parrot'],
@@ -182,7 +179,7 @@
 //         },
 //       ],
 //     },
-  
+
 //     Furniture: {
 //       categoryOptions: ['Living Room', 'Bedroom', 'Office'],
 //       subCategoryOptions: ['Sofa', 'Bed', 'Table', 'Chair'],
@@ -195,7 +192,7 @@
 //       ],
 //       checkboxGroups: [],
 //     },
-  
+
 //     Books: {
 //       categoryOptions: ['School', 'College', 'Novels'],
 //       subCategoryOptions: ['Class 10', 'BTech', 'Fiction', 'Non-fiction'],
@@ -209,7 +206,6 @@
 //       checkboxGroups: [],
 //     },
 //   };
-  
 
 // const MarketplaceHome = () => {
 //   const [expandedCategory, setExpandedCategory] = useState(null);
@@ -217,11 +213,8 @@
 //   const [isModalOpen, setIsModalOpen] = useState(true);
 //   const [selectedSubcategory, setSelectedSubcategory] = useState('');
 
-  
-
 //   const navigate = useNavigate();
 //   const config = categoryFormConfig[selectedCategory.replace(/\s/g, '')];
- 
 
 //   return (
 //     <div className="min-h-screen bg-gray-100">
@@ -390,9 +383,7 @@
 
 // export default MarketplaceHome;
 
-
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../components/static/Header';
 import CategoryPostForm from '../components/CategoryPostForm';
 import { toast } from 'react-toastify';
@@ -402,6 +393,8 @@ import ProductCard from '../components/Market/ProductCard';
 import listings from '../data/mockListings.json'; // ✅ Updated to use external data
 import AddProduct from './AddProduct';
 import { useProduct } from '../store/useProduct';
+import instance from '../lib/axios/axiosInstance';
+import ProductImage from '../assets/product.jpg';
 
 const categoriesWithSub = Object.keys(listings).reduce((acc, category) => {
   acc[category] = Object.keys(listings[category]);
@@ -427,6 +420,7 @@ const banners = [
   },
 ];
 
+
 const MarketplaceHome = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -438,36 +432,72 @@ const MarketplaceHome = () => {
     navigate('/property-view', { state: { data: item, images: item.images } });
   };
 
-  const selectedListings = listings[selectedCategory]?.[selectedSubcategory] || [];
-  const {isAddProductModal} = useProduct();
-  return (
-    <div className="relative w-full min-h-screen bg-gray-100">
+  const [categories, setCategories] = useState(null);
+  const [subCategories, setSubCategories] = useState(null);
+  const [subcategoryDetails, setSubCategoryDetails] = useState(null);
+  useEffect(() => {
+    async function marketPlaceDetails() {
+      try {
+        const res = await instance.get('/v1/categories/public');
+        console.log('Category Details: ', res.data.data);
+        console.log('Category: ', res.data.data.categories);
+        setCategories(res.data.data.categories);
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
-      {isAddProductModal && <AddProduct />}
-      
+    marketPlaceDetails();
+  }, []);
+
+  useEffect(() => {
+    async function getSubcategoryDetails() {
+      try {
+        console.log(selectedCategory, selectedSubcategory);
+        const res = await instance.get('/v1/categories/subcategories', {
+          params: {
+            category: selectedCategory,
+            subcategory: selectedSubcategory,
+          },
+        });
+
+        setSubCategoryDetails(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getSubcategoryDetails();
+  }, [selectedSubcategory]);
+
+  console.log('SubCategory: ', selectedCategory);
+  console.log('SubCategory: ', selectedSubcategory);
+  return (
+    <div className="relative min-h-screen w-full bg-gray-100">
       <Header />
       <div className="flex">
         <aside className="sticky top-0 min-h-screen w-64 bg-white px-6 py-8 shadow-sm">
-          <h2 className="mb-6 text-lg font-semibold text-gray-800">Categories</h2>
+          <h2 className="mb-6 text-lg font-semibold text-gray-800">
+            Categories
+          </h2>
           <ul className="space-y-1">
-            {Object.entries(categoriesWithSub).map(([category, subcategories]) => {
-              const isExpanded = expandedCategory === category;
+            {categories?.map((category, index) => {
               return (
-                <li key={category}>
+                <li key={index}>
                   <button
-                    onClick={() =>
-                      setExpandedCategory(isExpanded ? null : category)
-                    }
+                    onClick={() => {
+                      setSelectedCategory(category._id);
+                      setSubCategories(category.subcategories);
+                    }}
                     className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-all ${
-                      isExpanded
+                      selectedCategory === category.name
                         ? 'bg-blue-50 text-blue-700'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="font-medium">{category}</span>
+                    <span className="font-medium">{category.name}</span>
                     <svg
                       className={`h-4 w-4 transform transition-transform duration-200 ${
-                        isExpanded ? 'rotate-90' : ''
+                        selectedCategory === category._id ? 'rotate-90' : ''
                       }`}
                       fill="none"
                       stroke="currentColor"
@@ -482,29 +512,24 @@ const MarketplaceHome = () => {
                     </svg>
                   </button>
 
-                  {isExpanded && subcategories.length > 0 && (
-                    <ul className="mt-2 ml-4 space-y-1 border-l border-gray-200 pl-2">
-                      {subcategories.map((sub, idx) => (
-                        <li key={idx}>
-                          <button
-                            onClick={() => {
-                              // const token = localStorage.getItem('token');
-                              // if (!token) {
-                              //   toast.error('Please login or signup first');
-                              //   return;
-                              // }
-                              setSelectedCategory(category);
-                              setSelectedSubcategory(sub);
-                              setIsModalOpen(false);
-                            }}
-                            className="w-full px-3 py-1 text-left text-sm text-gray-600 hover:text-blue-700 hover:underline"
-                          >
-                            {sub}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  {selectedCategory === category._id &&
+                    subCategories?.length > 0 && (
+                      <ul className="mt-2 ml-4 space-y-1 border-l border-gray-200 pl-2">
+                        {subCategories.map((sub, idx) => (
+                          <li key={idx}>
+                            <button
+                              onClick={() => {
+                                setSelectedSubcategory(sub.name);
+                                setIsModalOpen(false);
+                              }}
+                              className="w-full px-3 py-1 text-left text-sm text-gray-600 hover:text-blue-700 hover:underline"
+                            >
+                              {sub.name}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                 </li>
               );
             })}
@@ -512,57 +537,35 @@ const MarketplaceHome = () => {
         </aside>
 
         <main className="flex-1 space-y-8 p-9">
-          {!selectedCategory && (
+
+          
+          {selectedCategory && selectedSubcategory && subcategoryDetails ? (
             <>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {banners
-                  .filter((banner) => banner.type === 'image')
-                  .map((banner, index) => (
-                    <div
-                      key={index}
-                      className="overflow-hidden rounded-lg bg-white shadow"
-                    >
-                      <img
-                        src={banner.src}
-                        alt={`Banner ${index}`}
-                        className="h-64 w-full object-cover"
-                      />
-                    </div>
-                  ))}
+                <img
+                  src={subcategoryDetails?.images?.[0] || ProductImage}
+                  alt={subcategoryDetails?.title || 'Product'}
+                  className="h-64 w-full rounded object-cover"
+                />
               </div>
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                {banners
-                  .filter((banner) => banner.type === 'video')
-                  .map((banner, index) => (
-                    <div
-                      key={index}
-                      className="overflow-hidden rounded-lg bg-white shadow"
-                    >
-                      <video
-                        controls
-                        className="h-64 w-full object-cover"
-                        src={banner.src}
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                  ))}
+
+              <div className="mt-6">
+                <h2 className="mb-4 text-xl font-bold">
+                  {selectedCategory} - {selectedSubcategory} Listings
+                </h2>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+                  {Array.isArray(subcategoryDetails) &&
+                    subcategoryDetails.map((post, index) => (
+                      <button key={index} onClick={() => handleCardClick(post)}>
+                        <ProductCard post={post} />
+                      </button>
+                    ))}
+                </div>
               </div>
             </>
-          )}
-
-          {selectedCategory && selectedSubcategory && (
-            <div className="mt-6">
-              <h2 className="text-xl font-bold mb-4">
-                {selectedCategory} - {selectedSubcategory} Listings
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {selectedListings.map((post, index) => (
-                  <button onClick={() => handleCardClick(post)}>
-                  <ProductCard key={index} post={post} />
-                  </button>
-                ))}
-              </div>
+          ): (
+            <div>
+              There is not listing for this types of category
             </div>
           )}
         </main>

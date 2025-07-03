@@ -1,6 +1,7 @@
 import Category from '../models/Category.js';
 
 export const getAllCategories = async (req, res) => {
+  console.log("fetching all categories......")
   
   try {
     const {
@@ -160,9 +161,8 @@ export const createCategory = async (req, res) => {
 };
 
 
-
-
 import mongoose from 'mongoose';
+import ListModel from '../models/Listing.js';
 
 export const updateCategory = async (req, res) => {
   console.log('updating category')
@@ -305,3 +305,24 @@ export const getCategoryStats = async (req, res) => {
     res.status(500).json({ success: false, message: 'Error fetching stats', error: error.message });
   }
 };
+
+export const subCategoryDetails = async (req, res) => {
+  try {
+
+    const {subcategory, category} = req.query;
+    console.log(category, subcategory)
+
+    if (!category || !subcategory) {
+      return res.status(404).json({
+        message: "Category and Subcategory required."
+      })
+    }
+
+    const response = await ListModel.findOne({category: category, subcategory: subcategory});
+    console.log(response);
+
+    return res.status(200).json(response)
+  } catch (error) {
+    console.log(error);
+  }
+}

@@ -18,7 +18,7 @@ function loadScript(src) {
   });
 }
 
-export const initiatePayment = async (fullName, email, data, onSubmit) => {
+export const initiatePayment = async (fullName, email, data, navigate) => {
   const toastId = toast.loading('Loading...');
 
   try {
@@ -55,7 +55,7 @@ export const initiatePayment = async (fullName, email, data, onSubmit) => {
       handler: function (response) {
         verifyPayment({ ...response });
         console.log(response);
-        createListing(data);
+        createListing(data, navigate);
       },
     };
 
@@ -78,7 +78,7 @@ export const initiatePayment = async (fullName, email, data, onSubmit) => {
   toast.dismiss(toastId);
 };
 
-async function verifyPayment(bodyData) {
+async function verifyPayment(bodyData, navigate) {
   const toastId = toast.loading('Verifying payment...');
 
   try {
@@ -168,6 +168,7 @@ export async function createListing(formData) {
     if (res.data?.success) {
         toast.success('product successfully listed.')
         localStorage.setItem('user', JSON.stringify(res.data?.userDetails));
+        navigate('/adds');
     } else {
       console.error('Listing creation failed:', res.data.message);
     }

@@ -1,12 +1,13 @@
 
+import { useNavigate } from 'react-router';
 import { initiatePayment } from '../../services/Payment'
 
 function PaymentModal({data, setPaymentModal, }) {
 
     const user = JSON.parse(localStorage.getItem('user'));
-
+    const navigate = useNavigate();
     function makePayment() {
-        initiatePayment(user.fullName, user.email, data);
+        initiatePayment(user.fullName, user.email, data, navigate);
         setPaymentModal(null);
     }
 

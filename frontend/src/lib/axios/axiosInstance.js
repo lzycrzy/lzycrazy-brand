@@ -3,9 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const instance = axios.create({
-  // baseURL: 'https://lzycrazy-brand-backend.onrender.com/api',
-  // baseURL: 'https://api.lzycrazy.com/api',
-  baseURL: 'http://localhost:4000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
 });
 instance.interceptors.response.use(

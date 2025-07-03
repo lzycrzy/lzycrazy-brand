@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Camera, Save } from 'lucide-react';
-import axios from '../lib/axios/axiosInstance'; // Adjust the import path as necessary
+import instance from '../utils/axios';
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
