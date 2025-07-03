@@ -7,7 +7,7 @@ import { formatDate } from '../utils/formatDate';
 import { useNavigate } from 'react-router';
 
 
-function AddPage() {
+function AddPage({setAddPage}) {
   const statsData = [
     { label: 'All Response', value: '400', color: 'bg-blue-50 text-blue-700' },
     { label: 'Active Add', value: '102', color: 'bg-green-50 text-green-700' },

@@ -7,6 +7,7 @@ import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
 import Applicant from '../models/Applicant.js';
+import Hiring from '../models/hiring.model.js';
 
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
@@ -90,7 +91,6 @@ export const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
     try {
       console.log('Uploading image to Cloudinary...');
       console.log('File path:', req.file.path);
-
       // Delete old image if exists
       if (admin.image && admin.image !== '') {
         console.log('Deleting old image...');
@@ -166,7 +166,6 @@ export const forgotAdminPassword = catchAsyncErrors(async (req, res, next) => {
       subject: 'Admin Password Reset',
       message,
     });
-
     res.status(200).json({ success: true, message: `Email sent to ${admin.email}` });
   } catch (error) {
     admin.resetPasswordToken = undefined;
@@ -350,7 +349,8 @@ export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
 
 export const getAllApplications = async (req, res) => {
   try {
-    const applications = await Applicant.find().sort({ createdAt: -1 }); // newest first
+    const applications = await Hiring.find().sort({ createdAt: -1 }); // newest first
+    
     res.status(200).json(applications);
   } catch (error) {
     console.error(error);

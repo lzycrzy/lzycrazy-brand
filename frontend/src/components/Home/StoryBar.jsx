@@ -1,5 +1,5 @@
 import React from "react";
-import TextStoryCreator from "./TextStoryCreator"; // Used for live text preview
+import TextStoryCreator from "./TextStoryCreator";
 
 const StoryBar = ({ stories, onAddStory, onStoryClick }) => {
   return (
@@ -14,16 +14,15 @@ const StoryBar = ({ stories, onAddStory, onStoryClick }) => {
 
       {/* Story Items */}
       {Array.isArray(stories) &&
-  stories.map((story, index) =>
-    story ? (
-      <StoryItem
-        key={story.id || index}
-        story={story}
-        onClick={() => onStoryClick(story)}
-
-      />
-    ) : null
-  )}
+        stories.map((story, index) =>
+          story ? (
+            <StoryItem
+              key={story.id || index}
+              story={story}
+              onClick={() => onStoryClick(story)}
+            />
+          ) : null
+        )}
     </div>
   );
 };
@@ -36,7 +35,7 @@ const StoryItem = ({ story, onClick }) => {
       <div onClick={onClick} className={baseClasses} title="View Text Story">
         <TextStoryCreator
           fontStyle={story.fontStyle}
-          bgColor={story.bgColor}
+          bgColor={story.text.backgroundColor} // ✅ fixed from bgColor to backgroundColor
           text={story.text || "Your story"}
           style={{ fontSize: "0.7rem", padding: "0.25rem", height: "100%" }}
         />
@@ -62,11 +61,11 @@ const StoryItem = ({ story, onClick }) => {
     <div onClick={onClick} className={baseClasses} title="View Photo Story">
       <img
         src={story.image}
-        alt={`${story.user || "User"}'s story`}
+        alt={`${story.user?.name || "User"}'s story`}
         className="w-full h-full object-cover"
       />
     </div>
   );
 };
 
-export default StoryBar;
+export default StoryBar

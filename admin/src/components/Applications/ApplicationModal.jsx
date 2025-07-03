@@ -6,7 +6,7 @@ const ApplicationModal = ({ application, onClose }) => {
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-md shadow-md w-[90%] max-w-lg relative">
+      <div className="bg-white p-6 rounded-md shadow-md w-[90%] max-h-[80%] overflow-y-scroll max-w-lg relative">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-600 hover:text-red-500"
@@ -23,7 +23,7 @@ const ApplicationModal = ({ application, onClose }) => {
           <p><strong>Education:</strong> {application.education}</p>
           <p><strong>Age:</strong> {application.age}</p>
           <p><strong>City:</strong> {application.city}</p>
-          <p><strong>About:</strong> {application.about}</p>
+          <p><strong>About:</strong> {application.introduction}</p>
           {application.videoUrl && (
             <div className="mt-4">
               <video src={application.videoUrl} controls className="w-full rounded" />

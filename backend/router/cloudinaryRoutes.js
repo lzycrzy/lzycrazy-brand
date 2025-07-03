@@ -2,13 +2,14 @@ import express from 'express';
 import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary.js';
 import uploads from '../middlewares/multer.middleware.js';
 
-const router = express.Router();
+const router = express.Router(); 
 
 
 router.post('/upload', uploads.single('file'), async (req, res) => {
   console.log('uploading image')
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+    console.log("file path: ",req.file.path)
     const cloudUrl = await uploadToCloudinary(req.file.path);
     res.status(200).json({ success: true, url: cloudUrl });
   } catch (error) {

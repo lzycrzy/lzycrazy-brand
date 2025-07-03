@@ -4,6 +4,7 @@ const listingSchema = new mongoose.Schema({
   title: { type: String, required: true },
   price: { type: String, required: true },
   description: { type: String },
+  brand: {type: String},
 
   // Link to category and subcategory
   category: {
@@ -38,7 +39,9 @@ const listingSchema = new mongoose.Schema({
   },
 
   location: {
-    area: String,
+    state: String,
+    city: String,
+    neighbourhood: String,
     coordinates: {
       latitude: String,
       longitude: String

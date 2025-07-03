@@ -400,12 +400,15 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import ProductCard from '../components/Market/ProductCard';
 import listings from '../data/mockListings.json'; // ✅ Updated to use external data
+import { BiSkipPrevious } from 'react-icons/bi';
+import{GrPrevious,GrNext} from 'react-icons/gr'
+import AddProduct from './AddProduct';
+import { useProduct } from '../store/useProduct';
 
 const categoriesWithSub = Object.keys(listings).reduce((acc, category) => {
   acc[category] = Object.keys(listings[category]);
   return acc;
 }, {});
-
 const banners = [
   {
     type: 'image',
@@ -426,20 +429,116 @@ const banners = [
 ];
 
 const MarketplaceHome = () => {
+    const[imageBanner,setImageBanner]=useState([ {
+    type: 'image',
+    src: 'https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    type: 'image',
+    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+  },
+   {
+    type: 'image',
+    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+  },
+   {
+    type: 'image',
+    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+  },
+   {
+    type: 'image',
+    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+  }]
+)
+ const[videoBanner,seVideoBanner]=useState([{
+  type: 'video',
+   src: 'https://player.vimeo.com/external/371540223.sd.mp4?s=174cf8c423e50346a6613ab9e2df8774a2bd4173&profile_id=164',
+ },
+ {
+  type: 'video',
+   src: 'https://player.vimeo.com/external/371540223.sd.mp4?s=174cf8c423e50346a6613ab9e2df8774a2bd4173&profile_id=164',
+ },
+{
+  type: 'video',
+   src: 'https://player.vimeo.com/external/428070005.sd.mp4?s=8e989d6cbf58a63a57f3b271d35a51cf3079f2ce&profile_id=164',
+ },
+   {
+  type: 'video',
+   src: 'https://player.vimeo.com/external/371540223.sd.mp4?s=174cf8c423e50346a6613ab9e2df8774a2bd4173&profile_id=164',
+ },
+ {
+  type: 'video',
+   src: 'https://player.vimeo.com/external/428070005.sd.mp4?s=8e989d6cbf58a63a57f3b271d35a51cf3079f2ce&profile_id=164',
+ }
+  
+ ])
+ const videoHalfPortion=Math.floor(videoBanner.length/2)
+const imgHalfPortion=Math.floor(imageBanner.length/2)
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
 
+ const[firstImgBannerIndex,setFirstImgBannerIndex]=useState(0)
+  const[secImgBannerIndex,seSecImgBannerIndex]=useState(imgHalfPortion+1)
+   const[firstVideoBannerIndex,setFirstVideoBannerIndex]=useState(0)
+  const[secVideoBannerIndex,seSecVideoBannerIndex]=useState(videoHalfPortion+1)
   const navigate = useNavigate();
   const handleCardClick = (item) => {
     navigate('/property-view', { state: { data: item, images: item.images } });
   };
-
   const selectedListings = listings[selectedCategory]?.[selectedSubcategory] || [];
+ 
 
+ function firstPrevImg(){
+    if(firstImgBannerIndex>0){
+    setFirstImgBannerIndex(prev=>prev-1)
+  }
+ }
+  function firstNextImg(){
+  if(firstImgBannerIndex<imgHalfPortion){
+    setFirstImgBannerIndex(prev=>prev+1)
+  }
+ }
+ function secondPrevImg(){
+    if(secImgBannerIndex>imgHalfPortion+1){
+    seSecImgBannerIndex(prev=>prev-1)
+  }
+ }
+  function secondNextImg(){
+  if(secImgBannerIndex<imageBanner.length-1){
+    seSecImgBannerIndex(prev=>prev+1)
+  }
+ }
+
+// video handler function
+
+ function firstPrevVideo(){
+    if(firstVideoBannerIndex>0){
+    setFirstVideoBannerIndex(prev=>prev-1)
+  }
+ }
+  function firstNextVideo(){
+  if(firstVideoBannerIndex<videoHalfPortion){
+    setFirstVideoBannerIndex(prev=>prev+1)
+  }
+ }
+ function secondPrevVideo(){
+    if(secVideoBannerIndex>videoHalfPortion+1){
+    seSecVideoBannerIndex(prev=>prev-1)
+  }
+ }
+  function secondNextVideo(){
+  if(secVideoBannerIndex<videoBanner.length-1){
+    seSecVideoBannerIndex(prev=>prev+1)
+  }
+ }
+  const {isAddProductModal} = useProduct();
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="relative w-full min-h-screen bg-gray-100">
+
+      {isAddProductModal && <AddProduct />}
+      
       <Header />
       <div className="flex">
         <aside className="sticky top-0 min-h-screen w-64 bg-white px-6 py-8 shadow-sm">
@@ -510,38 +609,67 @@ const MarketplaceHome = () => {
           {!selectedCategory && (
             <>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {banners
-                  .filter((banner) => banner.type === 'image')
-                  .map((banner, index) => (
+                
                     <div
-                      key={index}
-                      className="overflow-hidden rounded-lg bg-white shadow"
+                        key={firstImgBannerIndex}
+                      className="relative overflow-hidden rounded-lg bg-white shadow"
                     >
                       <img
-                        src={banner.src}
-                        alt={`Banner ${index}`}
+                        src={imageBanner[firstImgBannerIndex].src}
+                        alt={`Banner ${firstImgBannerIndex}`}
                         className="h-64 w-full object-cover"
                       />
+                       <GrPrevious onClick={firstPrevImg} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100 hover:bg-slate-400 rounded-full '/>
+                        <GrNext onClick={firstNextImg} className='absolute top-[45%] right-4 text-4xl bg-slate-100 hover:bg-slate-400 rounded-full p-2'/>
                     </div>
-                  ))}
+
+                     <div
+                      key={secImgBannerIndex||imgHalfPortion+1}
+                      className="relative overflow-hidden rounded-lg bg-white shadow"
+                    >
+                      <img
+                        src={imageBanner[secImgBannerIndex].src}
+                        alt={`Banner ${secImgBannerIndex}`}
+                        className="h-64 w-full object-cover"
+                      />
+                       <GrPrevious onClick={secondPrevImg} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100  hover:bg-slate-400 rounded-full '/>
+                        <GrNext onClick={secondNextImg} className='absolute top-[45%] right-4 text-4xl bg-slate-100  hover:bg-slate-400 rounded-full p-2'/>
+                    </div>
               </div>
+
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                {banners
-                  .filter((banner) => banner.type === 'video')
-                  .map((banner, index) => (
+               
                     <div
-                      key={index}
-                      className="overflow-hidden rounded-lg bg-white shadow"
+                      key={firstVideoBannerIndex}
+                      className="relative overflow-hidden rounded-lg bg-white shadow"
                     >
                       <video
                         controls
                         className="h-64 w-full object-cover"
-                        src={banner.src}
+                        src={videoBanner[firstVideoBannerIndex].src}
                       >
                         Your browser does not support the video tag.
                       </video>
+                       <GrPrevious onClick={firstPrevVideo} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100 hover:bg-slate-300 rounded-full '/>
+                      <GrNext onClick={firstNextVideo} className='absolute top-[45%] right-4 text-4xl bg-slate-100 hover:bg-slate-300 rounded-full p-2'/>
                     </div>
-                  ))}
+
+                      <div
+                      key={seSecVideoBannerIndex}
+                      className="relative overflow-hidden rounded-lg bg-white shadow"
+                    >
+                      <video
+                        controls
+                        className="h-64 w-full object-cover"
+                        src={videoBanner[secVideoBannerIndex].src}
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                       <GrPrevious onClick={secondPrevVideo} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100 hover:bg-slate-300 rounded-full '/>
+                      <GrNext onClick={secondNextVideo} className='absolute top-[45%] right-4 text-4xl bg-slate-100 hover:bg-slate-300 rounded-full p-2'/>
+                    </div>
+           
+
               </div>
             </>
           )}

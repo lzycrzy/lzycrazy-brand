@@ -9,6 +9,8 @@ import serviceRoutes from './router/service.routes.js';
 import imagesRoute from './router/cloudinaryRoutes.js';
 import ErrorHandler from './middlewares/error.middleware.js';
 import newsRoute from './router/news.route.js';
+import categoryListingRoute from './router/listing.route.js'
+import paymentRoutes from './router/payment.route.js'
 //--importing cloudinary configuration
 // This is where you would configure Cloudinary for file uploads
 import './utils/cloudinary.js';
@@ -67,6 +69,9 @@ app.use('/api/v1/categories', categoryRoutes); //--category routes
 app.use('/api/v1/services', serviceRoutes); //--service routes
 app.use('/api/v1/image', imagesRoute); //--service routes
 app.use('/api/v1/hiring', hiringRoutes);
+
+app.use('/api/v1/listing', categoryListingRoute);
+app.use('/api/v1/payment', paymentRoutes)
 
 dbConnection(); 
 

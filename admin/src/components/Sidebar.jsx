@@ -196,7 +196,16 @@ export function Sidebar() {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-    { icon: Camera, label: 'Market-Post', path: '/market' },
+      {
+      icon: Camera,
+      label: 'Market-Post',
+      path: '/market',
+      isSubmenu: true,
+      children: [
+        { label: 'Add banner', path: '/market/banner', icon: Plus },
+        { label: 'Post List', path: '/market/list', icon: List }
+      ]
+    },
     { icon: Grid3X3, label: 'Category', path: '/category' },
     {
       icon: MapPin,
@@ -233,7 +242,7 @@ export function Sidebar() {
     {
       icon: FileBarChart,
       label: 'We are hiring',
-      path: '/Applications/Hiring'
+      path: '/applications'
     },
     { icon: FileBarChart, label: 'Client Enquiry', path: '/client-enquiry' },
     { icon: LogOut, label: 'Logout', path: '/logout' }

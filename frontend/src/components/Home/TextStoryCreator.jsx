@@ -2,23 +2,26 @@ import React from "react";
 
 const TextStoryCreator = ({
   fontStyle = "Arial",
-  bgColor = "#ffb6c1",
+  backgroundColor = "#ffb6c1", 
   text = "Your text here",
+  style = {},
 }) => {
-  const isGradient = bgColor.includes("gradient");
+  const isGradient =
+    typeof backgroundColor === "string" &&
+    backgroundColor.includes("gradient");
 
   return (
     <div
-      className="w-[270px] h-[480px] rounded-xl flex items-center justify-center px-4 text-white text-3xl text-center font-bold"
+      className="w-full h-full flex items-center justify-center px-3 text-white text-center font-bold rounded"
       style={{
-        background: isGradient ? bgColor : undefined,
-        backgroundColor: !isGradient ? bgColor : undefined,
+        background: isGradient ? backgroundColor : undefined,
+        backgroundColor: !isGradient ? backgroundColor : undefined,
         fontFamily: fontStyle,
-        overflowWrap: "break-word",
-        wordBreak: "break-word",
+        fontSize: "0.8rem",
+        ...style,
       }}
     >
-      {text}
+      {text || "Your story"}
     </div>
   );
 };

@@ -1,11 +1,10 @@
 import React, { useRef, useEffect, useState } from "react";
 
-const TextStoryEditor = ({ fontStyle, bgColor, text, onChange }) => {
+const TextStoryEditor = ({ fontStyle, bgColor = "#ffb6c1", text, onChange }) => {
   const divRef = useRef(null);
-  const isGradient = bgColor.includes("gradient");
+  const isGradient = typeof bgColor === "string" && bgColor.includes("gradient");
   const [focused, setFocused] = useState(false);
 
-  // Sync initial text once
   useEffect(() => {
     if (divRef.current && divRef.current.innerText !== text) {
       divRef.current.innerText = text || "";
@@ -13,7 +12,7 @@ const TextStoryEditor = ({ fontStyle, bgColor, text, onChange }) => {
   }, [text]);
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-black">
+    <div className="w-full h-full flex items-center justify-center">
       <div
         ref={divRef}
         contentEditable
@@ -34,10 +33,11 @@ const TextStoryEditor = ({ fontStyle, bgColor, text, onChange }) => {
           justifyContent: "center",
         }}
       >
-        {!text && !focused ? "Start typing" : ""}
+        {text === "" && !focused ? "Start typing" : null}
       </div>
     </div>
   );
 };
 
 export default TextStoryEditor;
+

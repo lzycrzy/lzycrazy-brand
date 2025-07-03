@@ -3,7 +3,8 @@ export default async function getCroppedImg(
   crop,
   rotation = 0,
   overlayText = "",
-  font = "sans-serif"
+  font = "sans-serif",
+  fontSize = 100 // You can tweak this value or pass it dynamically
 ) {
   // Load the image
   const createImage = (url) =>
@@ -30,12 +31,12 @@ export default async function getCroppedImg(
   canvas.width = crop.width;
   canvas.height = crop.height;
 
-  // Move to center, apply rotation, move back
+  // Apply rotation
   ctx.translate(canvas.width / 2, canvas.height / 2);
   ctx.rotate(radians);
   ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
-  // Draw cropped and rotated image
+  // Draw the rotated and cropped image
   ctx.drawImage(
     image,
     crop.x,
@@ -48,18 +49,20 @@ export default async function getCroppedImg(
     crop.height
   );
 
-  // Optional: reset transform to add unrotated text overlay
-  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+  // Reset transform before drawing text
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
 
   if (overlayText) {
-    ctx.font = `30px ${font}`;
+    ctx.font = `bold ${fontSize}px ${font}`;
     ctx.fillStyle = "white";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+    ctx.shadowBlur = 8;
     ctx.fillText(overlayText, canvas.width / 2, canvas.height / 2);
   }
 
-  // Return final image as a File (for FormData uploads)
+  // Export as a JPEG file
   return new Promise((resolve) => {
     canvas.toBlob((blob) => {
       if (!blob) {
@@ -67,7 +70,7 @@ export default async function getCroppedImg(
         return;
       }
       const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
-      resolve( file );
+      resolve(file);
     }, "image/jpeg");
   });
 }

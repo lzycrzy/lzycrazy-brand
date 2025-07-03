@@ -43,7 +43,7 @@ const VideoStoryUploader = ({ onVideoSelected, overlayText, fontStyle }) => {
           />
           {overlayText && (
             <div
-              className="absolute top-1/2 left-1/2 text-white text-xl font-bold text-center px-2"
+              className="absolute top-1/2 left-1/2 text-white text-3xl font-bold text-center px-2"
               style={{
                 transform: "translate(-50%, -50%)",
                 fontFamily: fontStyle,
