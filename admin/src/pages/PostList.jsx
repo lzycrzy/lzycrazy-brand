@@ -1,8 +1,10 @@
 import { Upload, Calendar, User, Eye, Play, X, Camera  } from 'lucide-react';
 import React, { useState } from 'react'
+import UpdateMarketPostList from '../components/UpdateMarketPostList';
 
 export default function PostList() {
-    const[selecting,setSelecting]=useState(false)
+    const[isEditing,setIsEditing]=useState(false)
+    const[editPostData,setEditPostData]=useState(null)
      const [newsData, setNewsData] = useState([
         {
           id: 1,
@@ -140,6 +142,10 @@ export default function PostList() {
            setSelectingPost(prev=>[...prev,newValue])
         }
       } 
+    function  postEditHandler(editingData){
+         setIsEditing(prev=>!prev)
+         setEditPostData(editingData)
+      }
     
   return (
     <div>
@@ -167,7 +173,7 @@ export default function PostList() {
               </thead>
               <tbody className="divide-y space-y-2 divide-gray-200">
                 {temp.map((item, index) => (
-                  <tr onClick={()=>setSelecting(true)} key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                  <tr onClick={()=>postEditHandler(item)} key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="flex gap-3 px-4 py-4">
                       <div className="relative w-16 h-12 bg-gray-200 rounded overflow-hidden">
                         <div className="w-full h-full bg-blue-900 flex items-center justify-center">
@@ -201,7 +207,9 @@ export default function PostList() {
                 ))}
               </tbody>
             </table>
-           
+             {isEditing&&
+             <UpdateMarketPostList setNewsData={setNewsData} data={editPostData}/>
+             }
           </div>
         </div>
     </div>
