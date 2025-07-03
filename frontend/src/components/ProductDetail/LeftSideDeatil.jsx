@@ -95,6 +95,7 @@
 
 
 import { useState } from 'react';
+import productImage  from '../../assets/product.jpg'
 
 const iconMap = {
   floor: '🏢',
@@ -140,12 +141,14 @@ const LeftSideDeatil = ({ data, images }) => {
       typeof value === 'boolean'
   );
 
+  console.log(data);
+
   return (
     <div className="h-full flex flex-col">
       {/* Image Carousel */}
       <div className="relative overflow-hidden">
         <img
-          src={images[currentImage]}
+          src={images[currentImage] || productImage}
           alt="Item"
           className="w-full h-[350px] object-cover transition-transform duration-300"
         />

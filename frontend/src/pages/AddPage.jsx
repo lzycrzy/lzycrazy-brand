@@ -5,6 +5,7 @@ import Sidebar from '../components/Home/Sidebar1';
 import instance from '../lib/axios/axiosInstance';
 import { formatDate } from '../utils/formatDate';
 import { useNavigate } from 'react-router';
+import { useProduct } from '../store/useProduct';
 
 
 function AddPage({setAddPage}) {
@@ -172,7 +173,9 @@ function AddPage({setAddPage}) {
                     <p className="text-xl font-semibold text-gray-900">{property.views?.length}</p>
                   </div>
                   
-                  <button className="inline-flex items-center px-4 py-2 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors duration-200">
+                  <button onClick={(e) => {
+                    e.stopPropagation();
+                  }} className="inline-flex items-center px-4 py-2 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors duration-200">
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
                   </button>

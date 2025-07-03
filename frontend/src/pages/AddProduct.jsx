@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useProduct } from '../store/useProduct';
 import Card from '../components/Product/Card';
@@ -10,7 +10,7 @@ const AddProduct = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [categories, setCategories] = useState(null);
-  const { setIsAddProductMadal } = useProduct();
+  const { setIsAddProductModal } = useProduct();
 
   useEffect(() => {
     async function getAllCategories() {
@@ -46,6 +46,7 @@ const AddProduct = () => {
     }
   },  [])
 
+
   return (
     <div
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
@@ -71,7 +72,7 @@ const AddProduct = () => {
           <div className="ml-auto">
             <button
               className="flex items-center justify-center rounded-full border bg-gray-300 p-1"
-              onClick={() => setIsAddProductMadal(false)}
+              onClick={() => setIsAddProductModal(false)}
             >
               <X className="h-5 w-5" />
             </button>

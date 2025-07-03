@@ -1,8 +1,8 @@
 import ListModel from '../models/Listing.js'
 import { userModel } from '../models/user.model.js';
-import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { formatDate } from '../utils/formatDate.js';
 import { getCoordinates } from '../utils/getLatitudeAndLongitude.js';
+
 export const getAllListing = async (req, res) => {
     try {
         const response = await ListModel.find();
@@ -17,6 +17,7 @@ export const getAllListing = async (req, res) => {
         })
     }
 }
+
 export const getUserListing = async (req, res) => {
     try {
       const userId = req.user._id;
@@ -115,7 +116,6 @@ export const createListing = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
-
 
 export const updateViews = async (req, res) => {
   try {

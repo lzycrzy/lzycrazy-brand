@@ -65,7 +65,6 @@ export const getAllCategories = async (req, res) => {
 };
 
 
-
 export const getCategoryById = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id).populate('createdBy', 'name email');
@@ -318,7 +317,7 @@ export const subCategoryDetails = async (req, res) => {
       })
     }
 
-    const response = await ListModel.findOne({category: category, subcategory: subcategory});
+    const response = await ListModel.find({category: category, subcategory: subcategory}).populate('category');
     console.log(response);
 
     return res.status(200).json(response)

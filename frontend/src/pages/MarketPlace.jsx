@@ -420,7 +420,6 @@ const banners = [
   },
 ];
 
-
 const MarketplaceHome = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -432,9 +431,13 @@ const MarketplaceHome = () => {
     navigate('/property-view', { state: { data: item, images: item.images } });
   };
 
+  const selectedListings =
+    listings[selectedCategory]?.[selectedSubcategory] || [];
+
   const [categories, setCategories] = useState(null);
   const [subCategories, setSubCategories] = useState(null);
   const [subcategoryDetails, setSubCategoryDetails] = useState(null);
+  const [categoryDetails, setCategoryDetails] = useState(null);
   useEffect(() => {
     async function marketPlaceDetails() {
       try {
@@ -452,6 +455,9 @@ const MarketplaceHome = () => {
 
   useEffect(() => {
     async function getSubcategoryDetails() {
+
+      if(!selectedCategory || !selectedSubcategory) return;
+
       try {
         console.log(selectedCategory, selectedSubcategory);
         const res = await instance.get('/v1/categories/subcategories', {
@@ -469,13 +475,12 @@ const MarketplaceHome = () => {
     getSubcategoryDetails();
   }, [selectedSubcategory]);
 
-  console.log('SubCategory: ', selectedCategory);
-  console.log('SubCategory: ', selectedSubcategory);
+  console.log(subcategoryDetails);
   return (
     <div className="relative min-h-screen w-full bg-gray-100">
       <Header />
       <div className="flex">
-        <aside className="sticky top-0 min-h-screen w-64 bg-white px-6 py-8 shadow-sm">
+        <aside className="sticky top-[58px] h-[calc(100vh-4rem)] w-64 bg-white px-6 py-8 shadow-sm">
           <h2 className="mb-6 text-lg font-semibold text-gray-800">
             Categories
           </h2>
@@ -536,22 +541,63 @@ const MarketplaceHome = () => {
           </ul>
         </aside>
 
-        <main className="flex-1 space-y-8 p-9">
-
-          
-          {selectedCategory && selectedSubcategory && subcategoryDetails ? (
+        <main className="flex-1 space-y-8 overflow-auto p-9">
+          {
             <>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <img
-                  src={subcategoryDetails?.images?.[0] || ProductImage}
-                  alt={subcategoryDetails?.title || 'Product'}
-                  className="h-64 w-full rounded object-cover"
-                />
+                {banners
+                  .filter((banner) => banner.type === 'image')
+                  .map((banner, index) => (
+                    <div
+                      key={index}
+                      className="overflow-hidden rounded-lg bg-white shadow"
+                    >
+                      <img
+                        src={banner.src}
+                        alt={`Banner ${index}`}
+                        className="h-64 w-full object-cover"
+                      />
+                    </div>
+                  ))}
               </div>
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                {banners
+                  .filter((banner) => banner.type === 'video')
+                  .map((banner, index) => (
+                    <div
+                      key={index}
+                      className="overflow-hidden rounded-lg bg-white shadow"
+                    >
+                      <video
+                        controls
+                        className="h-64 w-full object-cover"
+                        src={banner.src}
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  ))}
+              </div>
+            </>
+          }
 
+          {selectedCategory && selectedSubcategory && (
+            <div className="mt-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+                {selectedListings.map((post, index) => (
+                  <button onClick={() => handleCardClick(post)}>
+                    <ProductCard key={index} post={post} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {selectedCategory && selectedSubcategory && subcategoryDetails.length > 0 ? (
+            <>
               <div className="mt-6">
-                <h2 className="mb-4 text-xl font-bold">
-                  {selectedCategory} - {selectedSubcategory} Listings
+                <h2 className="mb-4 text-xs">
+                  {subcategoryDetails[0]?.category?.name} / {selectedSubcategory} Listings
                 </h2>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                   {Array.isArray(subcategoryDetails) &&
@@ -563,10 +609,8 @@ const MarketplaceHome = () => {
                 </div>
               </div>
             </>
-          ): (
-            <div>
-              There is not listing for this types of category
-            </div>
+          ) : (
+            <div>There is not listing for this types of category</div>
           )}
         </main>
       </div>

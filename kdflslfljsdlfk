@@ -109,7 +109,7 @@
 [32m+[m[32m  useEffect(() => {[m
 [32m+[m[32m    function handleOutsideClick(e) {[m
 [32m+[m[32m      if (AddProductRef.current && !AddProductRef.current.contains(e.target)) {[m
-[32m+[m[32m        setIsAddProductMadal(false);[m
+[32m+[m[32m        setIsAddProductModal(false);[m
 [32m+[m[32m      }[m
 [32m+[m[32m    }[m
 [32m+[m
