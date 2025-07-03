@@ -7,6 +7,7 @@ import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
 import Applicant from '../models/Applicant.js';
+import Hiring from '../models/hiring.model.js';
 
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
@@ -350,7 +351,8 @@ export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
 
 export const getAllApplications = async (req, res) => {
   try {
-    const applications = await Applicant.find().sort({ createdAt: -1 }); // newest first
+    const applications = await Hiring.find().sort({ createdAt: -1 }); // newest first
+    
     res.status(200).json(applications);
   } catch (error) {
     console.error(error);

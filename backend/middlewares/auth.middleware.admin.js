@@ -44,7 +44,7 @@
 
 
 
-import jwt from 'jsonwebtoken';
+import jwt, { decode } from 'jsonwebtoken';
 import { adminModel } from '../models/admin.model.js';
 
 
@@ -63,7 +63,7 @@ export const isAuthenticatedAdmin = async (req, res, next) => {
       process.env.JWT_SECRET || 'defaultSecret',
     );
 
-    req.admin = await adminModel.findById(decoded.id).select('-password');
+    req.admin = await adminModel.findById(decoded.id).select('+password');
 
     if (!req.admin) {
       return res.status(401).json({ message: 'Admin not found, invalid token' });
