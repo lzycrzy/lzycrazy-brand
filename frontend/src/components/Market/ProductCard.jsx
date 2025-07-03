@@ -4,6 +4,12 @@ import location from '../../assets/location.png'
 import avatar from '../../assets/identity.png'
 const ProductCard = ({ post }) => {
     if (!post) return null; // Safety check
+
+  const formatToINR = (value) => {
+    const number = parseInt(value.replace(/,/g, ''), 10);
+    if (isNaN(number)) return '';
+    return new Intl.NumberFormat('en-IN').format(number);
+  };
   
     return (
       <div className="bg-white rounded shadow p-4 hover:shadow-md transition cursor-pointer">
@@ -14,7 +20,7 @@ const ProductCard = ({ post }) => {
         />
         <div className='flex justify-between items-center mb-2'>
           <h3 className="mt-2 text-lg font-semibold">{post.title}</h3>
-          <p className="text-green-700 font-bold">₹ {post.price}</p>
+          <p className="text-green-700 font-bold">₹ {formatToINR(post.price)}</p>
         </div>
         <div className='flex gap-2 items-center'>
           <img src={location} width={15} />

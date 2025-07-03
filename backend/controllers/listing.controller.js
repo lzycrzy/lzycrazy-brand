@@ -33,6 +33,30 @@ export const getUserListing = async (req, res) => {
     }
 }
 
+export const getListingResponse = async (req, res) => {
+  try {
+    const user = req.user;
+
+    console.log(user._id)
+
+    const allListing = await ListModel.find({userId: user._id}).populate('response').populate('reported');
+
+    if (!allListing) {
+      return res.status(404).json({
+        message: "No listing found"
+      })
+    }
+
+    return res.status(200).json(allListing);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Listing Reponse error",
+      error: error.message
+    })
+  }
+}
+
 export const createListing = async (req, res) => {
   try {
     const {
@@ -80,6 +104,7 @@ export const createListing = async (req, res) => {
     const newProductListing = ListModel({
       title,
       description: description || '',
+      userId: user._id,
       category: category,
       subcategory: subCategory,
       brand,

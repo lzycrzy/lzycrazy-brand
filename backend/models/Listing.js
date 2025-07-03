@@ -5,6 +5,11 @@ const listingSchema = new mongoose.Schema({
   price: { type: String, required: true },
   description: { type: String },
   brand: {type: String},
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
 
   // Link to category and subcategory
   category: {
@@ -30,7 +35,6 @@ const listingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed, // Dynamic fields
     default: {}
   },
-
 
 
   postedBy: {

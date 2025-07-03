@@ -15,8 +15,14 @@ const PropertyViewPage = () => {
     );
   }
 
+  const user = JSON.parse(localStorage.getItem('user'));
+  console.log(user);
+
   useEffect(() => {
     async function updateViews() {
+
+      if (user?.productListed?.includes(state.data._id)) return;
+
       try {
         const res = await instance.post(`/v1/listing/views/${state.data._id}`)
       } catch(error) {

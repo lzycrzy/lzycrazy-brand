@@ -18,7 +18,7 @@ function loadScript(src) {
   });
 }
 
-export const initiatePayment = async (fullName, email, data, navigate) => {
+export const initiatePayment = async (fullName, email, data, navigate, setIsAddProductModal) => {
   const toastId = toast.loading('Loading...');
 
   try {
@@ -55,7 +55,7 @@ export const initiatePayment = async (fullName, email, data, navigate) => {
       handler: function (response) {
         verifyPayment({ ...response });
         console.log(response);
-        createListing(data, navigate);
+        createListing(data, navigate, setIsAddProductModal);
       },
     };
 
@@ -78,7 +78,7 @@ export const initiatePayment = async (fullName, email, data, navigate) => {
   toast.dismiss(toastId);
 };
 
-async function verifyPayment(bodyData, navigate) {
+async function verifyPayment(bodyData) {
   const toastId = toast.loading('Verifying payment...');
 
   try {
@@ -98,7 +98,7 @@ async function verifyPayment(bodyData, navigate) {
   toast.dismiss(toastId);
 }
 
-export async function createListing(formData) {
+export async function createListing(formData, navigate, setIsAddProductModal) {
 
   const toastId = toast.loading('product listing in progress')
 
@@ -168,7 +168,8 @@ export async function createListing(formData) {
     if (res.data?.success) {
         toast.success('product successfully listed.')
         localStorage.setItem('user', JSON.stringify(res.data?.userDetails));
-        navigate('/adds');
+        setIsAddProductModal(false);
+        navigate('/ads');
     } else {
       console.error('Listing creation failed:', res.data.message);
     }

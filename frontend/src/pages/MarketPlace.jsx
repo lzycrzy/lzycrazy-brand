@@ -542,7 +542,7 @@ const MarketplaceHome = () => {
         </aside>
 
         <main className="flex-1 space-y-8 overflow-auto p-9">
-          {
+          {!selectedSubcategory && 
             <>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {banners
@@ -593,11 +593,11 @@ const MarketplaceHome = () => {
             </div>
           )}
 
-          {selectedCategory && selectedSubcategory && subcategoryDetails.length > 0 ? (
+          {selectedCategory && selectedSubcategory && subcategoryDetails?.length > 0 ? (
             <>
               <div className="mt-6">
                 <h2 className="mb-4 text-xs">
-                  {subcategoryDetails[0]?.category?.name} / {selectedSubcategory} Listings
+                  {subcategoryDetails[0]?.category?.name} / {selectedSubcategory}
                 </h2>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                   {Array.isArray(subcategoryDetails) &&
