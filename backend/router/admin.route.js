@@ -12,7 +12,11 @@ import {
   getAllUsersList,
   deleteSingleUser,
   getAllApplications,
-  deleteApplication
+  deleteApplication,
+  marketPost,
+  publishPost,
+  updatePost,
+  deletePost
 } from '../controllers/admin.controller.js';
 import {
   isAuthenticatedAdmin,
@@ -21,7 +25,12 @@ import {
 import upload from '../middlewares/multer.middleware.js';
 import { getAllEnquiries } from '../controllers/Enquiry.controller.js';
 const router = express.Router();
-
+// Admin market post routes
+router
+.get('/marketPost',isAuthenticatedAdmin,marketPost)
+.post('/publishPost',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),upload.single('file'),publishPost)
+.put('/updatePost/:_id',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),upload.single('file'),updatePost)
+.delete('/deletePost/:_id',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),deletePost)
 // Public routes
 // This route is for registering a new admin
 router.post(

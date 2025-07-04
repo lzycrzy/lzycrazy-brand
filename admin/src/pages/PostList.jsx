@@ -1,5 +1,5 @@
-import { Upload, Calendar, User, Eye, Play, X, Camera  } from 'lucide-react';
-import React, { useState } from 'react'
+import {  Play } from 'lucide-react';
+import { useState } from 'react'
 import UpdateMarketPostList from '../components/UpdateMarketPostList';
 
 export default function PostList() {
@@ -13,7 +13,7 @@ export default function PostList() {
         
           userName: 'John Smith',
           url:"https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-          type:"video",
+          type:"image",
           thumbnail: '/api/placeholder/60/40',
           videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
         },
@@ -30,23 +30,23 @@ export default function PostList() {
           videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
         },
          {
-          id: 1,
+          id: 9,
         
           postDate: '12-06-2025',
         
           userName: 'John Smith',
           url:"https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-          type:"video",
+          type:"image",
           thumbnail: '/api/placeholder/60/40',
           videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
         }, {
-          id: 1,
+          id: 10,
         
           postDate: '12-06-2025',
         
           userName: 'John Smith',
           url:"https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-          type:"video",
+          type:"image",
           thumbnail: '/api/placeholder/60/40',
           videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
         },
@@ -73,7 +73,7 @@ export default function PostList() {
           imageUrl:"#"
         },
          {
-          id: 1,
+          id: 11,
         
           postDate: '12-06-2025',
         
@@ -84,7 +84,7 @@ export default function PostList() {
           videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
         },
          {
-          id: 1,
+          id: 12,
         
           postDate: '12-06-2025',
         
@@ -146,7 +146,9 @@ export default function PostList() {
          setIsEditing(prev=>!prev)
          setEditPostData(editingData)
       }
-    
+      function deletePost(id){
+       setTemp(prev=>prev.filter((item)=>item.id!==id))
+     }
   return (
     <div>
         <div className="scrollbar-hide w-full lg:max-w-[90vw] flex justify-center py-2 rounded-lg shadow-sm overflow-y-hidden">
@@ -173,7 +175,7 @@ export default function PostList() {
               </thead>
               <tbody className="divide-y space-y-2 divide-gray-200">
                 {temp.map((item, index) => (
-                  <tr onClick={()=>postEditHandler(item)} key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                  <tr key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="flex gap-3 px-4 py-4">
                       <div className="relative w-16 h-12 bg-gray-200 rounded overflow-hidden">
                         <div className="w-full h-full bg-blue-900 flex items-center justify-center">
@@ -194,21 +196,18 @@ export default function PostList() {
                       {item.postDate}
                     </td>
                      <td className="px-4 py-4 text-sm text-gray-700">
-                       <button className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Edit</button>
+                       <button onClick={()=>postEditHandler(item)} className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Edit</button>
                     </td>
                       <td className="px-4 py-4 text-sm text-gray-700">
-                       <button className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Delete</button>
+                       <button onClick={()=>deletePost(item.id)} className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Delete</button>
                     </td>
-                     {/* <td className="px-4 py-4 space-x-12 text-sm text-gray-700">
-                    <button className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Edit</button>
-                    <button className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Delete</button>
-                    </td> */}
+                   
                   </tr>
                 ))}
               </tbody>
             </table>
              {isEditing&&
-             <UpdateMarketPostList setNewsData={setNewsData} data={editPostData}/>
+             <UpdateMarketPostList key={editPostData.id} setNewsData={setNewsData} setIsEditing={setIsEditing} data={editPostData}/>
              }
           </div>
         </div>

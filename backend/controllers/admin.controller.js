@@ -7,7 +7,7 @@ import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
 import Applicant from '../models/Applicant.js';
-
+import adminMarketPost from '../models/adminMarketPost.js'
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
   const { fullName, email, phone, password, role } = req.body;
@@ -395,6 +395,71 @@ export const requestAdminPasswordReset = async (req, res) => {
     res.status(500).json({ message: 'Failed to send reset email', error: err.message });
   }
 };
+
+// ADMIN MARKET POST
+export const marketPost=async(req,res)=>{
+    try {
+        const post=await adminMarketPost.find({})
+       return res.status(200).json({
+          message:post
+        })
+    } catch (error) {
+         return res.status(401).json({
+          message:"Something went wrong!"
+        })
+    }
+}
+export const publishPost=async(req,res)=>{
+    try {
+        console.log(req.file,req.body);
+        const{fullName,url,postDate}=req.body
+        const filePath=req.file?.path
+        if(req.file){
+                const postUrl = await uploadToCloudinary(filePath);
+              const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+                const post=new adminMarketPost({fullName,postUrl,url,type,postDate}) 
+                  await post.save()
+                    return res.status(200).json({
+                   message:"Posted Successfully"
+        })
+        }else{
+          return res.status(401).json({
+          message:"Please select at least one image/video !"
+        }) 
+        }
+    } catch (error){
+           return res.status(401).json({
+          message:"Something wrong !"
+        })
+    }
+}
+export const updatePost=async(req,res)=>{
+    try {
+          console.log(req.file,req.body);
+        const{fullName,url,postDate}=req.body
+        const filePath=req.file?.path
+        if(req.file){
+                const postUrl = await uploadToCloudinary(filePath);
+                 const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+                  const post=await adminMarketPost.updateOne({fullName},{$set:{postUrl,type,postDate}}) 
+                    return res.status(200).json({
+                   message:"Posted Successfully"
+        })
+        } 
+        
+    } catch (error) {
+          return res.status(401).json({
+          message:"Something wrong please try again!"
+        }) 
+    }
+}
+export const deletePost=async(req,res)=>{
+    try {
+        
+    } catch (error) {
+        
+    }
+}
 
 // Step 2: Reset Password
 // export const resetAdminPassword = async (req, res) => {
