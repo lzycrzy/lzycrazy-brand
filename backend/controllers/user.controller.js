@@ -336,47 +336,44 @@ export const getPosts = catchAsyncErrors(async (req, res) => {
 // };
 
 
-//post bu user
+// Function to handle post creation
 export const createPost = async (req, res) => {
-  console.log("🎯 Reached createPost controller");
   try {
-    const { text } = req.body;
+    const { text } = req.body; // Text content for the post
     let mediaUrl = null;
     let mediaType = null;
-    const filePath = req.file?.path;
 
+    // Check if a media file is uploaded
     if (req.file) {
-      // Upload to Cloudinary and get URL
-      const result = await uploadToCloudinary(filePath);
-      mediaUrl = result;
-      mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+      // Log the uploaded file
+      console.log('File uploaded:', req.file);
+
+      // Upload the file to Cloudinary
+      const result = await uploadToCloudinary(req.file.path);
+      console.log('Cloudinary result:', result);
+
+      mediaUrl = result.secure_url; // The URL of the uploaded file
+      mediaType = req.file.mimetype.startsWith('image') ? 'image' : 'video'; // Determine file type
     }
 
-    // Optional: Remove file only if it exists
-   
-    console.log(mediaUrl)
-
+    // Create a new post in the database
     const post = new Post({
-      user: req.user._id,
-      text,
-      mediaUrl,
-      mediaType,
+      user: req.user._id, // Assuming `req.user` holds the authenticated user info
+      text,               // The text content
+      mediaUrl,           // URL for the media (image or video)
+      mediaType,          // The type of media (image or video)
     });
 
-    await post.save();
-
-    await userModel.findByIdAndUpdate(req.user._id, {
-      $push: { posts: post._id },
-    });
+    await post.save(); // Save the post to the database
 
     res.status(201).json({
       success: true,
-      message: 'Post created',
+      message: 'Post created successfully!',
       post,
     });
   } catch (error) {
     console.error('Create Post Error:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    res.status(500).json({ success: false, message: 'Failed to create post' });
   }
 };
 
@@ -413,7 +410,47 @@ export const likePost = async (req, res) => {
     res.status(200).json({ likes: updatedPost.likes });
   } catch (err) {
     console.error('Like Post Error:', err);
-    res.status(500).json({ message: 'Server Error' });
+     res.status(500).json({ message: 'Server Error' });
+   }
+  };
+
+export const updatePost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { text } = req.body;
+    const filePath = req.file?.path;
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    if (post.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not authorized to update this post" });
+    }
+
+    // Update text
+    if (text) {
+      post.text = text;
+    }
+
+    // Update media if new file is uploaded
+    if (req.file) {
+      const result = await uploadToCloudinary(filePath);
+      post.mediaUrl = result;
+      post.mediaType = req.file.mimetype.startsWith("image/") ? "image" : "video";
+
+      // Clean up local file
+      if (filePath) fs.unlinkSync(filePath);
+    }
+
+    await post.save();
+
+    res.status(200).json({ message: "Post updated", post });
+  } catch (error) {
+    console.error("Update Post Error:", error);
+    res.status(500).json({ message: "Failed to update post" });
   }
 };
 

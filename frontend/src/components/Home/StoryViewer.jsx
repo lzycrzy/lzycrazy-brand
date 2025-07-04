@@ -93,14 +93,12 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
           <div
             className="w-[360px] h-[640px] rounded-xl flex items-center justify-center px-4 text-3xl text-center font-bold z-0"
             style={{
-              backgroundColor:
-                story.text.backgroundColor && !story.backgroundColor.includes("gradient")
-                  ? story.text.backgroundColor
-                  : "#000",
-              background:
-                story.text.backgroundColor && story.backgroundColor.includes("gradient")
-                  ? story.backgroundColor
-                  : "none",
+              backgroundColor: story.text.backgroundColor && !story.backgroundColor.includes("gradient")
+                ? story.text.backgroundColor
+                : "#000",
+              background: story.text.backgroundColor && story.backgroundColor.includes("gradient")
+                ? story.backgroundColor
+                : "none",
               fontFamily: story.fontStyle || "sans-serif",
               color: story.text.backgroundColor === "#ffffff" ? "#000" : "#fff",
               overflowWrap: "break-word",
@@ -125,7 +123,7 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
                   transform: "translate(-50%, -50%)",
                   fontFamily: story.fontStyle || "sans-serif",
                   pointerEvents: "none",
-                  zIndex: 10,
+                  zIndex: 20, // Ensure text stays on top of the image
                 }}
               >
                 {story.overlayText}
@@ -136,6 +134,7 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
 
         {story.type === "video" && (
           <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden bg-black flex items-center justify-center z-0">
+                {console.log(story.overlayText)}
             <video
               key={story._id}
               src={story.video}
@@ -143,6 +142,7 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
               muted
               playsInline
               controls={false}
+              onCanPlay={() => console.log("Video is ready")}
               className="w-full h-full object-contain"
             />
             {story.overlayText && (
@@ -152,12 +152,12 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
                   transform: "translate(-50%, -50%)",
                   fontFamily: story.fontStyle || "sans-serif",
                   pointerEvents: "none",
+                  zIndex: 20, // Ensure text stays on top of the video
                 }}
               >
                 {story.overlayText}
               </div>
             )}
-         
           </div>
         )}
       </div>

@@ -1,76 +1,85 @@
-export default async function getCroppedImg(
-  imageSrc,
+export default async function getCroppedVideo(
+  videoSrc,
   crop,
   rotation = 0,
   overlayText = "",
   font = "sans-serif",
-  fontSize = 100 // You can tweak this value or pass it dynamically
+  fontSize = 100
 ) {
-  // Load the image
-  const createImage = (url) =>
-    new Promise((resolve, reject) => {
-      const image = new Image();
-      image.crossOrigin = "anonymous";
-      image.onload = () => resolve(image);
-      image.onerror = reject;
-      image.src = url;
-    });
+  const video = document.createElement("video");
+  video.src = videoSrc;
+  video.crossOrigin = "anonymous";
 
-  const image = await createImage(imageSrc);
+  // Create canvas to draw video frames
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  // Calculate bounding box for rotated image
-  const radians = (rotation * Math.PI) / 180;
-  const sin = Math.abs(Math.sin(radians));
-  const cos = Math.abs(Math.cos(radians));
-  const bBoxWidth = image.width * cos + image.height * sin;
-  const bBoxHeight = image.width * sin + image.height * cos;
+  // Wait for the video to load and play
+  await new Promise((resolve) => {
+    video.onloadeddata = resolve;
+    video.play();
+  });
 
-  // Set canvas size to final crop size
+  // Set up the canvas to match the video dimensions
   canvas.width = crop.width;
   canvas.height = crop.height;
 
-  // Apply rotation
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate(radians);
-  ctx.translate(-canvas.width / 2, -canvas.height / 2);
+  // Function to draw text and video frames
+  const drawFrame = () => {
+    // Draw the video frame onto the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
-  // Draw the rotated and cropped image
-  ctx.drawImage(
-    image,
-    crop.x,
-    crop.y,
-    crop.width,
-    crop.height,
-    0,
-    0,
-    crop.width,
-    crop.height
-  );
+    // Draw the cropped and rotated part of the video
+    ctx.drawImage(
+      video,
+      crop.x,
+      crop.y,
+      crop.width,
+      crop.height,
+      0,
+      0,
+      crop.width,
+      crop.height
+    );
 
-  // Reset transform before drawing text
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // Apply text overlay if needed
+    if (overlayText) {
+      ctx.font = `bold ${fontSize}px ${font}`;
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+      ctx.shadowBlur = 8;
+      ctx.fillText(overlayText, canvas.width / 2, canvas.height / 2);
+    }
 
-  if (overlayText) {
-    ctx.font = `bold ${fontSize}px ${font}`;
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
-    ctx.shadowBlur = 8;
-    ctx.fillText(overlayText, canvas.width / 2, canvas.height / 2);
-  }
+    // Save the current frame
+    ctx.restore();
 
-  // Export as a JPEG file
+    // Repeat this function for each frame
+    requestAnimationFrame(drawFrame);
+  };
+
+  // Start the drawing loop
+  drawFrame();
+
+  // Wait for the video to finish processing or define when to stop
   return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        console.error("Canvas is empty or corrupted");
-        return;
-      }
-      const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
-      resolve(file);
-    }, "image/jpeg");
+    // Example: Stop the process after a set time or at the end of the video
+    setTimeout(() => {
+      video.pause();
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          console.error("Canvas is empty or corrupted");
+          return;
+        }
+        const file = new File([blob], "cropped_video_with_text.mp4", { type: "video/mp4" });
+        resolve(file);
+      }, "video/mp4");
+    }, 5000); // Example: stop after 5 seconds
   });
 }

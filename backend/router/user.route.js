@@ -1,4 +1,5 @@
 import express from 'express';
+import { updatePost } from '../controllers/user.controller.js';
 import {
   registerUser, 
   loginUser, 
@@ -65,6 +66,7 @@ router.post(
 // Login routes
 router.post('/login', loginUser);
 router.post('/post', isAuthenticated, upload.single('media'), createPost);
+router.put('/post/:postId', isAuthenticated, upload.single('media'), updatePost);
 
 router.post('/logout', logoutUser);
 // Social login routes

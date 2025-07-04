@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from '../lib/axios/axiosInstance';
 import Header from '../components/static/Header';
 import { FaCamera } from 'react-icons/fa';
-import PostCreateBox from '../components/Posts/PostCreateBox';
-import PostCard from '../components/Posts/PostCard';
+// import PostCreateBox from '../components/Posts/PostCreateBox';
+// import PostCard from '../components/Posts/PostCard';
 import Intro from '../components/profile/Intro';
 import About from '../components/profile/About';
 import Friends from '../components/common/Friends';
@@ -241,11 +241,11 @@ const Profile = () => {
         {activeTab === 'posts' && (
           <div className="flex flex-col gap-6 text-left lg:flex-row">
             <div className="w-full space-y-4 lg:w-2/3">
-              <PostCreateBox
+              {/* <PostCreateBox
                 onPostCreated={(newPost) =>
                   setPosts((prev) => [newPost, ...prev])
                 }
-              />
+              /> */}
               {loadingPosts ? (
                 <div className="py-10 text-center text-gray-500">
                   Loading posts...

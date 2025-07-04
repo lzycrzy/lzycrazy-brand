@@ -1,4 +1,3 @@
-// components/ImageDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -11,7 +10,7 @@ const ImageDetail = () => {
   const [tag, setTag] = useState("");
   const [cropped, setCropped] = useState(false);
 
-  // Redirect if no image is passed
+  // Redirect if no image passed
   useEffect(() => {
     if (!imageUrl) {
       navigate("/");
@@ -19,8 +18,8 @@ const ImageDetail = () => {
   }, [imageUrl, navigate]);
 
   const handleSave = () => {
-    alert("Saved!\n" + JSON.stringify({ rotation, tag, cropped }));
-    navigate("/");
+    alert("Saved!\n" + JSON.stringify({ rotation, tag, cropped }, null, 2));
+    navigate("/"); // In real app, you'd save to backend or context
   };
 
   const handleCancel = () => {
@@ -30,16 +29,22 @@ const ImageDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-50 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white p-6 shadow-md border-r flex flex-col">
-        <h2 className="text-lg font-semibold text-gray-800 mb-6">Edit Tools</h2>
+    <div className="min-h-screen flex bg-blue-50">
+      {/* Sidebar Tools */}
+      <aside className="w-64 bg-white p-6 border-r shadow-md flex flex-col">
+        <h2 className="text-lg font-semibold mb-6 text-gray-800">Edit Tools</h2>
 
-        <button onClick={() => setCropped(true)} className="mb-2 hover:bg-gray-100 px-3 py-2 rounded text-left">
+        <button
+          onClick={() => setCropped(true)}
+          className="mb-2 hover:bg-gray-100 px-3 py-2 rounded text-left"
+        >
           ✂️ Crop
         </button>
 
-        <button onClick={() => setRotation((prev) => prev + 90)} className="mb-2 hover:bg-gray-100 px-3 py-2 rounded text-left">
+        <button
+          onClick={() => setRotation((prev) => prev + 90)}
+          className="mb-2 hover:bg-gray-100 px-3 py-2 rounded text-left"
+        >
           🔄 Rotate
         </button>
 
@@ -54,31 +59,38 @@ const ImageDetail = () => {
         </button>
 
         <div className="mt-auto pt-10 flex gap-2">
-          <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700">
+          <button
+            onClick={handleSave}
+            className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700"
+          >
             Save
           </button>
-          <button onClick={handleCancel} className="bg-gray-300 px-4 py-2 rounded w-full hover:bg-gray-400">
+          <button
+            onClick={handleCancel}
+            className="bg-gray-300 px-4 py-2 rounded w-full hover:bg-gray-400"
+          >
             Cancel
           </button>
         </div>
       </aside>
 
-      {/* Image Preview */}
+      {/* Preview Panel */}
       <main className="flex-1 bg-black flex items-center justify-center relative">
         {imageUrl && (
           <img
             src={imageUrl}
-            alt="Uploaded"
-            className="transition-all rounded"
+            alt="Edited"
+            className="rounded transition-all"
             style={{
               transform: `rotate(${rotation}deg)`,
               height: cropped ? "60vh" : "80vh",
+              objectFit: "contain",
             }}
           />
         )}
 
         {tag && (
-          <div className="absolute top-5 left-5 bg-white px-3 py-1 rounded shadow text-sm">
+          <div className="absolute top-5 left-5 bg-white px-3 py-1 rounded shadow text-sm font-medium">
             🏷️ Tagged: {tag}
           </div>
         )}

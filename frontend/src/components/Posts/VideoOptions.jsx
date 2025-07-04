@@ -1,24 +1,31 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useUser } from "../../context/UserContext";
 
 const VideoOptions = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const uploadedVideoUrl = state?.video;
 
+  const { user, profilePic, displayName } = useUser();
+
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
-  const [collaborator, setCollaborator] = useState("");
+  const [collaborator, setCollaborator] = useState(displayName || "");
   const [thumbnail, setThumbnail] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const [recording, setRecording] = useState(false);
   const [recordedUrl, setRecordedUrl] = useState(null);
-  const [chunks, setChunks] = useState([]);
   const [mediaRecorder, setMediaRecorder] = useState(null);
 
+  const chunksRef = useRef([]);
   const liveVideoRef = useRef(null);
   const streamRef = useRef(null);
+
+  useEffect(() => {
+    if (displayName) setCollaborator(displayName);
+  }, [displayName]);
 
   const startRecording = async () => {
     try {
@@ -28,16 +35,16 @@ const VideoOptions = () => {
       liveVideoRef.current.play();
 
       const recorder = new MediaRecorder(stream);
-      setChunks([]);
+      chunksRef.current = [];
 
       recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          setChunks((prev) => [...prev, e.data]);
+        if (e.data && e.data.size > 0) {
+          chunksRef.current.push(e.data);
         }
       };
 
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: "video/webm" });
+        const blob = new Blob(chunksRef.current, { type: "video/webm" });
         const url = URL.createObjectURL(blob);
         setRecordedUrl(url);
         liveVideoRef.current.srcObject = null;
@@ -46,14 +53,18 @@ const VideoOptions = () => {
       recorder.start();
       setMediaRecorder(recorder);
       setRecording(true);
-    } catch (err) {
-      alert("Error accessing camera: " + err.message);
+    } catch (error) {
+      alert("Failed to access camera: " + error.message);
     }
   };
 
   const stopRecording = () => {
-    mediaRecorder.stop();
-    streamRef.current.getTracks().forEach((track) => track.stop());
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+    }
     setRecording(false);
   };
 
@@ -72,7 +83,10 @@ const VideoOptions = () => {
       return;
     }
 
-    alert("Video saved!\n" + JSON.stringify({ title, tags, collaborator }));
+    alert(
+      "Video saved!\n" +
+        JSON.stringify({ title, tags, collaborator, video: videoToSave })
+    );
     navigate("/");
   };
 
@@ -84,9 +98,18 @@ const VideoOptions = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Left Panel - Details */}
+      {/* Left Panel */}
       <div className="w-80 bg-white p-6 flex flex-col gap-4 border-r overflow-y-auto">
         <h2 className="text-lg font-semibold">Video Details</h2>
+
+        <div className="flex items-center gap-3 mb-2">
+          <img
+            src={profilePic}
+            alt="Profile"
+            className="w-10 h-10 rounded-full object-cover border"
+          />
+          <p className="text-sm font-medium">{displayName || "User"}</p>
+        </div>
 
         <input
           type="text"
@@ -141,7 +164,7 @@ const VideoOptions = () => {
           />
         )}
 
-        {/* Save/Cancel Buttons */}
+        {/* Save/Cancel */}
         <div className="mt-auto flex gap-4 pt-4">
           <button
             onClick={handleSave}
@@ -158,16 +181,21 @@ const VideoOptions = () => {
         </div>
       </div>
 
-      {/* Right Panel - Recording & Preview */}
+      {/* Right Panel */}
       <div className="flex-1 bg-black flex flex-col items-center justify-center p-8">
-        <h2 className="text-white mb-4 text-xl font-medium">Live Recording / Preview</h2>
+        <h2 className="text-white mb-4 text-xl font-medium">
+          Live Recording / Preview
+        </h2>
 
-        {/* Live video preview while recording */}
         {!recordedUrl && !uploadedVideoUrl && (
-          <video ref={liveVideoRef} className="w-full max-w-2xl rounded mb-4" autoPlay muted />
+          <video
+            ref={liveVideoRef}
+            className="w-full max-w-2xl rounded mb-4"
+            autoPlay
+            muted
+          />
         )}
 
-        {/* Uploaded or Recorded Video Preview */}
         {(recordedUrl || uploadedVideoUrl) && (
           <video
             src={recordedUrl || uploadedVideoUrl}
@@ -176,7 +204,6 @@ const VideoOptions = () => {
           />
         )}
 
-        {/* Controls */}
         <div>
           {!recording ? (
             <button

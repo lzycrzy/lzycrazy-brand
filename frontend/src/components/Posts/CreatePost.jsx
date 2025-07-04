@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ModalOverlay from "./Modal";
+import axios from "axios";
+import ModalOverlay from "./ModalOverlay";
 import LocationModal from "./LocationModal";
+import { useUser } from "../../context/UserContext";
 
 const CreatePost = () => {
   const navigate = useNavigate();
+  const { displayName, profilePic } = useUser();
 
   const [caption, setCaption] = useState("");
   const [audience, setAudience] = useState("Public");
@@ -17,6 +20,9 @@ const CreatePost = () => {
   const [location, setLocation] = useState("");
   const [shareToWhatsApp, setShareToWhatsApp] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
+
+  const audienceOptions = ["Public", "Friends", "Only Me"];
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
@@ -25,13 +31,15 @@ const CreatePost = () => {
   const [modalCallback, setModalCallback] = useState(() => {});
 
   const dummyUsers = [
-    "Ritu Singh", "Ankur Sharma", "Jaahid Hasan",
-    "Priya Mehta", "Rahul Verma", "Aisha Khan"
+    "Ritu Singh",
+    "Ankur Sharma",
+    "Jaahid Hasan",
+    "Priya Mehta",
+    "Rahul Verma",
+    "Aisha Khan",
   ];
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isTagging, setIsTagging] = useState(false);
-
-  const audienceOptions = ["Public", "Friends", "Only Me"];
 
   const openModal = (title, message, callback = null, input = false) => {
     setModalTitle(title);
@@ -67,25 +75,59 @@ const CreatePost = () => {
   };
 
   const handleMediaChange = (e) => {
-    e.preventDefault();
     const file = e.target.files[0];
     if (!file) return;
 
     const fileUrl = URL.createObjectURL(file);
-
     if (file.type.startsWith("image")) {
-      // Navigate to image editor page (like Facebook)
+      setImage(fileUrl);
+      setVideo(null);
       navigate("/image-detail", { state: { image: fileUrl } });
     } else if (file.type.startsWith("video")) {
-      navigate("/video-detail", { state: { video: fileUrl } }); // Optional
+      setVideo(fileUrl);
+      setImage(null);
+      navigate("/video", { state: { video: fileUrl } });
     } else {
       openModal("Unsupported File", "Please upload an image or video.");
     }
   };
 
+  const handleSubmit = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("caption", caption);
+      formData.append("audience", audience);
+      formData.append("tagged", tagged);
+      formData.append("feeling", feeling);
+      formData.append("location", location);
+      formData.append("shareToWhatsApp", shareToWhatsApp);
+
+      if (image) {
+        const blob = await fetch(image).then((res) => res.blob());
+        formData.append("media", blob, "image.jpg");
+      }
+
+      if (video) {
+        const blob = await fetch(video).then((res) => res.blob());
+        formData.append("media", blob, "video.mp4");
+      }
+
+      const res = await axios.post("/api/post", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      console.log("Post created:", res.data);
+      navigate("/"); // redirect to feed or post page
+
+    } catch (err) {
+      console.error("❌ Error posting:", err);
+      openModal("Error", "Failed to create post.");
+    }
+  };
+
   return (
     <>
-      <div className="bg-white w-full max-w-xl mx-auto rounded-xl shadow-md mt-10 overflow-hidden relative z-10">
+      <div className="bg-white w-full max-w-xl mx-auto rounded-xl shadow-md overflow-hidden relative z-10">
         <div className="border-b px-4 py-3 relative">
           <h2 className="text-lg font-semibold text-center">Create Post</h2>
         </div>
@@ -95,7 +137,7 @@ const CreatePost = () => {
             <div className="relative w-12 h-12">
               <label className="cursor-pointer block w-full h-full">
                 <img
-                  src={profileImage || "https://via.placeholder.com/100?text=+"}
+                  src={profileImage || profilePic}
                   alt="Profile"
                   className="rounded-full w-full h-full object-cover border border-gray-300 hover:opacity-80 transition"
                 />
@@ -112,7 +154,7 @@ const CreatePost = () => {
             </div>
 
             <div className="flex flex-col">
-              <span className="font-semibold text-black text-sm">Jaahid Hasan</span>
+              <span className="font-semibold text-black text-sm">{displayName}</span>
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
                 className="text-xs bg-gray-100 px-3 py-1 rounded-full inline-flex items-center gap-1 hover:bg-gray-200 mt-1"
@@ -141,17 +183,43 @@ const CreatePost = () => {
           <textarea
             className="w-full border border-gray-300 rounded-md p-3 resize-none focus:outline-blue-400 mb-3"
             rows={4}
-            placeholder="What's on your mind, Jaahid?"
+            placeholder={`What's on your mind, ${displayName?.split(" ")[0]}?`}
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
           />
+
+          {image && (
+            <div className="mb-4 relative">
+              <p className="text-sm text-gray-500 mb-1">📷 Image Preview</p>
+              <img src={image} alt="Uploaded" className="w-full rounded-md" />
+              <div className="absolute top-2 right-2 flex gap-2">
+                <button
+                  onClick={() => navigate("/image-detail", { state: { image } })}
+                  className="bg-white px-3 py-1 text-sm rounded shadow border hover:bg-blue-100"
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  onClick={() => setImage(null)}
+                  className="bg-white px-3 py-1 text-sm rounded shadow border hover:bg-red-100"
+                >
+                  ❌ Delete
+                </button>
+              </div>
+            </div>
+          )}
 
           {video && (
             <div className="mb-4 relative group">
               <p className="text-sm text-gray-500 mb-1">🎥 Video Preview</p>
               <video src={video} controls className="w-full rounded-md" />
               <div className="absolute top-2 right-2 flex gap-2">
-                <button className="bg-white px-3 py-1 text-sm rounded shadow border hover:bg-blue-100">✏️ Edit</button>
+                <button
+                  onClick={() => navigate("/video", { state: { video } })}
+                  className="bg-white px-3 py-1 text-sm rounded shadow border hover:bg-blue-100"
+                >
+                  ✏️ Edit
+                </button>
                 <button
                   onClick={() => setVideo(null)}
                   className="bg-white px-3 py-1 text-sm rounded shadow border hover:bg-red-100"
@@ -178,11 +246,12 @@ const CreatePost = () => {
                   type="file"
                   accept="image/*,video/*"
                   className="hidden"
-                  onClick={(e) => (e.target.value = null)}
                   onChange={handleMediaChange}
                 />
               </label>
-              <button title="Record Video" className="hover:text-blue-600">🎥</button>
+              <button onClick={() => navigate("/video")} title="Record Video" className="hover:text-blue-600">
+                🎥
+              </button>
               <button onClick={openTagModal}>👥</button>
               <button onClick={() => openModal("Feeling", "How are you feeling?", setFeeling, true)}>😊</button>
               <button onClick={() => setLocationModalOpen(true)}>📍</button>
@@ -198,8 +267,11 @@ const CreatePost = () => {
         </div>
 
         <div className="px-4 pb-4">
-          <button className="w-full bg-blue-600 text-white text-sm px-6 py-2 rounded hover:bg-blue-700 transition">
-            Next
+          <button
+            onClick={handleSubmit}
+            className="w-full bg-blue-600 text-white text-sm px-6 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Share Post
           </button>
         </div>
       </div>

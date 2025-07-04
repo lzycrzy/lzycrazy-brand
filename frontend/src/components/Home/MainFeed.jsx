@@ -116,12 +116,16 @@
 
 // export default MainFeed;
 import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import instance from '../../lib/axios/axiosInstance';
 import StoryBar from '../Home/StoryBar';
 import StoryCreationModal from '../Home/StoryCreationModal';
 import StoryViewer from '../Home/StoryViewer';
-import PostCreateBox from '../Posts/PostCreateBox';
-import PostCard from '../Posts/PostCard';
+// import PostCreateBox from '../Posts/PostCreateBox';
+// import PostCard from '../Posts/PostCard';
+import CreatePost from '../Posts/CreatePost';
+import ImageDetail from '../Posts/ImageDetail';
+import VideoOptions from '../Posts/VideoOptions';
 
 const MainFeed = ({ posts, onPostCreated, user }) => {
   const [stories, setStories] = useState([]);
@@ -248,16 +252,24 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
       )}
 
       {/* Post Creation */}
-      <PostCreateBox onPostCreated={onPostCreated} />
+      {/* <PostCreateBox onPostCreated={onPostCreated} />
 
       {/* Posts */}
-      {posts?.length > 0 ? (
+      {/* {posts?.length > 0 ? (
         posts.map((post, idx) => (
           <PostCard key={post._id || idx} post={post} />
         ))
       ) : (
         <div className="text-center text-gray-500 mt-10">No posts to display</div>
-      )}
+      )}  */}
+         {/* Routes for other components */}
+      <div className="min-h-screen bg-gray-100 p-4 flex items-center justify-center">
+    <Routes>
+      <Route path="/" element={<CreatePost />} />
+      <Route path="/image-detail" element={<ImageDetail />} />
+       <Route path="/video" element={<VideoOptions />} />
+      </Routes>
+   </div>
     </div>
   );
 };
