@@ -34,25 +34,27 @@ const AddProduct = () => {
   const AddProductRef = useRef(null);
   useEffect(() => {
     function handleOutsideClick(e) {
+      console.log(e.target);
       if (AddProductRef.current && !AddProductRef.current.contains(e.target)) {
-        setIsAddProductMadal(false);
+        setIsAddProductModal(false);
       }
     }
 
     document.addEventListener('mousedown', handleOutsideClick);
 
     return () => {
-      document.addEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener('mousedown', handleOutsideClick)
     }
-  },  [])
+  },  [AddProductRef])
 
 
   return (
     <div
+
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
       className="fixed inset-0 z-[999] flex items-center justify-center overflow-auto p-4"
     >
-      <div className="relative w-full max-w-xl max-h-[90vh] overflow-hidden rounded-md border border-gray-200 bg-white shadow-md">
+      <div ref={AddProductRef} className="relative w-full max-w-xl max-h-[90vh] overflow-hidden rounded-md border border-gray-200 bg-white shadow-md">
         
         {/* Sticky Header for Close & Back */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white p-3">

@@ -31,7 +31,7 @@ function AddPage({ setAddPage }) {
   const [activeListing, setActiveListing] = useState(null);
   const [listings, setListings] = useState(null);
   const [totalListing, setTotalListing] = useState(null);
-  const { setIsAddProductModal } = useProduct();
+  const { setIsAddProductModal, setIsEditing, setEditData } = useProduct();
 
   const user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
@@ -310,6 +310,8 @@ function AddPage({ setAddPage }) {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          setIsEditing(true);
+                          setEditData(property);
                         }}
                         className="inline-flex items-center rounded-lg bg-gray-900 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-gray-800"
                       >
