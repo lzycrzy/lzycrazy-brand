@@ -5,9 +5,10 @@ import { adminModel } from '../models/admin.model.js';
 import { userModel } from '../models/user.model.js';
 import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
-import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
+import { deleteFromCloudinary, generateVideoThumbnail, uploadToCloudinary } from '../utils/cloudinary.js';
 import Applicant from '../models/Applicant.js';
 import adminMarketPost from '../models/adminMarketPost.js'
+import getVideoThumbnailUrl from '../middlewares/getVideoThumbnailUrl.js'
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
   const { fullName, email, phone, password, role } = req.body;
@@ -356,7 +357,6 @@ export const getAllApplications = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch applications' });
   }
 };
-
 // Deleted single hiring form 
 export const deleteApplication = async (req, res) => {
   try {
@@ -416,11 +416,20 @@ export const publishPost=async(req,res)=>{
         if(req.file){
                 const postUrl = await uploadToCloudinary(filePath);
                const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
-                const post=new adminMarketPost({userName,postUrl,url,type,postDate}) 
+               if(type=="video"){
+                 const thumnail=getVideoThumbnailUrl(postUrl)
+                  const post=new adminMarketPost({userName,postUrl,url,thumnail,type,postDate}) 
                   await post.save()
                     return res.status(200).json({
                    message:"Posted Successfully"
-        })
+                      })
+               }else{
+                   const post=new adminMarketPost({userName,postUrl,url,type,postDate}) 
+                  await post.save()
+                    return res.status(200).json({
+                   message:"Posted Successfully"
+                        })
+               }
         }else{
           return res.status(401).json({
           message:"Please select at least one image/video !"
@@ -441,12 +450,18 @@ export const updatePost=async(req,res)=>{
         if(req.file){
                 const postUrl = await uploadToCloudinary(filePath);
                  const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+                 if(type=="video"){
+                  const thumnail=getVideoThumbnailUrl(postUrl)
+                   const post=await adminMarketPost.updateOne({_id},{$set:{postUrl,url,thumnail,type,postDate}}) 
+                    return res.status(200).json({
+                   message:"Posted Successfully"
+        })
+                 }
                   const post=await adminMarketPost.updateOne({_id},{$set:{postUrl,url,type,postDate}}) 
                     return res.status(200).json({
                    message:"Posted Successfully"
         })
         } 
-        
     } catch (error) {
           return res.status(401).json({
           message:"Something wrong please try again!"
@@ -456,7 +471,9 @@ export const updatePost=async(req,res)=>{
 export const deletePost=async(req,res)=>{
     try {
     const{_id}=req.params
-    const response=await adminMarketPost.deleteOne({_id})
+    const{postUrl}=req.body
+    await deleteFromCloudinary(postUrl)
+    await adminMarketPost.deleteOne({_id})
      return res.status(200).json({
                    message:"Post deleted Successfully"})
     } catch (error) {

@@ -33,13 +33,15 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
     }
   };
   const handleSubmit = () => {
-    const formData=FormData()
+    const formData=new FormData()
     formData.append("userName",updateData.userName)
      formData.append("url",updateData.url)
       formData.append("postDate",updateData.postDate)
        formData.append("file",file)
 
-  };   
+      //  send data to update post on backend
+    setIsEditing(prev=>!prev)
+  }; 
   return (
     <div className="fixed w-[100vw] h-[100vh] top-0 right-0 flex justify-center items-center mb-8 rounded-lg  bg-blue-400/5 p-6 shadow-xl">
       <div className="relative w-full bg-white shadow-2xl max-w-[50vw] p-6 rounded-2xl grid grid-cols-1 gap-6 lg:grid-cols-3">

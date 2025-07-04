@@ -27,7 +27,7 @@ import { getAllEnquiries } from '../controllers/Enquiry.controller.js';
 const router = express.Router();
 // Admin market post routes
 router
-.get('/marketPost',isAuthenticatedAdmin,marketPost)
+.get('/marketPost',marketPost)
 .post('/publishPost',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),upload.single('file'),publishPost)
 .put('/updatePost/:_id',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),upload.single('file'),updatePost)
 .delete('/deletePost/:_id',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),deletePost)

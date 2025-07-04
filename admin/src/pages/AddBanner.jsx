@@ -1,30 +1,27 @@
 import React, { useState } from 'react';
 import { Upload, Calendar, User, Eye, Play, X, Camera } from 'lucide-react';
+import { multiInstance } from '../utils/axios';
 export default function AddBanner() {
-  const [formData, setFormData] = useState({
-    title: 'Lorem ipsum jewfin jsdnfaskjfn',
-    name: '',
-    date: new Date().toISOString().split('T')[0],
+  const [postData, setPostData] = useState({
+    userName:"",
+    postDate: new Date().toISOString().split('T')[0],
+    url:""
   });
-  const [videoFile, setVideoFile] = useState(null);
+  const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setPostData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const handleVideoUpload = (e) => {
+  const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setVideoFile(file);
+      setFile(file);
       const url = URL.createObjectURL(file);
       setFilePreview({
         url,
@@ -32,36 +29,30 @@ export default function AddBanner() {
       });
     }
   };
-
-  const handleSubmit = () => {
-    if (!formData.title.trim() || !formData.name.trim()) {
+async function submitHandler(){
+   if (!file || !postData.url) {
       alert('Please fill in all required fields');
       return;
     }
-    const newEntry = {
-      id: newsData.length + 1,
-      title: formData.title,
-      postDate: formData.date,
-      views: '0',
-      userName: formData.name,
-      thumbnail: videoPreview || '/api/placeholder/60/40',
-      videoUrl: videoPreview,
-    };
-
-    setNewsData((prev) => [newEntry, ...prev]);
-
-    // Reset form
-    setFormData({
-      title: '',
-      name: '',
-      date: new Date().toLocaleDateString('en-GB').split('/').join('-'),
-    });
-    setVideoFile(null);
-    setVideoPreview(null);
-
-    alert('News entry added successfully!');
-  };
-  
+ const formData=new FormData()
+ formData.append('file',file)
+ formData.append('userName',postData.userName)
+ formData.append('url',postData.url)
+ formData.append('postDate',postData.postDate)
+//  api call to publish market  post
+ const response= await multiInstance.post('/admin/publishPost',formData)
+ console.log(response);
+ setPostData({
+   userName:"",
+     url:"",
+    postDate: new Date().toISOString().split('T')[0],
+ })
+ setFile(null)
+ setFilePreview(null)
+  alert('News entry added successfully!');
+}
+ console.log(file,postData);
+ 
   return (
     <div className="mb-8 rounded-lg w-[60vw] flex justify-self-center bg-white p-6 shadow-xl">
       <div className="w-full grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -107,7 +98,7 @@ export default function AddBanner() {
             <input
               type="file"
               accept="image/*,video/*"
-              onChange={handleVideoUpload}
+              onChange={handleFileUpload}
               className="hidden"
               id="video-upload"
             />
@@ -133,8 +124,8 @@ export default function AddBanner() {
                </label>
                   <input
                     type="text"
-                    name="name"
-                    value={formData.name}
+                    name="userName"
+                    value={postData.userName}
                     onChange={handleInputChange}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     placeholder="Name"
@@ -146,7 +137,7 @@ export default function AddBanner() {
                   <input
                     type="url"
                     name="url"
-                    value={formData.url}
+                    value={postData.url}
                     onChange={handleInputChange}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     placeholder="Past Url..."
@@ -157,9 +148,9 @@ export default function AddBanner() {
                 <div className="relative">
                   <input
                     type="date"
-                    name="date"
+                    name="postDate"
                     defaultValue={new Date().toISOString().split('T')[0]}
-                    value={formData.date}
+                    value={postData.postDate}
                     onChange={handleInputChange}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     placeholder="DD-MM-YYYY"
@@ -173,7 +164,7 @@ export default function AddBanner() {
           {/* Submit Button */}
           <div className="flex  justify-end">
             <button
-              onClick={handleSubmit}
+              onClick={submitHandler}
               className="cursor-pointer rounded-lg bg-blue-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Submit

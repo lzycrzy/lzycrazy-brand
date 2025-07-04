@@ -392,7 +392,7 @@
 
 
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../components/static/Header';
 import CategoryPostForm from '../components/CategoryPostForm';
 import { toast } from 'react-toastify';
@@ -404,6 +404,7 @@ import { BiSkipPrevious } from 'react-icons/bi';
 import{GrPrevious,GrNext} from 'react-icons/gr'
 import AddProduct from './AddProduct';
 import { useProduct } from '../store/useProduct';
+import instance from '../lib/axios/axiosInstance';
 
 const categoriesWithSub = Object.keys(listings).reduce((acc, category) => {
   acc[category] = Object.keys(listings[category]);
@@ -450,7 +451,7 @@ const MarketplaceHome = () => {
     src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
   }]
 )
- const[videoBanner,seVideoBanner]=useState([{
+ const[videoBanner,setVideoBanner]=useState([{
   type: 'video',
    src: 'https://player.vimeo.com/external/371540223.sd.mp4?s=174cf8c423e50346a6613ab9e2df8774a2bd4173&profile_id=164',
  },
@@ -533,6 +534,30 @@ const imgHalfPortion=Math.floor(imageBanner.length/2)
     seSecVideoBannerIndex(prev=>prev+1)
   }
  }
+// fetch post here
+async function fetchMarketPlacePost(){
+ const response=await instance.get('/admin/marketPost')
+if(response?.data){
+ response.data?.message.map(item=>{
+  if(item.type=="video"){
+      setVideoBanner(prev=>[...prev,{
+        type:item.type,
+        src:item.postUrl
+      }])
+  }else{
+       setImageBanner(prev=>[...prev,{
+        type:item.type,
+        src:item.postUrl
+      }])
+  }
+ })
+}
+}
+useEffect(()=>{
+  fetchMarketPlacePost()
+},[])
+
+
   const {isAddProductModal} = useProduct();
   return (
     <div className="relative w-full min-h-screen bg-gray-100">
