@@ -251,6 +251,7 @@ const [formError, setFormError] = useState('');
         onLoginSuccess({
           name: data.name,
           companyId: data.companyId,
+          email: data.email,
         });
       }, 800);
     } catch (error) {

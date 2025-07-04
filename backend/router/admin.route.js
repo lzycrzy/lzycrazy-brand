@@ -12,14 +12,19 @@ import {
   getAllUsersList,
   deleteSingleUser,
   getAllApplications,
-  deleteApplication
+  getOneApplications,
+  deleteApplication,
 } from '../controllers/admin.controller.js';
 import {
   isAuthenticatedAdmin,
   authorizeRolesAdimin,
 } from '../middlewares/auth.middleware.admin.js';
 import upload from '../middlewares/multer.middleware.js';
-import { getAllEnquiries } from '../controllers/Enquiry.controller.js';
+import {
+  getAllEnquiries,
+  updateEnquiryStatus,
+  deleteEnquiry,
+} from '../controllers/Enquiry.controller.js';
 const router = express.Router();
 
 // Public routes
@@ -66,9 +71,13 @@ router.delete(
   authorizeRolesAdimin('admin'),
   deleteSingleUser,
 );
-router.get('/enquiry', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), getAllEnquiries); 
+router.get('/enquiry', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), getAllEnquiries);
+router.put('/enquiry/:id/status', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), updateEnquiryStatus); // PUT /api/enquiry/:id/status
+router.delete('/enquiry/:id', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), deleteEnquiry);          // DELETE /api/enquiry/:id
 
 router.get('/applications', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), getAllApplications);
+
+router.get('/applications/:id', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), getOneApplications);
 
 router.delete('/applications/:id', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), deleteApplication);
 
