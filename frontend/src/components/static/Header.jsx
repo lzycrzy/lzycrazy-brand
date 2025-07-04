@@ -12,7 +12,6 @@ import {
 } from 'react-icons/fa';
 
 import store from '../../assets/store.png'; // Replace with your actual path
-
 import logo from '../../assets/logo.png';
 import home from '../../assets/home.png';
 import movie from '../../assets/movie-reel.png';

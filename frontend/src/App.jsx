@@ -119,11 +119,44 @@
 
 //new
 
+// import { Provider } from 'react-redux';
+// import { ToastContainer } from 'react-toastify';
+// import store from './lib/redux/store';
+// import { UserProvider } from './context/UserContext';
+// import AppRoutes from './routes/AppRoutes';
+
+// import 'react-toastify/dist/ReactToastify.css';
+
+// const App = () => (
+//   <Provider store={store} >
+     
+//     <UserProvider>
+    
+//         {/* <ToastContainer
+//           position="top-right"
+//           autoClose={3000}
+//           theme="colored"
+//           style={{ zIndex: 9999 }}
+        
+        
+//           pauseOnHover
+//         /> */}
+//         <AppRoutes />
+      
+//     </UserProvider>
+//   </Provider>
+// );
+
+// export default App;
+
+
 import { Provider } from 'react-redux';
-import { ToastContainer } from 'react-toastify';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import store from './lib/redux/store';
 import { UserProvider } from './context/UserContext';
 import AppRoutes from './routes/AppRoutes';
+import { setCurrentPathname } from './lib/axios/axiosInstance';
 
 import 'react-toastify/dist/ReactToastify.css';
 import AddProduct from './pages/AddProduct';

@@ -2,16 +2,16 @@ import { useForm } from 'react-hook-form';
 import ConfirmLocation from './ConfirmLocation';
 import Upload from './Upload';
 import { toast } from 'react-toastify';
-import instance from '../../lib/axios/axiosInstance';
-import { initiatePayment } from '../../services/Payment';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ConfirmListing from './ConfirmListing';
 import PaymentModal from './PaymentModal';
+import { useProduct } from '../../store/useProduct';
 
 function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
 
   const user = JSON.parse(localStorage.getItem('user'));
   // console.log("User: ",user);
+  const {editData, isEditing} = useProduct();
 
   const {
     register,
@@ -33,6 +33,32 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
       neighbourhood: '',
     },
   });
+
+  console.log(editData)
+  useEffect(() => {
+    if (isEditing && editData && selectedCategory) {
+      setValue('title', editData.title)
+      setValue('description', editData.description)
+      setValue('price', editData.price)
+      setValue('photos', editData.images)
+      setValue('state', editData.location.state)
+      setValue('city', editData.location.city)
+      setValue('neighbourhood', editData.location.neighbourhood)
+
+      selectedSubcategory.formStructure?.forEach((item) => {
+        // console.log("Edited Features: ", editData.features[item.fieldName]);
+        if (item.type === 'file') {
+          item.required = false;
+        }
+        setValue(item.fieldName, editData?.features[item.fieldName]);
+        // console.log("SET VALUE: ",getValues(item.fieldName))
+      });
+
+      console.log(selectedCategory)
+      console.log(selectedSubcategory)
+    }
+  }, [isEditing, editData, selectedCategory])
+
 
   const watchAll = watch();
 
@@ -68,6 +94,8 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
       },
     );
 
+    console.log(getValues('photos'))
+
     data.photos.forEach((photo) => {
       formData.append('file', photo.file);
     });
@@ -82,6 +110,19 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
     formData.append('category', selectedCategory._id);
     formData.append('subCategory', selectedSubcategory.name);
     formData.append('features', JSON.stringify(features));
+
+    if (isEditing) {
+      formData.append('listingId', editData._id);
+    }
+
+    formData.forEach((value, key) => {
+      if (value instanceof File) {
+        console.log(`${key}: File name = ${value.name}, size = ${value.size}`);
+      } else {
+        console.log(`${key}:`, value);
+      }
+    });
+
 
     setConfirmListing(formData);
     // reset();
@@ -403,6 +444,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
             register={register}
             setValue={setValue}
             errors={errors}
+            getValues={getValues}
           />
 
           <div className="mb-5 flex justify-center">
@@ -410,7 +452,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
               type="submit"
               className="cursor-pointer rounded-md border-2 border-gray-400 p-2 px-5 transition-all duration-200 hover:bg-gray-400"
             >
-              Submit
+              {!isEditing ? "Submit": "Update"}
             </button>
           </div>
         </form>

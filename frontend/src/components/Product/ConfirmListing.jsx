@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { createListing } from "../../services/Payment";
+import { createListing, initiatePayment, updateListing } from "../../services/Payment";
 import { useProduct } from "../../store/useProduct";
 
 
@@ -7,9 +7,17 @@ function ConfirmListing({data, setPaymentModal, setConfirmListing}) {
 
   const user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
-  const {setIsAddProductModal} = useProduct();
+  const {setIsAddProductModal, isEditing, setIsEditing} = useProduct();
 
-  function handleSubmit(data) {
+  async function handleSubmit(data) {
+    if (isEditing) {
+      console.log("Initiating updating......")
+      await updateListing(data, navigate, setIsAddProductModal);
+      setIsEditing(false)
+      setConfirmListing(null);
+      return;
+    }
+
     if (user.productListed.length > 0) {
       setConfirmListing(null);
       setPaymentModal(data)
@@ -18,7 +26,6 @@ function ConfirmListing({data, setPaymentModal, setConfirmListing}) {
       createListing(data, navigate, setIsAddProductModal);
     }
   }
-
   return (
     <div style={{backgroundColor: 'rgb(0,0,0,.3)'}} className='fixed inset-0 flex justify-center items-center z-99'>
         <div className='bg-white shadow-lg p-5 min-w-[300px] rounded flex flex-col gap-5'>

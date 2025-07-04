@@ -31,17 +31,17 @@ function AddPage({ setAddPage }) {
   const [activeListing, setActiveListing] = useState(null);
   const [listings, setListings] = useState(null);
   const [totalListing, setTotalListing] = useState(null);
-  const { setIsAddProductModal } = useProduct();
+  const { setIsAddProductModal, setIsEditing, setEditData, editData, isEditing } = useProduct();
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = localStorage.getItem('usr') ? JSON.parse(localStorage.getItem('user')) : null;
   const navigate = useNavigate();
 
   useEffect(() => {
     async function getMyAddListing() {
       try {
         const response = await instance.get('/v1/listing/my-adds');
-        const listing = response.data[0].productListed;
-        const updatedListings = listing.map((item) => ({
+        const listing = response.data;
+        const updatedListings = listing?.map((item) => ({
           ...item,
           postedBy: {
             ...item.postedBy,
@@ -51,25 +51,22 @@ function AddPage({ setAddPage }) {
         setListings(updatedListings);
         setTotalListing(updatedListings);
 
-        console.log(updatedListings);
         setListings(updatedListings);
         setTotalListing(updatedListings);
 
-        const listingActive = response.data[0].productListed.filter(
+        const listingActive = response.data?.filter(
           (listing) => !listing.isExpired,
         );
+
         setActiveListing(listingActive);
 
-        // console.log(allResponses)
-        // console.log(reported)
-        // console.log(listingActive)
       } catch (error) {
         console.log(error);
       }
     }
 
     getMyAddListing();
-  }, []);
+  }, [isEditing]);
 
   useEffect(() => {
     async function getListingReponseAndReported() {
@@ -283,7 +280,7 @@ function AddPage({ setAddPage }) {
                       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <User className="h-4 w-4" />
-                          <span>{property.postedBy.name} ({user.companyId})</span>
+                          <span>{property.postedBy.name} ({property.user?.companyId})</span>
                         </div>
                         {/* <div className="flex items-center gap-1">
                       <Phone className="h-4 w-4" />
@@ -310,6 +307,9 @@ function AddPage({ setAddPage }) {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          setIsAddProductModal(true);
+                          setIsEditing(true);
+                          setEditData(property);
                         }}
                         className="inline-flex items-center rounded-lg bg-gray-900 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-gray-800"
                       >

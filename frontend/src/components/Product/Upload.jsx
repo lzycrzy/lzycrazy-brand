@@ -8,10 +8,11 @@ const Upload = ({ photos, setPhotos }) => {
   const [images, setImages] = useState(Array(totalImages).fill(null));
   const [draggedIndex, setDraggedIndex] = useState(null);
 
+
   useEffect(() => {
     const newImages = [...Array(totalImages).fill(null)];
     photos.forEach((img, i) => {
-      if (i < totalImages) newImages[i] = img;
+      if (i < totalImages) newImages[i] = {dataURL: img};
     });
     setImages(newImages);
   }, [photos]);

@@ -15,8 +15,8 @@ const PropertyViewPage = () => {
     );
   }
 
-  const user = JSON.parse(localStorage.getItem('user'));
-  console.log(user);
+  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')): null;
+  // console.log(user);
 
   useEffect(() => {
     async function updateViews() {

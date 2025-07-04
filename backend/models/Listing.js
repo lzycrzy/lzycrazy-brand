@@ -5,7 +5,7 @@ const listingSchema = new mongoose.Schema({
   price: { type: String, required: true },
   description: { type: String },
   brand: {type: String},
-  userId: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
