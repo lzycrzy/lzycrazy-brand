@@ -1,3 +1,40 @@
-node_modules
-*.json
+# node_modules
+# *.json
+# .env
+# Ignore node dependencies
+node_modules/
+
+# Ignore environment variable files
 .env
+.env.local
+.env.*.local
+
+# Ignore temporary files
+temp/
+*.tmp
+*.log
+
+# Ignore build outputs
+dist/
+build/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore uploads and large files
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+
+# Ignore JSON if not required (be cautious!)
+# *.json   ← You had this; REMOVE if you need config/data files
+
+# Ignore editor/IDE files
+.vscode/
+.idea/
+
+# Ignore coverage and test output
+coverage/

@@ -91,7 +91,6 @@ export const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
     try {
       console.log('Uploading image to Cloudinary...');
       console.log('File path:', req.file.path);
-
       // Delete old image if exists
       if (admin.image && admin.image !== '') {
         console.log('Deleting old image...');
@@ -167,7 +166,6 @@ export const forgotAdminPassword = catchAsyncErrors(async (req, res, next) => {
       subject: 'Admin Password Reset',
       message,
     });
-
     res.status(200).json({ success: true, message: `Email sent to ${admin.email}` });
   } catch (error) {
     admin.resetPasswordToken = undefined;

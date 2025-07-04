@@ -17,6 +17,15 @@ const listingSchema = new mongoose.Schema({
     required: true
   },
 
+  response: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  reported: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+
   features: {
     type: mongoose.Schema.Types.Mixed, // Dynamic fields
     default: {}
@@ -27,7 +36,6 @@ const listingSchema = new mongoose.Schema({
   postedBy: {
     name: String,
     memberSince: String,
-    itemsListed: Number
   },
 
   location: {
@@ -48,7 +56,17 @@ const listingSchema = new mongoose.Schema({
     required: true,
   },
 
-  images: [{url: String}],
+  images: [String],
+    views: [{
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      viewedAt: {
+        type: Date,
+        default: Date.now,
+      }
+  }],
 
   createdAt: { type: Date, default: Date.now }
 });
