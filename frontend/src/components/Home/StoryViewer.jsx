@@ -88,7 +88,7 @@ const StoryViewer = ({ stories = [], initialIndex = 0, onClose }) => {
           <div className="flex-1" onClick={handlePrev} />
           <div className="flex-1" onClick={handleNext} />
         </div>
-
+       
         {/* TEXT STORY */}
         {story.type === "text" && (
   <div
