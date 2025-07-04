@@ -116,12 +116,14 @@
 
 // export default MainFeed;
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // for redirect
 import instance from '../../lib/axios/axiosInstance';
 import StoryBar from '../Home/StoryBar';
 import StoryCreationModal from '../Home/StoryCreationModal';
 import StoryViewer from '../Home/StoryViewer';
 import PostCreateBox from '../Posts/PostCreateBox';
 import PostCard from '../Posts/PostCard';
+import Loader from '../../components/common/Spinner';//  your spinner
 
 const MainFeed = ({ posts, onPostCreated, user }) => {
   const [stories, setStories] = useState([]);
@@ -129,64 +131,111 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [viewerStories, setViewerStories] = useState([]);
   const [viewerVisible, setViewerVisible] = useState(false);
+  const [isUploading, setIsUploading] = useState(false); // spinner
+  const navigate = useNavigate(); //  redirect
 
-  // Fetch stories
-  useEffect(() => {
-    const fetchStories = async () => {
-      try {
-        const res = await instance.get('/v1/users/story', {
-          withCredentials: true,
-        });
+  const fetchStories = async () => {
+    try {
+      const res = await instance.get('/v1/users/story', {
+        withCredentials: true,
+      });
 
-        const allStories = res.data.map((story) => {
-          if (story.text?.content) {
-            return { ...story, type: 'text', text: story.text.content };
-          } else if (story.video) {
-            return { ...story, type: 'video' };
-          }
-          return { ...story, type: 'photo' };
-        });
-
-        setStories(allStories);
-
-        // Filter: show only latest story per user in StoryBar
-        const seen = new Set();
-        const unique = [];
-        for (const s of allStories) {
-          const uid = typeof s.user === 'object' ? s.user._id : s.user;
-          if (!seen.has(uid)) {
-            unique.push(s);
-            seen.add(uid);
-          }
+      const allStories = res.data.map((story) => {
+        if (story.text?.content) {
+          return {
+            ...story,
+            type: 'text',
+            text: {
+              content: story.text.content,
+              backgroundColor: story.text.backgroundColor || '#000',
+              fontStyle: story.text.fontStyle || 'sans-serif',
+            },
+          };
+        } else if (story.video) {
+          return { ...story, type: 'video' };
         }
-        setUniqueUserStories(unique);
-      } catch (err) {
-        console.error('Failed to load stories:', err.response?.data || err.message);
-      }
-    };
+        return { ...story, type: 'photo' };
+      });
 
+      setStories(allStories);
+
+      const seen = new Set();
+      const unique = [];
+      for (const s of allStories.slice().reverse()) {
+        const uid = typeof s.user === 'object' ? s.user._id : s.user;
+        if (!seen.has(uid)) {
+          unique.push(s);
+          seen.add(uid);
+        }
+      }
+      setUniqueUserStories(unique.reverse());
+    } catch (err) {
+      console.error('Failed to load stories:', err.response?.data || err.message);
+    }
+  };
+
+  // Initial fetch
+  useEffect(() => {
     fetchStories();
   }, []);
 
   // Submit new story
   const handleStorySubmit = async (formData) => {
     try {
+      setIsUploading(true);
+  
       const res = await instance.post('/v1/users/story', formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });
-
+  
       const savedStory = res.data.story;
-      const updated = [...stories, savedStory];
-      setStories(updated);
+  
+      let newStory;
+      if (savedStory.text?.content) {
+        newStory = {
+          ...savedStory,
+          type: 'text',
+          user: user, // ✅ Add full user object
+          text: {
+            content: savedStory.text.content,
+            backgroundColor: savedStory.text.backgroundColor || '#000',
+            fontStyle: savedStory.text.fontStyle || 'sans-serif',
+          },
+        };
+      } else if (savedStory.video) {
+        newStory = { ...savedStory, type: 'video', user: user }; // ✅ add user
+      } else {
+        newStory = { ...savedStory, type: 'photo', user: user }; // ✅ add user
+      }
+  
+      const updatedStories = [newStory, ...stories];
+      setStories(updatedStories);
+  
+      // Rebuild uniqueUserStories
+      const seen = new Set();
+      const unique = [];
+      for (const s of updatedStories) {
+        const uid = typeof s.user === 'object' ? s.user._id : s.user;
+        if (!seen.has(uid)) {
+          unique.push(s);
+          seen.add(uid);
+        }
+      }
+      setUniqueUserStories(unique);
+  
       setShowCreateModal(false);
+      setIsUploading(false);
+  
+      // Optionally reload view
+      // navigate("/");
     } catch (err) {
-      console.error("Story upload failed:", err.response?.data || err.message);
-      alert("Failed to share story.");
+      console.error('Story upload failed:', err.response?.data || err.message);
+      alert('Failed to share story.');
+      setIsUploading(false);
     }
   };
-
-  // When a story is clicked: fetch all stories for that user
+  
   const openViewer = async (story) => {
     const userId = typeof story.user === 'object' ? story.user._id : story.user;
     if (!userId) {
@@ -201,7 +250,15 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
 
       const userStories = res.data.map((s) => {
         if (s.text?.content) {
-          return { ...s, type: 'text', bgColor:s.text.backgroundColor, text: s.text.content };
+          return {
+            ...s,
+            type: 'text',
+            text: {
+              content: s.text.content,
+              backgroundColor: s.text.backgroundColor || '#000',
+              fontStyle: s.text.fontStyle || 'sans-serif',
+            },
+          };
         } else if (s.video) {
           return { ...s, type: 'video' };
         }
@@ -222,14 +279,21 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      {/* Story Bar with one story per user */}
+      {/* Spinner while uploading */}
+      {isUploading && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center">
+          <Loader/>
+        </div>
+      )}
+
+      {/* Story Bar */}
       <StoryBar
         stories={uniqueUserStories}
         onAddStory={() => setShowCreateModal(true)}
         onStoryClick={openViewer}
       />
 
-      {/* Story Creation Modal */}
+      {/* Story Modal */}
       {showCreateModal && (
         <StoryCreationModal
           onClose={() => setShowCreateModal(false)}
@@ -238,7 +302,7 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
         />
       )}
 
-      {/* Story Viewer */}
+      {/* Viewer */}
       {viewerVisible && viewerStories.length > 0 && (
         <StoryViewer
           stories={viewerStories}
@@ -247,7 +311,7 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
         />
       )}
 
-      {/* Post Creation */}
+      {/* Post Create */}
       <PostCreateBox onPostCreated={onPostCreated} />
 
       {/* Posts */}
@@ -256,7 +320,9 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
           <PostCard key={post._id || idx} post={post} />
         ))
       ) : (
-        <div className="text-center text-gray-500 mt-10">No posts to display</div>
+        <div className="text-center text-gray-500 mt-10">
+          No posts to display
+        </div>
       )}
     </div>
   );
