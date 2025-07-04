@@ -9,7 +9,7 @@ function PaymentModal({data, setPaymentModal, }) {
     const navigate = useNavigate();
     const {setIsAddProductModal} = useProduct();
 
-    function makePayment() {
+    function makePayment(data) {
         initiatePayment(user.fullName, user.email, data, navigate, setIsAddProductModal);
         setPaymentModal(null);
     }

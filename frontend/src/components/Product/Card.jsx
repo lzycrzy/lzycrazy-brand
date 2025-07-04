@@ -4,10 +4,15 @@ import Upload from './Upload';
 import { toast } from 'react-toastify';
 import instance from '../../lib/axios/axiosInstance';
 import { initiatePayment } from '../../services/Payment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ConfirmListing from './ConfirmListing';
+import { useProduct } from '../../store/useProduct';
+import PaymentModal from './PaymentModal';
 
 function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
+
+  const {editData, isEditing} = useProduct();
+
   const {
     register,
     handleSubmit,
@@ -19,8 +24,8 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
   } = useForm({
     defaultValues: {
       brand: '',
-      title: '',
-      description: '',
+      title:  '',
+      description:  '',
       price: '',
       photos: [],
       state: '',
@@ -28,6 +33,30 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
       neighbourhood: '',
     },
   });
+
+  useEffect(() => {
+    if (isEditing && editData && selectedCategory) {
+      setValue('title', editData.title)
+      setValue('description', editData.description)
+      setValue('price', editData.price)
+      setValue('photos', editData.images)
+      setValue('state', editData.location.state)
+      setValue('city', editData.location.city)
+      setValue('neighbourhood', editData.location.neighbourhood)
+
+      selectedSubcategory.formStructure?.forEach((item) => {
+        // console.log("Edited Features: ", editData.features[item.fieldName]);
+        if (item.type === 'file') {
+          item.required = false;
+        }
+        setValue(item.fieldName, editData.features[item.fieldName]);
+        // console.log("SET VALUE: ",getValues(item.fieldName))
+      });
+
+      console.log(selectedCategory)
+      console.log(selectedSubcategory)
+    }
+  }, [isEditing, editData, selectedCategory])
 
   const watchAll = watch();
 
@@ -38,6 +67,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
   };
 
   const onSubmit = async (data) => {
+    console.log(data);
     setConfirmListing(null);
     if (!data.photos || data.photos.length < 2 || data.photos[0] === 'empty') {
       toast.error('Please choose at least 2 images.');
@@ -105,29 +135,17 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
     formData.append('subCategory', selectedSubcategory.name);
     formData.append('features', JSON.stringify(features));
 
-    try {
-      const res = await instance.post('/v1/listing/create', formData);
-
-      if (res.data?.success) {
-        toast.success('Product listed.');
-
-        if (!res.data?.freeLimit) {
-          initiatePayment("Chhatish Kumar", "kumarchhatishyadav2@gmail.com");
-        } else {
-          reset();
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error('Listing failed.');
-    }
+    setConfirmListing(formData)
   };
 
   const [confirmListing, setConfirmListing] = useState(null);
+  const [paymentModal, setPaymentModal] = useState(null);
 
   return (
     <div className='relative'>
-      {confirmListing && <ConfirmListing confirmListing={confirmListing} onSubmit={onSubmit} setConfirmListing={setConfirmListing} />}
+      {confirmListing && <ConfirmListing data={confirmListing} onSubmit={onSubmit} setConfirmListing={setConfirmListing} setPaymentModal={setPaymentModal} />}
+
+      {paymentModal && <PaymentModal data={paymentModal} setPaymentModal={setPaymentModal} />}
       <div className="mx-auto mb-20 flex w-full items-center justify-center px-2">
         <form
           onSubmit={handleSubmit((data) => setConfirmListing(data))}
@@ -155,7 +173,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
               Include Some Details
             </h2>
 
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
               <label htmlFor="brand">
                 Brand <span className="text-red-500">*</span>
               </label>
@@ -173,7 +191,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
               {errors.brand && (
                 <p className="mt-1 text-sm text-red-600">brand is required</p>
               )}
-            </div>
+            </div> */}
 
             <div className="flex flex-col gap-1">
               <label htmlFor="title">
@@ -433,6 +451,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
             watch={watch}
             register={register}
             setValue={setValue}
+            reset={reset}
             errors={errors}
           />
 
@@ -441,7 +460,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
               type="submit"
               className="cursor-pointer rounded-md border-2 border-gray-400 p-2 px-5 transition-all duration-200 hover:bg-gray-400"
             >
-              Submit
+              {!isEditing ? "Submit": "Update"}
             </button>
           </div>
         </form>

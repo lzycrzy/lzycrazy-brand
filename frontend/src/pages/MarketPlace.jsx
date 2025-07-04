@@ -481,6 +481,38 @@ const imgHalfPortion=Math.floor(imageBanner.length/2)
     navigate('/property-view', { state: { data: item, images: item.images } });
   };
 
+  function firstPrevImg() {
+
+  }
+
+  function firstNextImg(){
+
+  }
+
+  function secondPrevImg() {
+
+  }
+
+  function secondNextImg() {
+
+  }
+
+  function firstPrevVideo() {
+
+  }
+
+  function firstNextVideo() {
+
+  }
+
+  function secondPrevVideo() {
+
+  }
+
+  function secondNextVideo() {
+
+  }
+  
   const selectedListings =
     listings[selectedCategory]?.[selectedSubcategory] || [];
 
@@ -488,6 +520,8 @@ const imgHalfPortion=Math.floor(imageBanner.length/2)
   const [subCategories, setSubCategories] = useState(null);
   const [subcategoryDetails, setSubCategoryDetails] = useState(null);
   const [categoryDetails, setCategoryDetails] = useState(null);
+
+
   useEffect(() => {
     async function marketPlaceDetails() {
       try {
@@ -525,7 +559,7 @@ const imgHalfPortion=Math.floor(imageBanner.length/2)
     getSubcategoryDetails();
   }, [selectedSubcategory]);
 
-  console.log(subcategoryDetails);
+  // console.log(subcategoryDetails);
   return (
     <div className="relative min-h-screen w-full bg-gray-100">
       <Header />

@@ -31,7 +31,7 @@ function AddPage({ setAddPage }) {
   const [activeListing, setActiveListing] = useState(null);
   const [listings, setListings] = useState(null);
   const [totalListing, setTotalListing] = useState(null);
-  const { setIsAddProductModal, setIsEditing, setEditData } = useProduct();
+  const { setIsAddProductModal, setIsEditing, setEditData, editData } = useProduct();
 
   const user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
@@ -40,8 +40,9 @@ function AddPage({ setAddPage }) {
     async function getMyAddListing() {
       try {
         const response = await instance.get('/v1/listing/my-adds');
-        const listing = response.data[0].productListed;
-        const updatedListings = listing.map((item) => ({
+        const listing = response.data;
+        // console.log(response.data);
+        const updatedListings = listing?.map((item) => ({
           ...item,
           postedBy: {
             ...item.postedBy,
@@ -51,13 +52,16 @@ function AddPage({ setAddPage }) {
         setListings(updatedListings);
         setTotalListing(updatedListings);
 
-        console.log(updatedListings);
+        // console.log(updatedListings);
         setListings(updatedListings);
         setTotalListing(updatedListings);
 
-        const listingActive = response.data[0].productListed.filter(
+        const listingActive = response.data?.filter(
           (listing) => !listing.isExpired,
         );
+
+        // console.log(listingActive);
+
         setActiveListing(listingActive);
 
         // console.log(allResponses)
@@ -130,6 +134,8 @@ function AddPage({ setAddPage }) {
 
     saveAs(blob, 'listing_Response.xlsx');
   };
+
+  console.log(editData)
 
   return (
     <>
@@ -283,7 +289,7 @@ function AddPage({ setAddPage }) {
                       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <User className="h-4 w-4" />
-                          <span>{property.postedBy.name} ({user?.companyId})</span>
+                          <span>{property.postedBy.name} ({property.userId.companyId})</span>
                         </div>
                         {/* <div className="flex items-center gap-1">
                       <Phone className="h-4 w-4" />
@@ -310,6 +316,7 @@ function AddPage({ setAddPage }) {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          setIsAddProductModal(true);
                           setIsEditing(true);
                           setEditData(property);
                         }}

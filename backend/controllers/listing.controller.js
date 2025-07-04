@@ -22,7 +22,7 @@ export const getUserListing = async (req, res) => {
     try {
       const userId = req.user._id;
 
-      const user = await userModel.find(userId).populate('productListed');
+      const user = await ListModel.find({userId: userId}).populate('category').populate('userId');
       return res.status(200).json(user);
     } catch (error) {
         console.log(error.message);

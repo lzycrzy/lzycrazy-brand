@@ -102,6 +102,8 @@ export async function createListing(formData, navigate, setIsAddProductModal) {
 
   const toastId = toast.loading('product listing in progress')
 
+  console.log(formData)
+
   // function to responsible for upoloading all the images to cloudinary firstly
   async function uploadImageToCloudinary(imageFiles) {
     const photos = [];

@@ -64,7 +64,6 @@ export const getAllCategories = async (req, res) => {
   }
 };
 
-
 export const getCategoryById = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id).populate('createdBy', 'name email');
@@ -159,7 +158,6 @@ export const createCategory = async (req, res) => {
   }
 };
 
-
 import mongoose from 'mongoose';
 import ListModel from '../models/Listing.js';
 
@@ -248,7 +246,6 @@ export const updateCategory = async (req, res) => {
     });
   }
 };
-
 
 export const deleteCategory = async (req, res) => {
   try {

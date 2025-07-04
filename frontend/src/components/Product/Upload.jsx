@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CameraPlus from '../../assets/Camera.png';
 import { toast } from 'react-toastify';
+import { useProduct } from '../../store/useProduct';
 
 const Upload = ({ photos, setPhotos }) => {
   const totalImages = 8;
@@ -11,7 +12,7 @@ const Upload = ({ photos, setPhotos }) => {
   useEffect(() => {
     const newImages = [...Array(totalImages).fill(null)];
     photos.forEach((img, i) => {
-      if (i < totalImages) newImages[i] = img;
+      if (i < totalImages) newImages[i] = {dataURL: img};
     });
     setImages(newImages);
   }, [photos]);
@@ -25,7 +26,7 @@ const Upload = ({ photos, setPhotos }) => {
     inputRefs.current[index]?.click();
   };
 
-  console.log(images)
+  // console.log(images)
 
 const handleChange = (e, index) => {
   const files = Array.from(e.target.files);
@@ -76,8 +77,6 @@ const handleChange = (e, index) => {
   processFiles();
   e.target.value = null;
 };
-
-
 
   const removeSelectImage = (e, index) => {
     e.stopPropagation();

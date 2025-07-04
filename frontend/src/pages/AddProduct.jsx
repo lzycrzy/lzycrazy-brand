@@ -10,7 +10,7 @@ const AddProduct = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [categories, setCategories] = useState(null);
-  const { setIsAddProductModal } = useProduct();
+  const { setIsAddProductModal, isEditing, setEditData, editData, setIsEditing } = useProduct();
 
   useEffect(() => {
     async function getAllCategories() {
@@ -34,7 +34,6 @@ const AddProduct = () => {
   const AddProductRef = useRef(null);
   useEffect(() => {
     function handleOutsideClick(e) {
-      console.log(e.target);
       if (AddProductRef.current && !AddProductRef.current.contains(e.target)) {
         setIsAddProductModal(false);
       }
@@ -47,10 +46,17 @@ const AddProduct = () => {
     }
   },  [AddProductRef])
 
+  useEffect(() => {
+    if (isEditing) {
+      setSelectedCategory(editData.category);
+      const subCategoryForEditing = editData.category.subcategories.filter((item) => item.name === editData.subcategory);
+      console.log(subCategoryForEditing)
+      setSelectedSubcategory(subCategoryForEditing[0]);
+    }
+  }, [])
 
   return (
     <div
-
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
       className="fixed inset-0 z-[999] flex items-center justify-center overflow-auto p-4"
     >
@@ -74,7 +80,15 @@ const AddProduct = () => {
           <div className="ml-auto">
             <button
               className="flex items-center justify-center rounded-full border bg-gray-300 p-1"
-              onClick={() => setIsAddProductModal(false)}
+              onClick={() => {
+                if (isEditing) {
+                  setSelectedCategory(null)
+                  setSelectedSubcategory('');
+                  setIsEditing(false);
+                  setEditData(null);
+                }
+                setIsAddProductModal(false)
+              }}
             >
               <X className="h-5 w-5" />
             </button>

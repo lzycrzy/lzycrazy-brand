@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { createListing } from "../../services/Payment";
+import { createListing, initiatePayment } from "../../services/Payment";
 import { useProduct } from "../../store/useProduct";
 
 
@@ -7,12 +7,22 @@ function ConfirmListing({data, setPaymentModal, setConfirmListing}) {
 
   const user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
-  const {setIsAddProductModal} = useProduct();
+  const {setIsAddProductModal, isEditing, setIsEditing} = useProduct();
+
+  console.log("USER: ",user)
 
   function handleSubmit(data) {
+    if (isEditing) {
+      // console.log("Initiating payment")
+      createListing(data, navigate, setIsAddProductModal);
+      setIsEditing(false)
+      return;
+    }
+
     if (user.productListed.length > 0) {
       setConfirmListing(null);
       setPaymentModal(data)
+      initiatePayment(user.fullName, user.email, data, navigate, setIsAddProductModal);
     } else {
       setConfirmListing(null);
       createListing(data, navigate, setIsAddProductModal);
