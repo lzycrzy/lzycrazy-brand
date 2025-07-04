@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 const marketPost=new mongoose.Schema({
-fullName:{
+userName:{
     type:String,
     require:true
 },

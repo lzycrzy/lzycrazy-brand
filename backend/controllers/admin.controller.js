@@ -411,12 +411,12 @@ export const marketPost=async(req,res)=>{
 export const publishPost=async(req,res)=>{
     try {
         console.log(req.file,req.body);
-        const{fullName,url,postDate}=req.body
+        const{userName,url,postDate}=req.body
         const filePath=req.file?.path
         if(req.file){
                 const postUrl = await uploadToCloudinary(filePath);
-              const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
-                const post=new adminMarketPost({fullName,postUrl,url,type,postDate}) 
+               const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+                const post=new adminMarketPost({userName,postUrl,url,type,postDate}) 
                   await post.save()
                     return res.status(200).json({
                    message:"Posted Successfully"
@@ -435,12 +435,13 @@ export const publishPost=async(req,res)=>{
 export const updatePost=async(req,res)=>{
     try {
           console.log(req.file,req.body);
-        const{fullName,url,postDate}=req.body
+          const{_id}=req.params
+        const{url,postDate}=req.body
         const filePath=req.file?.path
         if(req.file){
                 const postUrl = await uploadToCloudinary(filePath);
                  const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
-                  const post=await adminMarketPost.updateOne({fullName},{$set:{postUrl,type,postDate}}) 
+                  const post=await adminMarketPost.updateOne({_id},{$set:{postUrl,url,type,postDate}}) 
                     return res.status(200).json({
                    message:"Posted Successfully"
         })
@@ -454,9 +455,14 @@ export const updatePost=async(req,res)=>{
 }
 export const deletePost=async(req,res)=>{
     try {
-
+    const{_id}=req.params
+    const response=await adminMarketPost.deleteOne({_id})
+     return res.status(200).json({
+                   message:"Post deleted Successfully"})
     } catch (error) {
-        
+        return res.status(401).json({
+          message:"Something wrong please try again!"
+        })  
     }
 }
 
