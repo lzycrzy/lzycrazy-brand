@@ -90,7 +90,6 @@ export const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
     try {
       console.log('Uploading image to Cloudinary...');
       console.log('File path:', req.file.path);
-
       // Delete old image if exists
       if (admin.image && admin.image !== '') {
         console.log('Deleting old image...');
@@ -166,7 +165,6 @@ export const forgotAdminPassword = catchAsyncErrors(async (req, res, next) => {
       subject: 'Admin Password Reset',
       message,
     });
-
     res.status(200).json({ success: true, message: `Email sent to ${admin.email}` });
   } catch (error) {
     admin.resetPasswordToken = undefined;
@@ -347,7 +345,7 @@ export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true, message: 'User deleted successfully' });
 });
 
-
+// Get all Hiring forms
 export const getAllApplications = async (req, res) => {
   try {
     const applications = await Hiring.find().sort({ createdAt: -1 }); // newest first
@@ -359,7 +357,7 @@ export const getAllApplications = async (req, res) => {
   }
 };
 
-
+// Deleted single hiring form 
 export const deleteApplication = async (req, res) => {
   try {
     const { id } = req.params;
@@ -378,12 +376,12 @@ export const deleteApplication = async (req, res) => {
   }
 };
 
-
+// Request Admin Password Reset
 export const requestAdminPasswordReset = async (req, res) => {
   const { email } = req.body;
 
   try {
-    const admin = await Admin.findOne({ email });
+    const admin = await adminModel.findOne({ email });
     if (!admin) return res.status(404).json({ message: 'Admin not found' });
 
     const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '15m' });

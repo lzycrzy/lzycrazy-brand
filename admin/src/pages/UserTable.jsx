@@ -22,7 +22,7 @@ const UserTable = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('adminToken');
         if (!token) {
           throw new Error('No token found, please log in.');
         }

@@ -25,6 +25,10 @@ const ApplicationsList = () => {
     }
   };
 
+
+
+
+
   useEffect(() => {
     fetchApplications();
   }, []);

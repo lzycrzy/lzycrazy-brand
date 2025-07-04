@@ -37,15 +37,15 @@ import PostList from './pages/PostList';
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isLoggedIn = localStorage.getItem('isAuthenticated') === 'true';
-
+  
+  const token = localStorage.getItem('adminToken');
   useEffect(() => {
-    if (!isLoggedIn && location.pathname !== '/auth') {
+    if (!token && location.pathname !== '/auth') {
       navigate('/auth');
     }
-  }, [isLoggedIn, navigate, location.pathname]);
+  }, [token, navigate, location.pathname]);
 
-  return isLoggedIn ? children : null;
+  return token ? children : null;
 };
 
 const App = () => {
