@@ -1,6 +1,7 @@
 import Category from '../models/Category.js';
 
 export const getAllCategories = async (req, res) => {
+  
   try {
     const {
       page = 1,
@@ -164,25 +165,22 @@ export const createCategory = async (req, res) => {
 import mongoose from 'mongoose';
 
 export const updateCategory = async (req, res) => {
+  console.log('updating category')
   try {
     const { name, imageData, subcategories = [] } = req.body;
     const { id } = req.params;
-
     // Validate ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: 'Invalid category ID' });
     }
 
     // Check for name duplication
-    const existingCategory = await Category.findOne({
-      name: { $regex: new RegExp(`^${name}$`, 'i') },
-      _id: { $ne: id },
-    });
+    const existingCategory = await Category.findOne({_id: id});
 
-    if (existingCategory) {
+    if (!existingCategory) {
       return res.status(409).json({
         success: false,
-        message: 'Another category with this name already exists',
+        message: 'Category not found.',
       });
     }
 

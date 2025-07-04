@@ -126,10 +126,15 @@ import { UserProvider } from './context/UserContext';
 import AppRoutes from './routes/AppRoutes';
 
 import 'react-toastify/dist/ReactToastify.css';
+import AddProduct from './pages/AddProduct';
+import { useProduct } from './store/useProduct';
 
-const App = () => (
-  <Provider store={store} >
-     
+const App = () => {
+
+  const {isAddProductModal} = useProduct();
+  return (
+  <Provider store={store}>
+     {isAddProductModal && <AddProduct />}
     <UserProvider>
     
         {/* <ToastContainer
@@ -142,9 +147,12 @@ const App = () => (
           pauseOnHover
         /> */}
         <AppRoutes />
+
       
     </UserProvider>
   </Provider>
-);
+  
+)
+}
 
 export default App;

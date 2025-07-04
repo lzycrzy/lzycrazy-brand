@@ -350,7 +350,8 @@ export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
 
 export const getAllApplications = async (req, res) => {
   try {
-    const applications = await Applicant.find().sort({ createdAt: -1 }); // newest first
+    const applications = await Hiring.find().sort({ createdAt: -1 }); // newest first
+    
     res.status(200).json(applications);
   } catch (error) {
     console.error(error);
@@ -455,7 +456,7 @@ export const updatePost=async(req,res)=>{
 }
 export const deletePost=async(req,res)=>{
     try {
-        
+
     } catch (error) {
         
     }
