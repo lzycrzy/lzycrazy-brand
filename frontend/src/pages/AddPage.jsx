@@ -31,7 +31,11 @@ function AddPage({ setAddPage }) {
   const [activeListing, setActiveListing] = useState(null);
   const [listings, setListings] = useState(null);
   const [totalListing, setTotalListing] = useState(null);
+<<<<<<< HEAD
   const { setIsAddProductModal, setIsEditing, setEditData, editData, isEditing } = useProduct();
+=======
+  const { setIsAddProductModal, setIsEditing, setEditData } = useProduct();
+>>>>>>> 47a1faa044fc97836235a9ba0abce0c188a7058e
 
   const user = localStorage.getItem('usr') ? JSON.parse(localStorage.getItem('user')) : null;
   const navigate = useNavigate();
@@ -307,7 +311,10 @@ function AddPage({ setAddPage }) {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+<<<<<<< HEAD
                           setIsAddProductModal(true);
+=======
+>>>>>>> 47a1faa044fc97836235a9ba0abce0c188a7058e
                           setIsEditing(true);
                           setEditData(property);
                         }}

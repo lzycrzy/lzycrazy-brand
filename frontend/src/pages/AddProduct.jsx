@@ -46,6 +46,7 @@ const AddProduct = () => {
       document.removeEventListener('mousedown', handleOutsideClick)
     }
   },  [AddProductRef])
+<<<<<<< HEAD
 
   useEffect(() => {
     if (isEditing) {
@@ -55,6 +56,8 @@ const AddProduct = () => {
       setSelectedSubcategory(subCategoryForEditing[0]);
     }
   }, [])
+=======
+>>>>>>> 47a1faa044fc97836235a9ba0abce0c188a7058e
 
 
   return (
