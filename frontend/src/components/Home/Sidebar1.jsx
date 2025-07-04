@@ -1,24 +1,21 @@
 import {
-  FaUserCircle, FaFileAlt, FaShoppingCart,
-  FaUsers, FaStar
+  FaFileAlt
 } from 'react-icons/fa';
-import { LuBox } from 'react-icons/lu';
-import { BiSolidMoviePlay } from 'react-icons/bi';
 import { Link, useLocation } from 'react-router-dom';
-
-const links = [
-  { icon: FaUserCircle, label: 'Lzy Crazy', path: '/' },
-  { icon: FaFileAlt, label: 'My Ads', path: '/ads' },
-  { icon: LuBox, label: 'My Order', path: '/orders' },
-  { icon: FaShoppingCart, label: 'Market', path: '/market' },
-  { icon: FaUsers, label: 'My Group', path: '/groups' },
-  { icon: BiSolidMoviePlay, label: 'Movies', path: '/movies' },
-  { icon: FaStar, label: 'Saved', path: '/saved' },
-  { icon: FaUsers, label: 'Hiring', path: '/hiring' },
-];
+import { useUser } from '../../context/UserContext';
 
 const Sidebar = ({ compact = false }) => {
   const location = useLocation();
+  const { user, profilePic, displayName } = useUser();
+
+  const links = [
+    {
+      icon: () => <img src={profilePic || 'https://i.ibb.co/2kR5zq0/default-avatar.png'} alt="Profile" className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover" />,
+      label: displayName || 'User',
+      path: '/'
+    },
+    { icon: FaFileAlt, label: 'My Ads', path: '/ads' },
+  ];
 
   return (
     <div className={`p-2 ${compact ? 'flex justify-around w-full' : 'hidden md:block'}`}>
@@ -36,7 +33,12 @@ const Sidebar = ({ compact = false }) => {
                       }`
                 }`}
               >
-                <SidebarLink icon={item.icon} label={item.label} compact={compact} isActive={isActive} />
+                <SidebarLink
+                  icon={item.icon}
+                  label={item.label}
+                  compact={compact}
+                  isActive={isActive}
+                />
               </div>
             </Link>
           );
@@ -55,7 +57,11 @@ const SidebarLink = ({ icon: Icon, label, compact, isActive }) => (
     } ${isActive ? 'text-blue-600 font-semibold' : ''}`}
   >
     <span className="text-xl">
-      <Icon className={`text-blue-500 ${isActive ? 'text-blue-600' : ''}`} />
+      {typeof Icon === 'function' ? (
+        <Icon />
+      ) : (
+        <Icon className={`text-blue-500 ${isActive ? 'text-blue-600' : ''}`} />
+      )}
     </span>
     {!compact && <span className="text-sm font-medium text-gray-800">{label}</span>}
     {compact && <span className="text-[10px] text-gray-600">{label}</span>}

@@ -27,7 +27,7 @@ export default function Auth() {
       // login successful
       if (res.data?.token) {
         localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('adminToken', res.data.token);
         setStage('verified');
       } else {
         setStage('error');
