@@ -109,6 +109,10 @@ const hiringSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Email is required'],
   },
+  phone: {
+    type: String,
+    required: [true, 'Phone number is required'],    
+  },  
   name: {
     type: String,
     required: [true, 'Name is required'],

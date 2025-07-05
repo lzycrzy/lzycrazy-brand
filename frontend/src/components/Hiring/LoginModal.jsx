@@ -252,6 +252,7 @@ const [formError, setFormError] = useState('');
           name: data.name,
           companyId: data.companyId,
           email: data.email,
+          phone: data.phone,
         });
       }, 800);
     } catch (error) {

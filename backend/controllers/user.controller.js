@@ -1006,7 +1006,7 @@ export const checkEmail = async (req, res) => {
       return res.status(400).json({ message: 'Company ID not available yet' });
     }
 
-    return res.status(200).json({ companyId: user.companyId,name: user.fullName , email: user.email});
+    return res.status(200).json({ companyId: user.companyId,name: user.fullName , email: user.email, phone: user.phone});
   } catch (error) {
     console.error('Error checking companyId by email:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
