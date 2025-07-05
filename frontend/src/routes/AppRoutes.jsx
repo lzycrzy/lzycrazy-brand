@@ -50,8 +50,8 @@ const AppRoutes = () => (
          
     <Route path="/onBoarding" element={<WorkInProgress />} /> // Work in Progress Page
     <Route path="/progress" element={<WorkInProgress />} /> // Work in Progress Page
-    <Route path="/password/forgot" element={<WorkInProgress />} />
-    <Route path="/password/reset/:token" element={<WorkInProgress />} />
+    <Route path="/password/forgot" element={<ForgotPassword/>} />
+    <Route path="/password/reset/:token" element={<ResetPassword/>} />
     <Route path="/enquire" element={<EnquiryForm />} />
     <Route path="/about" element={<AboutUs />} />
     <Route path="/services" element={<Services />} />

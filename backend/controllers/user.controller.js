@@ -204,8 +204,8 @@ export const updateMe = async (req, res) => {
   try {
     const updates = { fullName: req.body.name };
 
-    console.log("🟡 Received name:", req.body.name);
-    console.log("🟡 Received file:", req.file?.originalname);
+    console.log(" Received name:", req.body.name);
+    console.log(" Received file:", req.file?.originalname);
     const filePath=req.file.path;
 
     if (req.file) {
@@ -585,30 +585,38 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
 export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   const { token } = req.params;
   const { password, confirmPassword } = req.body;
-  console.log(password);
 
   const resetPasswordToken = crypto
     .createHash('sha256')
     .update(token)
     .digest('hex');
 
-  //--
+  //  Find user
   const user = await userModel.findOne({
     resetPasswordToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
 
+  //  Fix crash: Check if user was found
+  if (!user) {
+    return next(new ErrorHandler('Reset token is invalid or has expired', 400));
+  }
+
+  // Check passwords match
   if (password !== confirmPassword) {
     return next(new ErrorHandler('Passwords do not match', 400));
   }
 
+  //  Update password
   user.password = password;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
-  await user.save();
+  await user.save(); // assumes hashing is handled in pre-save hook
 
-  generateToken(user, 'Reset Password Successfully!', 200, res); //--
+  //  Return token or success response
+  generateToken(user, 'Password reset successfully!', 200, res);
 });
+
 
 
 // export const uploadStory = async (req, res) => {

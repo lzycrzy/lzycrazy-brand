@@ -53,7 +53,7 @@ const ServiceList = () => {
   const handleDelete = async (id) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('adminToken');
       if (!token) {
         alert('Unauthorized: No token found. Please login again.');
         return;

@@ -400,20 +400,38 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import ProductCard from '../components/Market/ProductCard';
 import listings from '../data/mockListings.json'; // ✅ Updated to use external data
-import { BiSkipPrevious } from 'react-icons/bi';
-import{GrPrevious,GrNext} from 'react-icons/gr'
 import AddProduct from './AddProduct';
 import { useProduct } from '../store/useProduct';
 import instance from '../lib/axios/axiosInstance';
-import Loader from '../components/common/Spinner';
+import ProductImage from '../assets/product.jpg';
+import{GrPrevious,GrNext} from 'react-icons/gr'
 
 const categoriesWithSub = Object.keys(listings).reduce((acc, category) => {
   acc[category] = Object.keys(listings[category]);
   return acc;
 }, {});
 
+const banners = [
+  {
+    type: 'image',
+    src: 'https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    type: 'image',
+    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    type: 'video',
+    src: 'https://player.vimeo.com/external/371540223.sd.mp4?s=174cf8c423e50346a6613ab9e2df8774a2bd4173&profile_id=164',
+  },
+  {
+    type: 'video',
+    src: 'https://player.vimeo.com/external/428070005.sd.mp4?s=8e989d6cbf58a63a57f3b271d35a51cf3079f2ce&profile_id=164',
+  },
+];
+
 const MarketplaceHome = () => {
-    const[imageBanner,setImageBanner]=useState([])
+  const[imageBanner,setImageBanner]=useState([])
  const[videoBanner,setVideoBanner]=useState([])
  const videoHalfPortion=Math.floor(videoBanner.length/2)
 const imgHalfPortion=Math.floor(imageBanner.length/2)
@@ -432,9 +450,47 @@ const[isLoading,setIsLoading]=useState(false)
     navigate('/property-view', { state: { data: item, images: item.images } });
   };
   const selectedListings = listings[selectedCategory]?.[selectedSubcategory] || [];
- 
 
- function firstPrevImg(){
+  const [categories, setCategories] = useState(null);
+  const [subCategories, setSubCategories] = useState(null);
+  const [subcategoryDetails, setSubCategoryDetails] = useState(null);
+  const [categoryDetails, setCategoryDetails] = useState(null);
+
+  async function fetchMarketPlacePost() {
+    setIsLoading((prev) => !prev);
+    const response = await instance.get('/v1/admin/marketPost');
+    console.log(response.data);
+    if (response?.data) {
+      setIsLoading((prev) => !prev);
+      response.data?.message.map((item) => {
+        if (item.type == 'video') {
+          setVideoBanner((prev) => [
+            ...prev,
+            {
+              type: item.type,
+              src: item.postUrl,
+              url: item.url,
+            },
+          ]);
+        } else {
+          setImageBanner((prev) => [
+            ...prev,
+            {
+              type: item.type,
+              src: item.postUrl,
+              url: item.url,
+            },
+          ]);
+        }
+      });
+    }
+  }
+  useEffect(() => {
+    fetchMarketPlacePost();
+  }, []);
+
+
+  function firstPrevImg(){
     if(firstImgBannerIndex>0){
     setFirstImgBannerIndex(prev=>prev-1)
   }
@@ -477,63 +533,71 @@ const[isLoading,setIsLoading]=useState(false)
     seSecVideoBannerIndex(prev=>prev+1)
   }
  }
-// fetch post here
-async function fetchMarketPlacePost(){
-  setIsLoading(prev=>!prev)
- const response=await instance.get('/v1/admin/marketPost')
-if(response?.data){
-  setIsLoading(prev=>!prev)
- response.data?.message.map(item=>{
-  if(item.type=="video"){
-      setVideoBanner(prev=>[...prev,{
-        type:item.type,
-        src:item.postUrl,
-        url:item.url
-      }])
-  }else{
-       setImageBanner(prev=>[...prev,{
-        type:item.type,
-        src:item.postUrl,
-         url:item.url
-      }])
-  }
- })
-}
-}
-useEffect(()=>{
-  fetchMarketPlacePost()
-},[])
-console.log(selectedCategory);
 
-  const {isAddProductModal} = useProduct();
+  useEffect(() => {
+    async function marketPlaceDetails() {
+      try {
+        const res = await instance.get('/v1/categories/public');
+        // console.log('Category Details: ', res.data.data);
+        // console.log('Category: ', res.data.data.categories);
+        setCategories(res.data.data.categories);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    marketPlaceDetails();
+  }, []);
+
+  useEffect(() => {
+    async function getSubcategoryDetails() {
+      if (!selectedCategory || !selectedSubcategory) return;
+
+      try {
+        console.log(selectedCategory, selectedSubcategory);
+        const res = await instance.get('/v1/categories/subcategories', {
+          params: {
+            category: selectedCategory,
+            subcategory: selectedSubcategory,
+          },
+        });
+
+        setSubCategoryDetails(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getSubcategoryDetails();
+  }, [selectedSubcategory]);
+
+  console.log(subcategoryDetails);
   return (
-    <div className="relative w-full min-h-screen bg-gray-100">
-
-      {isAddProductModal && <AddProduct />}
-      
+    <div className="relative min-h-screen w-full bg-gray-100">
       <Header />
       <div className="flex">
-        <aside className="sticky top-0 min-h-screen w-64 bg-white px-6 py-8 shadow-sm">
-          <h2 className="mb-6 text-lg font-semibold text-gray-800">Categories</h2>
+        <aside className="sticky top-[58px] h-[calc(100vh-4rem)] w-64 bg-white px-6 py-8 shadow-sm">
+          <h2 className="mb-6 text-lg font-semibold text-gray-800">
+            Categories
+          </h2>
           <ul className="space-y-1">
-            {Object.entries(categoriesWithSub).map(([category, subcategories]) => {
-              const isExpanded = expandedCategory === category;
+            {categories?.map((category, index) => {
               return (
-                <li key={category}>
+                <li key={index}>
                   <button
-                    onClick={() =>
-                      setExpandedCategory(isExpanded ? null : category)
-                    }
+                    onClick={() => {
+                      setSelectedCategory(category._id);
+                      setSubCategories(category.subcategories);
+                    }}
                     className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-all ${
-                      isExpanded
+                      selectedCategory === category.name
                         ? 'bg-blue-50 text-blue-700'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="font-medium">{category}</span>
+                    <span className="font-medium">{category.name}</span>
                     <svg
                       className={`h-4 w-4 transform transition-transform duration-200 ${
-                        isExpanded ? 'rotate-90' : ''
+                        selectedCategory === category._id ? 'rotate-90' : ''
                       }`}
                       fill="none"
                       stroke="currentColor"
@@ -548,36 +612,31 @@ console.log(selectedCategory);
                     </svg>
                   </button>
 
-                  {isExpanded && subcategories.length > 0 && (
-                    <ul className="mt-2 ml-4 space-y-1 border-l border-gray-200 pl-2">
-                      {subcategories.map((sub, idx) => (
-                        <li key={idx}>
-                          <button
-                            onClick={() => {
-                              // const token = localStorage.getItem('token');
-                              // if (!token) {
-                              //   toast.error('Please login or signup first');
-                              //   return;
-                              // }
-                              setSelectedCategory(category);
-                              setSelectedSubcategory(sub);
-                              setIsModalOpen(false);
-                            }}
-                            className="w-full px-3 py-1 text-left text-sm text-gray-600 hover:text-blue-700 hover:underline"
-                          >
-                            {sub}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  {selectedCategory === category._id &&
+                    subCategories?.length > 0 && (
+                      <ul className="mt-2 ml-4 space-y-1 border-l border-gray-200 pl-2">
+                        {subCategories.map((sub, idx) => (
+                          <li key={idx}>
+                            <button
+                              onClick={() => {
+                                setSelectedSubcategory(sub.name);
+                                setIsModalOpen(false);
+                              }}
+                              className="w-full px-3 py-1 text-left text-sm text-gray-600 hover:text-blue-700 hover:underline"
+                            >
+                              {sub.name}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                 </li>
               );
             })}
           </ul>
         </aside>
 
-        <main className="flex-1 space-y-8 p-9">
+        <main className="flex-1 space-y-8 overflow-auto p-9">
           {!selectedCategory&&(
             <>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">            
@@ -654,17 +713,37 @@ console.log(selectedCategory);
 
           {selectedCategory && selectedSubcategory && (
             <div className="mt-6">
-              <h2 className="text-xl font-bold mb-4">
-                {selectedCategory} - {selectedSubcategory} Listings
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                 {selectedListings.map((post, index) => (
                   <button onClick={() => handleCardClick(post)}>
-                  <ProductCard key={index} post={post} />
+                    <ProductCard key={index} post={post} />
                   </button>
                 ))}
               </div>
             </div>
+          )}
+
+          {selectedCategory &&
+          selectedSubcategory &&
+          subcategoryDetails?.length > 0 ? (
+            <>
+              <div className="mt-6">
+                <h2 className="mb-4 text-xs">
+                  {subcategoryDetails[0]?.category?.name} /{' '}
+                  {selectedSubcategory}
+                </h2>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+                  {Array.isArray(subcategoryDetails) &&
+                    subcategoryDetails.map((post, index) => (
+                      <button key={index} onClick={() => handleCardClick(post)}>
+                        <ProductCard post={post} />
+                      </button>
+                    ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div>There is not listing for this types of category</div>
           )}
         </main>
       </div>

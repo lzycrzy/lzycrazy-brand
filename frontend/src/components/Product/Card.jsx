@@ -80,7 +80,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
 
   const onSubmit = async (data) => {
     setConfirmListing(null);
-    if (!data.photos || data.photos.length < 2 || data.photos[0] === 'empty') {
+    if (data.photos[0] === 'empty') {
       toast.error('Please choose at least 2 images.');
       return;
     }
@@ -89,6 +89,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
       toast.error('Price exceeds limit');
       return;
     }
+    const formData = new FormData();
 
     const features = {};
 
@@ -103,17 +104,10 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
 
     console.log(getValues('photos'));
 
-    console.log(features);
-    await Promise.all(fileReadPromises); // Wait for all file reads to finish
-
-    const formData = new FormData();
-
-    // Add photos (array of { file, name, etc. })
     data.photos.forEach((photo) => {
-      formData.append('photos', photo.file);
+      formData.append('file', photo.file);
     });
 
-    // Append standard fields
     formData.append('title', data.title);
     formData.append('description', data.description || '');
     formData.append('brand', data.brand);
@@ -142,6 +136,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
   };
 
   const [confirmListing, setConfirmListing] = useState(null);
+  const [paymentModal, setPaymentModal] = useState(null);
 
   return (
     <div className="relative">
@@ -159,7 +154,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
 
       <div className="mx-auto mb-20 flex w-full items-center justify-center px-2">
         <form
-          onSubmit={handleSubmit((data) => setConfirmListing(data))}
+          onSubmit={handleSubmit(onSubmit)}
           className="mt-10 w-full rounded-md border-2 border-gray-400"
         >
           <div className="w-full border-b-2 border-b-gray-400 p-4 lg:px-10">
