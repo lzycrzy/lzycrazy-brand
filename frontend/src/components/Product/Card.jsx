@@ -8,10 +8,9 @@ import PaymentModal from './PaymentModal';
 import { useProduct } from '../../store/useProduct';
 
 function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
-
   const user = JSON.parse(localStorage.getItem('user'));
   // console.log("User: ",user);
-  const {editData, isEditing} = useProduct();
+  const { editData, isEditing } = useProduct();
 
   const {
     register,
@@ -34,31 +33,42 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
     },
   });
 
-  console.log(editData)
+  console.log(editData);
   useEffect(() => {
     if (isEditing && editData && selectedCategory) {
-      setValue('title', editData.title)
-      setValue('description', editData.description)
-      setValue('price', editData.price)
-      setValue('photos', editData.images)
-      setValue('state', editData.location.state)
-      setValue('city', editData.location.city)
-      setValue('neighbourhood', editData.location.neighbourhood)
+      setValue('title', editData.title);
+      setValue('description', editData.description);
+      setValue('price', editData.price);
+      setValue('photos', editData.images);
+      setValue('state', editData.location.state);
+      setValue('city', editData.location.city);
+      setValue('neighbourhood', editData.location.neighbourhood);
 
       selectedSubcategory.formStructure?.forEach((item) => {
         // console.log("Edited Features: ", editData.features[item.fieldName]);
         if (item.type === 'file') {
           item.required = false;
         }
-        setValue(item.fieldName, editData?.features[item.fieldName]);
+
+        selectedSubcategory.formStructure?.forEach((item) => {
+          if (item.type === 'file') {
+            item.required = false;
+          }
+
+          const value = editData?.features?.[item.fieldName];
+
+          if (value !== undefined) {
+            setValue(item.fieldName, value);
+          }
+        });
+
         // console.log("SET VALUE: ",getValues(item.fieldName))
       });
 
-      console.log(selectedCategory)
-      console.log(selectedSubcategory)
+      console.log(selectedCategory);
+      console.log(selectedSubcategory);
     }
-  }, [isEditing, editData, selectedCategory])
-
+  }, [isEditing, editData, selectedCategory]);
 
   const watchAll = watch();
 
@@ -83,18 +93,16 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
 
     const features = {};
 
-    selectedSubcategory.formStructure.map(
-      async (element) => {
-        if (element.type === 'file') {
-          const file = getValues(element.fieldName)[0];
-          formData.append('featureFile', file)
-        } else {
-          features[element.fieldName] = getValues(element.fieldName);
-        }
-      },
-    );
+    selectedSubcategory.formStructure.map(async (element) => {
+      if (element.type === 'file') {
+        const file = getValues(element.fieldName)[0];
+        formData.append('featureFile', file);
+      } else {
+        features[element.fieldName] = getValues(element.fieldName);
+      }
+    });
 
-    console.log(getValues('photos'))
+    console.log(getValues('photos'));
 
     data.photos.forEach((photo) => {
       formData.append('file', photo.file);
@@ -123,20 +131,26 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
       }
     });
 
-
     setConfirmListing(formData);
     // reset();
   };
-  
 
   const [confirmListing, setConfirmListing] = useState(null);
   const [paymentModal, setPaymentModal] = useState(null);
 
   return (
-    <div className='relative'>
-      {confirmListing && <ConfirmListing data={confirmListing} setPaymentModal={setPaymentModal} setConfirmListing={setConfirmListing} />}
+    <div className="relative">
+      {confirmListing && (
+        <ConfirmListing
+          data={confirmListing}
+          setPaymentModal={setPaymentModal}
+          setConfirmListing={setConfirmListing}
+        />
+      )}
 
-      {paymentModal && <PaymentModal data={paymentModal} setPaymentModal={setPaymentModal} />}
+      {paymentModal && (
+        <PaymentModal data={paymentModal} setPaymentModal={setPaymentModal} />
+      )}
 
       <div className="mx-auto mb-20 flex w-full items-center justify-center px-2">
         <form
@@ -452,7 +466,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
               type="submit"
               className="cursor-pointer rounded-md border-2 border-gray-400 p-2 px-5 transition-all duration-200 hover:bg-gray-400"
             >
-              {!isEditing ? "Submit": "Update"}
+              {!isEditing ? 'Submit' : 'Update'}
             </button>
           </div>
         </form>

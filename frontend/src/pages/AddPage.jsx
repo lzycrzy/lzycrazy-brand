@@ -31,13 +31,17 @@ function AddPage({ setAddPage }) {
   const [activeListing, setActiveListing] = useState(null);
   const [listings, setListings] = useState(null);
   const [totalListing, setTotalListing] = useState(null);
-<<<<<<< HEAD
-  const { setIsAddProductModal, setIsEditing, setEditData, editData, isEditing } = useProduct();
-=======
-  const { setIsAddProductModal, setIsEditing, setEditData } = useProduct();
->>>>>>> 47a1faa044fc97836235a9ba0abce0c188a7058e
+  const {
+    setIsAddProductModal,
+    setIsEditing,
+    setEditData,
+    editData,
+    isEditing,
+  } = useProduct();
 
-  const user = localStorage.getItem('usr') ? JSON.parse(localStorage.getItem('user')) : null;
+  const user = localStorage.getItem('usr')
+    ? JSON.parse(localStorage.getItem('user'))
+    : null;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,14 +67,13 @@ function AddPage({ setAddPage }) {
         );
 
         setActiveListing(listingActive);
-
       } catch (error) {
         console.log(error);
       }
     }
 
     getMyAddListing();
-  }, [isEditing]);
+  }, [isEditing, setIsAddProductModal]);
 
   useEffect(() => {
     async function getListingReponseAndReported() {
@@ -99,12 +102,11 @@ function AddPage({ setAddPage }) {
       }
     }
     getListingReponseAndReported();
-  }, []);
+  }, [isEditing, setIsAddProductModal]);
 
   const exportToExcel = () => {
-    
-    if (listingResponse.length == 0) {
-      toast.error('No Response Recieved !');
+    if (!Array.isArray(listingResponse) || listingResponse.length === 0) {
+      toast.error('No Response Received!');
       return;
     }
 
@@ -146,8 +148,11 @@ function AddPage({ setAddPage }) {
             <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-5">
               <div
                 onClick={() => {
-                  if (listingResponse?.length === 0) {
-                    toast.error('No Response Received !');
+                  if (
+                    !Array.isArray(listingResponse) ||
+                    listingResponse.length === 0
+                  ) {
+                    toast.error('No Response Received!');
                     return;
                   }
 
@@ -169,8 +174,11 @@ function AddPage({ setAddPage }) {
 
               <div
                 onClick={() => {
-                  if (activeListing?.length === 0) {
-                    toast.error('No Active Listing !');
+                  if (
+                    !Array.isArray(activeListing) ||
+                    activeListing.length === 0
+                  ) {
+                    toast.error('No Active Listing!');
                     return;
                   }
                   setListings(activeListing);
@@ -191,8 +199,11 @@ function AddPage({ setAddPage }) {
 
               <div
                 onClick={() => {
-                  if (listingReported?.length === 0) {
-                    toast.error('No listing Reported !');
+                  if (
+                    !Array.isArray(listingReported) ||
+                    listingReported.length === 0
+                  ) {
+                    toast.error('No Listing Reported!');
                     return;
                   }
                   setListings(listingReported);
@@ -255,11 +266,11 @@ function AddPage({ setAddPage }) {
                     })
                   }
                   key={property._id}
-                  className="rounded-xl cursor-pointer border border-gray-100 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md"
+                  className="cursor-pointer rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md"
                 >
                   <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
                     <div className="flex-shrink-0">
-                      <div className="md:h-24 md:w-32 w-full h-fit overflow-hidden rounded-lg bg-gray-100">
+                      <div className="h-fit w-full overflow-hidden rounded-lg bg-gray-100 md:h-24 md:w-32">
                         <img
                           src={property.images ? property.images[0] : null}
                           alt={property.title}
@@ -284,7 +295,10 @@ function AddPage({ setAddPage }) {
                       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <User className="h-4 w-4" />
-                          <span>{property.postedBy.name} ({property.user?.companyId})</span>
+                          <span>
+                            {property.postedBy.name} ({property.user?.companyId}
+                            )
+                          </span>
                         </div>
                         {/* <div className="flex items-center gap-1">
                       <Phone className="h-4 w-4" />
@@ -297,8 +311,8 @@ function AddPage({ setAddPage }) {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 justify-between">
-                      <div className="text-center flex items-center flex-row-reverse gap-2">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex flex-row-reverse items-center gap-2 text-center">
                         <div className="flex items-center gap-1 text-gray-500">
                           {/* <Eye className="h-4 w-4" /> */}
                           <span className="text-sm">Views</span>
@@ -311,10 +325,7 @@ function AddPage({ setAddPage }) {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-<<<<<<< HEAD
                           setIsAddProductModal(true);
-=======
->>>>>>> 47a1faa044fc97836235a9ba0abce0c188a7058e
                           setIsEditing(true);
                           setEditData(property);
                         }}

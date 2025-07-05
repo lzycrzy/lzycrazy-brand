@@ -21,7 +21,7 @@ const PropertyViewPage = () => {
   useEffect(() => {
     async function updateViews() {
 
-      if (user?.productListed?.includes(state.data._id)) return;
+      if (user?._id === state.data.user._id) return;
 
       try {
         const res = await instance.post(`/v1/listing/views/${state.data._id}`)
