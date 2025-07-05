@@ -177,6 +177,12 @@ const Profile = () => {
 
   const [imageFile, setImageFile] = useState(null);
 
+  const [passwords, setPasswords] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
   useEffect(() => {
     if (admin) {
       setUserData({
@@ -201,6 +207,11 @@ const Profile = () => {
     }
   };
 
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswords((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleEditClick = () => setIsEditing(true);
 
   const handleSaveChanges = async () => {
@@ -212,11 +223,34 @@ const Profile = () => {
 
       const res = await instance.put('/admin/profile/update', formData);
       toast.success('Profile updated successfully');
-      updateAdmin(res.data.admin); // Update context
+      updateAdmin(res.data.admin);
       setIsEditing(false);
+
+      // If any password field is filled, attempt password update
+      const { currentPassword, newPassword, confirmPassword } = passwords;
+      if (currentPassword || newPassword || confirmPassword) {
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          return toast.error('Please fill in all password fields.');
+        }
+        if (newPassword !== confirmPassword) {
+          return toast.error('New passwords do not match.');
+        }
+
+        await instance.put('/admin/password/update', {
+          currentPassword,
+          newPassword,
+        });
+
+        toast.success('Password updated successfully');
+        setPasswords({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        });
+      }
     } catch (error) {
-      toast.error('Failed to update profile');
       console.error(error);
+      toast.error(error.response?.data?.message || 'Failed to update profile or password');
     }
   };
 
@@ -263,31 +297,68 @@ const Profile = () => {
           )}
         </section>
 
-        {/* Form */}
+        {/* Profile Form */}
         <form
           autoComplete="off"
           className="bg-white rounded-xl p-6 mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5"
         >
-          {[
-            ['Full Name', 'fullName', 'text'],
-            ['Mobile Number', 'mobile', 'tel'],
-            ['Email', 'email', 'email'],
-          ].map(([label, name, type]) => (
-            <div key={name}>
-              <label className="block text-xs mb-1">{label}:</label>
-              <input
-                type={type}
-                name={name}
-                value={userData[name]}
-                disabled={!isEditing || name === 'email'}
-                onChange={handleInputChange}
-                placeholder={`Your ${label}`}
-                className={`w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 focus:outline-none focus:ring-2 ${
-                  isEditing ? 'focus:ring-[#2563eb] text-gray-700' : 'text-gray-400'
-                }`}
-              />
-            </div>
-          ))}
+          {[['Full Name', 'fullName', 'text'], ['Mobile Number', 'mobile', 'tel'], ['Email', 'email', 'email']].map(
+            ([label, name, type]) => (
+              <div key={name}>
+                <label className="block text-xs mb-1">{label}:</label>
+                <input
+                  type={type}
+                  name={name}
+                  value={userData[name]}
+                  disabled={!isEditing || name === 'email'}
+                  onChange={handleInputChange}
+                  placeholder={`Your ${label}`}
+                  className={`w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 focus:outline-none focus:ring-2 ${
+                    isEditing ? 'focus:ring-[#2563eb] text-gray-700' : 'text-gray-400'
+                  }`}
+                />
+              </div>
+            )
+          )}
+
+          {/* Password Fields */}
+          {isEditing && (
+            <>
+              <div>
+                <label className="block text-xs mb-1">Current Password:</label>
+                <input
+                  type="password"
+                  name="currentPassword"
+                  value={passwords.currentPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Enter current password"
+                  className="w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-gray-700"
+                />
+              </div>
+              <div>
+                <label className="block text-xs mb-1">New Password:</label>
+                <input
+                  type="password"
+                  name="newPassword"
+                  value={passwords.newPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Enter new password"
+                  className="w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-gray-700"
+                />
+              </div>
+              <div>
+                <label className="block text-xs mb-1">Confirm New Password:</label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={passwords.confirmPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Confirm new password"
+                  className="w-full rounded-md bg-[#f9fafb] text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-gray-700"
+                />
+              </div>
+            </>
+          )}
         </form>
 
         {/* Save Button */}

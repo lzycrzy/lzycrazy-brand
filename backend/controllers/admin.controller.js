@@ -128,18 +128,30 @@ export const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
 
 // UPDATE PASSWORD
 export const updateAdminPassword = catchAsyncErrors(async (req, res, next) => {
-  const { oldPassword, newPassword } = req.body;
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return next(new ErrorHandler('Both current and new passwords are required.', 400));
+  }
 
   const admin = await adminModel.findById(req.admin._id).select('+password');
-  const isMatch = await admin.comparePassword(oldPassword);
-  if (!isMatch) return next(new ErrorHandler('Old password is incorrect', 400));
+  if (!admin) {
+    return next(new ErrorHandler('Admin not found', 404));
+  }
+
+  const isMatch = await admin.comparePassword(currentPassword);
+  if (!isMatch) {
+    return next(new ErrorHandler('Current password is incorrect', 400));
+  }
 
   admin.password = newPassword;
   await admin.save();
 
-  res.status(200).json({ success: true, message: 'Password updated successfully' });
+  res.status(200).json({
+    success: true,
+    message: 'Password updated successfully',
+  });
 });
-
 // FORGOT PASSWORD
 export const forgotAdminPassword = catchAsyncErrors(async (req, res, next) => {
   const admin = await adminModel.findOne({ email: req.body.email });
