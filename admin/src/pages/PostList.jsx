@@ -2,7 +2,7 @@ import {  Play } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import UpdateMarketPostList from '../components/UpdateMarketPostList';
 import instance from '../utils/axios';
-import Loader from '../components/loader';
+import Loader from '../components/Loader';
 
 export default function PostList() {
     const[isEditing,setIsEditing]=useState(false)
