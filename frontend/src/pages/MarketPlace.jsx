@@ -411,6 +411,7 @@ const categoriesWithSub = Object.keys(listings).reduce((acc, category) => {
   acc[category] = Object.keys(listings[category]);
   return acc;
 }, {});
+
 const MarketplaceHome = () => {
     const[imageBanner,setImageBanner]=useState([])
  const[videoBanner,setVideoBanner]=useState([])
@@ -479,7 +480,7 @@ const[isLoading,setIsLoading]=useState(false)
 // fetch post here
 async function fetchMarketPlacePost(){
   setIsLoading(prev=>!prev)
- const response=await instance.get('/admin/marketPost')
+ const response=await instance.get('/v1/admin/marketPost')
 if(response?.data){
   setIsLoading(prev=>!prev)
  response.data?.message.map(item=>{
