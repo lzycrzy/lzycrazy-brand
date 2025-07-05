@@ -12,7 +12,7 @@ export default function PostList() {
       const[temp,setTemp]=useState([])
       function filterHandler(event){
       let filterType=event.target.value;
-      if(filterType=="All"){
+      if(filterType=="all"){
           setNewsData([...temp])
       }
       setNewsData(temp.filter(item=>item.type==filterType))
@@ -51,7 +51,7 @@ export default function PostList() {
             <div className='space-x-2 font-semibold'>
                  <label className='text-lg' htmlFor='filter-post'>Filter</label>
             <select onChange={filterHandler} className='border-2 border-solid rounded-lg px-3' id="filter-post">
-                  <option value="All">Select</option>
+                  <option value="all">Select</option>
                 <option value="image">Image</option>
                   <option value="video">Video</option>
             </select>
