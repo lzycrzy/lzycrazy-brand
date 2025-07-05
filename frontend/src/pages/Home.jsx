@@ -105,7 +105,7 @@ const Home = () => {
 
         {/* Main Feed (always visible) */}
         <div className="scrollbar-hide flex-1 overflow-y-auto px-2 sm:px-4 lg:px-6">
-        <MainFeed posts={posts} onPostCreated={handlePostCreated} />
+        <MainFeed posts={posts} onPostCreated={handlePostCreated} user={user} />
 
         </div>
 

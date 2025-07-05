@@ -58,15 +58,19 @@ export const loginAdmin = catchAsyncErrors(async (req, res, next) => {
 
 // LOGOUT ADMIN
 export const logoutAdmin = (req, res) => {
-  res.cookie('token', null, {
-    expires: new Date(Date.now()),
+  res.clearCookie('token', {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // send only over HTTPS in production
+    sameSite: 'Lax', // or 'None' if using cross-site cookies
+    path: '/',       // clear from entire domain
   });
+
   res.status(200).json({
     success: true,
     message: 'Logged out successfully',
   });
 };
+
 
 // GET ADMIN PROFILE
 export const getAdminProfile = catchAsyncErrors(async (req, res, next) => {
@@ -126,18 +130,31 @@ export const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// UPDATE PASSWORD
+// UPDATE ADMIN PASSWORD
 export const updateAdminPassword = catchAsyncErrors(async (req, res, next) => {
-  const { oldPassword, newPassword } = req.body;
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return next(new ErrorHandler('Both current and new passwords are required.', 400));
+  }
 
   const admin = await adminModel.findById(req.admin._id).select('+password');
-  const isMatch = await admin.comparePassword(oldPassword);
-  if (!isMatch) return next(new ErrorHandler('Old password is incorrect', 400));
+  if (!admin) {
+    return next(new ErrorHandler('Admin not found', 404));
+  }
+
+  const isMatch = await admin.comparePassword(currentPassword);
+  if (!isMatch) {
+    return next(new ErrorHandler('Current password is incorrect', 400));
+  }
 
   admin.password = newPassword;
   await admin.save();
 
-  res.status(200).json({ success: true, message: 'Password updated successfully' });
+  res.status(200).json({
+    success: true,
+    message: 'Password updated successfully',
+  });
 });
 
 // FORGOT PASSWORD

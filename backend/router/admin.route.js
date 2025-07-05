@@ -32,7 +32,7 @@ router.post(
 
 // Admin routes
 router.post('/login', loginAdmin);
-router.get('/logout', logoutAdmin);
+router.post('/logout', logoutAdmin);
 
 // Protected routes
 router.get('/me', isAuthenticatedAdmin, getAdminProfile);

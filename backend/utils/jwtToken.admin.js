@@ -44,10 +44,10 @@
 export const generateTokenAdmin = (admin, message, statusCode, res) => {
   const token = admin.generateJsonWebToken();
 
-  // 👇 Clear old cookie first
+  //  Clear old cookie first
   res.clearCookie('token', { path: '/' });
 
-  // 👇 Set new cookie securely based on environment
+  //  Set new cookie securely based on environment
   const isDev = process.env.NODE_ENV !== 'production';
 
   res
