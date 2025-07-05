@@ -8,6 +8,7 @@ import { sendEmail } from '../utils/sendEmail.js';
 import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
 import Applicant from '../models/Applicant.js';
 import Hiring from '../models/hiring.model.js';
+import adminMarketPost from '../models/adminMarketPost.js';
 
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
@@ -28,6 +29,21 @@ export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
 
   generateTokenAdmin(newAdmin, "Admin registered successfully", 201, res);
 });
+
+
+export const marketPost = async (req, res) => {
+  try {
+    const post = await adminMarketPost.find({});
+    console.log(post);
+    return res.status(200).json({
+      message: post,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      message: 'Something went wrong!',
+    });
+  }
+};
 
 // Login ADMIN
 export const loginAdmin = catchAsyncErrors(async (req, res, next) => {

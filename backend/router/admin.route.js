@@ -12,7 +12,8 @@ import {
   getAllUsersList,
   deleteSingleUser,
   getAllApplications,
-  deleteApplication
+  deleteApplication,
+  marketPost
 } from '../controllers/admin.controller.js';
 import {
   isAuthenticatedAdmin,
@@ -30,6 +31,7 @@ router.post(
   registerAdmin,
 );
 
+router.route('/marketPost').get(marketPost)
 // Admin routes
 router.post('/login', loginAdmin);
 router.get('/logout', logoutAdmin);

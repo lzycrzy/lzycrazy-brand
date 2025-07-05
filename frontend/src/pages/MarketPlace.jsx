@@ -391,17 +391,17 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import ProductCard from '../components/Market/ProductCard';
 import listings from '../data/mockListings.json'; // ✅ Updated to use external data
-import { BiSkipPrevious } from 'react-icons/bi';
-import{GrPrevious,GrNext} from 'react-icons/gr'
 import AddProduct from './AddProduct';
 import { useProduct } from '../store/useProduct';
 import instance from '../lib/axios/axiosInstance';
 import ProductImage from '../assets/product.jpg';
+import{GrPrevious,GrNext} from 'react-icons/gr'
 
 const categoriesWithSub = Object.keys(listings).reduce((acc, category) => {
   acc[category] = Object.keys(listings[category]);
   return acc;
 }, {});
+
 const banners = [
   {
     type: 'image',
@@ -422,51 +422,11 @@ const banners = [
 ];
 
 const MarketplaceHome = () => {
-    const[imageBanner,setImageBanner]=useState([ {
-    type: 'image',
-    src: 'https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    type: 'image',
-    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-  },
-   {
-    type: 'image',
-    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-  },
-   {
-    type: 'image',
-    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-  },
-   {
-    type: 'image',
-    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-  }]
-)
- const[videoBanner,seVideoBanner]=useState([{
-  type: 'video',
-   src: 'https://player.vimeo.com/external/371540223.sd.mp4?s=174cf8c423e50346a6613ab9e2df8774a2bd4173&profile_id=164',
- },
- {
-  type: 'video',
-   src: 'https://player.vimeo.com/external/371540223.sd.mp4?s=174cf8c423e50346a6613ab9e2df8774a2bd4173&profile_id=164',
- },
-{
-  type: 'video',
-   src: 'https://player.vimeo.com/external/428070005.sd.mp4?s=8e989d6cbf58a63a57f3b271d35a51cf3079f2ce&profile_id=164',
- },
-   {
-  type: 'video',
-   src: 'https://player.vimeo.com/external/371540223.sd.mp4?s=174cf8c423e50346a6613ab9e2df8774a2bd4173&profile_id=164',
- },
- {
-  type: 'video',
-   src: 'https://player.vimeo.com/external/428070005.sd.mp4?s=8e989d6cbf58a63a57f3b271d35a51cf3079f2ce&profile_id=164',
- }
-  
- ])
+  const[imageBanner,setImageBanner]=useState([])
+ const[videoBanner,setVideoBanner]=useState([])
  const videoHalfPortion=Math.floor(videoBanner.length/2)
 const imgHalfPortion=Math.floor(imageBanner.length/2)
+const[isLoading,setIsLoading]=useState(false)
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(true);
@@ -480,54 +440,97 @@ const imgHalfPortion=Math.floor(imageBanner.length/2)
   const handleCardClick = (item) => {
     navigate('/property-view', { state: { data: item, images: item.images } });
   };
-
-  function firstPrevImg() {
-
-  }
-
-  function firstNextImg(){
-
-  }
-
-  function secondPrevImg() {
-
-  }
-
-  function secondNextImg() {
-
-  }
-
-  function firstPrevVideo() {
-
-  }
-
-  function firstNextVideo() {
-
-  }
-
-  function secondPrevVideo() {
-
-  }
-
-  function secondNextVideo() {
-
-  }
-  
-  const selectedListings =
-    listings[selectedCategory]?.[selectedSubcategory] || [];
+  const selectedListings = listings[selectedCategory]?.[selectedSubcategory] || [];
 
   const [categories, setCategories] = useState(null);
   const [subCategories, setSubCategories] = useState(null);
   const [subcategoryDetails, setSubCategoryDetails] = useState(null);
   const [categoryDetails, setCategoryDetails] = useState(null);
 
+  async function fetchMarketPlacePost() {
+    setIsLoading((prev) => !prev);
+    const response = await instance.get('/v1/admin/marketPost');
+    console.log(response.data);
+    if (response?.data) {
+      setIsLoading((prev) => !prev);
+      response.data?.message.map((item) => {
+        if (item.type == 'video') {
+          setVideoBanner((prev) => [
+            ...prev,
+            {
+              type: item.type,
+              src: item.postUrl,
+              url: item.url,
+            },
+          ]);
+        } else {
+          setImageBanner((prev) => [
+            ...prev,
+            {
+              type: item.type,
+              src: item.postUrl,
+              url: item.url,
+            },
+          ]);
+        }
+      });
+    }
+  }
+  useEffect(() => {
+    fetchMarketPlacePost();
+  }, []);
+
+
+  function firstPrevImg(){
+    if(firstImgBannerIndex>0){
+    setFirstImgBannerIndex(prev=>prev-1)
+  }
+ }
+  function firstNextImg(){
+  if(firstImgBannerIndex<imgHalfPortion){
+    setFirstImgBannerIndex(prev=>prev+1)
+  }
+ }
+ function secondPrevImg(){
+    if(secImgBannerIndex>imgHalfPortion+1){
+    seSecImgBannerIndex(prev=>prev-1)
+  }
+ }
+  function secondNextImg(){
+  if(secImgBannerIndex<imageBanner.length-1){
+    seSecImgBannerIndex(prev=>prev+1)
+  }
+ }
+
+// video handler function
+
+ function firstPrevVideo(){
+    if(firstVideoBannerIndex>0){
+    setFirstVideoBannerIndex(prev=>prev-1)
+  }
+ }
+  function firstNextVideo(){
+  if(firstVideoBannerIndex<videoHalfPortion){
+    setFirstVideoBannerIndex(prev=>prev+1)
+  }
+ }
+ function secondPrevVideo(){
+    if(secVideoBannerIndex>videoHalfPortion+1){
+    seSecVideoBannerIndex(prev=>prev-1)
+  }
+ }
+  function secondNextVideo(){
+  if(secVideoBannerIndex<videoBanner.length-1){
+    seSecVideoBannerIndex(prev=>prev+1)
+  }
+ }
 
   useEffect(() => {
     async function marketPlaceDetails() {
       try {
         const res = await instance.get('/v1/categories/public');
-        console.log('Category Details: ', res.data.data);
-        console.log('Category: ', res.data.data.categories);
+        // console.log('Category Details: ', res.data.data);
+        // console.log('Category: ', res.data.data.categories);
         setCategories(res.data.data.categories);
       } catch (error) {
         console.log(error);
@@ -539,8 +542,7 @@ const imgHalfPortion=Math.floor(imageBanner.length/2)
 
   useEffect(() => {
     async function getSubcategoryDetails() {
-
-      if(!selectedCategory || !selectedSubcategory) return;
+      if (!selectedCategory || !selectedSubcategory) return;
 
       try {
         console.log(selectedCategory, selectedSubcategory);
@@ -559,7 +561,7 @@ const imgHalfPortion=Math.floor(imageBanner.length/2)
     getSubcategoryDetails();
   }, [selectedSubcategory]);
 
-  // console.log(subcategoryDetails);
+  console.log(subcategoryDetails);
   return (
     <div className="relative min-h-screen w-full bg-gray-100">
       <Header />
@@ -626,73 +628,79 @@ const imgHalfPortion=Math.floor(imageBanner.length/2)
         </aside>
 
         <main className="flex-1 space-y-8 overflow-auto p-9">
-          {!selectedSubcategory && 
+          {!selectedCategory&&(
             <>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">            
                     <div
                         key={firstImgBannerIndex}
                       className="relative overflow-hidden rounded-lg bg-white shadow"
                     >
+                       <a href={imageBanner[firstImgBannerIndex]?.url} target='_blank' rel='noopener noreferrer'>
                       <img
-                        src={imageBanner[firstImgBannerIndex].src}
+                        src={imageBanner[firstImgBannerIndex]?.src}
                         alt={`Banner ${firstImgBannerIndex}`}
-                        className="h-64 w-full object-cover"
+                        className="h-82 w-full object-cover"
                       />
+                      </a>
                        <GrPrevious onClick={firstPrevImg} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100 hover:bg-slate-400 rounded-full '/>
                         <GrNext onClick={firstNextImg} className='absolute top-[45%] right-4 text-4xl bg-slate-100 hover:bg-slate-400 rounded-full p-2'/>
                     </div>
-
+                   {imageBanner.length>2&&
                      <div
                       key={secImgBannerIndex||imgHalfPortion+1}
                       className="relative overflow-hidden rounded-lg bg-white shadow"
                     >
+                       <a href={imageBanner[secImgBannerIndex]?.url} target='_blank' rel='noopener noreferrer'>
                       <img
-                        src={imageBanner[secImgBannerIndex].src}
+                        src={imageBanner[secImgBannerIndex]?.src}
                         alt={`Banner ${secImgBannerIndex}`}
-                        className="h-64 w-full object-cover"
+                        className="h-82 w-full object-cover"
                       />
+                      </a>
                        <GrPrevious onClick={secondPrevImg} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100  hover:bg-slate-400 rounded-full '/>
                         <GrNext onClick={secondNextImg} className='absolute top-[45%] right-4 text-4xl bg-slate-100  hover:bg-slate-400 rounded-full p-2'/>
-                    </div>
+                    </div>}
               </div>
-
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-               
+            
                     <div
                       key={firstVideoBannerIndex}
                       className="relative overflow-hidden rounded-lg bg-white shadow"
                     >
+                      <a href={videoBanner[firstVideoBannerIndex]?.url} target='_blank' rel='noopener noreferrer'>
                       <video
                         controls
-                        className="h-64 w-full object-cover"
-                        src={videoBanner[firstVideoBannerIndex].src}
+                        className="h-82 w-full object-cover"
+                        src={videoBanner[firstVideoBannerIndex]?.src}
                       >
                         Your browser does not support the video tag.
                       </video>
+                       </a>
                        <GrPrevious onClick={firstPrevVideo} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100 hover:bg-slate-300 rounded-full '/>
                       <GrNext onClick={firstNextVideo} className='absolute top-[45%] right-4 text-4xl bg-slate-100 hover:bg-slate-300 rounded-full p-2'/>
                     </div>
-
+                     {videoBanner.length>2&&
                       <div
                       key={seSecVideoBannerIndex}
                       className="relative overflow-hidden rounded-lg bg-white shadow"
                     >
+                       <a href={videoBanner[secVideoBannerIndex]?.url} target='_blank' rel='noopener noreferrer'>
                       <video
                         controls
-                        className="h-64 w-full object-cover"
-                        src={videoBanner[secVideoBannerIndex].src}
+                        className="h-82 w-full object-cover"
+                        src={videoBanner[secVideoBannerIndex]?.src}
                       >
                         Your browser does not support the video tag.
                       </video>
+                      </a>
                        <GrPrevious onClick={secondPrevVideo} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100 hover:bg-slate-300 rounded-full '/>
                       <GrNext onClick={secondNextVideo} className='absolute top-[45%] right-4 text-4xl bg-slate-100 hover:bg-slate-300 rounded-full p-2'/>
                     </div>
-           
+                     }
 
               </div>
             </>
-          }
+          )}
 
           {selectedCategory && selectedSubcategory && (
             <div className="mt-6">
@@ -706,11 +714,14 @@ const imgHalfPortion=Math.floor(imageBanner.length/2)
             </div>
           )}
 
-          {selectedCategory && selectedSubcategory && subcategoryDetails?.length > 0 ? (
+          {selectedCategory &&
+          selectedSubcategory &&
+          subcategoryDetails?.length > 0 ? (
             <>
               <div className="mt-6">
                 <h2 className="mb-4 text-xs">
-                  {subcategoryDetails[0]?.category?.name} / {selectedSubcategory}
+                  {subcategoryDetails[0]?.category?.name} /{' '}
+                  {selectedSubcategory}
                 </h2>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                   {Array.isArray(subcategoryDetails) &&
