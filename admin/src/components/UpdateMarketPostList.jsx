@@ -10,6 +10,7 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
     userName:data.userName,
     thumbnail:data?.thumbnail,
     url:data.url,
+    type:data.type,
     postUrl:data.postUrl,
     postDate:currentData
   })
@@ -47,7 +48,7 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
       alert("Update post successfully")
       setIsEditing(prev=>!prev)
      }
-  };  
+  };
   return (
     <div className="fixed w-[100vw] h-[100vh] top-0 right-0 flex justify-center items-center mb-8 rounded-lg  bg-blue-400/5 p-6 shadow-xl">
       <div className="relative w-full bg-white shadow-2xl max-w-[50vw] p-6 rounded-2xl grid grid-cols-1 gap-6 lg:grid-cols-3">
