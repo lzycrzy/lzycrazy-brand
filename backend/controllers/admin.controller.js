@@ -409,6 +409,7 @@ export const marketPost=async(req,res)=>{
     }
 }
 export const publishPost=async(req,res)=>{
+  console.log("hello")
     try {
         console.log(req.file,req.body);
         const{userName,url,postDate}=req.body
