@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, Calendar, User, Eye, Play, X, Camera } from 'lucide-react';
+import { Upload, Calendar, User, Eye, Play, X, Camera, Loader2 } from 'lucide-react';
 import { multiInstance } from '../utils/axios';
 export default function AddBanner() {
   const [postData, setPostData] = useState({
@@ -9,7 +9,7 @@ export default function AddBanner() {
   });
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
-
+ const[inProgress,setInProgress]=useState(false)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setPostData((prev) => ({
@@ -40,8 +40,10 @@ async function submitHandler(){
  formData.append('url',postData.url)
  formData.append('postDate',postData.postDate)
 //  api call to publish market  post
+setInProgress(true)
  const response= await multiInstance.post('/admin/publishPost',formData)
- console.log(response);
+ if(response.data.message){
+ setInProgress(false)
  setPostData({
    userName:"",
      url:"",
@@ -50,6 +52,7 @@ async function submitHandler(){
  setFile(null)
  setFilePreview(null)
   alert('News entry added successfully!');
+}
 }
   return (
     <div className="mb-8 rounded-lg w-[60vw] flex justify-self-center bg-white p-6 shadow-xl">
@@ -161,12 +164,19 @@ async function submitHandler(){
           </div>
           {/* Submit Button */}
           <div className="flex  justify-end">
+           {inProgress?
             <button
+              className="cursor-pointer flex gap-3 rounded-lg bg-blue-300 px-8 py-3 font-semibold text-white "
+            >
+              <Loader2 className='animate-spin'/> Process...
+            </button>
+            :
+           <button
               onClick={submitHandler}
               className="cursor-pointer rounded-lg bg-blue-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Submit
-            </button>
+            </button>}
           </div>
         </div>
       </div>

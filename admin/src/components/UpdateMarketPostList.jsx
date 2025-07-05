@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload,X, Play} from 'lucide-react';
+import { Upload,X, Play, Loader2, Loader2Icon} from 'lucide-react';
 import { multiInstance } from '../utils/axios';
 import Loader from './loader';
 export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
@@ -161,16 +161,21 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
           </div>
           {/* Submit Button */}
           <div className="flex  justify-end">
+           {isUpdating?
             <button
+              className="cursor-pointer  flex gap-3 rounded-lg bg-blue-300 px-8 py-3 font-semibold text-white"
+            >
+            <Loader2 className='animate-spin'/>  Updating...
+            </button>
+           : <button
               onClick={handleSubmit}
               className="cursor-pointer rounded-lg bg-blue-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Submit
-            </button>
+               Submit
+            </button>}
           </div>
         </div>
       </div>
-      {isUpdating&&<Loader/>}
     </div>
   );
 }

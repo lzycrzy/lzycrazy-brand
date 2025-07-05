@@ -406,13 +406,15 @@ import AddProduct from './AddProduct';
 import { useProduct } from '../store/useProduct';
 import instance from '../lib/axios/axiosInstance';
 import Loader from '../components/common/Spinner';
+import ImgCarousel from '../components/carousels/ImgCarousel';
+import VideoCarousel from '../components/carousels/VideoCarousel';
 
 const categoriesWithSub = Object.keys(listings).reduce((acc, category) => {
   acc[category] = Object.keys(listings[category]);
   return acc;
 }, {});
 const MarketplaceHome = () => {
-    const[imageBanner,setImageBanner]=useState([])
+  const[imageBanner,setImageBanner]=useState([])
  const[videoBanner,setVideoBanner]=useState([])
  const videoHalfPortion=Math.floor(videoBanner.length/2)
 const imgHalfPortion=Math.floor(imageBanner.length/2)
@@ -422,66 +424,18 @@ const[isLoading,setIsLoading]=useState(false)
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
 
- const[firstImgBannerIndex,setFirstImgBannerIndex]=useState(0)
-  const[secImgBannerIndex,seSecImgBannerIndex]=useState(imgHalfPortion+1)
-   const[firstVideoBannerIndex,setFirstVideoBannerIndex]=useState(0)
-  const[secVideoBannerIndex,seSecVideoBannerIndex]=useState(videoHalfPortion+1)
   const navigate = useNavigate();
   const handleCardClick = (item) => {
     navigate('/property-view', { state: { data: item, images: item.images } });
   };
   const selectedListings = listings[selectedCategory]?.[selectedSubcategory] || [];
  
-
- function firstPrevImg(){
-    if(firstImgBannerIndex>0){
-    setFirstImgBannerIndex(prev=>prev-1)
-  }
- }
-  function firstNextImg(){
-  if(firstImgBannerIndex<imgHalfPortion){
-    setFirstImgBannerIndex(prev=>prev+1)
-  }
- }
- function secondPrevImg(){
-    if(secImgBannerIndex>imgHalfPortion+1){
-    seSecImgBannerIndex(prev=>prev-1)
-  }
- }
-  function secondNextImg(){
-  if(secImgBannerIndex<imageBanner.length-1){
-    seSecImgBannerIndex(prev=>prev+1)
-  }
- }
-
-// video handler function
-
- function firstPrevVideo(){
-    if(firstVideoBannerIndex>0){
-    setFirstVideoBannerIndex(prev=>prev-1)
-  }
- }
-  function firstNextVideo(){
-  if(firstVideoBannerIndex<videoHalfPortion){
-    setFirstVideoBannerIndex(prev=>prev+1)
-  }
- }
- function secondPrevVideo(){
-    if(secVideoBannerIndex>videoHalfPortion+1){
-    seSecVideoBannerIndex(prev=>prev-1)
-  }
- }
-  function secondNextVideo(){
-  if(secVideoBannerIndex<videoBanner.length-1){
-    seSecVideoBannerIndex(prev=>prev+1)
-  }
- }
 // fetch post here
 async function fetchMarketPlacePost(){
-  setIsLoading(prev=>!prev)
+  setIsLoading(true)
  const response=await instance.get('/admin/marketPost')
 if(response?.data){
-  setIsLoading(prev=>!prev)
+  setIsLoading(false)
  response.data?.message.map(item=>{
   if(item.type=="video"){
       setVideoBanner(prev=>[...prev,{
@@ -502,8 +456,6 @@ if(response?.data){
 useEffect(()=>{
   fetchMarketPlacePost()
 },[])
-console.log(selectedCategory);
-
   const {isAddProductModal} = useProduct();
   return (
     <div className="relative w-full min-h-screen bg-gray-100">
@@ -577,76 +529,20 @@ console.log(selectedCategory);
         </aside>
 
         <main className="flex-1 space-y-8 p-9">
-          {!selectedCategory&&(
+          {isLoading?<Loader/>:(
+          
             <>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">            
-                    <div
-                        key={firstImgBannerIndex}
-                      className="relative overflow-hidden rounded-lg bg-white shadow"
-                    >
-                       <a href={imageBanner[firstImgBannerIndex]?.url} target='_blank' rel='noopener noreferrer'>
-                      <img
-                        src={imageBanner[firstImgBannerIndex]?.src}
-                        alt={`Banner ${firstImgBannerIndex}`}
-                        className="h-82 w-full object-cover"
-                      />
-                      </a>
-                       <GrPrevious onClick={firstPrevImg} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100 hover:bg-slate-400 rounded-full '/>
-                        <GrNext onClick={firstNextImg} className='absolute top-[45%] right-4 text-4xl bg-slate-100 hover:bg-slate-400 rounded-full p-2'/>
-                    </div>
-                   {imageBanner.length>2&&
-                     <div
-                      key={secImgBannerIndex||imgHalfPortion+1}
-                      className="relative overflow-hidden rounded-lg bg-white shadow"
-                    >
-                       <a href={imageBanner[secImgBannerIndex]?.url} target='_blank' rel='noopener noreferrer'>
-                      <img
-                        src={imageBanner[secImgBannerIndex]?.src}
-                        alt={`Banner ${secImgBannerIndex}`}
-                        className="h-82 w-full object-cover"
-                      />
-                      </a>
-                       <GrPrevious onClick={secondPrevImg} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100  hover:bg-slate-400 rounded-full '/>
-                        <GrNext onClick={secondNextImg} className='absolute top-[45%] right-4 text-4xl bg-slate-100  hover:bg-slate-400 rounded-full p-2'/>
-                    </div>}
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2"> 
+                      <ImgCarousel post={imageBanner.slice(0,imgHalfPortion)}/>           
+                   
+                    <ImgCarousel post={imageBanner.slice(imgHalfPortion+1)}/>  
+                   
               </div>
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             
-                    <div
-                      key={firstVideoBannerIndex}
-                      className="relative overflow-hidden rounded-lg bg-white shadow"
-                    >
-                      <a href={videoBanner[firstVideoBannerIndex]?.url} target='_blank' rel='noopener noreferrer'>
-                      <video
-                        controls
-                        className="h-82 w-full object-cover"
-                        src={videoBanner[firstVideoBannerIndex]?.src}
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                       </a>
-                       <GrPrevious onClick={firstPrevVideo} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100 hover:bg-slate-300 rounded-full '/>
-                      <GrNext onClick={firstNextVideo} className='absolute top-[45%] right-4 text-4xl bg-slate-100 hover:bg-slate-300 rounded-full p-2'/>
-                    </div>
-                     {videoBanner.length>2&&
-                      <div
-                      key={seSecVideoBannerIndex}
-                      className="relative overflow-hidden rounded-lg bg-white shadow"
-                    >
-                       <a href={videoBanner[secVideoBannerIndex]?.url} target='_blank' rel='noopener noreferrer'>
-                      <video
-                        controls
-                        className="h-82 w-full object-cover"
-                        src={videoBanner[secVideoBannerIndex]?.src}
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                      </a>
-                       <GrPrevious onClick={secondPrevVideo} className='absolute top-[45%] left-4 text-4xl p-2 bg-slate-100 hover:bg-slate-300 rounded-full '/>
-                      <GrNext onClick={secondNextVideo} className='absolute top-[45%] right-4 text-4xl bg-slate-100 hover:bg-slate-300 rounded-full p-2'/>
-                    </div>
-                     }
-
+                    <VideoCarousel post={videoBanner.slice(0,videoHalfPortion)}/> 
+                     <VideoCarousel post={videoBanner.slice(videoHalfPortion+1)}/> 
+                   
               </div>
             </>
           )}
