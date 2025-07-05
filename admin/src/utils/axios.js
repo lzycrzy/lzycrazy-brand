@@ -8,17 +8,22 @@ const instance = axios.create({
   },
 });
 
-
 instance.interceptors.request.use(
   (config) => {
-    if (config.skipAuth) return config;
+    // ⛔ Skip auth for public routes
+    if (
+      config.url?.includes('/auth') ||
+      config.url?.includes('/password/forgot') ||
+      config.url?.includes('/password/reset')
+    ) {
+      return config;
+    }
 
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      return Promise.reject(new Error('No Token found'));
     }
+
     return config;
   },
   (error) => Promise.reject(error)

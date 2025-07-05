@@ -196,7 +196,16 @@ export function Sidebar() {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-    { icon: Camera, label: 'Market-Post', path: '/market' },
+      {
+      icon: Camera,
+      label: 'Market-Post',
+      path: '/market',
+      isSubmenu: true,
+      children: [
+        { label: 'Add banner', path: '/market/banner', icon: Plus },
+        { label: 'Post List', path: '/market/list', icon: List }
+      ]
+    },
     { icon: Grid3X3, label: 'Category', path: '/category' },
     {
       icon: MapPin,

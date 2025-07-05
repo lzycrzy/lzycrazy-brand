@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaEye, FaUser, FaPlay, FaTrash } from 'react-icons/fa';
-import axios from '../../lib/axios/axiosInstance'; //  axios instance
 import { toast } from 'react-hot-toast';
+import instance from '../../utils/axios';
 
 const NewsList = () => {
   const [newsList, setNewsList] = useState([]);
@@ -11,7 +11,7 @@ const NewsList = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await axios.get('/news');
+        const res = await instance.get('/news');
         console.log(res.data)
         setNewsList(res.data);
       } catch (err) {
@@ -28,7 +28,7 @@ const NewsList = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this news item?')) return;
     try {
-      await axios.delete(`/news/${id}`);
+      await instance.delete(`/news/${id}`);
       setNewsList(prev => prev.filter((item) => item._id !== id));
       toast.success('News deleted');
     } catch (err) {

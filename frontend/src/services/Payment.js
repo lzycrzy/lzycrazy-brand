@@ -18,7 +18,13 @@ function loadScript(src) {
   });
 }
 
-export const initiatePayment = async (fullName, email, data, onSubmit) => {
+export const initiatePayment = async (
+  fullName,
+  email,
+  data,
+  navigate,
+  setIsAddProductModal,
+) => {
   const toastId = toast.loading('Loading...');
 
   try {
@@ -55,7 +61,7 @@ export const initiatePayment = async (fullName, email, data, onSubmit) => {
       handler: function (response) {
         verifyPayment({ ...response });
         console.log(response);
-        createListing(data);
+        createListing(data, navigate, setIsAddProductModal);
       },
     };
 
@@ -98,11 +104,9 @@ async function verifyPayment(bodyData) {
   toast.dismiss(toastId);
 }
 
-export async function createListing(formData) {
+export async function createListing(formData, navigate, setIsAddProductModal) {
+  const toastId = toast.loading('product listing in progress');
 
-  const toastId = toast.loading('product listing in progress')
-
-  // function to responsible for upoloading all the images to cloudinary firstly
   async function uploadImageToCloudinary(imageFiles) {
     const photos = [];
 
@@ -111,7 +115,10 @@ export async function createListing(formData) {
       uploadFormData.append('file', file);
 
       try {
-        const response = await instance.post('/v1/image/upload', uploadFormData);
+        const response = await instance.post(
+          '/v1/image/upload',
+          uploadFormData,
+        );
         const result = response.data;
 
         if (result.success) {
@@ -127,13 +134,11 @@ export async function createListing(formData) {
     return photos;
   }
 
-  //upload images to cloudinary
   let photoUrls = [];
   if (formData.getAll('file').length > 0) {
     photoUrls = await uploadImageToCloudinary(formData.getAll('file'));
   }
 
-  // upload features photo if any
   let featureUrls = [];
   if (formData.get('featureFile')) {
     featureUrls = await uploadImageToCloudinary([formData.get('featureFile')]);
@@ -166,13 +171,113 @@ export async function createListing(formData) {
     });
 
     if (res.data?.success) {
-        toast.success('product successfully listed.')
-        localStorage.setItem('user', JSON.stringify(res.data?.userDetails));
+      toast.success('product successfully listed.');
+      localStorage.setItem('user', JSON.stringify(res.data?.userDetails));
+      setIsAddProductModal(false);
+      navigate('/ads');
     } else {
       console.error('Listing creation failed:', res.data.message);
     }
   } catch (err) {
     console.error('Listing failed:', err);
+  }
+  toast.dismiss(toastId);
+}
+
+export async function updateListing(formData, navigate, setIsAddProductModal) {
+  const toastId = toast.loading('listing update in progress');
+
+  async function uploadImageToCloudinary(imageFiles) {
+    const photos = [];
+    const validFiles = imageFiles.filter(
+      (file) => file instanceof File && file !== undefined,
+    );
+
+    for (const file of validFiles) {
+      console.log('Uploading file:', file.name, file.size);
+
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+
+      try {
+        const response = await instance.post(
+          '/v1/image/upload',
+          uploadFormData,
+        );
+        const result = response.data;
+
+        if (result.success && result.url) {
+          photos.push(result.url);
+        } else {
+          console.error('Upload failed:', result.message || 'No URL returned');
+        }
+      } catch (err) {
+        console.error('Upload error:', err.message || err);
+      }
+    }
+
+    return photos;
+  }
+
+  //upload images to cloudinary
+  let photoUrls = [];
+  if (formData.getAll('file').length > 0) {
+    photoUrls = await uploadImageToCloudinary(formData.getAll('file'));
+  }
+
+  // upload features photo if any
+  let featureUrls = [];
+  if (formData.get('featureFile')) {
+    featureUrls = await uploadImageToCloudinary([formData.get('featureFile')]);
+  }
+
+  const payload = {};
+
+  for (const [key, value] of formData.entries()) {
+    if (value === undefined || value === null || value instanceof File) {
+      continue;
+    }
+
+    if (key === 'features') {
+      try {
+        const featuresObj = JSON.parse(value);
+
+        if (featureUrls?.length > 0) {
+          featuresObj.image = featureUrls[0];
+        }
+
+        payload[key] = JSON.stringify(featuresObj);
+      } catch (err) {
+        console.warn(`Failed to parse features JSON:`, value);
+        payload[key] = '{}';
+      }
+    } else {
+      payload[key] = value;
+    }
+  }
+
+  // Handle photoUrls if available
+  if (photoUrls?.length > 0) {
+    payload.photos = JSON.stringify(photoUrls);
+  }
+
+  try {
+    const res = await instance.put('/v1/listing/update', payload, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (res.data?.success) {
+      toast.success('product successfully updated.');
+      // localStorage.setItem('user', JSON.stringify(res.data?.userDetails));
+      setIsAddProductModal(false);
+      navigate('/ads');
+    } else {
+      console.error('Listing updation failed:', res.data.message);
+    }
+  } catch (err) {
+    console.error('update failed:', err);
   }
 
   toast.dismiss(toastId);

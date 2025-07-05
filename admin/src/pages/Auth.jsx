@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import ForgotPassword from '../components/Auth/ForgotPassword';
-import axios from '../lib/axios/axiosInstance'; // Adjust the import path as necessary
+import instance from '../utils/axios';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export default function Auth() {
     e.preventDefault();
 
     try {
-      const res = await axios.post('/admin/login', {
+      const res = await instance.post('/admin/login', {
         email: form.email,
         password: form.password,
       });
@@ -27,7 +27,7 @@ export default function Auth() {
       // login successful
       if (res.data?.token) {
         localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('adminToken', res.data.token);
         setStage('verified');
       } else {
         setStage('error');

@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import Header from '../components/static/Header';
-import CategoryPostForm from '../components/CategoryPostForm';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useProduct } from '../store/useProduct';
-// import ProductCard from './ProductCard';
-
 import Card from '../components/Product/Card';
 import instance from '../lib/axios/axiosInstance';
 import { ChevronLeft, X } from 'lucide-react';
@@ -14,102 +10,133 @@ const AddProduct = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [categories, setCategories] = useState(null);
+  const { setIsAddProductModal, isEditing, editData, setEditData, setIsEditing } = useProduct();
 
   useEffect(() => {
-      async function getAllCategories() {
-        try {
-            const res = await instance.get('/v1/categories/public');
-            setCategories(res.data.data.categories)
-        } catch (err) {
-            console.log(err);
-        }
+    async function getAllCategories() {
+      try {
+        const res = await instance.get('/v1/categories/public');
+        setCategories(res.data.data.categories);
+      } catch (err) {
+        console.log(err);
       }
-      getAllCategories();
-  }, [])
-
-  const { setIsAddProductMadal } = useProduct();
-  let isExpanded;
-
-  useEffect(() => {
-      document.body.classList.add('no-scroll');
-
-      return () => {
-        document.body.classList.remove('no-scroll');
-      };
+    }
+    getAllCategories();
   }, []);
 
+  useEffect(() => {
+    document.body.classList.add('no-scroll');
+    return () => {
+      document.body.classList.remove('no-scroll');
+    };
+  }, []);
+
+  const AddProductRef = useRef(null);
+  useEffect(() => {
+    function handleOutsideClick(e) {
+      if (AddProductRef.current && !AddProductRef.current.contains(e.target)) {
+        setIsAddProductModal(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  },  [AddProductRef])
+
+  useEffect(() => {
+    if (isEditing) {
+      setSelectedCategory(editData.category);
+      const subCategoryForEditing = editData.category.subcategories.filter((item) => item.name === editData.subcategory);
+      console.log(subCategoryForEditing)
+      setSelectedSubcategory(subCategoryForEditing[0]);
+    }
+  }, [])
+
+
   return (
-    <div style={{backgroundColor: 'rgb(0,0,0, .5)'}} className="fixed inset-0 z-999 flex items-center justify-center ">
-      <div className="relative  md:w-auto w-[90%] rounded-md border-2 border-gray-200 bg-white">
-        {/* <Header /> */}
-          <div
-            className="absolute top-2 right-2 flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-full border bg-gray-300 font-bold"
-            onClick={() => setIsAddProductMadal(false)}
-          >
-          <X />
-          
+    <div
+
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+      className="fixed inset-0 z-[999] flex items-center justify-center overflow-auto p-4"
+    >
+      <div ref={AddProductRef} className="relative w-full max-w-xl max-h-[90vh] overflow-hidden rounded-md border border-gray-200 bg-white shadow-md">
+        
+        {/* Sticky Header for Close & Back */}
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white p-3">
+          {/* Back Button - Only on mobile & when category is selected */}
+          <div className={`${selectedCategory ? 'flex' : 'hidden'} lg:hidden`}>
+            <button
+              className="flex items-center justify-center rounded-full border p-1"
+              onClick={() => {
+                if (selectedSubcategory === '') setSelectedCategory('');
+                else setSelectedSubcategory('');
+              }}
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
           </div>
-          <div className={`mt-3 ml-3 lg:hidden w-[30px] h-[30px] ${selectedCategory ? 'flex': 'hidden'} justify-center items-center rounded-full border`} onClick={() => {
-            if (selectedSubcategory === '') setSelectedCategory('')
-            else setSelectedSubcategory('')
 
-          }}>
-            <ChevronLeft />
+          <div className="ml-auto">
+            <button
+              className="flex items-center justify-center rounded-full border bg-gray-300 p-1"
+              onClick={() => {
+                if (isEditing) {
+                  setSelectedCategory(null)
+                  setSelectedSubcategory('');
+                  setIsEditing(false);
+                  setEditData(null);
+                }
+                setIsAddProductModal(false)
+              }}
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
+        </div>
 
-        <div className="w-full min-h-[600px] mx-auto lg:h-[700px] md:w-[600px] p-5 overflow-auto">
-
-          {selectedSubcategory === '' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto max-h-[calc(90vh-52px)] p-4 sm:p-6">
+          {selectedSubcategory === '' ? (
+            <div className="flex flex-col lg:flex-row gap-4">
               {/* Categories */}
-              <aside>
-                <h2 className="mb-2 text-lg font-semibold text-gray-800">
-                  Choose a Categories
-                </h2>
-
-                <ul className={`${selectedCategory ? 'lg:block hidden' : "block w-full" } space-y-1`}>
-                  {categories?.map((category, index) => {
-                    
-                    return (
-                      <li key={index} className="grid">
-                        <button
-                          onClick={() =>{
-                            setExpandedCategory(category.subcategories)
-                            setSelectedCategory(category);
-                          }}
-                          className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-all ${
-                            selectedCategory === category.name
-                              ? 'bg-blue-50 text-blue-700'
-                              : 'text-gray-700 hover:bg-gray-100'
-                          }`}
+              <aside className="w-full lg:w-1/2">
+                <h2 className="mb-2 text-base font-semibold text-gray-800">Choose a Category</h2>
+                <ul className={`${selectedCategory ? 'lg:block hidden' : 'block w-full'} space-y-1`}>
+                  {categories?.map((category, index) => (
+                    <li key={index}>
+                      <button
+                        onClick={() => {
+                          setExpandedCategory(category.subcategories);
+                          setSelectedCategory(category);
+                        }}
+                        className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-all ${
+                          selectedCategory === category.name
+                            ? 'bg-blue-50 text-blue-700'
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <span className="font-medium">{category.name}</span>
+                        <svg
+                          className="h-4 w-4 transform transition-transform duration-200"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          <span className="font-medium">{category.name}</span>
-                          <svg
-                            className={`h-4 w-4 transform transition-transform duration-200 ${
-                              isExpanded ? 'rotate-90' : ''
-                            }`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
-                        </button>
-                      </li>
-                    );
-                  })}
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </li>
+                  ))}
                 </ul>
               </aside>
-              
+
               {/* Subcategories */}
-              {expandedCategory ? (
-                <ul className={`lg:mt-12 ${selectedCategory !== '' ? 'flex' : 'lg:flex hidden'} flex-col gap-2`}>
-                  {expandedCategory?.map((sub, idx) => (
+              {expandedCategory && (
+                <ul className={`mt-4 lg:mt-12 ${selectedCategory ? 'flex' : 'lg:flex hidden'} flex-col gap-2 w-full lg:w-1/2`}>
+                  {expandedCategory.map((sub, idx) => (
                     <li key={idx}>
                       <button
                         onClick={() => {
@@ -120,20 +147,22 @@ const AddProduct = () => {
                           }
                           setSelectedSubcategory(sub);
                         }}
-                        className=" w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-black hover:bg-gray-100"
+                        className="w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-black hover:bg-gray-100"
                       >
                         {sub.name}
                       </button>
                     </li>
                   ))}
                 </ul>
-              ) : null}
+              )}
             </div>
-          )}
-
-          {selectedSubcategory !== '' && (
-            <div className='lg:h-auto h-[600px] w-full overflow-auto'>
-              <Card setSubCategory={setSelectedSubcategory} selectedCategory={selectedCategory} selectedSubcategory={selectedSubcategory} />
+          ) : (
+            <div className="h-[600px] lg:h-auto w-full overflow-auto">
+              <Card
+                setSubCategory={setSelectedSubcategory}
+                selectedCategory={selectedCategory}
+                selectedSubcategory={selectedSubcategory}
+              />
             </div>
           )}
         </div>

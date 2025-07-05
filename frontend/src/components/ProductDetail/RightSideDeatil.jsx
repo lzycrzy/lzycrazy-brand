@@ -4,6 +4,12 @@ const RightSideDeatil = ({ data }) => {
   const hasPostedBy = data.postedBy && (data.postedBy.name || data.postedBy.memberSince || data.postedBy.itemsListed);
   const hasLocation = data.location?.area;
 
+  const formatToINR = (value) => {
+    const number = parseInt(value.replace(/,/g, ''), 10);
+    if (isNaN(number)) return '';
+    return new Intl.NumberFormat('en-IN').format(number);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="shadow-lg">
@@ -15,7 +21,7 @@ const RightSideDeatil = ({ data }) => {
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-xl text-slate-500 font-medium uppercase tracking-wide">Price</span>
-              <p className="text-lg font-bold text-slate-900">{data.price}</p>
+              <p className="text-lg font-bold text-slate-900">₹ {formatToINR(data.price)}</p>
             </div>
           </div>
         </div>
