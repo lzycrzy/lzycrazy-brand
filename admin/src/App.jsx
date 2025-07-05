@@ -93,14 +93,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/shop/card"
             element={
               <ProtectedRoute>
                 <Card />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="/services/add"
             element={
