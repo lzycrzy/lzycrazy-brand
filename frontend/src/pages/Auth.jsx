@@ -42,21 +42,21 @@ const Auth = () => {
   const [registerData, setRegisterData] = useState({
     fullName: '',
     phone: '',
-
     email: '',
     password: '',
     role: 'user',
   });
+
   const googleProvider = new GoogleAuthProvider();
   googleProvider.setCustomParameters({
     prompt: 'select_account',
   });
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { fetchUser } = useUser();
   const handleLoginChange = (e) =>
-    setLoginData({ ...loginData, [e.target.name]: e.target.value });
-
+  setLoginData({ ...loginData, [e.target.name]: e.target.value });
   const handleRegisterChange = (e) =>
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
 

@@ -13,7 +13,6 @@ router.post(
   ]),
   createNews
 );
-
 router.get('/news', getAllNews);
 router.delete('/news/:id', deleteNews);
 

@@ -93,10 +93,15 @@ const HiringDetailsModal = ({
       form.append('video', videoFile);
     }
     form.append('name', userData.name);
+    form.append('companyId', userData.companyId);
+    form.append('email', userData.email); // Ensure email is included if available
+    form.append('phone', userData.phone); // Ensure phone is included if available
     try {
-      const response = await axios.post('/v1/hiring', form, {
+      const response = await axios.post('/v1/hiring', form, {      
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+        console.log(response.data),
+
       toast.success('Application submitted successfully!');
       if (onSubmitSuccess) onSubmitSuccess(true);
       clearForm();
@@ -161,7 +166,7 @@ const HiringDetailsModal = ({
         </button>
 
         <div className="mb-2 px-2 text-sm sm:text-base font-semibold text-gray-600">
-          <span>Your LzyCrazyID: lcxxxxxxx{userData?.companyId.slice(10)}</span>
+          <span>Your LzyCrazyID: lcxxxxxxx{userData?.companyId.slice(-3)}</span>                         
         </div>
 
         <div className="scrollbar flex-grow overflow-y-auto pr-1 sm:pr-2">

@@ -200,7 +200,7 @@ export function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      await instance.post('/admin/logout'); // clears HttpOnly cookie
+      await instance.get('/admin/logout'); // clears HttpOnly cookie
       localStorage.removeItem('adminToken'); // remove legacy token if any
       setAdmin(null); // clear context
       navigate('/auth'); // redirect to login
@@ -260,7 +260,8 @@ export function Sidebar() {
       path: '/applications'
     },
     { icon: FileBarChart, label: 'Client Enquiry', path: '/client-enquiry' },
-    { icon: LogOut, label: 'Logout', path: '/logout', isLogout: true }
+    { icon: LogOut, label: 'Logout', isLogout: true }
+
   ];
 
   return (

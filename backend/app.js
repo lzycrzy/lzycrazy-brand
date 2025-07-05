@@ -24,7 +24,6 @@ import aboutRoutes from './router/user.about.js';
 import adminRoutes from './router/admin.route.js';
 import postRoutes from './router/user.post.routes.js'
 import hiringRoutes from './router/hiring.route.js';
-
 //--env file configuration
 // This loads environment variables from a .env file into process.env
 dotenv.config(); 
@@ -46,7 +45,7 @@ app.use(
   cors({
     origin: [
               process.env.FRONTEND_URL || 'http://localhost:5173', 
-             process.env.DASHBOARD_URL || 'http://localhost:5174'
+              process.env.DASHBOARD_URL || 'http://localhost:5174'
             ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
@@ -63,7 +62,7 @@ app.use('/api/v1/users', userRoutes);  //--user routes
 app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/users/about', aboutRoutes); //--user about routes
 app.use('/api/v1/admin', adminRoutes);  //--admin routes
-app.use('/api/v1', newsRoute);  //--admin routes
+app.use('/api/v1', newsRoute);  //--admin route
 
 app.use('/api/v1/categories', categoryRoutes); //--category routes
 app.use('/api/v1/services', serviceRoutes); //--service routes

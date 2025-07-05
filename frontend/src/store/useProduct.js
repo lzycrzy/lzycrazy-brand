@@ -2,9 +2,19 @@ import {create} from 'zustand'
 
 export const useProduct = create((set, get) => ({
     isAddProductModal: false,
+    isEditing: false,
+    editData: [],
 
-    setIsAddProductMadal: (value) => {
+    setIsAddProductModal: (value) => {
         set({isAddProductModal: value})
+    },
+
+    setIsEditing: (val) => {
+        set({isEditing: val})
+    },
+
+    setEditData: (val) => {
+        set({editData: val})
     }
 }))
 

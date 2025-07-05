@@ -172,10 +172,10 @@ const HeaderIcon = ({ icon: Icon, to, user, image }) => {
     }
   };
 
-  const {setIsAddProductMadal} = useProduct();
+  const {setIsAddProductModal} = useProduct();
 
   const openProductModal = () => {
-    setIsAddProductMadal(true);
+    setIsAddProductModal(true);
   }
 
   return (
