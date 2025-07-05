@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { Upload,X, Play} from 'lucide-react';
+import { multiInstance } from '../utils/axios';
+import Loader from './loader';
 export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
   const currentData=new Date().toISOString().split('T')[0]
-  const [filePreview,setFilePreview]=useState({
-    type:data.type,
-    url:data.url
-  })
   const[file,setFile]=useState(null)
   const[updateData,setUpdateData]=useState({
-    id:data.id,
+    _id:data._id,
     userName:data.userName,
-     thumbnail:data.thumbnail,
+    thumbnail:data?.thumbnail,
     url:data.url,
+    postUrl:data.postUrl,
     postDate:currentData
   })
+  const[isUpdating,setIsUpdating]=useState(false)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUpdateData((prev) => ({
@@ -21,27 +21,33 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
       [name]: value,
     }));
   };
-  const handleVideoUpload = (e) => {
+  const handleVideoUpload = (e) => {    
     const file = e.target.files[0];
     if (file) {
+       const type=file.type?.split('/')[0]
       setFile(file);
       const url = URL.createObjectURL(file);
-      setFilePreview({
-        url:url,
-        type: file?.type.split('/')[0],
-      });
+      setUpdateData({
+        ...updateData,
+        postUrl:url,
+        type:type
+      })
     }
   };
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     const formData=new FormData()
-    formData.append("userName",updateData.userName)
      formData.append("url",updateData.url)
+     formData.append("prevPostUrl",data.postUrl)
       formData.append("postDate",updateData.postDate)
        formData.append("file",file)
-
-      //  send data to update post on backend
-    setIsEditing(prev=>!prev)
-  }; 
+       setIsUpdating(true)
+     const response=await multiInstance.put(`/admin/updatePost/${updateData._id}`,formData)
+     if(response.data?.message){
+      setIsUpdating(false)
+      alert("Update post successfully")
+      setIsEditing(prev=>!prev)
+     }
+  };  
   return (
     <div className="fixed w-[100vw] h-[100vh] top-0 right-0 flex justify-center items-center mb-8 rounded-lg  bg-blue-400/5 p-6 shadow-xl">
       <div className="relative w-full bg-white shadow-2xl max-w-[50vw] p-6 rounded-2xl grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -50,17 +56,18 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
         <div className="lg:col-span-1">
           <h3 className="mb-4 text-lg font-semibold text-gray-800">Video/Image</h3>
           <div className="relative">
-            {filePreview.url? (
+            {updateData.postUrl?(
               <div className="relative h-48 w-full overflow-hidden rounded-lg bg-gray-100">
-                {filePreview.type == 'video'? (
+                {updateData.type == 'video'? (
                   <video
-                    src={filePreview.url}
+                    src={updateData.postUrl}
+                    thumbnail={updateData?.thumbnail}
                     className="h-full w-full object-cover"
                     controls
                   />
                 ) : (
                   <img
-                    src={filePreview.url}
+                    src={updateData.postUrl}
                     className="h-full w-full object-cover"
                     controls
                   />
@@ -116,7 +123,7 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
                   <input
                     type="text"
                     name="name"
-                    value={data.userName}
+                    value={updateData.userName}
                     // onChange={handleInputChange}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     placeholder="Name"
@@ -162,6 +169,7 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
           </div>
         </div>
       </div>
+      {isUpdating&&<Loader/>}
     </div>
   );
 }

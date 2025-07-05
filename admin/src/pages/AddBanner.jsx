@@ -17,7 +17,7 @@ export default function AddBanner() {
       [name]: value,
     }));
   };
-
+ 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -51,8 +51,6 @@ async function submitHandler(){
  setFilePreview(null)
   alert('News entry added successfully!');
 }
- console.log(file,postData);
- 
   return (
     <div className="mb-8 rounded-lg w-[60vw] flex justify-self-center bg-white p-6 shadow-xl">
       <div className="w-full grid grid-cols-1 gap-6 lg:grid-cols-3">

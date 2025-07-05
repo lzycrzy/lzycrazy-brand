@@ -443,13 +443,13 @@ export const publishPost=async(req,res)=>{
 }
 export const updatePost=async(req,res)=>{
     try {
-          console.log(req.file,req.body);
-          const{_id}=req.params
-        const{url,postDate}=req.body
+         const{_id}=req.params
+        const{url,postDate,prevPostUrl}=req.body
         const filePath=req.file?.path
+        const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
         if(req.file){
                 const postUrl = await uploadToCloudinary(filePath);
-                 const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+                await deleteFromCloudinary(prevPostUrl)
                  if(type=="video"){
                   const thumnail=getVideoThumbnailUrl(postUrl)
                    const post=await adminMarketPost.updateOne({_id},{$set:{postUrl,url,thumnail,type,postDate}}) 
@@ -461,7 +461,11 @@ export const updatePost=async(req,res)=>{
                     return res.status(200).json({
                    message:"Posted Successfully"
         })
-        } 
+        }else{
+           return res.status(401).json({
+          message:"Something wrong please try again!"
+        })
+        }
     } catch (error) {
           return res.status(401).json({
           message:"Something wrong please try again!"

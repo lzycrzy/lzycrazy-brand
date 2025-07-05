@@ -2,83 +2,52 @@ import {  Play } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import UpdateMarketPostList from '../components/UpdateMarketPostList';
 import instance from '../utils/axios';
+import Loader from '../components/loader';
 
 export default function PostList() {
     const[isEditing,setIsEditing]=useState(false)
     const[editPostData,setEditPostData]=useState(null)
-     const [newsData, setNewsData] = useState([
-        {
-          _id: 1,
-          postDate: '12-06-2025',
-        
-          userName: 'John Smith',
-          url:"https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-          type:"image",
-          thumbnail: '/api/placeholder/60/40',
-          postUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
-        },
-        
-        {
-         _id: 2,
-        
-          postDate: '11-06-2025',
-       
-          userName: 'John Smith',
-           url:"#",
-           type:"video",
-          thumbnail: '/api/placeholder/60/40',
-          postUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
-        }
-        //  {
-        //   id: 9,
-        
-        //   postDate: '12-06-2025',
-        
-        //   userName: 'John Smith',
-        //   url:"https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-        //   type:"image",
-        //   thumbnail: '/api/placeholder/60/40',
-        //   videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
-        // }, {
-        //   id: 10,
-        
-        //   postDate: '12-06-2025',
-        
-        //   userName: 'John Smith',
-        //   url:"https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-        //   type:"image",
-        //   thumbnail: '/api/placeholder/60/40',
-        //   videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'
-        // },
-        
-      ]);
-      const[temp,setTemp]=useState([...newsData])
+     const [newsData, setNewsData] = useState([]);
+     const[isLoading,setIsLoading]=useState(false)
+      const[temp,setTemp]=useState([])
       function filterHandler(event){
       let filterType=event.target.value;
-      setTemp(newsData.filter(item=>item.type==filterType))
+      if(filterType=="All"){
+          setNewsData([...temp])
+      }
+      setNewsData(temp.filter(item=>item.type==filterType))
       } 
     function  postEditHandler(editingData){
          setIsEditing(prev=>!prev)
          setEditPostData(editingData)
       }
-      function deletePost(id){
-        // delete api request
-       setTemp(prev=>prev.filter((item)=>item.id!==id))
+      async function deletePost(_id,postUrl){
+        const confirm=window.confirm("Are you sure you want to delete post")
+        if(confirm){
+     const response= await instance.delete(`/admin/deletePost/${_id}`,postUrl)
+       if(response.data?.message){
+          setNewsData(prev=>prev.filter((item)=>item._id!==_id))
+       }
+      }  
      }
      async function postListHandler() {
+      setIsLoading(true)
       const response=await instance.get('/admin/marketPost')
-      console.log(response)
-      setNewsData(prev=>[...prev,...response?.data.message])
+      if(response.data?.message){
+       setIsLoading(false)
+      setNewsData([...response?.data.message])
+      setTemp([...response?.data.message])
+      }
      }
      useEffect(()=>{
      postListHandler()
      },[])
-     console.log(newsData);
-     
   return (
     <div>
-        <div className="scrollbar-hide w-full lg:max-w-[90vw] flex justify-center py-2 rounded-lg shadow-sm overflow-y-hidden">
-          <div className="overflow-auto space-y-3">
+        <div className="scrollbar-hide w-full h-[80vh] lg:max-w-[90vw] flex justify-center py-2 rounded-lg shadow-sm overflow-y-hidden">
+          {
+            isLoading?<Loader/>:
+         <div className="overflow-auto space-y-3">
             <div className='space-x-2 font-semibold'>
                  <label className='text-lg' htmlFor='filter-post'>Filter</label>
             <select onChange={filterHandler} className='border-2 border-solid rounded-lg px-3' id="filter-post">
@@ -119,14 +88,14 @@ export default function PostList() {
                       {item.url}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-700">
-                      {item.postDate}
+                      {item.postDate?.split('T')[0]}
                     </td>
                      <td className="px-4 py-4 text-sm text-gray-700">
                        <button onClick={()=>postEditHandler(item)} className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Edit</button>
                     </td>
                       <td className="px-4 py-4 flex gap-4 text-sm text-gray-700">
                        {/* <button onClick={()=>postEditHandler(item)} className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Edit</button>  */}
-                       <button onClick={()=>deletePost(item.id)} className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Delete</button>
+                       <button onClick={()=>deletePost(item._id,item.postUrl)} className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Delete</button>
                     </td>
                    
                   </tr>
@@ -134,9 +103,10 @@ export default function PostList() {
               </tbody>
             </table>
              {isEditing&&
-             <UpdateMarketPostList key={editPostData.id} setNewsData={setNewsData} setIsEditing={setIsEditing} data={editPostData}/>
+             <UpdateMarketPostList key={editPostData._id} isEditing={isEditing} setNewsData={setNewsData} setIsEditing={setIsEditing} data={editPostData}/>
              }
-          </div>
+             
+          </div>}
         </div>
     </div>
   )
