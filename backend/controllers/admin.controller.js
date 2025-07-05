@@ -5,9 +5,11 @@ import { adminModel } from '../models/admin.model.js';
 import { userModel } from '../models/user.model.js';
 import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
-import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
+import { deleteFromCloudinary, generateVideoThumbnail, uploadToCloudinary } from '../utils/cloudinary.js';
 import Applicant from '../models/Applicant.js';
-
+import Hiring from '../models/hiring.model.js';
+import adminMarketPost from '../models/adminMarketPost.js'
+import getVideoThumbnailUrl from '../middlewares/getVideoThumbnailUrl.js'
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
   const { fullName, email, phone, password, role } = req.body;
@@ -57,15 +59,19 @@ export const loginAdmin = catchAsyncErrors(async (req, res, next) => {
 
 // LOGOUT ADMIN
 export const logoutAdmin = (req, res) => {
-  res.cookie('token', null, {
-    expires: new Date(Date.now()),
+  res.clearCookie('token', {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // send only over HTTPS in production
+    sameSite: 'Lax', // or 'None' if using cross-site cookies
+    path: '/',       // clear from entire domain
   });
+
   res.status(200).json({
     success: true,
     message: 'Logged out successfully',
   });
 };
+
 
 // GET ADMIN PROFILE
 export const getAdminProfile = catchAsyncErrors(async (req, res, next) => {
@@ -90,7 +96,6 @@ export const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
     try {
       console.log('Uploading image to Cloudinary...');
       console.log('File path:', req.file.path);
-
       // Delete old image if exists
       if (admin.image && admin.image !== '') {
         console.log('Deleting old image...');
@@ -126,20 +131,32 @@ export const updateAdminProfile = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// UPDATE PASSWORD
+// UPDATE ADMIN PASSWORD
 export const updateAdminPassword = catchAsyncErrors(async (req, res, next) => {
-  const { oldPassword, newPassword } = req.body;
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return next(new ErrorHandler('Both current and new passwords are required.', 400));
+  }
 
   const admin = await adminModel.findById(req.admin._id).select('+password');
-  const isMatch = await admin.comparePassword(oldPassword);
-  if (!isMatch) return next(new ErrorHandler('Old password is incorrect', 400));
+  if (!admin) {
+    return next(new ErrorHandler('Admin not found', 404));
+  }
+
+  const isMatch = await admin.comparePassword(currentPassword);
+  if (!isMatch) {
+    return next(new ErrorHandler('Current password is incorrect', 400));
+  }
 
   admin.password = newPassword;
   await admin.save();
 
-  res.status(200).json({ success: true, message: 'Password updated successfully' });
+  res.status(200).json({
+    success: true,
+    message: 'Password updated successfully',
+  });
 });
-
 // FORGOT PASSWORD
 export const forgotAdminPassword = catchAsyncErrors(async (req, res, next) => {
   const admin = await adminModel.findOne({ email: req.body.email });
@@ -166,7 +183,6 @@ export const forgotAdminPassword = catchAsyncErrors(async (req, res, next) => {
       subject: 'Admin Password Reset',
       message,
     });
-
     res.status(200).json({ success: true, message: `Email sent to ${admin.email}` });
   } catch (error) {
     admin.resetPasswordToken = undefined;
@@ -347,10 +363,11 @@ export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true, message: 'User deleted successfully' });
 });
 
-
+// Get all Applications
 export const getAllApplications = async (req, res) => {
   try {
-    const applications = await Applicant.find().sort({ createdAt: -1 }); // newest first
+    const applications = await Hiring.find().sort({ createdAt: -1 }); // newest first
+    
     res.status(200).json(applications);
   } catch (error) {
     console.error(error);
@@ -358,13 +375,26 @@ export const getAllApplications = async (req, res) => {
   }
 };
 
+// Get One Applications
+export const getOneApplications = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const application = await Hiring.findById(id);
+    
+    res.status(200).json(application);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch applications' });
+  }
+};
 
+// Delete Application
 export const deleteApplication = async (req, res) => {
   try {
     const { id } = req.params;
 
     // Find and delete
-    const deleted = await Applicant.findByIdAndDelete(id);
+    const deleted = await Hiring.findByIdAndDelete(id);
 
     if (!deleted) {
       return res.status(404).json({ message: "Application not found" });
@@ -377,12 +407,44 @@ export const deleteApplication = async (req, res) => {
   }
 };
 
+// Update Application Status
+export const updateApplicationStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Validate allowed statuses
+    const allowedStatuses = ['Pending', 'Reviewed', 'Shortlisted', 'Rejected'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    const updatedApp = await Hiring.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true } // return the updated document
+    );
+
+    if (!updatedApp) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    res.status(200).json({
+      message: 'Application status updated successfully',
+      application: updatedApp
+    });
+  } catch (error) {
+    console.error('Error updating status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 
 export const requestAdminPasswordReset = async (req, res) => {
   const { email } = req.body;
 
   try {
-    const admin = await Admin.findOne({ email });
+    const admin = await adminModel.findOne({ email });
     if (!admin) return res.status(404).json({ message: 'Admin not found' });
 
     const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
@@ -395,6 +457,99 @@ export const requestAdminPasswordReset = async (req, res) => {
     res.status(500).json({ message: 'Failed to send reset email', error: err.message });
   }
 };
+
+// ADMIN MARKET POST
+export const marketPost=async(req,res)=>{
+    try {
+        const post=await adminMarketPost.find({})
+       return res.status(200).json({
+          message:post
+        })
+    } catch (error) {
+         return res.status(401).json({
+          message:"Something went wrong!"
+        })
+    }
+}
+export const publishPost=async(req,res)=>{
+  console.log("hello")
+    try {
+        console.log(req.file,req.body);
+        const{userName,url,postDate}=req.body
+        const filePath=req.file?.path
+        if(req.file){
+                const postUrl = await uploadToCloudinary(filePath);
+               const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+               if(type=="video"){
+                 const thumnail=getVideoThumbnailUrl(postUrl)
+                  const post=new adminMarketPost({userName,postUrl,url,thumnail,type,postDate}) 
+                  await post.save()
+                    return res.status(200).json({
+                   message:"Posted Successfully"
+                      })
+               }else{
+                   const post=new adminMarketPost({userName,postUrl,url,type,postDate}) 
+                  await post.save()
+                    return res.status(200).json({
+                   message:"Posted Successfully"
+                        })
+               }
+        }else{
+          return res.status(401).json({
+          message:"Please select at least one image/video !"
+        }) 
+        }
+    } catch (error){
+           return res.status(401).json({
+          message:"Something wrong !"
+        })
+    }
+}
+export const updatePost=async(req,res)=>{
+    try {
+         const{_id}=req.params
+        const{url,postDate,prevPostUrl}=req.body
+        const filePath=req.file?.path
+        const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+        if(req.file){
+                const postUrl = await uploadToCloudinary(filePath);
+                await deleteFromCloudinary(prevPostUrl)
+                 if(type=="video"){
+                  const thumnail=getVideoThumbnailUrl(postUrl)
+                   const post=await adminMarketPost.updateOne({_id},{$set:{postUrl,url,thumnail,type,postDate}}) 
+                    return res.status(200).json({
+                   message:"Posted Successfully"
+        })
+                 }
+                  const post=await adminMarketPost.updateOne({_id},{$set:{postUrl,url,type,postDate}}) 
+                    return res.status(200).json({
+                   message:"Posted Successfully"
+        })
+        }else{
+           return res.status(401).json({
+          message:"Something wrong please try again!"
+        })
+        }
+    } catch (error) {
+          return res.status(401).json({
+          message:"Something wrong please try again!"
+        }) 
+    }
+}
+export const deletePost=async(req,res)=>{
+    try {
+    const{_id}=req.params
+    const{postUrl}=req.body
+    await deleteFromCloudinary(postUrl)
+    await adminMarketPost.deleteOne({_id})
+     return res.status(200).json({
+                   message:"Post deleted Successfully"})
+    } catch (error) {
+        return res.status(401).json({
+          message:"Something wrong please try again!"
+        })  
+    }
+}
 
 // Step 2: Reset Password
 // export const resetAdminPassword = async (req, res) => {

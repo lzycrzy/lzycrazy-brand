@@ -12,7 +12,6 @@ import {
 } from 'react-icons/fa';
 
 import store from '../../assets/store.png'; // Replace with your actual path
-
 import logo from '../../assets/logo.png';
 import home from '../../assets/home.png';
 import movie from '../../assets/movie-reel.png';
@@ -24,25 +23,27 @@ import { signOut } from 'firebase/auth';
 import { logout } from '../../lib/redux/authSlice';
 import { useUser } from '../../context/UserContext';
 import Loader from '../common/Spinner';
+import AddPage from '../../pages/AddPage';
+import AddProduct from '../../pages/AddProduct';
+import { useProduct } from '../../store/useProduct';
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, profilePic, displayName, setUser,logout1 } = useUser();
+  const { user, profilePic, displayName, setUser, logout1 } = useUser();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      
+
       logout1();
       dispatch(logout());
-      
+
       await axios.post('/v1/users/logout', {}, { withCredentials: true });
 
       navigate('/');
-   
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -54,12 +55,12 @@ const Header = () => {
         setIsDropdownOpen(false);
       }
     };
-    console.log("User object:", user);
+    console.log('User object:', user);
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
- 
+
   return (
     <div className="sticky top-0 left-0 z-[100] w-full bg-white px-4 py-2 shadow-sm">
       <div className="relative mx-auto flex items-center justify-between">
@@ -79,7 +80,7 @@ const Header = () => {
           <HeaderIcon image={home} to="/" user={user} />
           <HeaderIcon image={store} to="/market" user={user} />
 
-          <HeaderIcon image={add} to="/Product" user={user} />
+          <HeaderIcon image={add} user={user} />
           <HeaderIcon image={movie} to="/" user={user} />
           <HeaderIcon image={play} to="/" user={user} />
         </div>
@@ -96,24 +97,26 @@ const Header = () => {
           </div>
 
           <HeaderIcon icon={FaBell} to="/" user={user} />
-         
 
-         {/* Profile Button & Dropdown - Only show if user is logged in */}
-{user && (
-  <div className="relative">
-    <button
-      onClick={() => setIsDropdownOpen((prev) => !prev)}
-      className="relative h-9 w-9 overflow-hidden rounded-full border border-gray-300"
-    >
-      <img
-        src={profilePic || 'https://i.ibb.co/2kR5zq0/default-avatar.png'}
-        alt="Profile"
-        onError={(e) => {
-          e.target.src = 'https://i.ibb.co/2kR5zq0/default-avatar.png';
-        }}
-        className="h-full w-full object-cover"
-      />
-    </button>
+          {/* Profile Button & Dropdown - Only show if user is logged in */}
+          {user && (
+            <div className="relative">
+              <button
+                onClick={() => setIsDropdownOpen((prev) => !prev)}
+                className="relative h-9 w-9 overflow-hidden rounded-full border border-gray-300"
+              >
+                <img
+                  src={
+                    profilePic || 'https://i.ibb.co/2kR5zq0/default-avatar.png'
+                  }
+                  alt="Profile"
+                  onError={(e) => {
+                    e.target.src =
+                      'https://i.ibb.co/2kR5zq0/default-avatar.png';
+                  }}
+                  className="h-full w-full object-cover"
+                />
+              </button>
 
     {isDropdownOpen && (
       <div
@@ -169,9 +172,15 @@ const HeaderIcon = ({ icon: Icon, to, user, image }) => {
     }
   };
 
+  const {setIsAddProductModal} = useProduct();
+
+  const openProductModal = () => {
+    setIsAddProductModal(true);
+  }
+
   return (
     <div
-      onClick={to ? handleClick : undefined}
+      onClick={to ? handleClick : openProductModal}
       className="group cursor-pointer rounded-full p-2 text-gray-700 transition hover:bg-gray-100"
     >
       {image ? (
@@ -186,5 +195,6 @@ const HeaderIcon = ({ icon: Icon, to, user, image }) => {
     </div>
   );
 };
+
 
 export default Header;

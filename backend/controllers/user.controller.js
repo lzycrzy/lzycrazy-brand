@@ -4,6 +4,7 @@ import ErrorHandler from '../middlewares/error.middleware.js';
 import { generateToken } from '../utils/jwtToken.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';// Import the uploadToCloudinary function 
 import { sendEmail } from '../utils/sendEmail.js';
+import cloudinary from '../utils/cloudinary.js';
 import { userModel } from '../models/user.model.js';
 import firebaseadmin from '../config/firebaseAdmin.js';
 import UserAbout from '../models/user.about.js';
@@ -203,8 +204,8 @@ export const updateMe = async (req, res) => {
   try {
     const updates = { fullName: req.body.name };
 
-    console.log("🟡 Received name:", req.body.name);
-    console.log("🟡 Received file:", req.file?.originalname);
+    console.log(" Received name:", req.body.name);
+    console.log(" Received file:", req.file?.originalname);
     const filePath=req.file.path;
 
     if (req.file) {
@@ -236,7 +237,7 @@ export const getMyProfile = catchAsyncErrors(async (req, res) => {
 
     // Fetch full user info including relationships
     const user = await userModel.findById(userId)
-      .select('fullName email image companyId friends friendRequestsSent friendRequestsReceived phone role');
+      .select('fullName email image companyId friends friendRequestsSent friendRequestsReceived phone role productListed');
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -584,71 +585,127 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
 export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   const { token } = req.params;
   const { password, confirmPassword } = req.body;
-  console.log(password);
 
   const resetPasswordToken = crypto
     .createHash('sha256')
     .update(token)
     .digest('hex');
 
-  //--
+  //  Find user
   const user = await userModel.findOne({
     resetPasswordToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
 
+  //  Fix crash: Check if user was found
+  if (!user) {
+    return next(new ErrorHandler('Reset token is invalid or has expired', 400));
+  }
+
+  // Check passwords match
   if (password !== confirmPassword) {
     return next(new ErrorHandler('Passwords do not match', 400));
   }
 
+  //  Update password
   user.password = password;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
-  await user.save();
+  await user.save(); // assumes hashing is handled in pre-save hook
 
-  generateToken(user, 'Reset Password Successfully!', 200, res); //--
+  //  Return token or success response
+  generateToken(user, 'Password reset successfully!', 200, res);
 });
 
 
 
-
-
-export const uploadStory = async (req, res) => {
-  try {
-    // Ensure file is uploaded
-    if (!req.file) {
-      return res.status(400).json({ message: "Image file is required" });
+// export const uploadStory = async (req, res) => {
+//   try {
+//     // Ensure file is uploaded
+//     if (!req.file) {
+//       return res.status(400).json({ message: "Image file is required" });
        
-    }
-    console.log("Uploading story for user:", req.user); // Make sure _id is there
-    console.log("File received:", req.file?.path);
-    // Upload to Cloudinary
-    const result = await uploadToCloudinary(req.file.path, {
-      resource_type: "image",
-    });
+//     }
+//     console.log("Uploading story for user:", req.user); // Make sure _id is there
+//     console.log("File received:", req.file?.path);
+//     // Upload to Cloudinary
+//     const result = await uploadToCloudinary(req.file.path, {
+//       resource_type: "image",
+//     });
 
-    // If upload failed
+//     // If upload failed
     
 
-    // Create story
-    const story = await Story.create({
-      user: req.user._id,
-      image: result,
-      createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24hr
-      views: [],
-    });
-    console.log(" Story saved in DB:", story); 
+//     // Create story
+//     const story = await Story.create({
+//       user: req.user._id,
+//       image: result,
+//       createdAt: new Date(),
+//       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24hr
+//       views: [],
+//     });
+//     console.log(" Story saved in DB:", story); 
 
-    // Delete local file
-    fs.unlink(req.file.path, (err) => {
-      if (err) console.error("Failed to delete temp file:", err);
-    });
+//     // Delete local file
+//     fs.unlink(req.file.path, (err) => {
+//       if (err) console.error("Failed to delete temp file:", err);
+//     });
 
-    res.status(201).json(story);
-  } catch (err) {
-    console.error("Upload story error:", err.message || err);
-    res.status(500).json({ message: "Failed to upload story", error: err.message });
+//     res.status(201).json(story);
+//   } catch (err) {
+//     console.error("Upload story error:", err.message || err);
+//     res.status(500).json({ message: "Failed to upload story", error: err.message });
+//   }
+// };
+export const uploadStory = async (req, res) => {
+  try {
+    const imageFile = req.files?.image?.[0];
+    const videoFile = req.files?.media?.[0];
+    const textContent = req.body?.textContent?.trim();
+
+    console.log('📦 Incoming files:', req.files);
+    console.log('📨 Body:', req.body);
+
+    if (!imageFile && !videoFile && !textContent) {
+      return res
+        .status(400)
+        .json({ message: 'Story must have image, video, or text content' });
+    }
+
+    let storyData = {
+      user: req.user._id, // or req.user.id based on your auth setup
+    };
+
+    // Handle photo story
+    if (imageFile) {
+      const result = await cloudinary.uploader.upload(imageFile.path);
+      storyData.image = result.secure_url;
+      fs.unlinkSync(imageFile.path); // clean up
+    }
+
+    // Handle video story
+    if (videoFile) {
+      const result = await cloudinary.uploader.upload(videoFile.path, {
+        resource_type: 'video',
+      });
+      storyData.video = result.secure_url;
+      fs.unlinkSync(videoFile.path); // clean up
+    }
+
+    // Handle text story
+    if (textContent) {
+      storyData.text = {
+        content: textContent,
+        backgroundColor: req.body.backgroundColor || '#ffffff',
+        fontStyle: req.body.fontStyle || 'sans-serif',
+      };
+    }
+
+    const newStory = await Story.create(storyData);
+    return res.status(201).json({ story: newStory });
+  } catch (error) {
+    console.error('❌ Error uploading story:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -717,12 +774,7 @@ export const recordStoryView = async (req, res) => {
 };
 
 
-
-
 //friends
-
-
-
 
 // Send Friend Request
 export const sendFriendRequest = async (req, res) => {
@@ -841,8 +893,6 @@ export const searchUsers = async (req, res) => {
   res.json(enhanced);
 };
 
-
-
 export const storyView = async (req, res) => {
   const storyId = req.params.storyId;
   const viewerId = req.user._id;
@@ -864,6 +914,7 @@ export const storyView = async (req, res) => {
     res.status(500).json({ message: "Failed to record story view" });
   }
 };
+
 export const getUserStories = async (req, res) => {
   const { userId } = req.params;
 
@@ -881,8 +932,6 @@ export const getUserStories = async (req, res) => {
   }
 };
 
-
-
 export const getStoryViews = async (req, res) => {
   const { storyId } = req.params;
 
@@ -899,59 +948,55 @@ export const getStoryViews = async (req, res) => {
   }
 };
 
+// export const submitApplication = async (req, res) => {
+//   try {
+//     console.log(req.body);
+//     const {
+//       lycrazyId,
+//       country,
+//       state,
+//       city,
+//       phone,
+//       email,
+//       education,
+//       age,
+//       height,
+//       weight,
+//       jobCategory,
+//       experience,
+//       about,
+//     } = req.body;
 
+//     console.log(req.file); // includes path, size, filename, etc.
+//     console.log(lycrazyId);
+//     const result = req.file?.path || null;
+//     const videoUrl = await uploadToCloudinary(result);
+//     console.log(videoUrl)
 
-export const submitApplication = async (req, res) => {
-  try {
-    console.log(req.body);
-    const {
-      lycrazyId,
-      country,
-      state,
-      city,
-      phone,
-      email,
-      education,
-      age,
-      height,
-      weight,
-      jobCategory,
-      experience,
-      about,
-    } = req.body;
+//     const applicant = new Applicant({
+//       lycrazyId,
+//       country,
+//       state,
+//       city,
+//       education,
+//       phone,
+//       age,
+//       email,
+//       height,
+//       weight,
+//       jobCategory,
+//       experience,
+//       about,
+//       videoUrl // store local file path
+//     });
 
-    console.log(req.file); // includes path, size, filename, etc.
-    console.log(lycrazyId);
-    const result = req.file?.path || null;
-    const videoUrl = await uploadToCloudinary(result);
-    console.log(videoUrl)
-
-    const applicant = new Applicant({
-      lycrazyId,
-      country,
-      state,
-      city,
-      education,
-      phone,
-      age,
-      email,
-      height,
-      weight,
-      jobCategory,
-      experience,
-      about,
-      videoUrl // store local file path
-    });
-
-    await applicant.save();
-    res.status(200).json({ message: 'Application submitted successfully!' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error submitting application' });
-  }
-};
-
-
+//     await applicant.save();
+//     res.status(200).json({ message: 'Application submitted successfully!' });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Error submitting application' });
+//   }
+// };
 
 export const checkEmail = async (req, res) => {
   const { email } = req.body;
@@ -969,7 +1014,7 @@ export const checkEmail = async (req, res) => {
       return res.status(400).json({ message: 'Company ID not available yet' });
     }
 
-    return res.status(200).json({ companyId: user.companyId,name: user.fullName });
+    return res.status(200).json({ companyId: user.companyId,name: user.fullName , email: user.email, phone: user.phone});
   } catch (error) {
     console.error('Error checking companyId by email:', error);
     return res.status(500).json({ message: 'Internal Server Error' });

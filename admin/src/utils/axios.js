@@ -8,17 +8,30 @@ const instance = axios.create({
   },
 });
 
+export const multiInstance= axios.create({
+    baseURL:import.meta.env.VITE_API_BASE_URL,
+   'withCredentials':true,
+ headers:{
+        "Content-Type":"multipart/form-data"
+    }
+})
 
 instance.interceptors.request.use(
   (config) => {
-    if (config.skipAuth) return config;
+    // ⛔ Skip auth for public routes
+    if (
+      config.url?.includes('/auth') ||
+      config.url?.includes('/password/forgot') ||
+      config.url?.includes('/password/reset')
+    ) {
+      return config;
+    }
 
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      return Promise.reject(new Error('No Token found'));
     }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -34,6 +47,5 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 
 export default instance;

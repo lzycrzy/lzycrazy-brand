@@ -82,7 +82,7 @@ const PropertyListing = ({ data, images }) => {
           <div className="flex flex-col gap-6">
             <RightSideDeatil data={data} />
             {data.location?.coordinates && (
-              <PropertyMap coordinates={data.location.coordinates} />
+              <PropertyMap coordinates={data.location} />
             )}
           </div>
         </div>

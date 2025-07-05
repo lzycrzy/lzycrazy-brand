@@ -4,6 +4,12 @@ const listingSchema = new mongoose.Schema({
   title: { type: String, required: true },
   price: { type: String, required: true },
   description: { type: String },
+  brand: {type: String},
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
 
   // Link to category and subcategory
   category: {
@@ -16,31 +22,55 @@ const listingSchema = new mongoose.Schema({
     required: true
   },
 
+  response: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  reported: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+
   features: {
     type: mongoose.Schema.Types.Mixed, // Dynamic fields
     default: {}
   },
 
 
-
   postedBy: {
     name: String,
     memberSince: String,
-    itemsListed: Number
   },
 
   location: {
-    area: String,
+    state: String,
+    city: String,
+    neighbourhood: String,
     coordinates: {
-      type: [Number], // [lat, lng]
-      validate: {
-        validator: (v) => Array.isArray(v) && v.length === 2,
-        message: 'Coordinates must be [lat, lng]'
-      }
+      latitude: String,
+      longitude: String
     }
   },
 
+  isExpired: {
+    type: Boolean,
+  },
+  expiryDate: {
+    type: Date,
+    required: true,
+  },
+
   images: [String],
+    views: [{
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      viewedAt: {
+        type: Date,
+        default: Date.now,
+      }
+  }],
 
   createdAt: { type: Date, default: Date.now }
 });

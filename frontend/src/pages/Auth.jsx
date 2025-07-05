@@ -42,21 +42,21 @@ const Auth = () => {
   const [registerData, setRegisterData] = useState({
     fullName: '',
     phone: '',
-
     email: '',
     password: '',
     role: 'user',
   });
+
   const googleProvider = new GoogleAuthProvider();
   googleProvider.setCustomParameters({
     prompt: 'select_account',
   });
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { fetchUser } = useUser();
   const handleLoginChange = (e) =>
-    setLoginData({ ...loginData, [e.target.name]: e.target.value });
-
+  setLoginData({ ...loginData, [e.target.name]: e.target.value });
   const handleRegisterChange = (e) =>
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
 
@@ -113,114 +113,115 @@ const Auth = () => {
  
   
 
-//   const handleRegisterSubmit = async (e) => {
-//     e.preventDefault();
-//     setLoading(true);
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
   
-//     // Trim inputs first
-//     const fullName = registerData.fullName?.trim();
-//     const email = registerData.email?.trim();
-//     const phone = registerData.phone?.trim();
-//     const password = registerData.password?.trim();
+    // Trim inputs first
+    const fullName = registerData.fullName?.trim();
+    const email = registerData.email?.trim();
+    const phone = registerData.phone?.trim();
+    const password = registerData.password?.trim();
   
-//     // Check all fields
-//     if (!fullName || !email || !phone || !password) {
-//       toast.error('All fields are required');
-//       setLoading(false);
-//       return;
-//     }
+    // Check all fields
+    if (!fullName || !email || !phone || !password) {
+      toast.error('All fields are required');
+      setLoading(false);
+      return;
+    }
   
-//     // Name validation: only letters and spaces, min 3 characters
-//     const nameRegex = /^[A-Za-z\s.]{2,}$/;
-//     if (!nameRegex.test(fullName)) {
-//       toast.error('Name must be at least 2 characters and only contain letters/spaces');
-//       setLoading(false);
-//       return;
-//     }
+    // Name validation: only letters and spaces, min 3 characters
+    const nameRegex = /^[A-Za-z\s.]{2,}$/;
+    if (!nameRegex.test(fullName)) {
+      toast.error('Name must be at least 2 characters and only contain letters/spaces');
+      setLoading(false);
+      return;
+    }
   
-//     // Email format validation
-//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//     if (!emailRegex.test(email)) {
-//       toast.error('Invalid email format');
-//       setLoading(false);
-//       return;
-//     }
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Invalid email format');
+      setLoading(false);
+      return;
+    }
   
-//     // Optional: block temporary email domains
-//     const blockedDomains = ['tempmail.com', '10minutemail.com', 'mailinator.com'];
-//     if (blockedDomains.some(domain => email.endsWith(`@${domain}`))) {
-//       toast.error('Temporary email addresses are not allowed');
-//       setLoading(false);
-//       return;
-//     }
+    // Optional: block temporary email domains
+    const blockedDomains = ['tempmail.com', '10minutemail.com', 'mailinator.com'];
+    if (blockedDomains.some(domain => email.endsWith(`@${domain}`))) {
+      toast.error('Temporary email addresses are not allowed');
+      setLoading(false);
+      return;
+    }
   
-//     // Phone validation (India)
-//     const rawPhone = registerData.phone?.trim();
-// const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10);  // keep last 10 digits
+    // Phone validation (India)
+    const rawPhone = registerData.phone?.trim();
+const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10);  // keep last 10 digits
 
-// const phoneRegex = /^[6-9]\d{9}$/;
-// if (!phoneRegex.test(phone1)) {
-//   toast.error('Enter a valid 10-digit Indian mobile number');
-//   setLoading(false);
-//   return;
-// }
-  
-//     // Password validation
-//     const passwordRegex =
-//       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).{8,}$/;
-//     if (!passwordRegex.test(password)) {
-//       toast.error('Password must be 8+ characters and include uppercase, lowercase, number, and special character');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     // Prevent password that contains name or email
-//     if (
-//       password.toLowerCase().includes(fullName.toLowerCase()) ||
-//       password.includes(email)
-//     ) {
-//       toast.error('Password should not contain your name or email');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     // Optional: prevent common weak passwords
-//     const weakPasswords = ['12345678', 'password', 'welcome123', 'admin123', 'qwerty'];
-//     if (weakPasswords.includes(password.toLowerCase())) {
-//       toast.error('Choose a stronger, less common password');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     try {
-//       const response = await axios.post('/v1/users/register', {
-//         fullName,
-//         email,
-//         phone,
-//         password,
-//       });
-  
-//       const { user, token } = response.data;
-  
-//       localStorage.setItem('token', token);
-//       localStorage.setItem('user', JSON.stringify(user));
-//       dispatch(login({ success: true, data: user, token }));
-//       fetchUser();
-  
-//       toast.success('Registration successful!');
-//       navigate('/dashboard', { replace: true, state: { welcome: true } });
-//     } catch (error) {
-//       const msg = error?.response?.data?.message || 'Registration failed';
-//       toast.error(msg);
-//       console.error('Registration error:', msg);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-const handleRegisterSubmit = async (e) => {
-  e.preventDefault();
-navigate('/progress');
+const phoneRegex = /^[6-9]\d{9}$/;
+if (!phoneRegex.test(phone1)) {
+  toast.error('Enter a valid 10-digit Indian mobile number');
+  setLoading(false);
+  return;
 }
+  
+    // Password validation
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      toast.error('Password must be 8+ characters and include uppercase, lowercase, number, and special character');
+      setLoading(false);
+      return;
+    }
+  
+    // Prevent password that contains name or email
+    if (
+      password.toLowerCase().includes(fullName.toLowerCase()) ||
+      password.includes(email)
+    ) {
+      toast.error('Password should not contain your name or email');
+      setLoading(false);
+      return;
+    }
+  
+    // Optional: prevent common weak passwords
+    const weakPasswords = ['12345678', 'password', 'welcome123', 'admin123', 'qwerty'];
+    if (weakPasswords.includes(password.toLowerCase())) {
+      toast.error('Choose a stronger, less common password');
+      setLoading(false);
+      return;
+    }
+  
+    try {
+      const response = await axios.post('/v1/users/register', {
+        fullName,
+        email,
+        phone,
+        password,
+      });
+  
+      const { user, token } = response.data;
+  
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      dispatch(login({ success: true, data: user, token }));
+      fetchUser();
+  
+      toast.success('Registration successful!');
+      navigate('/dashboard', { replace: true, state: { welcome: true } });
+    } catch (error) {
+      const msg = error?.response?.data?.message || 'Registration failed';
+      toast.error(msg);
+      console.error('Registration error:', msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+// const handleRegisterSubmit = async (e) => {
+//   e.preventDefault();
+// navigate('/progress');
+// }
   
 //google login
   // const handleGoogleLogin = async () => {
@@ -378,8 +379,8 @@ navigate('/progress');
                             : 'bg-gray-100'
                         }`}
                         onClick={() => {
-                          navigate('/progress');
-                          // setActiveTab('register')
+                          // navigate('/progress');
+                          setActiveTab('register')
 
 
                         }}
