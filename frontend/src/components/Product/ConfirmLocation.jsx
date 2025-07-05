@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { useProduct } from '../../store/useProduct';
 
-function ConfirmLocation({ register, setValue, watch, errors }) {
+function ConfirmLocation({ register, setValue, watch, errors, getValues }) {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
 
   const selectedState = watch("state");
+  const {isEditing, editData} = useProduct();
+
+
+  
+
+  console.log(getValues('state'));
+  console.log(getValues('city'));
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -33,6 +41,29 @@ function ConfirmLocation({ register, setValue, watch, errors }) {
     };
     fetchCities();
   }, [selectedState, setValue]);
+
+  useEffect(() => {
+  const initLocation = async () => {
+    if (isEditing && editData) {
+      setValue('state', editData.location.state);
+      
+      const res = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country: 'India', state: editData.location.state }),
+      });
+      const data = await res.json();
+      setCities(data.data);
+
+      // Then set city and neighbourhood
+      setValue('city', editData.location.city);
+      setValue('neighbourhood', editData.location.neighbourhood);
+    }
+  };
+
+  initLocation();
+}, [isEditing, editData, setValue]);
+
 
   return (
     <div className="w-full p-4 lg:px-10 flex flex-col gap-4">

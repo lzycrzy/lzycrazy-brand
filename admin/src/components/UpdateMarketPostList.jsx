@@ -1,73 +1,82 @@
 import React, { useState } from 'react';
-import { Upload,X, Play} from 'lucide-react';
-import { multiInstance } from '../utils/axios';
-import Loader from './loader';
-export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
-  const currentData=new Date().toISOString().split('T')[0]
-  const[file,setFile]=useState(null)
-  const[updateData,setUpdateData]=useState({
-    _id:data._id,
-    userName:data.userName,
-    thumbnail:data?.thumbnail,
-    url:data.url,
-    postUrl:data.postUrl,
-    postDate:currentData
-  })
-  const[isUpdating,setIsUpdating]=useState(false)
+import { Upload, Calendar, User, Eye, Play, X, Camera } from 'lucide-react';
+export default function UpdateMarketPostList({data}) {
+  const [formData, setFormData] = useState({
+    title: 'Lorem ipsum jewfin jsdnfaskjfn',
+    name: '',
+    date: new Date().toISOString().split('T')[0],
+  });
+  const [filePreview, setFilePreview] = useState(null);
+
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUpdateData((prev) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-  const handleVideoUpload = (e) => {    
+
+  const handleVideoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-       const type=file.type?.split('/')[0]
-      setFile(file);
+      setVideoFile(file);
       const url = URL.createObjectURL(file);
-      setUpdateData({
-        ...updateData,
-        postUrl:url,
-        type:type
-      })
+      setFilePreview({
+        url,
+        type: file?.type.split('/')[0],
+      });
     }
   };
-  const handleSubmit = async() => {
-    const formData=new FormData()
-     formData.append("url",updateData.url)
-     formData.append("prevPostUrl",data.postUrl)
-      formData.append("postDate",updateData.postDate)
-       formData.append("file",file)
-       setIsUpdating(true)
-     const response=await multiInstance.put(`/admin/updatePost/${updateData._id}`,formData)
-     if(response.data?.message){
-      setIsUpdating(false)
-      alert("Update post successfully")
-      setIsEditing(prev=>!prev)
-     }
-  };  
+
+  const handleSubmit = () => {
+    if (!formData.title.trim() || !formData.name.trim()) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    const newEntry = {
+      id: newsData.length + 1,
+      title: formData.title,
+      postDate: formData.date,
+      views: '0',
+      userName: formData.name,
+      thumbnail: videoPreview || '/api/placeholder/60/40',
+      videoUrl: videoPreview,
+    };
+
+    setNewsData((prev) => [newEntry, ...prev]);
+
+    // Reset form
+    setFormData({
+      title: '',
+      name: '',
+      date: new Date().toLocaleDateString('en-GB').split('/').join('-'),
+    });
+    setVideoFile(null);
+    setVideoPreview(null);
+
+    alert('News entry added successfully!');
+  };
+  console.log(data);
+  
   return (
-    <div className="fixed w-[100vw] h-[100vh] top-0 right-0 flex justify-center items-center mb-8 rounded-lg  bg-blue-400/5 p-6 shadow-xl">
-      <div className="relative w-full bg-white shadow-2xl max-w-[50vw] p-6 rounded-2xl grid grid-cols-1 gap-6 lg:grid-cols-3">
-       <X onClick={()=>setIsEditing(prev=>!prev)} className='absolute top-4 right-4 hover:text-red-600'/>
+    <div className="fixed w-[100vw] h-[100vh] top-0 right-0 flex justify-center items-center mb-8 rounded-lg  bg-white/70 p-6 shadow-xl">
+      <div className="w-full bg-white shadow-2xl max-w-[50vw] p-6 rounded-2xl grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Video Upload Section */}
         <div className="lg:col-span-1">
           <h3 className="mb-4 text-lg font-semibold text-gray-800">Video/Image</h3>
           <div className="relative">
-            {updateData.postUrl?(
+            {filePreview?.url ? (
               <div className="relative h-48 w-full overflow-hidden rounded-lg bg-gray-100">
-                {updateData.type == 'video'? (
+                {filePreview.type == 'video' ? (
                   <video
-                    src={updateData.postUrl}
-                    thumbnail={updateData?.thumbnail}
+                    src={filePreview.url}
                     className="h-full w-full object-cover"
                     controls
                   />
                 ) : (
                   <img
-                    src={updateData.postUrl}
+                    src={filePreview.url}
                     className="h-full w-full object-cover"
                     controls
                   />
@@ -98,7 +107,6 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
               onChange={handleVideoUpload}
               className="hidden"
               id="video-upload"
-              name='file'
             />
             <label
               htmlFor="video-upload"
@@ -123,8 +131,8 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
                   <input
                     type="text"
                     name="name"
-                    value={updateData.userName}
-                    // onChange={handleInputChange}
+                    value={data.userName}
+                    onChange={handleInputChange}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     placeholder="Name"
                     required
@@ -135,25 +143,26 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
                   <input
                     type="url"
                     name="url"
-                    value={updateData.url}
+                    value={data.url}
                     onChange={handleInputChange}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     placeholder="Past Url..."
                     required
                   />
                 </div>
+
                 <div className="relative">
                   <input
                     type="date"
                     name="date"
-                    defaultValue={currentData}
-                    // value={currentData}
+                    defaultValue={new Date().toISOString().split('T')[0]}
+                    value={data.postDate}
                     onChange={handleInputChange}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     placeholder="DD-MM-YYYY"
                     pattern="\d{2}-\d{2}-\d{4}"
                   />
-                 
+                  {/* <Calendar className="absolute top-2.5 right-3 h-4 w-4 text-gray-400" /> */}
                 </div>
               </div>
             </div>
@@ -169,7 +178,6 @@ export default function UpdateMarketPostList({data,setNewsData,setIsEditing}) {
           </div>
         </div>
       </div>
-      {isUpdating&&<Loader/>}
     </div>
   );
 }

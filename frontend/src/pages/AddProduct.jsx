@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useProduct } from '../store/useProduct';
 import Card from '../components/Product/Card';
@@ -10,7 +10,7 @@ const AddProduct = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [categories, setCategories] = useState(null);
-  const { setIsAddProductMadal } = useProduct();
+  const { setIsAddProductModal, isEditing, editData, setEditData, setIsEditing } = useProduct();
 
   useEffect(() => {
     async function getAllCategories() {
@@ -31,12 +31,38 @@ const AddProduct = () => {
     };
   }, []);
 
+  const AddProductRef = useRef(null);
+  useEffect(() => {
+    function handleOutsideClick(e) {
+      if (AddProductRef.current && !AddProductRef.current.contains(e.target)) {
+        setIsAddProductModal(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  },  [AddProductRef])
+
+  useEffect(() => {
+    if (isEditing) {
+      setSelectedCategory(editData.category);
+      const subCategoryForEditing = editData.category.subcategories.filter((item) => item.name === editData.subcategory);
+      console.log(subCategoryForEditing)
+      setSelectedSubcategory(subCategoryForEditing[0]);
+    }
+  }, [])
+
+
   return (
     <div
+
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
       className="fixed inset-0 z-[999] flex items-center justify-center overflow-auto p-4"
     >
-      <div className="relative w-full max-w-xl max-h-[90vh] overflow-hidden rounded-md border border-gray-200 bg-white shadow-md">
+      <div ref={AddProductRef} className="relative w-full max-w-xl max-h-[90vh] overflow-hidden rounded-md border border-gray-200 bg-white shadow-md">
         
         {/* Sticky Header for Close & Back */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white p-3">
@@ -56,7 +82,15 @@ const AddProduct = () => {
           <div className="ml-auto">
             <button
               className="flex items-center justify-center rounded-full border bg-gray-300 p-1"
-              onClick={() => setIsAddProductMadal(false)}
+              onClick={() => {
+                if (isEditing) {
+                  setSelectedCategory(null)
+                  setSelectedSubcategory('');
+                  setIsEditing(false);
+                  setEditData(null);
+                }
+                setIsAddProductModal(false)
+              }}
             >
               <X className="h-5 w-5" />
             </button>

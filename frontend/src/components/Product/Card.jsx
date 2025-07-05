@@ -2,12 +2,16 @@ import { useForm } from 'react-hook-form';
 import ConfirmLocation from './ConfirmLocation';
 import Upload from './Upload';
 import { toast } from 'react-toastify';
-import instance from '../../lib/axios/axiosInstance';
-import { initiatePayment } from '../../services/Payment';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ConfirmListing from './ConfirmListing';
+import PaymentModal from './PaymentModal';
+import { useProduct } from '../../store/useProduct';
 
 function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
+  const user = JSON.parse(localStorage.getItem('user'));
+  // console.log("User: ",user);
+  const { editData, isEditing } = useProduct();
+
   const {
     register,
     handleSubmit,
@@ -28,6 +32,43 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
       neighbourhood: '',
     },
   });
+
+  console.log(editData);
+  useEffect(() => {
+    if (isEditing && editData && selectedCategory) {
+      setValue('title', editData.title);
+      setValue('description', editData.description);
+      setValue('price', editData.price);
+      setValue('photos', editData.images);
+      setValue('state', editData.location.state);
+      setValue('city', editData.location.city);
+      setValue('neighbourhood', editData.location.neighbourhood);
+
+      selectedSubcategory.formStructure?.forEach((item) => {
+        // console.log("Edited Features: ", editData.features[item.fieldName]);
+        if (item.type === 'file') {
+          item.required = false;
+        }
+
+        selectedSubcategory.formStructure?.forEach((item) => {
+          if (item.type === 'file') {
+            item.required = false;
+          }
+
+          const value = editData?.features?.[item.fieldName];
+
+          if (value !== undefined) {
+            setValue(item.fieldName, value);
+          }
+        });
+
+        // console.log("SET VALUE: ",getValues(item.fieldName))
+      });
+
+      console.log(selectedCategory);
+      console.log(selectedSubcategory);
+    }
+  }, [isEditing, editData, selectedCategory]);
 
   const watchAll = watch();
 
@@ -51,37 +92,16 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
 
     const features = {};
 
-    // Collect file reading promises
-    const fileReadPromises = selectedSubcategory.formStructure.map(
-      async (element) => {
-        if (element.type === 'file') {
-          const file = getValues(element.fieldName)[0];
+    selectedSubcategory.formStructure.map(async (element) => {
+      if (element.type === 'file') {
+        const file = getValues(element.fieldName)[0];
+        formData.append('featureFile', file);
+      } else {
+        features[element.fieldName] = getValues(element.fieldName);
+      }
+    });
 
-          if (!(file instanceof File)) {
-            console.error('Expected a File object');
-            return;
-          }
-
-          const form = new FormData();
-          form.append('file', file);
-
-          try {
-            const response = await instance.post('/v1/image/upload', form, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-              },
-              skipAuth: false,
-            });
-            console.log('Upload successful:', response.data);
-            features[element.fieldName] = response.data.url;
-          } catch (error) {
-            console.error('Custom File upload error:', error);
-          }
-        } else {
-          features[element.fieldName] = getValues(element.fieldName);
-        }
-      },
-    );
+    console.log(getValues('photos'));
 
     console.log(features);
     await Promise.all(fileReadPromises); // Wait for all file reads to finish
@@ -105,29 +125,38 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
     formData.append('subCategory', selectedSubcategory.name);
     formData.append('features', JSON.stringify(features));
 
-    try {
-      const res = await instance.post('/v1/listing/create', formData);
-
-      if (res.data?.success) {
-        toast.success('Product listed.');
-
-        if (!res.data?.freeLimit) {
-          initiatePayment("Chhatish Kumar", "kumarchhatishyadav2@gmail.com");
-        } else {
-          reset();
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error('Listing failed.');
+    if (isEditing) {
+      formData.append('listingId', editData._id);
     }
+
+    formData.forEach((value, key) => {
+      if (value instanceof File) {
+        console.log(`${key}: File name = ${value.name}, size = ${value.size}`);
+      } else {
+        console.log(`${key}:`, value);
+      }
+    });
+
+    setConfirmListing(formData);
+    // reset();
   };
 
   const [confirmListing, setConfirmListing] = useState(null);
 
   return (
-    <div className='relative'>
-      {confirmListing && <ConfirmListing confirmListing={confirmListing} onSubmit={onSubmit} setConfirmListing={setConfirmListing} />}
+    <div className="relative">
+      {confirmListing && (
+        <ConfirmListing
+          data={confirmListing}
+          setPaymentModal={setPaymentModal}
+          setConfirmListing={setConfirmListing}
+        />
+      )}
+
+      {paymentModal && (
+        <PaymentModal data={paymentModal} setPaymentModal={setPaymentModal} />
+      )}
+
       <div className="mx-auto mb-20 flex w-full items-center justify-center px-2">
         <form
           onSubmit={handleSubmit((data) => setConfirmListing(data))}
@@ -434,6 +463,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
             register={register}
             setValue={setValue}
             errors={errors}
+            getValues={getValues}
           />
 
           <div className="mb-5 flex justify-center">
@@ -441,7 +471,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
               type="submit"
               className="cursor-pointer rounded-md border-2 border-gray-400 p-2 px-5 transition-all duration-200 hover:bg-gray-400"
             >
-              Submit
+              {!isEditing ? 'Submit' : 'Update'}
             </button>
           </div>
         </form>

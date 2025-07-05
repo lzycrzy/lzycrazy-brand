@@ -95,6 +95,8 @@
 
 
 import { useState } from 'react';
+import productImage  from '../../assets/product.jpg'
+import { formatDate } from '../../utils/formatDate';
 
 const iconMap = {
   floor: '🏢',
@@ -112,12 +114,12 @@ const iconMap = {
   price: '💰',
 };
 
-const readable = (key) => {
-  return key
-    .replace(/([A-Z])/g, ' $1') // camelCase → space
-    .replace(/_/g, ' ') // underscores → space
-    .replace(/\b\w/g, (l) => l.toUpperCase()); // capitalize
-};
+  const readable = (key) => {
+    return key
+      .replace(/([A-Z])/g, ' $1') // camelCase → space
+      .replace(/_/g, ' ') // underscores → space
+      .replace(/\b\w/g, (l) => l.toUpperCase()); // capitalize
+  };    
 
 const LeftSideDeatil = ({ data, images }) => {
   const [currentImage, setCurrentImage] = useState(0);
@@ -140,12 +142,18 @@ const LeftSideDeatil = ({ data, images }) => {
       typeof value === 'boolean'
   );
 
+  const formatToINR = (value) => {
+    const number = parseInt(value.replace(/,/g, ''), 10);
+    if (isNaN(number)) return '';
+    return new Intl.NumberFormat('en-IN').format(number);
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Image Carousel */}
       <div className="relative overflow-hidden">
         <img
-          src={images[currentImage]}
+          src={images[currentImage] || productImage}
           alt="Item"
           className="w-full h-[350px] object-cover transition-transform duration-300"
         />
