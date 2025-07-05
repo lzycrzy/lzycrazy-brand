@@ -7,6 +7,7 @@ import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import { deleteFromCloudinary, generateVideoThumbnail, uploadToCloudinary } from '../utils/cloudinary.js';
 import Applicant from '../models/Applicant.js';
+import Hiring from '../models/hiring.model.js';
 import adminMarketPost from '../models/adminMarketPost.js'
 import getVideoThumbnailUrl from '../middlewares/getVideoThumbnailUrl.js'
 // REGISTER ADMIN
@@ -358,7 +359,7 @@ export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true, message: 'User deleted successfully' });
 });
 
-// Get all Hiring forms
+// Get all Applications
 export const getAllApplications = async (req, res) => {
   try {
     const applications = await Hiring.find().sort({ createdAt: -1 }); // newest first
@@ -369,13 +370,27 @@ export const getAllApplications = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch applications' });
   }
 };
-// Deleted single hiring form 
+
+// Get One Applications
+export const getOneApplications = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const application = await Hiring.findById(id);
+    
+    res.status(200).json(application);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch applications' });
+  }
+};
+
+// Delete Application
 export const deleteApplication = async (req, res) => {
   try {
     const { id } = req.params;
 
     // Find and delete
-    const deleted = await Applicant.findByIdAndDelete(id);
+    const deleted = await Hiring.findByIdAndDelete(id);
 
     if (!deleted) {
       return res.status(404).json({ message: "Application not found" });
@@ -388,7 +403,39 @@ export const deleteApplication = async (req, res) => {
   }
 };
 
-// Request Admin Password Reset
+// Update Application Status
+export const updateApplicationStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Validate allowed statuses
+    const allowedStatuses = ['Pending', 'Reviewed', 'Shortlisted', 'Rejected'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    const updatedApp = await Hiring.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true } // return the updated document
+    );
+
+    if (!updatedApp) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    res.status(200).json({
+      message: 'Application status updated successfully',
+      application: updatedApp
+    });
+  } catch (error) {
+    console.error('Error updating status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 export const requestAdminPasswordReset = async (req, res) => {
   const { email } = req.body;
 

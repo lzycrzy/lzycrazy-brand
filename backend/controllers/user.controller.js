@@ -940,55 +940,55 @@ export const getStoryViews = async (req, res) => {
   }
 };
 
-export const submitApplication = async (req, res) => {
-  try {
-    console.log(req.body);
-    const {
-      lycrazyId,
-      country,
-      state,
-      city,
-      phone,
-      email,
-      education,
-      age,
-      height,
-      weight,
-      jobCategory,
-      experience,
-      about,
-    } = req.body;
+// export const submitApplication = async (req, res) => {
+//   try {
+//     console.log(req.body);
+//     const {
+//       lycrazyId,
+//       country,
+//       state,
+//       city,
+//       phone,
+//       email,
+//       education,
+//       age,
+//       height,
+//       weight,
+//       jobCategory,
+//       experience,
+//       about,
+//     } = req.body;
 
-    console.log(req.file); // includes path, size, filename, etc.
-    console.log(lycrazyId);
-    const result = req.file?.path || null;
-    const videoUrl = await uploadToCloudinary(result);
-    console.log(videoUrl)
+//     console.log(req.file); // includes path, size, filename, etc.
+//     console.log(lycrazyId);
+//     const result = req.file?.path || null;
+//     const videoUrl = await uploadToCloudinary(result);
+//     console.log(videoUrl)
 
-    const applicant = new Applicant({
-      lycrazyId,
-      country,
-      state,
-      city,
-      education,
-      phone,
-      age,
-      email,
-      height,
-      weight,
-      jobCategory,
-      experience,
-      about,
-      videoUrl // store local file path
-    });
+//     const applicant = new Applicant({
+//       lycrazyId,
+//       country,
+//       state,
+//       city,
+//       education,
+//       phone,
+//       age,
+//       email,
+//       height,
+//       weight,
+//       jobCategory,
+//       experience,
+//       about,
+//       videoUrl // store local file path
+//     });
 
-    await applicant.save();
-    res.status(200).json({ message: 'Application submitted successfully!' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error submitting application' });
-  }
-};
+//     await applicant.save();
+//     res.status(200).json({ message: 'Application submitted successfully!' });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Error submitting application' });
+//   }
+// };
 
 export const checkEmail = async (req, res) => {
   const { email } = req.body;
@@ -1006,7 +1006,7 @@ export const checkEmail = async (req, res) => {
       return res.status(400).json({ message: 'Company ID not available yet' });
     }
 
-    return res.status(200).json({ companyId: user.companyId,name: user.fullName });
+    return res.status(200).json({ companyId: user.companyId,name: user.fullName , email: user.email, phone: user.phone});
   } catch (error) {
     console.error('Error checking companyId by email:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
