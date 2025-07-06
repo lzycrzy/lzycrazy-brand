@@ -12,7 +12,7 @@ import hand from '../../assets/hand.png';
 const MobileNav = () => {
   const navigate = useNavigate();
   const { user } = useUser();
-  const { setIsAddProductMadal } = useProduct();
+  const { setIsAddProductModal } = useProduct();
 
   const mobileLinks = [
     { image: store, label: 'Market', path: '/market' },
@@ -35,7 +35,7 @@ const MobileNav = () => {
       alert('Please login first');
       navigate('/');
     } else {
-      setIsAddProductMadal(true);
+      setIsAddProductModal(true);
     }
   };
 
