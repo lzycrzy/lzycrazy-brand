@@ -104,7 +104,10 @@ const AddProduct = () => {
                             : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
-                        <span className="font-medium">{category.name}</span>
+                        <div className='flex gap-2 items-center '>
+                          <img src={category.imageData?.url} width={15} className='rounded-full' />
+                          <span className="font-medium">{category.name}</span>
+                        </div>
                         <svg
                           className="h-4 w-4 transform transition-transform duration-200"
                           fill="none"
@@ -133,8 +136,9 @@ const AddProduct = () => {
                           }
                           setSelectedSubcategory(sub);
                         }}
-                        className="w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-black hover:bg-gray-100"
+                        className="flex gap-2 w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-black hover:bg-gray-100"
                       >
+                        <img src={sub.imageData.url} width={15} height={15} className='bg-center object-contain rounded-full' />
                         {sub.name}
                       </button>
                     </li>

@@ -13,7 +13,10 @@ import {
   deleteSingleUser,
   getAllApplications,
   deleteApplication,
-  marketPost
+  createMarketPost,
+  updateMarketPost,
+  deleteMarketPost,
+  getMarketPost
 } from '../controllers/admin.controller.js';
 import {
   isAuthenticatedAdmin,
@@ -31,7 +34,11 @@ router.post(
   registerAdmin,
 );
 
-router.route('/marketPost').get(marketPost)
+router.get('/market-post', getMarketPost)
+router.post('/market-post/create', upload.single('file'), createMarketPost);
+router.put('/market-post/update/:id', upload.single('file'), updateMarketPost);
+router.delete('/market-post/delete/:id', deleteMarketPost);
+
 // Admin routes
 router.post('/login', loginAdmin);
 router.get('/logout', logoutAdmin);
