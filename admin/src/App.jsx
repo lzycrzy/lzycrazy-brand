@@ -29,7 +29,7 @@ import AddServices1 from './pages/AddServices';
 import Banner from './components/Business/Banner';
 import Category from './components/Business/Category';
 import Logo from './components/Business/Logo';
-import Card from './components/Business/Card';
+// import Card from './components/Business/Card';
 import HiringApplicationsTable from './components/Applications/Hiring';
 import AddBanner from './pages/AddBanner';
 import PostList from './pages/PostList';
@@ -93,14 +93,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/shop/card"
             element={
               <ProtectedRoute>
                 <Card />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="/services/add"
             element={
