@@ -1,7 +1,3 @@
-
-import productImage from '../../assets/product.jpg'
-import location from '../../assets/location.png'
-import avatar from '../../assets/identity.png'
 const ProductCard = ({ post }) => {
     if (!post) return null; // Safety check
 
@@ -14,7 +10,7 @@ const ProductCard = ({ post }) => {
     return (
       <div className="bg-white rounded shadow p-4 hover:shadow-md transition cursor-pointer">
         <img
-          src={post?.images?.length > 0? post.images[0] : productImage}
+          src={post?.images?.length > 0? post.images[0] : '/assets/product.jpg'}
           alt={post.title}
           className="w-full h-48 object-cover rounded border"
         />
@@ -23,12 +19,12 @@ const ProductCard = ({ post }) => {
           <p className="text-green-700 font-bold">₹ {formatToINR(post.price)}</p>
         </div>
         <div className='flex gap-2 items-center'>
-          <img src={location} width={15} />
+          <img src="/assets/location.png" width={15} loading="lazy" />
           <p className="text-gray-500 text-sm">{post.location?.state}</p>
         </div>
 
         <div className='flex mt-2 gap-2 items-center'>
-          <img src={avatar} width={20} />
+          <img src="/assets/identity.png" width={20} loading="lazy" />
           <p>{post.postedBy.name}</p>
         </div>
       </div>

@@ -16,7 +16,7 @@
 //   {
 //     title: 'Our Team',
 //     subtitle: 'Who we are',
-//     text: 'LzyCrazy is a team comprised of dedicated and experienced professionals with relevant experience in their respective fields. We ensure the delivery of our best and most efficient services to consumers that can make their lives more effortless, gracious, and elated. LzyCrazy believes in providing the best platform for people to connect, sell their products, share ideas, promote business, develop websites, and so on. We also tend to provide a source of income to people for their better lifestyle. Our motive is to emerge as one of the best leading brands in the global world. Keeping up with the latest technology, we endeavor to keep our consumers at the center of our business universe. Infused with our creativity, LzyCrazy’s distinct aim is to provide the world a better future.',
+//     text: 'LzyCrazy is a team comprised of dedicated and experienced professionals with relevant experience in their respective fields. We ensure the delivery of our best and most efficient services to consumers that can make their lives more effortless, gracious, and elated. LzyCrazy believes in providing the best platform for people to connect, sell their products, share ideas, promote business, develop websites, and so on. We also tend to provide a source of income to people for their better lifestyle. Our motive is to emerge as one of the best leading brands in the global world. Keeping up with the latest technology, we endeavor to keep our consumers at the center of our business universe. Infused with our creativity, LzyCrazy's distinct aim is to provide the world a better future.',
 //     image: image2,
 //   },
 //   {
@@ -104,10 +104,10 @@
 
 // new code with all device responciveness
 import React from 'react';
-import image1 from '../../assets/1.png';
-import image2 from '../../assets/2.png';
-import image3 from '../../assets/3.png';
-import image4 from '../../assets/4.png';
+// import image1 from '../../assets/1.png';
+// import image2 from '../../assets/2.png';
+// import image3 from '../../assets/3.png';
+// import image4 from '../../assets/4.png';
 import Footer from './Footer1';
 import Header from './Header1';
 
@@ -116,25 +116,25 @@ const sections = [
     title: 'About the Company',
     subtitle: 'What drives us',
     text: 'LzyCrazy is an Indian Multi-National Technology company based in Noida, India...',
-    image: image1,
+    image: '/assets/1.png',
   },
   {
     title: 'Our Team',
     subtitle: 'Who we are',
     text: 'LzyCrazy is a team comprised of dedicated and experienced professionals...',
-    image: image2,
+    image: '/assets/2.png',
   },
   {
     title: 'Our Vision',
     subtitle: 'Looking ahead',
     text: 'The vision is to emerge as the largest networking site...',
-    image: image3,
+    image: '/assets/3.png',
   },
   {
     title: 'Our Values',
     subtitle: 'What we believe',
     text: 'LzyCrazy has acquired 29 members from each state...',
-    image: image4,
+    image: '/assets/4.png',
   },
 ];
 

@@ -83,7 +83,6 @@
 
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import image from "../assets/login1.webp";
 import axios from "../lib/axios/axiosInstance";
 
 const modalRoot = document.getElementById("modal-root");
@@ -135,9 +134,10 @@ const EnquireModal = ({ serviceId, serviceName = "Service", onClose }) => {
         {/* Image Side */}
         <div className="w-1/2 hidden sm:block bg-gray-100">
           <img
-            src={image}
+            src="/assets/login1.webp"
             alt="Enquiry"
             className="h-full w-full object-cover"
+            loading="lazy"
           />
         </div>
 
@@ -207,7 +207,7 @@ const EnquireModal = ({ serviceId, serviceName = "Service", onClose }) => {
               <div className="text-4xl text-green-600 mb-3">✅</div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Thanks for Reaching Out!</h2>
               <p className="text-sm text-gray-600 mb-6">
-                We’ve received your enquiry. Our team will be in touch with you shortly.
+                We've received your enquiry. Our team will be in touch with you shortly.
               </p>
               <button
                 onClick={onClose}

@@ -11,7 +11,8 @@ export default function Auth() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [stage, setStage] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
-   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 

@@ -69,8 +69,9 @@ const Navbar = () => {
   return (
     <>
       {/* Mobile Sidebar Menu - slides from left */}
-      <div
-        className={`bg-opacity-50 fixed inset-0 z-40 bg-gray-800 transition-opacity duration-300 sm:hidden ${
+      <div 
+        style={{backgroundColor: 'rgba(0,0,0,0.5)'}}
+        className={`bg-opacity-5 fixed inset-0 z-40 transition-opacity duration-300 sm:hidden ${
           isMenuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
         onClick={() => setIsMenuOpen(false)}

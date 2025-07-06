@@ -95,7 +95,6 @@
 
 
 import { useState } from 'react';
-import productImage  from '../../assets/product.jpg'
 import { formatDate } from '../../utils/formatDate';
 
 const iconMap = {
@@ -153,7 +152,7 @@ const LeftSideDeatil = ({ data, images }) => {
       {/* Image Carousel */}
       <div className="relative overflow-hidden">
         <img
-          src={images[currentImage] || productImage}
+          src={images[currentImage] || '/assets/product.jpg'}
           alt="Item"
           className="w-full h-[350px] object-cover transition-transform duration-300"
         />

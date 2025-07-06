@@ -3,8 +3,33 @@ import { createListing } from "./listing.controller.js";
 import crypto from 'crypto'
 
 export const capturePayment = async (req, res) => {
+
+  const plan = Number(req.body.plan);
+
+  let checkout = 0;
+
+  if (isNaN(plan)) {
+    checkout = 49 * 100;
+  } else {
+    switch (plan) {
+      case 1:
+        checkout = 1 * 49 * 100;
+        break;
+      case 3:
+        checkout = 3 * 40 * 100;
+        break;
+      case 6:
+        checkout = 6 * 30 * 100;
+        break;
+      case 12:
+        checkout = 12 * 24 * 100;
+        break;
+      default:
+        checkout = 49 * 100;
+    }
+  }
   const options = {
-    amount: 49*100,
+    amount: checkout,
     currency: 'INR',
     receipt: Math.random(Date.now()).toString(),
   };
@@ -22,6 +47,7 @@ export const capturePayment = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Could not initiate order',
+      error: error.message
     });
   }
 };

@@ -42,7 +42,6 @@ export const setCurrentPathname = (path) => {
   currentPathname = path;
 };
 
-
 // Add interceptor for handling errors
 instance.interceptors.response.use(
   (response) => response,

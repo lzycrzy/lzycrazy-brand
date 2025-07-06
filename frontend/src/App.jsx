@@ -157,17 +157,22 @@ import store from './lib/redux/store';
 import { UserProvider } from './context/UserContext';
 import AppRoutes from './routes/AppRoutes';
 import { setCurrentPathname } from './lib/axios/axiosInstance';
+import React, { Suspense } from 'react';
+import { useProduct } from './store/useProduct';
 
 import 'react-toastify/dist/ReactToastify.css';
-import AddProduct from './pages/AddProduct';
-import { useProduct } from './store/useProduct';
+const LazyAddProduct = React.lazy(() => import('./pages/AddProduct'));
 
 const App = () => {
 
   const {isAddProductModal} = useProduct();
   return (
   <Provider store={store}>
-     {isAddProductModal && <AddProduct />}
+     {isAddProductModal && (
+       <Suspense fallback={<div>Loading...</div>}>
+         <LazyAddProduct />
+       </Suspense>
+     )}
     <UserProvider>
     
         {/* <ToastContainer
