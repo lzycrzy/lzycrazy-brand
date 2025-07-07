@@ -43,6 +43,7 @@
 // };
 
 // export default WorkInProgress;
+// src/components/WorkInProgress.jsx
 import React from 'react';
 
 const WorkInProgress = () => {
@@ -71,26 +72,34 @@ const WorkInProgress = () => {
           flexWrap: 'wrap',
         }}
       >
-        Work in
-        <dotlottie-player
-          src="https://lottie.host/3a325af7-9d27-4e82-a446-6cc4484c8e65/R2NSwToBjX.lottie"
-          background="transparent"
-          speed="1"
-          loop="true"
-          autoplay="true"
-          style={{ width: '80px', height: '80px' }}
-        ></dotlottie-player>
-        Progress...
+        Work in&nbsp;
+        <span
+          dangerouslySetInnerHTML={{
+            __html: `<dotlottie-player
+              src="https://lottie.host/3a325af7-9d27-4e82-a446-6cc4484c8e65/R2NSwToBjX.lottie"
+              background="transparent"
+              speed="1"
+              loop="true"
+              autoplay="true"
+              style="width: 80px; height: 80px;"
+            ></dotlottie-player>`,
+          }}
+        />
+        &nbsp;Progress...
       </h1>
 
-      <dotlottie-player
-        src="https://lottie.host/0aa41633-6fc1-4f84-a214-3719083ad5f8/Ww9H9lkgth.lottie"
-        background="transparent"
-        speed="1"
-        loop="true"
-        autoplay="true"
-        style={{ width: '500px', height: '500px' }}
-      ></dotlottie-player>
+      <div
+        dangerouslySetInnerHTML={{
+          __html: `<dotlottie-player
+            src="https://lottie.host/0aa41633-6fc1-4f84-a214-3719083ad5f8/Ww9H9lkgth.lottie"
+            background="transparent"
+            speed="1"
+            loop="true"
+            autoplay="true"
+            style="width: 500px; height: 500px;"
+          ></dotlottie-player>`,
+        }}
+      />
     </div>
   );
 };
