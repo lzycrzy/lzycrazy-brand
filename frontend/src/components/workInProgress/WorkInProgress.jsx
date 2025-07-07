@@ -43,32 +43,21 @@
 // };
 
 // export default WorkInProgress;
-import React, { useEffect } from 'react';
+import React from 'react';
 
 const WorkInProgress = () => {
-  useEffect(() => {
-    // Dynamically import the web component
-    const script = document.createElement('script');
-    script.src =
-      'https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs';
-    script.type = 'module';
-    document.body.appendChild(script);
-  }, []);
-
   return (
     <div
       style={{
         background: 'linear-gradient(to right, #e0e0e0, #d4d4d4, #f7f7f7)',
-        fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
-        color: '#4b4b4b',
+        fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
+        color: '#4b4b4b',
         textAlign: 'center',
-        padding: 0,
-        margin: 0,
       }}
     >
       <h1
@@ -87,9 +76,9 @@ const WorkInProgress = () => {
           src="https://lottie.host/3a325af7-9d27-4e82-a446-6cc4484c8e65/R2NSwToBjX.lottie"
           background="transparent"
           speed="1"
-          style={{ width: '80px', height: '80px' }}
           loop="true"
           autoplay="true"
+          style={{ width: '80px', height: '80px' }}
         ></dotlottie-player>
         Progress...
       </h1>
@@ -98,9 +87,9 @@ const WorkInProgress = () => {
         src="https://lottie.host/0aa41633-6fc1-4f84-a214-3719083ad5f8/Ww9H9lkgth.lottie"
         background="transparent"
         speed="1"
-        style={{ width: '500px', height: '500px' }}
         loop="true"
         autoplay="true"
+        style={{ width: '500px', height: '500px' }}
       ></dotlottie-player>
     </div>
   );
