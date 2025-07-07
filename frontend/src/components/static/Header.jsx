@@ -7,12 +7,6 @@ import {
   FaSignOutAlt,
   FaSearch,
 } from 'react-icons/fa';
-import store from '../../assets/store.png'; // Replace with your actual path
-import logo from '../../assets/logo.png';
-import home from '../../assets/home.png';
-import movie from '../../assets/movie-reel.png';
-import play from '../../assets/play-button-arrowhead.png';
-import add from '../../assets/add.png';
 import { auth } from '../../lib/firebase/firebase';
 import { signOut } from 'firebase/auth';
 import { logout } from '../../lib/redux/authSlice';
@@ -60,7 +54,7 @@ const Header = () => {
         <div className="flex-shrink-0">
           <Link to="/">
             <img
-              src={logo}
+              src="/assets/logo.png"
               alt="Logo"
               className="h-[40px] w-[100px] cursor-pointer object-contain"
             />
@@ -69,11 +63,11 @@ const Header = () => {
 
         {/* Center - Tabs */}
         <div className="absolute left-1/2 hidden -translate-x-1/2 transform items-center gap-4 lg:flex">
-          <HeaderIcon image={home} to="/" user={user} />
-          <HeaderIcon image={store} to="/market" user={user} />
-          <HeaderIcon image={add} user={user} />
-          <HeaderIcon image={movie} to="/" user={user} />
-          <HeaderIcon image={play} to="/" user={user} />
+          <HeaderIcon image="/assets/home.png" to="/" user={user} />
+          <HeaderIcon image="/assets/store.png" to="/market" user={user} />
+          <HeaderIcon image="/assets/add.png" user={user} />
+          <HeaderIcon image="/assets/movie-reel.png" to="/" user={user} />
+          <HeaderIcon image="/assets/play-button-arrowhead.png" to="/" user={user} />
         </div>
 
         {/* Right - Search + Icons */}

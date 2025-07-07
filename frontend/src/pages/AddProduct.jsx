@@ -105,7 +105,7 @@ const AddProduct = () => {
                         }`}
                       >
                         <div className='flex gap-2 items-center '>
-                          <img src={category.imageData?.url} width={15} className='rounded-full' />
+                          <img src={category.imageData?.url} width={15} className='rounded-full' loading="lazy" />
                           <span className="font-medium">{category.name}</span>
                         </div>
                         <svg
@@ -138,7 +138,7 @@ const AddProduct = () => {
                         }}
                         className="flex gap-2 w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-black hover:bg-gray-100"
                       >
-                        <img src={sub.imageData.url} width={15} height={15} className='bg-center object-contain rounded-full' />
+                        <img src={sub.imageData.url} width={15} height={15} className='bg-center object-contain rounded-full' loading="lazy" />
                         {sub.name}
                       </button>
                     </li>

@@ -145,7 +145,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/lzy logo.jpg';
 import HiringFormModal from '../HiringFormModal';
 import HiringTaskModal from '../HiringTaskModal';
 import SuccessPopup from '../SuccessPopup';
@@ -197,7 +196,7 @@ const Searchbar = () => {
       {/* Logo */}
       <div className="mb-4">
         <img
-          src={logo}
+          src="/assets/lzy logo.jpg"
           alt="LzyCrazy Logo"
           className="w-24 sm:w-32 md:w-40 lg:w-52 opacity-90 mix-blend-multiply"
         />

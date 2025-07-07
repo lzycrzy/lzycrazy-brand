@@ -161,7 +161,7 @@ const PostCard = ({ post }) => {
       <div className="mb-6 w-full rounded-2xl border border-gray-200 bg-white shadow hover:shadow-md transition duration-300">
         {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3">
-          <img src={userImage} className="h-10 w-10 rounded-full" alt="User" />
+          <img src={userImage} className="h-10 w-10 rounded-full" alt="User" loading="lazy" />
           <div>
             <p className="font-semibold text-gray-900">{userName}</p>
             <p className="text-xs text-gray-500">
@@ -238,7 +238,7 @@ const PostCard = ({ post }) => {
           <div className="space-y-4">
             {/* Post Header */}
             <div className="flex items-center gap-3">
-              <img src={userImage} className="w-10 h-10 rounded-full" alt="User" />
+              <img src={userImage} className="w-10 h-10 rounded-full" alt="User" loading="lazy" />
               <div>
                 <p className="font-semibold">{userName}</p>
                 <p className="text-xs text-gray-500">
@@ -253,7 +253,7 @@ const PostCard = ({ post }) => {
               isVideo ? (
                 <video src={mediaUrl} controls className="rounded w-full max-h-[300px]" />
               ) : (
-                <img src={mediaUrl} alt="media" className="rounded w-full max-h-[300px] object-contain" />
+                <img src={mediaUrl} alt="media" className="rounded w-full max-h-[300px] object-contain" loading="lazy" />
               )
             )}
 

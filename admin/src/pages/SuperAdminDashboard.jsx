@@ -83,7 +83,7 @@ const SuperAdminDashboard = () => {
 
 
   return (
-    <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+    <div className="container mx-auto py-6 lg:px-10 lg:py-10">
       <h2 className="mb-5 text-xl font-bold">Dashboard</h2>
 
       {/* Top Section */}

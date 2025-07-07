@@ -85,7 +85,7 @@ export default function AddBanner() {
   };
 
   return (
-    <div className="mb-8 mx-auto w-[60vw] rounded-lg bg-white p-6 shadow-xl">
+    <div className="mb-8 mx-auto lg:w-[60vw] rounded-lg bg-white p-6 shadow-xl">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div>
           <h3 className="mb-4 text-lg font-semibold text-gray-800">Video/Image</h3>
