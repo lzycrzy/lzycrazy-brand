@@ -4,9 +4,6 @@ import {
   Package,
   Plus,
   Edit,
-  Eye,
-  Phone,
-  Mail,
   User,
 } from 'lucide-react';
 import Header from '../components/static/Header';
@@ -105,7 +102,7 @@ function AddPage({ setAddPage }) {
   }, [isEditing, setIsAddProductModal]);
 
   const exportToExcel = () => {
-    if (!Array.isArray(listingResponse) || listingResponse.length === 0) {
+    if (listingResponse?.length === 0) {
       toast.error('No Response Received!');
       return;
     }
@@ -148,11 +145,8 @@ function AddPage({ setAddPage }) {
             <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-5">
               <div
                 onClick={() => {
-                  if (
-                    !Array.isArray(listingResponse) ||
-                    listingResponse.length === 0
-                  ) {
-                    toast.error('No Response Received!');
+                  if (listingResponse?.length === 0) {
+                    alert('No Response Received!');
                     return;
                   }
 
@@ -174,11 +168,8 @@ function AddPage({ setAddPage }) {
 
               <div
                 onClick={() => {
-                  if (
-                    !Array.isArray(activeListing) ||
-                    activeListing.length === 0
-                  ) {
-                    toast.error('No Active Listing!');
+                  if (activeListing?.length === 0) {
+                    alert('No Active Listing!');
                     return;
                   }
                   setListings(activeListing);
@@ -198,16 +189,7 @@ function AddPage({ setAddPage }) {
               </div>
 
               <div
-                onClick={() => {
-                  if (
-                    !Array.isArray(listingReported) ||
-                    listingReported.length === 0
-                  ) {
-                    toast.error('No Listing Reported!');
-                    return;
-                  }
-                  setListings(listingReported);
-                }}
+                onClick={() => setListings(listingReported)}
                 className="cursor-pointer rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
               >
                 <div

@@ -3,29 +3,22 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import axios from '../../lib/axios/axiosInstance';
 import {
-  FaHome,
   FaBell,
-  FaPlus,
   FaSignOutAlt,
   FaSearch,
-  FaFileVideo,
 } from 'react-icons/fa';
-
 import store from '../../assets/store.png'; // Replace with your actual path
 import logo from '../../assets/logo.png';
 import home from '../../assets/home.png';
 import movie from '../../assets/movie-reel.png';
 import play from '../../assets/play-button-arrowhead.png';
 import add from '../../assets/add.png';
-import hand from '../../assets/hand.png';
 import { auth } from '../../lib/firebase/firebase';
 import { signOut } from 'firebase/auth';
 import { logout } from '../../lib/redux/authSlice';
-import { useUser } from '../../context/UserContext';
-import Loader from '../common/Spinner';
-import AddPage from '../../pages/AddPage';
-import AddProduct from '../../pages/AddProduct';
+import { useUser } from '../../context/UserContext'
 import { useProduct } from '../../store/useProduct';
+import { toast } from 'react-toastify';
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -55,7 +48,6 @@ const Header = () => {
         setIsDropdownOpen(false);
       }
     };
-    console.log('User object:', user);
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -79,7 +71,6 @@ const Header = () => {
         <div className="absolute left-1/2 hidden -translate-x-1/2 transform items-center gap-4 lg:flex">
           <HeaderIcon image={home} to="/" user={user} />
           <HeaderIcon image={store} to="/market" user={user} />
-
           <HeaderIcon image={add} user={user} />
           <HeaderIcon image={movie} to="/" user={user} />
           <HeaderIcon image={play} to="/" user={user} />
@@ -118,42 +109,45 @@ const Header = () => {
                 />
               </button>
 
-    {isDropdownOpen && (
-      <div
-        ref={dropdownRef}
-        className="absolute top-12 right-0 z-50 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow-md"
-      >
-        <div className="px-4 py-3">
-          <p
-            onClick={() => {
-              navigate('/profile');
-              setIsDropdownOpen(false);
-            }}
-            className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
-          >
-            {displayName || 'User'}
-          </p>
-          {user?.profile?.companyId && (
-    <p className="text-xs text-gray-500 mt-1">
-      ID: <span className="font-mono">{user.profile.companyId.replace(/^lc\d{8}/, 'lc')}</span>
-    </p>
-  )}
-          <p className="truncate text-sm text-gray-600">
-            {user?.profile?.email || 'user@example.com'}
-          </p>
-        </div>
-        <div className="py-2 hover:bg-gray-100">
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-700"
-          >
-            <FaSignOutAlt /> Sign out
-          </button>
-        </div>
-      </div>
-    )}
-  </div>
-)}
+              {isDropdownOpen && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute top-12 right-0 z-50 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow-md"
+                >
+                  <div className="px-4 py-3">
+                    <p
+                      onClick={() => {
+                        navigate('/profile');
+                        setIsDropdownOpen(false);
+                      }}
+                      className="cursor-pointer text-sm font-semibold text-gray-900 hover:underline"
+                    >
+                      {displayName || 'User'}
+                    </p>
+                    {user?.profile?.companyId && (
+                      <p className="mt-1 text-xs text-gray-500">
+                        ID:{' '}
+                        <span className="font-mono">
+                          {user.profile.companyId.replace(/^lc\d{8}/, 'lc')}
+                        </span>
+                      </p>
+                    )}
+                    <p className="truncate text-sm text-gray-600">
+                      {user?.profile?.email || 'user@example.com'}
+                    </p>
+                  </div>
+                  <div className="py-2 hover:bg-gray-100">
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-700"
+                    >
+                      <FaSignOutAlt /> Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -165,18 +159,27 @@ const HeaderIcon = ({ icon: Icon, to, user, image }) => {
 
   const handleClick = () => {
     if (!user) {
-      alert('Please login first');
-      navigate('/');
+      toast.warning('please login first!');
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
     } else {
       navigate(to);
     }
   };
 
-  const {setIsAddProductModal} = useProduct();
+  const { setIsAddProductModal } = useProduct();
 
   const openProductModal = () => {
+    if (!user) {
+      toast.warning('please login first!');
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+      return;
+    }
     setIsAddProductModal(true);
-  }
+  };
 
   return (
     <div
@@ -195,6 +198,5 @@ const HeaderIcon = ({ icon: Icon, to, user, image }) => {
     </div>
   );
 };
-
 
 export default Header;

@@ -18,6 +18,10 @@ import {
   updatePost,
   deletePost,
   getOneApplications,
+  createMarketPost,
+  updateMarketPost,
+  deleteMarketPost,
+  getMarketPost
   
 } from '../controllers/admin.controller.js';
 import {
@@ -44,6 +48,11 @@ router.post(
   upload.single('image'),
   registerAdmin,
 );
+
+router.get('/market-post', getMarketPost)
+router.post('/market-post/create', upload.single('file'), createMarketPost);
+router.put('/market-post/update/:id', upload.single('file'), updateMarketPost);
+router.delete('/market-post/delete/:id', deleteMarketPost);
 
 // Admin routes
 router.post('/login', loginAdmin);

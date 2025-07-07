@@ -17,6 +17,7 @@ const AddProduct = () => {
       try {
         const res = await instance.get('/v1/categories/public');
         setCategories(res.data.data.categories);
+        // console.log(res.data.data.categories);
       } catch (err) {
         console.log(err);
       }
@@ -31,21 +32,19 @@ const AddProduct = () => {
     };
   }, []);
 
-  
- 
   useEffect(() => {
     if (isEditing) {
       setSelectedCategory(editData.category);
       const subCategoryForEditing = editData.category.subcategories.filter((item) => item.name === editData.subcategory);
-      console.log(subCategoryForEditing)
-      setSelectedSubcategory(subCategoryForEditing[0]);
+      // console.log(subCategoryForEditing)
+      if (subCategoryForEditing !== undefined) {
+        setSelectedSubcategory(subCategoryForEditing[0]);
+      }
     }
   }, [])
 
-
   return (
     <div
-
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
       className="fixed inset-0 z-[999] flex items-center justify-center overflow-auto p-4"
     >
@@ -100,12 +99,15 @@ const AddProduct = () => {
                           setSelectedCategory(category);
                         }}
                         className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-all ${
-                          selectedCategory === category.name
+                          selectedCategory?.name === category.name
                             ? 'bg-blue-50 text-blue-700'
                             : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
-                        <span className="font-medium">{category.name}</span>
+                        <div className='flex gap-2 items-center '>
+                          <img src={category.imageData?.url} width={15} className='rounded-full' />
+                          <span className="font-medium">{category.name}</span>
+                        </div>
                         <svg
                           className="h-4 w-4 transform transition-transform duration-200"
                           fill="none"
@@ -134,8 +136,9 @@ const AddProduct = () => {
                           }
                           setSelectedSubcategory(sub);
                         }}
-                        className="w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-black hover:bg-gray-100"
+                        className="flex gap-2 w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-black hover:bg-gray-100"
                       >
+                        <img src={sub.imageData.url} width={15} height={15} className='bg-center object-contain rounded-full' />
                         {sub.name}
                       </button>
                     </li>

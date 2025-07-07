@@ -319,7 +319,6 @@ const firstValidImageIndex = imageErrors.findIndex((err, idx) => !err && images[
                         gap: "6px",
                         color: "#004896",
                         marginLeft: "15px",
-                        fontWeight: "bold",
                       }}
                     >
                       Change
@@ -1109,11 +1108,10 @@ const firstValidImageIndex = imageErrors.findIndex((err, idx) => !err && images[
           : formData.touched?.title && formData.title.trim().length < 10
           ? "red" // red when touched and invalid
           : "inherit",
-      fontWeight: formData.focused?.title ? "bold" : "normal",
       fontWeight:
-        formData.touched?.title && formData.title.trim().length < 10
-          ? "bold"
-          : "normal",
+  formData.focused?.title || (formData.touched?.title && formData.title.trim().length < 10)
+    ? "bold"
+    : "normal",
     }}
   >
     Ad Title *
@@ -1626,10 +1624,8 @@ const firstValidImageIndex = imageErrors.findIndex((err, idx) => !err && images[
 {imageErrors.some((error) => error) && (
   <div
     style={{
-      marginTop: "10px",
       backgroundColor: "rgba(255, 40, 0, .2)",
       border: "1px solid #ff2800",
-      padding: "10px 12px",
       borderRadius: "5px",
       color: "#cc0000",
       fontSize: "16px",
@@ -1643,7 +1639,6 @@ const firstValidImageIndex = imageErrors.findIndex((err, idx) => !err && images[
    
     lineHeight: "2",
     marginTop: "8px",
-   
       height:"56px",
     }}
   >
@@ -1975,8 +1970,7 @@ const firstValidImageIndex = imageErrors.findIndex((err, idx) => !err && images[
                             : nameTouched && formData.name.trim() === ""
                             ? "red" // Red when touched and empty
                             : "#000", // Default black
-                          fontWeight: nameFocused? "bold":"initial",
-                          fontWeight: nameTouched && formData.name.trim() === ""? "bold":"initial",
+                          fontWeight: (nameFocused || (nameTouched && formData.name.trim() === "")) ? "bold" : "initial",
                         }}
                       >
                         Name
