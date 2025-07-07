@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+<<<<<<< HEAD
 // import CameraPlus from '../../assets/Camera.png';
+=======
+>>>>>>> chhatish-2
 import { toast } from 'react-toastify';
 
 const Upload = ({ photos, setPhotos }) => {
@@ -140,7 +143,11 @@ const handleChange = (e, index) => {
           >
             {!images[index] && (
               <span className="text-gray-400 text-2xl font-bold flex flex-col items-center justify-center">
+<<<<<<< HEAD
                 {/* <img src={CameraPlus} width={20} /> */}
+=======
+                <img src='/assets/camera.png' width={20} />
+>>>>>>> chhatish-2
                 <span className='text-[12px] text-center'>
                   {images[index - 1] || index === 0 ? 'Add Photo' : ""}
                 </span>

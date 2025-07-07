@@ -37,7 +37,7 @@ const NewsFeed = () => {
               const image = newsItems.find(item => item.profileName === name)?.profileImage?.url;
               return (
                 <li key={idx} className="flex items-center gap-3">
-                  <img src={image} alt={name} className="w-10 h-10 rounded-full object-cover" />
+                  <img src={image} alt={name} className="w-10 h-10 rounded-full object-cover" loading="lazy" />
                   <span className="text-sm font-medium text-gray-800">{name}</span>
                 </li>
               );

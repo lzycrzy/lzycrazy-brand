@@ -131,20 +131,19 @@ export const createListing = async (req, res) => {
 
     await newProductListing.save();
 
-    const userDetails = await userModel.findByIdAndUpdate(user._id, {
+    await userModel.findByIdAndUpdate(user._id, {
       $push: {
         productListed: newProductListing._id,
       },
     });
 
     user = await userModel.findById(user._id);
-    console.log(user);
+
     return res.status(201).json({
       success: true,
-      freeLimit: true,
       message: 'Product listed successfully',
       data: newProductListing,
-      userDetails,
+      user,
     });
   } catch (error) {
     console.error('Create Listing Error:', error);
@@ -267,6 +266,42 @@ export const updateListing = async (req, res) => {
     console.log(error);
     return res.status(500).json({
       message: 'Server errror',
+      error: error.message,
+    });
+  }
+};
+
+export const renewListing = async (req, res) => {
+  try {
+    const listingId = req.params.id;
+    const plan = req.body.plan;
+
+    const listing = await ListModel.findById(listingId);
+
+    if (!listing) {
+      return res.status(404).json({ success: false, message: 'Listing not found.' });
+    }
+
+    const currentDate = new Date();
+    const baseDate = listing.expiryDate && listing.expiryDate > currentDate 
+      ? listing.expiryDate 
+      : currentDate;
+
+    const extendedDays = plan * 30; 
+    const newExpiryDate = new Date(baseDate.getTime() + extendedDays * 24 * 60 * 60 * 1000);
+    
+    listing.expiryDate = newExpiryDate;
+    await listing.save();
+
+    console.log(listing);
+
+    return res.status(200).json({success: true, message: 'Listing extended successfully.', expiryDate: newExpiryDate });
+
+  } catch (error) {
+    console.error('Renew listing error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
       error: error.message,
     });
   }

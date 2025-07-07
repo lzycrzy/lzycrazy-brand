@@ -4,9 +4,6 @@ import {
   Package,
   Plus,
   Edit,
-  Eye,
-  Phone,
-  Mail,
   User,
 } from 'lucide-react';
 import Header from '../components/static/Header';
@@ -18,28 +15,28 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { toast } from 'react-toastify';
 import { useProduct } from '../store/useProduct';
+import RenewModal from '../components/Product/RenewModal';
 
-function AddPage({ setAddPage }) {
-  const statsData = [
-    { label: 'All Response', value: '400', color: 'bg-blue-50 text-blue-700' },
-    { label: 'Active Add', value: '102', color: 'bg-green-50 text-green-700' },
-    { label: 'Reported', value: '098', color: 'bg-orange-50 text-orange-700' },
-  ];
+function AddPage() {
 
   const [listingResponse, setListingResponse] = useState(null);
   const [listingReported, setListingReported] = useState(null);
   const [activeListing, setActiveListing] = useState(null);
   const [listings, setListings] = useState(null);
   const [totalListing, setTotalListing] = useState(null);
+  // const [renewModal, setRenewModal] = useState(false);
+
   const {
     setIsAddProductModal,
     setIsEditing,
     setEditData,
-    editData,
+    renewListing,
+    setRenewListing,
     isEditing,
+    isAddProductModal
   } = useProduct();
 
-  const user = localStorage.getItem('usr')
+  const user = localStorage.getItem('user')
     ? JSON.parse(localStorage.getItem('user'))
     : null;
   const navigate = useNavigate();
@@ -73,7 +70,7 @@ function AddPage({ setAddPage }) {
     }
 
     getMyAddListing();
-  }, [isEditing, setIsAddProductModal]);
+  }, [isEditing, isAddProductModal,  renewListing]);
 
   useEffect(() => {
     async function getListingReponseAndReported() {
@@ -102,35 +99,48 @@ function AddPage({ setAddPage }) {
       }
     }
     getListingReponseAndReported();
-  }, [isEditing, setIsAddProductModal]);
+  }, [isEditing, isAddProductModal, renewListing]);
 
   const exportToExcel = () => {
-    if (!Array.isArray(listingResponse) || listingResponse.length === 0) {
+    if (listingResponse?.length === 0) {
       toast.error('No Response Received!');
       return;
     }
-
-    const flatData = listings.map((item) => ({
+    if (!listings || listings.length === 0) {
+      toast.error('No listings to export!');
+      return;
+    }
+    const flatData = listingResponse.map((item) => ({
       Title: item.title,
-      Name: item.response.name,
-      PhoneNumber: item.response.phoneNumber,
-      Email: item.response.email,
-      ResponseDate: formatDate(item.response.createdAt),
+      Name: item.response?.name || '',
+      PhoneNumber: item.response?.phoneNumber || '',
+      Email: item.response?.email || '',
+      ResponseDate: item.response?.createdAt ? formatDate(item.response.createdAt) : '',
     }));
 
+    // const flatData = listings.flatMap((item) =>
+    //   (item.response || []).map((res) => ({
+    //     Title: item.title,
+    //     Name: res.name || '',
+    //     PhoneNumber: res.phoneNumber || '',
+    //     Email: res.email || '',
+    //     ResponseDate: res.createdAt ? formatDate(res.createdAt) : '',
+    //   }))
+    // );
+    if (flatData.length === 0) {
+      toast.error('No data to export!');
+      return;
+    }
     const worksheet = XLSX.utils.json_to_sheet(flatData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
-
     const excelBuffer = XLSX.write(workbook, {
       bookType: 'xlsx',
       type: 'array',
     });
-
     const blob = new Blob([excelBuffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
-
     saveAs(blob, 'listing_Response.xlsx');
   };
 
@@ -148,14 +158,10 @@ function AddPage({ setAddPage }) {
             <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-5">
               <div
                 onClick={() => {
-                  if (
-                    !Array.isArray(listingResponse) ||
-                    listingResponse.length === 0
-                  ) {
+                  if (listingResponse?.length === 0) {
                     toast.error('No Response Received!');
                     return;
                   }
-
                   setListings(listingResponse);
                 }}
                 className="cursor-pointer rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
@@ -174,10 +180,7 @@ function AddPage({ setAddPage }) {
 
               <div
                 onClick={() => {
-                  if (
-                    !Array.isArray(activeListing) ||
-                    activeListing.length === 0
-                  ) {
+                  if (activeListing?.length === 0) {
                     toast.error('No Active Listing!');
                     return;
                   }
@@ -199,11 +202,8 @@ function AddPage({ setAddPage }) {
 
               <div
                 onClick={() => {
-                  if (
-                    !Array.isArray(listingReported) ||
-                    listingReported.length === 0
-                  ) {
-                    toast.error('No Listing Reported!');
+                  if (listingReported?.length === 0) {
+                    toast.error('No Reported Listings!');
                     return;
                   }
                   setListings(listingReported);
@@ -274,7 +274,7 @@ function AddPage({ setAddPage }) {
                         <img
                           src={property.images ? property.images[0] : null}
                           alt={property.title}
-                          className="h-full w-full object-cover transition-transform duration-200 hover:scale-105"
+                          className="h-full w-full object-contain transition-transform duration-200 hover:scale-105"
                         />
                       </div>
                     </div>
@@ -334,6 +334,15 @@ function AddPage({ setAddPage }) {
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </button>
+
+                      <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRenewListing(property);
+                      }}
+                      className={`${new Date(property.expiryDate).getTime() < Date.now()? 'flex' : 'hidden'} items-center rounded-lg bg-red-900 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-red-800`}>
+                        Renew
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -342,6 +351,8 @@ function AddPage({ setAddPage }) {
           </div>
         </div>
       </div>
+
+      {renewListing && <RenewModal />}
     </>
   );
 }

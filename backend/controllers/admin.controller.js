@@ -7,9 +7,9 @@ import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import { deleteFromCloudinary, generateVideoThumbnail, uploadToCloudinary } from '../utils/cloudinary.js';
 import Applicant from '../models/Applicant.js';
-import Hiring from '../models/hiring.model.js';
-import adminMarketPost from '../models/adminMarketPost.js'
-import getVideoThumbnailUrl from '../middlewares/getVideoThumbnailUrl.js'
+import Hiring from '../models/hiring.model.js'
+import bannerModel from '../models/banner.model.js';
+
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
   const { fullName, email, phone, password, role } = req.body;
@@ -29,6 +29,129 @@ export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
 
   generateTokenAdmin(newAdmin, "Admin registered successfully", 201, res);
 });
+
+
+// GET MARKET POST FOR ADMIN
+export const getMarketPost = async(req, res) => {
+  try {
+    const posts = await bannerModel.find();
+
+    if (!posts) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not foundd"
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: posts
+    })
+  } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server error",
+        error: error.message
+      })
+  }
+}
+
+
+// CREATE MARKET POST
+export const createMarketPost = async (req, res) => {
+  try {
+    const { name, type, url, date, position } = req.body;
+    const file = req.file;
+
+    // Validation
+    if (!name || !type || !url || !date || !file || !position) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    // Upload to Cloudinary using the helper
+    const uploadedUrl = await uploadToCloudinary(file.path, 'market-posts');
+
+    // Construct the new document
+    const newPost = new bannerModel({
+      name: name.trim(),
+      type,
+      position: position,
+      url: url.trim(),
+      postUrl: uploadedUrl,
+      thumbnail: type === 'image' ? uploadedUrl : '', // optional logic
+      postDate: new Date(date),
+    });
+
+    await newPost.save();
+
+    res.status(201).json({
+      message: 'Market post created successfully',
+      data: newPost,
+    });
+
+  } catch (err) {
+    console.error('Error creating market post:', err);
+    res.status(500).json({ error: 'Server error while uploading post.' });
+  }
+};
+
+// UPDATE MARKET POST
+
+export const updateMarketPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, type, url, date } = req.body;
+    const file = req.file;
+    console.log("Req file", req.file);
+
+    const existingPost = await bannerModel.findById(id);
+    if (!existingPost) return res.status(404).json({ error: 'Post not found' });
+
+    // Optional file replacement
+    let newFileUrl = existingPost.postUrl;
+
+    if (file) {
+      // Upload new file
+      const uploadResult = await uploadToCloudinary(file.path, 'market-posts');
+      newFileUrl = uploadResult;
+      console.log(newFileUrl);
+    }
+
+    existingPost.name = name;
+    existingPost.type = type;
+    existingPost.url = url;
+    existingPost.postUrl = newFileUrl;
+    existingPost.postDate = new Date(date);
+
+    await existingPost.save();
+
+    res.json({ message: 'Post updated', data: existingPost });
+
+  } catch (err) {
+    console.error('Update error:', err);
+    res.status(500).json({ error: 'Server error while updating post' });
+  }
+};
+
+// DELETE MARKET POST
+export const deleteMarketPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const post = await bannerModel.findById(id);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+
+    await bannerModel.findByIdAndDelete(id);
+
+    const remainingPost = await bannerModel.find();
+    res.json({ success: true, message: 'Post deleted successfully', data: remainingPost });
+
+  } catch (err) {
+    console.error('Delete error:', err);
+    res.status(500).json({ success: false, error: 'Server error while deleting post' });
+  }
+};
 
 // Login ADMIN
 export const loginAdmin = catchAsyncErrors(async (req, res, next) => {

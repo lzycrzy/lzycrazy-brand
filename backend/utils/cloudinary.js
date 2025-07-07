@@ -53,6 +53,7 @@ export const uploadToCloudinary = async (filePath, folderName = 'user_uploads') 
     }
 
     // Delete local file after upload
+    console.log(filePath);
     await fs.unlink(filePath);
     console.log('File uploaded and local file deleted');
 

@@ -53,7 +53,7 @@
 //             <p className="text-sm text-gray-600 leading-5">
 //               LzyCrazy<br />
 //               Sector 27, Noida<br />
-//               Pin No 201303
+//               Pin No 201303
 //             </p>
 //           </div>
 //         </div>
@@ -127,7 +127,7 @@ const Footer = () => {
             <p className="text-sm text-gray-600 leading-5">
               LzyCrazy<br />
               Sector 27, Noida<br />
-              Pin No 201303
+              Pin No 201303
             </p>
           </div>
         </div>

@@ -23,7 +23,7 @@ const sections = [
     title: '3. Platform Ownership',
     icon: ShieldCheck,
     image: 'https://cdn-icons-png.flaticon.com/512/1828/1828490.png',
-    content: 'The Platform is owned by LZYCRAZY PRIVATE LIMITED, based in Noida, India (the “Platform Owner”).'
+    content: 'The Platform is owned by LZYCRAZY PRIVATE LIMITED, based in Noida, India (the "Platform Owner").'
   },
   {
     id: 'agreement',
@@ -76,7 +76,7 @@ const TermsPage = () => {
             {sections.map((sec) => (
               <li key={sec.id}>
                 <a href={`#${sec.id}`} className="flex items-center text-gray-700 hover:text-blue-600">
-                  <img src={sec.image} alt="" className="w-5 h-5 mr-2 rounded object-cover" />
+                  <img src={sec.image} alt="" className="w-5 h-5 mr-2 rounded object-cover" loading="lazy" />
                   <span className="text-sm font-medium">{sec.title.replace(/^[0-9]+\. /, '')}</span>
                 </a>
               </li>
@@ -92,7 +92,7 @@ const TermsPage = () => {
               {sections.map((item, idx) => (
                 <div id={item.id} key={idx} className="scroll-mt-20">
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                    <img src={item.image} alt={item.title} className="w-32 h-32 object-contain rounded-md shadow-md" />
+                    <img src={item.image} alt={item.title} className="w-32 h-32 object-contain rounded-md shadow-md" loading="lazy" />
                     <div>
                       <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
                         <item.icon className="w-6 h-6 mr-2 text-blue-600" />

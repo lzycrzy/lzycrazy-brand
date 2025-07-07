@@ -1,6 +1,5 @@
 // import React from 'react';
 // import { Link } from 'react-router-dom';
-// import logo from '../../assets/logo.png';
 
 // const Header = () => {
 //   return (
@@ -39,7 +38,6 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../../assets/logo.png';
 import { Menu, X } from 'lucide-react'; // optional icon library
 
 const Header = () => {
@@ -51,7 +49,7 @@ const Header = () => {
         {/* Left: Logo */}
         <Link to="/">
           <img
-            src={logo}
+            src="/assets/logo.png"
             alt="Logo"
             className="h-10 w-auto object-contain"
           />

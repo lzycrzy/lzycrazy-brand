@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import rocketImg from "../assets/remove-logo.png"; // Update the path to your image
 
 const VerifiedPage = () => {
   const [flyAway, setFlyAway] = useState(false);
@@ -20,7 +19,7 @@ const VerifiedPage = () => {
           flyAway ? "animate-rocketFly" : "animate-fadeIn"
         }`}
       >
-        <img src={rocketImg} alt="Rocket" className="w-[200px]" />
+        <img src="/assets/remove-logo.png" alt="Rocket" className="w-[200px]" loading="lazy" />
       </div>
 
       <div className="text-center bg-white/10 p-6 px-10 rounded-2xl backdrop-blur-sm shadow-lg w-[300px] animate-fadeIn">
@@ -28,7 +27,7 @@ const VerifiedPage = () => {
         <p className="text-base text-gray-100 mb-2">
           Your message has been sent successfully.
         </p>
-        <p className="text-base text-gray-100 mb-4">We’ll get back soon</p>
+        <p className="text-base text-gray-100 mb-4">We'll get back soon</p>
 
         {/* Back Button */}
         <button

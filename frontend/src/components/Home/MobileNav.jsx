@@ -1,24 +1,18 @@
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
 import { useProduct } from '../../store/useProduct';
-
-// Same image imports used in Header
-import store from '../../assets/store.png';
-import movie from '../../assets/movie-reel.png';
-import play from '../../assets/play-button-arrowhead.png';
-import add from '../../assets/add.png';
-import hand from '../../assets/hand.png';
+import { toast } from 'react-toastify';
 
 const MobileNav = () => {
   const navigate = useNavigate();
   const { user } = useUser();
-  const { setIsAddProductMadal } = useProduct();
+  const { setIsAddProductModal } = useProduct();
 
   const mobileLinks = [
-    { image: store, label: 'Market', path: '/market' },
-    { image: movie, label: 'Movies', path: '/movies' },
-    { image: play, label: 'Play', path: '/play' },
-    { image: hand, label: 'Saved', path: '/saved' },
+    { image: '/assets/store.png', label: 'Market', path: '/market' },
+    { image: '/assets/movie-reel.png', label: 'Movies', path: '/movies' },
+    { image: '/assets/play-button-arrowhead.png', label: 'Play', path: '/play' },
+    { image: '/assets/hand.png', label: 'Saved', path: '/saved' },
   ];
 
   const handleNavigation = (path) => {
@@ -32,10 +26,10 @@ const MobileNav = () => {
 
   const handleAddClick = () => {
     if (!user) {
-      alert('Please login first');
+      toast.error('Please login first');
       navigate('/');
     } else {
-      setIsAddProductMadal(true);
+      setIsAddProductModal(true);
     }
   };
 
@@ -65,7 +59,7 @@ const MobileNav = () => {
         className="relative -mt-6 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md border"
       >
         <img
-          src={add}
+          src="/assets/add.png"
           alt="Add"
           className="h-8 w-8 object-contain group-hover:brightness-110"
         />

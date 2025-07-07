@@ -170,8 +170,7 @@
 // }
 
 
-
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Grid3X3,
@@ -183,31 +182,35 @@ import {
   Camera,
   Plus,
   List,
-  Boxes
+  Boxes,
+  Menu,
+  ChevronRight
 } from 'lucide-react';
-import { useState } from 'react';
-import { useAdmin } from '../context/AdminContext';
-import instance from '../utils/axios';
+import { useState, useEffect, useRef } from 'react';
 
 export function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { setAdmin } = useAdmin();
 
-  const currentPath = location.pathname === '/' ? '/dashboard' : location.pathname;
-  const basePath = currentPath.split('/')[1];
-  const [openMenu, setOpenMenu] = useState(basePath);
+  const [openMenu, setOpenMenu] = useState(basePath); // handle submenu open dynamically
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useRef(null);
 
-  const handleLogout = async () => {
-    try {
-      await instance.get('/admin/logout'); // clears HttpOnly cookie
-      localStorage.removeItem('adminToken'); // remove legacy token if any
-      setAdmin(null); // clear context
-      navigate('/auth'); // redirect to login
-    } catch (error) {
-      console.error('Logout error:', error);
+  const handleToggle = () => setSidebarOpen(true);
+  const handleClose = () => setSidebarOpen(false);
+
+  // Close on outside click (mobile only)
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+        setSidebarOpen(false);
+      }
     }
-  };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -254,116 +257,127 @@ export function Sidebar() {
         { label: 'News List', path: '/news/list', icon: List }
       ]
     },
-    {
-      icon: FileBarChart,
-      label: 'We are hiring',
-      path: '/applications'
-    },
+    { icon: FileBarChart, label: 'We are hiring', path: '/applications' },
     { icon: FileBarChart, label: 'Client Enquiry', path: '/client-enquiry' },
     { icon: LogOut, label: 'Logout', isLogout: true }
 
   ];
 
   return (
-    <div className="flex h-full w-64 flex-col bg-white">
-      {/* Header */}
-      <div className="px-6 py-6">
-        <h1 className="text-xl font-bold text-gray-900">
-          <span className="text-blue-600">LZY</span> CRAZY
-        </h1>
-      </div>
+    <>
+      {/* Mobile menu button */}
+      <button
+        onClick={handleToggle}
+        className="absolute top-[75px] left-0 z-10 p-2 md:hidden bg-white rounded shadow"
+      >
+        <ChevronRight className="h-5 w-5 text-gray-800" />
+      </button>
 
-      {/* Navigation Menu */}
-      <div className="flex-1 overflow-y-auto">
-        <nav className="space-y-1">
-          {menuItems.map((item, index) => {
-            const Icon = item.icon;
-            const isActive = currentPath === item.path || currentPath.startsWith(item.path);
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          style={{backgroundColor: 'rgba(0, 0, 0, 0.4)'}}
+          className="fixed inset-0 z-10 bg-opacity-30 md:hidden"
+          onClick={handleClose}
+        />
+      )}
 
-            // Handle logout button
-            if (item.isLogout) {
-              return (
-                <button
-                  key={index}
-                  onClick={handleLogout}
-                  className="relative w-full flex items-center px-6 py-3 text-sm font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <Icon className="mr-4 h-5 w-5 flex-shrink-0" />
-                  {item.label}
-                </button>
-              );
-            }
+      {/* Sidebar */}
+      <div
+        ref={sidebarRef}
+        className={`z-20 md:z-0 fixed top-0 left-0 h-full w-64 bg-white shadow-md transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          md:translate-x-0 md:static md:shadow-none`}
+      >
+        <div className="h-full flex flex-col">
+          {/* Header */}
+          <div className="px-6 py-6 border-b">
+            <h1 className="text-xl font-bold text-gray-900">
+              <span className="text-blue-600">LZY</span> CRAZY
+            </h1>
+          </div>
 
-            // Submenus
-            if (item.isSubmenu) {
-              const parentKey = item.path.split('/')[1];
-              const isOpen = openMenu === parentKey;
-              const toggleMenu = () =>
-                setOpenMenu((prev) => (prev === parentKey ? null : parentKey));
+          {/* Navigation */}
+          <div className="flex-1 overflow-y-auto">
+            <nav className="space-y-1">
+              {menuItems.map((item, index) => {
+                const Icon = item.icon;
+                const isActive = currentPath === item.path || currentPath.startsWith(item.path);
 
-              return (
-                <div key={index}>
-                  <button
-                    onClick={toggleMenu}
-                    className={`w-full relative flex items-center px-6 py-3 text-sm font-medium transition-colors text-left ${
+                if (item.isSubmenu) {
+                  const parentKey = item.path.split('/')[1];
+                  const isOpen = openMenu === parentKey;
+                  const toggleMenu = () =>
+                    setOpenMenu((prev) => (prev === parentKey ? null : parentKey));
+
+                  return (
+                    <div key={index}>
+                      <button
+                        onClick={toggleMenu}
+                        className={`w-full relative flex items-center px-6 py-3 text-sm font-medium transition-colors text-left ${
+                          isActive
+                            ? 'text-blue-600 bg-blue-50'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {isActive && (
+                          <div className="absolute left-0 top-0 h-full w-1 bg-blue-600" />
+                        )}
+                        <Icon className="mr-4 h-5 w-5 flex-shrink-0" />
+                        {item.label}
+                      </button>
+
+                      {/* Submenu */}
+                      {isOpen && (
+                        <div className="ml-10 space-y-1">
+                          {item.children.map((sub, subIndex) => {
+                            const SubIcon = sub.icon;
+                            const subActive = currentPath === sub.path;
+                            return (
+                              <Link
+                                key={subIndex}
+                                to={sub.path}
+                                onClick={() => setSidebarOpen(false)}
+                                className={`flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md ${
+                                  subActive
+                                    ? 'text-blue-600 bg-blue-100'
+                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                                }`}
+                              >
+                                <SubIcon className="mr-2 h-4 w-4" />
+                                {sub.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={index}
+                    to={item.path}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`relative flex items-center px-6 py-3 text-sm font-medium transition-colors ${
                       isActive
                         ? 'text-blue-600 bg-blue-50'
                         : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     {isActive && (
-                      <div className="absolute left-0 top-0 h-full w-1 bg-blue-600" />
+                      <div className="absolute left-0 top-0 h-full w-1 bg-blue-600"></div>
                     )}
                     <Icon className="mr-4 h-5 w-5 flex-shrink-0" />
                     {item.label}
-                  </button>
-
-                  {isOpen && (
-                    <div className="ml-10 space-y-1">
-                      {item.children.map((sub, subIndex) => {
-                        const SubIcon = sub.icon;
-                        const subActive = currentPath === sub.path;
-                        return (
-                          <Link
-                            key={subIndex}
-                            to={sub.path}
-                            className={`flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md ${
-                              subActive
-                                ? 'text-blue-600 bg-blue-100'
-                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                            }`}
-                          >
-                            <SubIcon className="mr-2 h-4 w-4" />
-                            {sub.label}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            return (
-              <Link
-                key={index}
-                to={item.path}
-                className={`relative flex items-center px-6 py-3 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'text-blue-600 bg-blue-50'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {isActive && (
-                  <div className="absolute left-0 top-0 h-full w-1 bg-blue-600"></div>
-                )}
-                <Icon className="mr-4 h-5 w-5 flex-shrink-0" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
