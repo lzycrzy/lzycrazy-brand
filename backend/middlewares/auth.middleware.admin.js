@@ -62,6 +62,7 @@ export const isAuthenticatedAdmin = async (req, res, next) => {
       token,
       process.env.JWT_SECRET || 'defaultSecret',
     );
+    console.log(decoded);
 
     req.admin = await adminModel.findById(decoded.id).select('+password');
 

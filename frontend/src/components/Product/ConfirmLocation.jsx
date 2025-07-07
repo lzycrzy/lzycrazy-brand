@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useProduct } from '../../store/useProduct';
 
-function ConfirmLocation({ register, setValue, watch, errors }) {
+function ConfirmLocation({ register, setValue, watch, errors, getValues }) {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
 
-  const selectedState = watch('state');
-  const { isEditing, editData } = useProduct();
+  const selectedState = watch("state");
+  const {isEditing, editData} = useProduct();
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -43,14 +43,47 @@ function ConfirmLocation({ register, setValue, watch, errors }) {
   }, [selectedState, setValue]);
 
   useEffect(() => {
-    if (isEditing && editData?.location) {
-      // const { state, city, neighbourhood } = editData.location;
-      setValue('state', editData.location.state);
-      setValue('city', editData.location.city);
-      setValue('neighbourhood', editData.location.neighbourhood);
-    }
+    const initLocation = async () => {
+      if (isEditing && editData) {
+        // Do not set state here, will set in next effect
+        const res = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ country: 'India', state: editData.location.state }),
+        });
+        const data = await res.json();
+        setCities(data.data);
+        setValue('neighbourhood', editData.location.neighbourhood);
+      }
+    };
+    initLocation();
   }, [isEditing, editData, setValue]);
 
+  // New effect: set state only after states are loaded and in edit mode
+  useEffect(() => {
+    if (
+      isEditing &&
+      editData &&
+      editData.location.state &&
+      states.length > 0 &&
+      states.includes(editData.location.state)
+    ) {
+      setValue('state', editData.location.state);
+    }
+  }, [isEditing, editData, states, setValue]);
+
+  // New effect: set city only after cities are loaded and in edit mode
+  useEffect(() => {
+    if (
+      isEditing &&
+      editData &&
+      editData.location.city &&
+      cities.length > 0 &&
+      cities.includes(editData.location.city)
+    ) {
+      setValue('city', editData.location.city);
+    }
+  }, [isEditing, editData, cities, setValue]);
 
   return (
     <div className="flex w-full flex-col gap-4 p-4 lg:px-10">

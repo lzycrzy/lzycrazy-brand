@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { login } from '../lib/redux/authSlice';
@@ -13,14 +13,6 @@ import { Link } from 'react-router-dom';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
-import googleLogo from '../assets/image3.png';
-import fb from '../assets/image5.png';
-import email from '../assets/mail.png';
-import lock from '../assets/lock.png';
-import identity from '../assets/identity.png';
-import country from '../assets/cntry.png';
-import ForgotPassword from '../components/Auth/ForgotPassword';
-
 import Searchbar from '../components/common/Searchbar';
 import countryList from '../data/countries.json';
 import CountryCodes from '../data/CountryCodes.json';
@@ -28,7 +20,9 @@ import Loader from '../components/common/Spinner';
 import { useTranslation } from 'react-i18next'; // Add this at the top
 import { toast } from 'react-toastify';
 import { useUser } from '../context/UserContext';
+import { useAsset } from '../store/useAsset';
 
+const LazyForgotPassword = React.lazy(() => import('../components/Auth/ForgotPassword'));
 
 const Auth = () => {
   const [activeTab, setActiveTab] = useState('login');
@@ -62,74 +56,76 @@ const Auth = () => {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    // navigate('/progress');
-    const { email, password } = loginData;
-  
-    // ✅ Basic validations before triggering loading or API call
+    setLoading(true);
+
+    // Trim inputs first
+    const email = loginData.email?.trim();
+    const password = loginData.password?.trim();
+
+    // Check all fields
     if (!email || !password) {
-      toast.error('Please enter both email and password');
+      toast.error('Email and password are required');
+      setLoading(false);
       return;
     }
-  
-    // ✅ Email validation
+
+    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.error('Please enter a valid email address');
       return;
     }
-  
+
     try {
       setLoading(true); // ✅ Only show loading during API call
-  
+
       const { data } = await axios.post('/v1/users/login', loginData);
-  
+
       // ✅ Save to local storage
       if (data?.token) localStorage.setItem('token', data.token);
       if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
-  
+
       // ✅ Update Redux store
       dispatch(login({ success: true, data: data.user, token: data.token }));
-  
+
       // ✅ Update context
       fetchUser();
-  
+
       // ✅ Success toast
       toast.success(`🎉 Welcome back, ${data.user.fullName || 'User'}!`);
-  
+
       // ✅ Delay navigation so toast appears
       setTimeout(() => {
         navigate('/dashboard', { replace: true, state: { welcome: true } });
       }, 300);
-  
+
     } catch (error) {
       const msg = error?.response?.data?.message || 'Login failed. Try again.';
       toast.error(msg);
       console.error('Login error:', msg);
-  
+
     } finally {
       setLoading(false);
     }
   };
- 
-  
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     // Trim inputs first
     const fullName = registerData.fullName?.trim();
     const email = registerData.email?.trim();
     const phone = registerData.phone?.trim();
     const password = registerData.password?.trim();
-  
+
     // Check all fields
     if (!fullName || !email || !phone || !password) {
       toast.error('All fields are required');
       setLoading(false);
       return;
     }
-  
+
     // Name validation: only letters and spaces, min 3 characters
     const nameRegex = /^[A-Za-z\s.]{2,}$/;
     if (!nameRegex.test(fullName)) {
@@ -137,7 +133,7 @@ const Auth = () => {
       setLoading(false);
       return;
     }
-  
+
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -145,7 +141,7 @@ const Auth = () => {
       setLoading(false);
       return;
     }
-  
+
     // Optional: block temporary email domains
     const blockedDomains = ['tempmail.com', '10minutemail.com', 'mailinator.com'];
     if (blockedDomains.some(domain => email.endsWith(`@${domain}`))) {
@@ -153,18 +149,18 @@ const Auth = () => {
       setLoading(false);
       return;
     }
-  
+
     // Phone validation (India)
     const rawPhone = registerData.phone?.trim();
-const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10);  // keep last 10 digits
+    const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10);  // keep last 10 digits
 
-const phoneRegex = /^[6-9]\d{9}$/;
-if (!phoneRegex.test(phone1)) {
-  toast.error('Enter a valid 10-digit Indian mobile number');
-  setLoading(false);
-  return;
-}
-  
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone1)) {
+      toast.error('Enter a valid 10-digit Indian mobile number');
+      setLoading(false);
+      return;
+    }
+
     // Password validation
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).{8,}$/;
@@ -173,7 +169,7 @@ if (!phoneRegex.test(phone1)) {
       setLoading(false);
       return;
     }
-  
+
     // Prevent password that contains name or email
     if (
       password.toLowerCase().includes(fullName.toLowerCase()) ||
@@ -183,7 +179,7 @@ if (!phoneRegex.test(phone1)) {
       setLoading(false);
       return;
     }
-  
+
     // Optional: prevent common weak passwords
     const weakPasswords = ['12345678', 'password', 'welcome123', 'admin123', 'qwerty'];
     if (weakPasswords.includes(password.toLowerCase())) {
@@ -191,7 +187,7 @@ if (!phoneRegex.test(phone1)) {
       setLoading(false);
       return;
     }
-  
+
     try {
       const response = await axios.post('/v1/users/register', {
         fullName,
@@ -199,14 +195,14 @@ if (!phoneRegex.test(phone1)) {
         phone,
         password,
       });
-  
+
       const { user, token } = response.data;
-  
+
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       dispatch(login({ success: true, data: user, token }));
       fetchUser();
-  
+
       toast.success('Registration successful!');
       navigate('/dashboard', { replace: true, state: { welcome: true } });
     } catch (error) {
@@ -218,35 +214,9 @@ if (!phoneRegex.test(phone1)) {
     }
   };
 
-// const handleRegisterSubmit = async (e) => {
-//   e.preventDefault();
-// navigate('/progress');
-// }
-  
-//google login
-  // const handleGoogleLogin = async () => {
-  //   try {
-  //     const result = await signInWithPopup(auth, googleProvider);
-  //     const user = result.user;
-  //     const idToken = await user.getIdToken(true);
-  //     console.log("ID Token:", idToken); // add before axios.post
-
-  //     const response = await axios.post('/v1/users/google-login', { idToken });
-  //     const { token, user: backendUser } = response.data;
-  //     localStorage.setItem('token', token);
-  //     localStorage.setItem('user', JSON.stringify(backendUser));
-  //     dispatch(login({ success: true, data: backendUser, token }));
-  //     await fetchUser(); 
-  //     toast.success(`🎉 Welcome back`);
-  //     navigate('/dashboard',{ replace: true, state: { welcome: true } });
-  //   } catch (error) {
-  //     alert(error.response?.data?.message || 'Google login failed');
-  //     console.error('Google login error:', error);
-  //   }
-  // };
+  //google login
   const handleGoogleLogin = async () => {
-navigate('/progress');
-
+    navigate('/progress');
   }
 
   // const handleFacebookLogin = async () => {
@@ -269,13 +239,13 @@ navigate('/progress');
   //   }
   // };
   const handleFacebookLogin = async () => {
-navigate('/progress');
-
+    navigate('/progress');
   }
-
 
   const inputClass =
     'w-full rounded border border-gray-300 py-3 pr-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400';
+
+  const { getAssetUrl, loaded } = useAsset();
 
   if (loading) return <Loader />;
 
@@ -300,7 +270,7 @@ navigate('/progress');
                 {activeTab === 'login' && (
                   <form onSubmit={handleLoginSubmit} className="flex flex-col">
                     <div className="relative mb-3">
-                      <img src={email} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" />
+                      {loaded && (<img src={getAssetUrl('mail.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" loading="lazy" />)}
                       <input
                         type="email"
                         name="email"
@@ -313,7 +283,7 @@ navigate('/progress');
                     </div>
   
                     <div className="relative mb-3">
-                      <img src={lock} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" />
+                      {loaded && (<img src={getAssetUrl('lock.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" loading="lazy" />)}
                       <input
                         type="password"
                         name="password"
@@ -334,7 +304,9 @@ navigate('/progress');
                         Forgot Password?
                       </button>
                       {showForgotModal && (
-                        <ForgotPassword onClose={() => setShowForgotModal(false)} />
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <LazyForgotPassword onClose={() => setShowForgotModal(false)} />
+                        </Suspense>
                       )}
                     </div>
   
@@ -357,7 +329,7 @@ navigate('/progress');
                         onClick={handleGoogleLogin}
                         className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 bg-white py-2 font-medium text-black shadow-sm shadow-gray-300"
                       >
-                        <img src={googleLogo} alt="Google" className="h-5 w-5 rounded-full bg-white p-0.5" />
+                        <img src={loaded ? getAssetUrl('image3.png') : "/missing.png"} alt="Google" className="h-5 w-5 rounded-full bg-white p-0.5" loading="lazy" />
                         Google
                       </button>
                       <button
@@ -365,7 +337,7 @@ navigate('/progress');
                         onClick={handleFacebookLogin}
                         className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 py-2 font-medium text-black shadow-sm shadow-gray-300 hover:bg-[#155DC0]"
                       >
-                        <img src={fb} alt="Facebook" className="h-5 w-5" />
+                        <img src={loaded ? getAssetUrl('image5.png') : "/missing.png"} alt="Facebook" className="h-5 w-5" loading="lazy" />
                         Facebook
                       </button>
                     </div>
@@ -394,7 +366,7 @@ navigate('/progress');
                 {activeTab === 'register' && (
                   <form onSubmit={handleRegisterSubmit} className="flex flex-col">
                     <div className="relative mb-3">
-                      <img src={identity} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="user" />
+                      {loaded && (<img src={getAssetUrl('identity.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="user" loading="lazy" />)}
                       <input
                         type="text"
                         name="fullName"
@@ -432,7 +404,7 @@ navigate('/progress');
                     </div>
   
                     <div className="relative mb-3">
-                      <img src={email} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" />
+                      {loaded && (<img src={getAssetUrl('mail.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" loading="lazy" />)}
                       <input
                         type="email"
                         name="email"
@@ -445,7 +417,7 @@ navigate('/progress');
                     </div>
   
                     <div className="relative mb-3">
-                      <img src={lock} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" />
+                      {loaded && (<img src={getAssetUrl('lock.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" loading="lazy" />)}
                       <input
                         type="password"
                         name="password"

@@ -26,7 +26,13 @@ const UserTable = () => {
         if (!token) {
           throw new Error('No token found, please log in.');
         }
-
+        console.log('Token:', token);
+        try {
+          const decoded = JSON.parse(atob(token.split('.')[1]));
+          console.log('Decoded Token:', decoded);
+        } catch (err) {
+          console.error('Invalid token structure');
+        }
         const response = await instance.get('/admin/userslist', {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -97,7 +97,7 @@ const AddAdvertisement = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {ads.map((ad) => (
               <div key={ad.id} className="bg-white p-4 shadow rounded">
-                <img src={ad.image} alt={ad.title} className="w-full h-32 object-cover rounded mb-2" />
+                <img src={ad.image || "/missing.png"} alt={ad.title} className="w-full h-32 object-cover rounded mb-2" loading="lazy" />
                 <h4 className="font-semibold text-lg">{ad.title}</h4>
                 <a href={ad.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm">
                   {ad.link}

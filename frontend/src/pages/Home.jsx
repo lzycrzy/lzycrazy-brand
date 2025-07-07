@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from '../lib/axios/axiosInstance';
 import Header from '../components/static/Header';
@@ -7,12 +7,13 @@ import MainFeed from '../components/Home/MainFeed';
 import RightSidebar from '../components/Home/RightSidebar';
 import MobileNav from '../components/Home/MobileNav';
 import ChatSidebar from '../components/Home/ChatSidebar';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from '../components/common/Spinner';
 import { useUser } from '../context/UserContext';
 import { useProduct } from '../store/useProduct';
-import AddProduct from './AddProduct';
+
+const LazyAddProduct = React.lazy(() => import('./AddProduct'));
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -87,7 +88,11 @@ const Home = () => {
         </div>
       )}
 
-      {isAddProductModal && <AddProduct />}
+      {isAddProductModal && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <LazyAddProduct />
+        </Suspense>
+      )}
       {/* Top Header */}
       <Header />
 
@@ -105,7 +110,7 @@ const Home = () => {
 
         {/* Main Feed (always visible) */}
         <div className="scrollbar-hide flex-1 overflow-y-auto px-2 sm:px-4 lg:px-6">
-        <MainFeed posts={posts} onPostCreated={handlePostCreated} />
+        <MainFeed posts={posts} onPostCreated={handlePostCreated} user={user} />
 
         </div>
 
@@ -120,7 +125,6 @@ const Home = () => {
         <ChatSidebar />
       </div>
 
-      <ToastContainer />
     </div>
   );
 };

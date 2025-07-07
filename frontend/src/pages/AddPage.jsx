@@ -4,9 +4,6 @@ import {
   Package,
   Plus,
   Edit,
-  Eye,
-  Phone,
-  Mail,
   User,
 } from 'lucide-react';
 import Header from '../components/static/Header';
@@ -18,22 +15,30 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { toast } from 'react-toastify';
 import { useProduct } from '../store/useProduct';
+import RenewModal from '../components/Product/RenewModal';
 
-function AddPage({ setAddPage }) {
-  const statsData = [
-    { label: 'All Response', value: '400', color: 'bg-blue-50 text-blue-700' },
-    { label: 'Active Add', value: '102', color: 'bg-green-50 text-green-700' },
-    { label: 'Reported', value: '098', color: 'bg-orange-50 text-orange-700' },
-  ];
+function AddPage() {
 
   const [listingResponse, setListingResponse] = useState(null);
   const [listingReported, setListingReported] = useState(null);
   const [activeListing, setActiveListing] = useState(null);
   const [listings, setListings] = useState(null);
   const [totalListing, setTotalListing] = useState(null);
-  const { setIsAddProductModal, setIsEditing, setEditData, editData } = useProduct();
+  // const [renewModal, setRenewModal] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  const {
+    setIsAddProductModal,
+    setIsEditing,
+    setEditData,
+    renewListing,
+    setRenewListing,
+    isEditing,
+    isAddProductModal
+  } = useProduct();
+
+  const user = localStorage.getItem('user')
+    ? JSON.parse(localStorage.getItem('user'))
+    : null;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,7 +46,6 @@ function AddPage({ setAddPage }) {
       try {
         const response = await instance.get('/v1/listing/my-adds');
         const listing = response.data;
-        // console.log(response.data);
         const updatedListings = listing?.map((item) => ({
           ...item,
           postedBy: {
@@ -52,7 +56,6 @@ function AddPage({ setAddPage }) {
         setListings(updatedListings);
         setTotalListing(updatedListings);
 
-        // console.log(updatedListings);
         setListings(updatedListings);
         setTotalListing(updatedListings);
 
@@ -60,20 +63,14 @@ function AddPage({ setAddPage }) {
           (listing) => !listing.isExpired,
         );
 
-        // console.log(listingActive);
-
         setActiveListing(listingActive);
-
-        // console.log(allResponses)
-        // console.log(reported)
-        // console.log(listingActive)
       } catch (error) {
         console.log(error);
       }
     }
 
     getMyAddListing();
-  }, []);
+  }, [isEditing, isAddProductModal,  renewListing]);
 
   useEffect(() => {
     async function getListingReponseAndReported() {
@@ -102,40 +99,50 @@ function AddPage({ setAddPage }) {
       }
     }
     getListingReponseAndReported();
-  }, []);
+  }, [isEditing, isAddProductModal, renewListing]);
 
   const exportToExcel = () => {
-    
-    if (listingResponse.length == 0) {
-      toast.error('No Response Recieved !');
+    if (listingResponse?.length === 0) {
+      toast.error('No Response Received!');
       return;
     }
-
-    const flatData = listings.map((item) => ({
+    if (!listings || listings.length === 0) {
+      toast.error('No listings to export!');
+      return;
+    }
+    const flatData = listingResponse.map((item) => ({
       Title: item.title,
-      Name: item.response.name,
-      PhoneNumber: item.response.phoneNumber,
-      Email: item.response.email,
-      ResponseDate: formatDate(item.response.createdAt),
+      Name: item.response?.name || '',
+      PhoneNumber: item.response?.phoneNumber || '',
+      Email: item.response?.email || '',
+      ResponseDate: item.response?.createdAt ? formatDate(item.response.createdAt) : '',
     }));
 
+    // const flatData = listings.flatMap((item) =>
+    //   (item.response || []).map((res) => ({
+    //     Title: item.title,
+    //     Name: res.name || '',
+    //     PhoneNumber: res.phoneNumber || '',
+    //     Email: res.email || '',
+    //     ResponseDate: res.createdAt ? formatDate(res.createdAt) : '',
+    //   }))
+    // );
+    if (flatData.length === 0) {
+      toast.error('No data to export!');
+      return;
+    }
     const worksheet = XLSX.utils.json_to_sheet(flatData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
-
     const excelBuffer = XLSX.write(workbook, {
       bookType: 'xlsx',
       type: 'array',
     });
-
     const blob = new Blob([excelBuffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
-
     saveAs(blob, 'listing_Response.xlsx');
   };
-
-  console.log(editData)
 
   return (
     <>
@@ -152,10 +159,9 @@ function AddPage({ setAddPage }) {
               <div
                 onClick={() => {
                   if (listingResponse?.length === 0) {
-                    toast.error('No Response Received !');
+                    toast.error('No Response Received!');
                     return;
                   }
-
                   setListings(listingResponse);
                 }}
                 className="cursor-pointer rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
@@ -175,7 +181,7 @@ function AddPage({ setAddPage }) {
               <div
                 onClick={() => {
                   if (activeListing?.length === 0) {
-                    toast.error('No Active Listing !');
+                    toast.error('No Active Listing!');
                     return;
                   }
                   setListings(activeListing);
@@ -197,7 +203,7 @@ function AddPage({ setAddPage }) {
               <div
                 onClick={() => {
                   if (listingReported?.length === 0) {
-                    toast.error('No listing Reported !');
+                    toast.error('No Reported Listings!');
                     return;
                   }
                   setListings(listingReported);
@@ -260,15 +266,15 @@ function AddPage({ setAddPage }) {
                     })
                   }
                   key={property._id}
-                  className="rounded-xl cursor-pointer border border-gray-100 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md"
+                  className="cursor-pointer rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md"
                 >
                   <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
                     <div className="flex-shrink-0">
-                      <div className="md:h-24 md:w-32 w-full h-fit overflow-hidden rounded-lg bg-gray-100">
+                      <div className="h-fit w-full overflow-hidden rounded-lg bg-gray-100 md:h-24 md:w-32">
                         <img
                           src={property.images ? property.images[0] : null}
                           alt={property.title}
-                          className="h-full w-full object-cover transition-transform duration-200 hover:scale-105"
+                          className="h-full w-full object-contain transition-transform duration-200 hover:scale-105"
                         />
                       </div>
                     </div>
@@ -289,7 +295,10 @@ function AddPage({ setAddPage }) {
                       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <User className="h-4 w-4" />
-                          <span>{property.postedBy.name} ({property.userId.companyId})</span>
+                          <span>
+                            {property.postedBy.name} ({property.user?.companyId}
+                            )
+                          </span>
                         </div>
                         {/* <div className="flex items-center gap-1">
                       <Phone className="h-4 w-4" />
@@ -302,8 +311,8 @@ function AddPage({ setAddPage }) {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 justify-between">
-                      <div className="text-center flex items-center flex-row-reverse gap-2">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex flex-row-reverse items-center gap-2 text-center">
                         <div className="flex items-center gap-1 text-gray-500">
                           {/* <Eye className="h-4 w-4" /> */}
                           <span className="text-sm">Views</span>
@@ -325,6 +334,15 @@ function AddPage({ setAddPage }) {
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </button>
+
+                      <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRenewListing(property);
+                      }}
+                      className={`${new Date(property.expiryDate).getTime() < Date.now()? 'flex' : 'hidden'} items-center rounded-lg bg-red-900 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-red-800`}>
+                        Renew
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -333,6 +351,8 @@ function AddPage({ setAddPage }) {
           </div>
         </div>
       </div>
+
+      {renewListing && <RenewModal />}
     </>
   );
 }

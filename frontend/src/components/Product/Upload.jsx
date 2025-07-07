@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import CameraPlus from '../../assets/Camera.png';
 import { toast } from 'react-toastify';
 import { useProduct } from '../../store/useProduct';
+import { useAsset } from '../../store/useAsset';
 
 const Upload = ({ photos, setPhotos }) => {
   const totalImages = 8;
   const inputRefs = useRef([]);
   const [images, setImages] = useState(Array(totalImages).fill(null));
   const [draggedIndex, setDraggedIndex] = useState(null);
+  const { getAssetUrl, loaded } = useAsset();
+
 
   useEffect(() => {
     const newImages = [...Array(totalImages).fill(null)];
@@ -138,7 +140,7 @@ const handleChange = (e, index) => {
           >
             {!images[index] && (
               <span className="text-gray-400 text-2xl font-bold flex flex-col items-center justify-center">
-                <img src={CameraPlus} width={20} />
+                {loaded && <img src={getAssetUrl('camera.png') || "/missing.png"} alt="Camera" width={20} />}
                 <span className='text-[12px] text-center'>
                   {images[index - 1] || index === 0 ? 'Add Photo' : ""}
                 </span>
