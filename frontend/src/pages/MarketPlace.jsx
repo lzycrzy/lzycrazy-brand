@@ -180,7 +180,7 @@ const MarketplaceHome = () => {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 space-y-8 overflow-auto p-9">
+        <main className="flex-1 overflow-auto p-4">
           {(!selectedCategory || !selectedSubcategory) && <AdminPost />}
 
           {selectedCategory && selectedSubcategory ? (

@@ -71,7 +71,7 @@ function AdminPost() {
       return (
         <video
           controls
-          className="h-68 w-full object-cover border rounded"
+          className="h-72 w-full object-cover border rounded"
           src={item.postUrl}
           alt={`Video Banner ${item.position}`}
         >
@@ -83,45 +83,41 @@ function AdminPost() {
       <img
         src={item.postUrl}
         alt={`Image Banner ${item.position}`}
-        className="h-68 w-full object-contain bg-center border-2 border-gray-200"
+        className="h-72 w-full object-contain bg-center border-2 border-gray-200 overflow-hidden"
       />
     );
   };
 
   return (
     <div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {leftImages?.length > 0 && (
           <div
             key={leftImages[leftImageIndex]._id}
-            className="relative overflow-hidden rounded-lg bg-white shadow p-8"
+            className="relative overflow-hidden rounded-lg bg-white shadow"
           >
-              {renderBanner(leftImages[leftImageIndex])}
-            {leftImages?.length > 1 && <GrPrevious
-              onClick={() => setLeftImageIndex((i) => prevIndex(i, leftImages))}
-              className="absolute top-[45%] left-0 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-400 cursor-pointer"
-            />}
-            {leftImages.length > 1 && <GrNext
-              onClick={() => setLeftImageIndex((i) => nextIndex(i, leftImages))}
-              className="absolute top-[45%] right-0 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-400 cursor-pointer"
-            />}
-
-            <div className='absolute top-2 right-2'>
-              <a
+            <a
               href={leftImages[leftImageIndex].url}
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FaLink />
+              {renderBanner(leftImages[leftImageIndex])}
             </a>
-            </div>
+            {leftImages?.length > 1 && <GrPrevious
+              onClick={() => setLeftImageIndex((i) => prevIndex(i, leftImages))}
+              className="absolute top-[45%] left-4 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-400 cursor-pointer"
+            />}
+            {leftImages.length > 1 && <GrNext
+              onClick={() => setLeftImageIndex((i) => nextIndex(i, leftImages))}
+              className="absolute top-[45%] right-4 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-400 cursor-pointer"
+            />}
           </div>
         )}
 
         {rightImages?.length > 0 && (
           <div
             key={rightImages[rightImageIndex]._id}
-            className="relative overflow-hidden rounded-lg bg-white shadow p-8"
+            className="group relative overflow-hidden rounded-lg bg-white shadow-2xs border-1 border-gray-200"
           >
               {renderBanner(rightImages[rightImageIndex])}
             {rightImages.length > 1 && <GrPrevious
@@ -134,7 +130,7 @@ function AdminPost() {
               className="absolute top-[45%] right-0 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-400 cursor-pointer"
             />}
 
-            <div className='absolute top-2 right-2'>
+            <div className='hidden group-hover:block absolute top-2 right-2'>
               <a
               href={rightImages[rightImageIndex].url}
               target="_blank"
@@ -147,7 +143,7 @@ function AdminPost() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 mt-8">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mt-3">
         {/* Left Videos */}
         {leftVideos?.length > 0 && (
           <div

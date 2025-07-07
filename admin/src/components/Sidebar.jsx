@@ -187,7 +187,7 @@ import {
   Menu,
   ChevronRight
 } from 'lucide-react';
-import { useState } from 'react';
+import { useReducer, useRef, useState } from 'react';
 import { useAdmin } from '../context/AdminContext';
 import instance from '../utils/axios';
 
@@ -210,6 +210,10 @@ export function Sidebar() {
       console.error('Logout error:', error);
     }
   };
+
+  function handleToggle() {
+
+  }
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -262,6 +266,9 @@ export function Sidebar() {
 
   ];
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useRef(null)
+
   return (
     <>
       {/* Mobile menu button */}
@@ -303,23 +310,8 @@ export function Sidebar() {
                 const Icon = item.icon;
                 const isActive = currentPath === item.path || currentPath.startsWith(item.path);
 
-            // Handle logout button
-            if (item.isLogout) {
-              return (
-                <button
-                  key={index}
-                  onClick={handleLogout}
-                  className="relative w-full flex items-center px-6 py-3 text-sm font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <Icon className="mr-4 h-5 w-5 flex-shrink-0" />
-                  {item.label}
-                </button>
-              );
-            }
-
-            // Submenus
             if (item.isSubmenu) {
-              const parentKey = item.path.split('/')[1];
+              const parentKey = item.path.split('/')[1]; // e.g., 'services', 'shop'
               const isOpen = openMenu === parentKey;
               const toggleMenu = () =>
                 setOpenMenu((prev) => (prev === parentKey ? null : parentKey));
@@ -341,6 +333,7 @@ export function Sidebar() {
                         {item.label}
                       </button>
 
+                  {/* Submenu Items */}
                   {isOpen && (
                     <div className="ml-10 space-y-1">
                       {item.children.map((sub, subIndex) => {
