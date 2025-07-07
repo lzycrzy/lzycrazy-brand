@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./StoryViewer.css";
 
-const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
+const StoryViewer = ({ stories = [], initialIndex = 0, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isPlaying, setIsPlaying] = useState(true);
   const timerRef = useRef(null);
@@ -13,7 +13,7 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
   );
 
   const story = validStories[currentIndex];
-
+  console.log(story)
   useEffect(() => {
     setCurrentIndex(initialIndex);
   }, [initialIndex]);
@@ -88,29 +88,32 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
           <div className="flex-1" onClick={handlePrev} />
           <div className="flex-1" onClick={handleNext} />
         </div>
-
+       
+        {/* TEXT STORY */}
         {story.type === "text" && (
-          <div
-            className="w-[360px] h-[640px] rounded-xl flex items-center justify-center px-4 text-3xl text-center font-bold z-0"
-            style={{
-              backgroundColor:
-                story.text.backgroundColor && !story.backgroundColor.includes("gradient")
-                  ? story.text.backgroundColor
-                  : "#000",
-              background:
-                story.text.backgroundColor && story.backgroundColor.includes("gradient")
-                  ? story.backgroundColor
-                  : "none",
-              fontFamily: story.fontStyle || "sans-serif",
-              color: story.text.backgroundColor === "#ffffff" ? "#000" : "#fff",
-              overflowWrap: "break-word",
-              wordBreak: "break-word",
-            }}
-          >
-            {story.text || "Your story text"}
-          </div>
-        )}
+  <div
+    className="w-[360px] h-[640px] rounded-xl flex items-center justify-center px-4 text-3xl text-center font-bold z-0"
+    style={{
+      ...(story.text?.backgroundColor?.includes("gradient")
+        ? { background: story.text.backgroundColor }
+        : { backgroundColor: story.text?.backgroundColor || "#000" }),
+      fontFamily: story.text?.fontStyle || "sans-serif",
+      color:
+        story.text?.backgroundColor === "#ffffff" ||
+        story.text?.backgroundColor === "white"
+          ? "#000"
+          : "#fff",
+      overflowWrap: "break-word",
+      wordBreak: "break-word",
+    }}
+  >
+    {story.text?.content || "Your story text"}
+  </div>
+)}
 
+
+
+        {/* PHOTO STORY */}
         {story.type === "photo" && (
           <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden z-0">
             <img
@@ -134,32 +137,35 @@ const StoryViewer = ({ stories = [], initialIndex = 1, onClose }) => {
           </div>
         )}
 
+        {/* VIDEO STORY */}
         {story.type === "video" && (
-          <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden bg-black flex items-center justify-center z-0">
-            <video
-              key={story._id}
-              src={story.video}
-              autoPlay
-              muted
-              playsInline
-              controls={false}
-              className="w-full h-full object-contain"
-            />
-            {story.overlayText && (
-              <div
-                className="absolute top-1/2 left-1/2 text-white text-3xl font-bold text-center px-2"
-                style={{
-                  transform: "translate(-50%, -50%)",
-                  fontFamily: story.fontStyle || "sans-serif",
-                  pointerEvents: "none",
-                }}
-              >
-                {story.overlayText}
-              </div>
-            )}
-         
-          </div>
-        )}
+  <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden bg-black z-0">
+    {/* Video container */}
+    <video
+      key={story._id}
+      src={story.video}
+      autoPlay
+      muted
+      playsInline
+      controls={false}
+      className="absolute inset-0 w-full h-full object-cover"
+    />
+
+    {/* Overlay text on top */}
+    {story.overlayText && (
+      <div
+        className="absolute inset-0 flex items-center justify-center px-4 text-white text-3xl font-bold text-center z-20 pointer-events-none"
+        style={{
+          fontFamily: story.fontStyle || "sans-serif",
+          textShadow: "0 0 8px rgba(0,0,0,0.7)",
+        }}
+      >
+        {story.overlayText}
+      </div>
+    )}
+  </div>
+)}
+
       </div>
     </div>
   );

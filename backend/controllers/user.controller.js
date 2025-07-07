@@ -204,8 +204,8 @@ export const updateMe = async (req, res) => {
   try {
     const updates = { fullName: req.body.name };
 
-    console.log("🟡 Received name:", req.body.name);
-    console.log("🟡 Received file:", req.file?.originalname);
+    console.log(" Received name:", req.body.name);
+    console.log(" Received file:", req.file?.originalname);
     const filePath=req.file.path;
 
     if (req.file) {
@@ -585,30 +585,38 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
 export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   const { token } = req.params;
   const { password, confirmPassword } = req.body;
-  console.log(password);
 
   const resetPasswordToken = crypto
     .createHash('sha256')
     .update(token)
     .digest('hex');
 
-  //--
+  //  Find user
   const user = await userModel.findOne({
     resetPasswordToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
 
+  //  Fix crash: Check if user was found
+  if (!user) {
+    return next(new ErrorHandler('Reset token is invalid or has expired', 400));
+  }
+
+  // Check passwords match
   if (password !== confirmPassword) {
     return next(new ErrorHandler('Passwords do not match', 400));
   }
 
+  //  Update password
   user.password = password;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
-  await user.save();
+  await user.save(); // assumes hashing is handled in pre-save hook
 
-  generateToken(user, 'Reset Password Successfully!', 200, res); //--
+  //  Return token or success response
+  generateToken(user, 'Password reset successfully!', 200, res);
 });
+
 
 
 // export const uploadStory = async (req, res) => {
@@ -940,55 +948,55 @@ export const getStoryViews = async (req, res) => {
   }
 };
 
-export const submitApplication = async (req, res) => {
-  try {
-    console.log(req.body);
-    const {
-      lycrazyId,
-      country,
-      state,
-      city,
-      phone,
-      email,
-      education,
-      age,
-      height,
-      weight,
-      jobCategory,
-      experience,
-      about,
-    } = req.body;
+// export const submitApplication = async (req, res) => {
+//   try {
+//     console.log(req.body);
+//     const {
+//       lycrazyId,
+//       country,
+//       state,
+//       city,
+//       phone,
+//       email,
+//       education,
+//       age,
+//       height,
+//       weight,
+//       jobCategory,
+//       experience,
+//       about,
+//     } = req.body;
 
-    console.log(req.file); // includes path, size, filename, etc.
-    console.log(lycrazyId);
-    const result = req.file?.path || null;
-    const videoUrl = await uploadToCloudinary(result);
-    console.log(videoUrl)
+//     console.log(req.file); // includes path, size, filename, etc.
+//     console.log(lycrazyId);
+//     const result = req.file?.path || null;
+//     const videoUrl = await uploadToCloudinary(result);
+//     console.log(videoUrl)
 
-    const applicant = new Applicant({
-      lycrazyId,
-      country,
-      state,
-      city,
-      education,
-      phone,
-      age,
-      email,
-      height,
-      weight,
-      jobCategory,
-      experience,
-      about,
-      videoUrl // store local file path
-    });
+//     const applicant = new Applicant({
+//       lycrazyId,
+//       country,
+//       state,
+//       city,
+//       education,
+//       phone,
+//       age,
+//       email,
+//       height,
+//       weight,
+//       jobCategory,
+//       experience,
+//       about,
+//       videoUrl // store local file path
+//     });
 
-    await applicant.save();
-    res.status(200).json({ message: 'Application submitted successfully!' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error submitting application' });
-  }
-};
+//     await applicant.save();
+//     res.status(200).json({ message: 'Application submitted successfully!' });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Error submitting application' });
+//   }
+// };
 
 export const checkEmail = async (req, res) => {
   const { email } = req.body;
@@ -1006,7 +1014,7 @@ export const checkEmail = async (req, res) => {
       return res.status(400).json({ message: 'Company ID not available yet' });
     }
 
-    return res.status(200).json({ companyId: user.companyId,name: user.fullName });
+    return res.status(200).json({ companyId: user.companyId,name: user.fullName , email: user.email, phone: user.phone});
   } catch (error) {
     console.error('Error checking companyId by email:', error);
     return res.status(500).json({ message: 'Internal Server Error' });

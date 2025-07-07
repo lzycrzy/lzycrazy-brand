@@ -58,7 +58,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await instance.get('/admin/logout', { withCredentials: true }); // send cookie
+      await instance.post('/admin/logout', { withCredentials: true }); // send cookie
       dispatch(logout()); // clear redux & localStorage
       navigate('/auth'); // redirect to login page
     } catch (error) {
