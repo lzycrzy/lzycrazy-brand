@@ -88,31 +88,50 @@ export async function createListing(formData, navigate, setIsAddProductModal) {
   const toastId = toast.loading('product listing in progress');
 
   async function uploadImageToCloudinary(imageFiles) {
-    const photos = [];
+  const photos = [];
 
-    for (const file of imageFiles) {
-      const uploadFormData = new FormData();
-      uploadFormData.append('file', file);
+  for (const file of imageFiles) {
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
 
+    let attempts = 0;
+    let uploaded = false;
+
+    while (attempts < 3 && !uploaded) { 
       try {
-        const response = await instance.post(
-          '/v1/image/upload',
-          uploadFormData,
-        );
+        const response = await instance.post('/v1/image/upload', uploadFormData);
         const result = response.data;
 
-        if (result.success) {
+        if (result.success && result.url) {
           photos.push(result.url);
+          uploaded = true;
         } else {
-          console.error('Upload failed:', result.message);
+          console.error(`Upload failed [Attempt ${attempts + 1}]:`, result.message || 'Unknown error');
         }
       } catch (err) {
-        console.error('Upload error:', err);
+        console.error(`Upload error [Attempt ${attempts + 1}]:`, err.message || err);
+      }
+
+      if (!uploaded) {
+        attempts++;
+        if (attempts < 3) {
+          toast.warning('Failed to upload image - Retrying...')
+          console.log(`🔁 Retrying upload for ${file.name} (Attempt ${attempts + 1}/3)...`);
+          await new Promise((res) => setTimeout(res, 1000 * attempts));
+        }
       }
     }
 
-    return photos;
+    if (!uploaded) {
+      console.warn(`Failed to upload file after 3 attempts: ${file.name}`);
+      toast.error('Product Not listed-You will get your payment back.');
+      return;
+    }
   }
+
+  return photos;
+}
+
 
   let photoUrls = [];
   if (formData.getAll('file').length > 0) {
@@ -179,20 +198,28 @@ export async function updateListing(formData, navigate, setIsAddProductModal) {
       const uploadFormData = new FormData();
       uploadFormData.append('file', file);
 
-      try {
-        const response = await instance.post(
-          '/v1/image/upload',
-          uploadFormData,
-        );
-        const result = response.data;
+      let attempt = 0;
+      const maxAttempts = 2;
 
-        if (result.success && result.url) {
-          photos.push(result.url);
-        } else {
-          console.error('Upload failed:', result.message || 'No URL returned');
+      while (attempt < maxAttempts) {
+        try {
+          const response = await instance.post(
+            '/v1/image/upload',
+            uploadFormData,
+          );
+          const result = response.data;
+
+          if (result.success && result.url) {
+            photos.push(result.url);
+            break;
+          } else {
+            console.warn(`Attempt ${attempt + 1} failed:`, result.message);
+          }
+        } catch (err) {
+          console.error(`Attempt ${attempt + 1} error:`, err.message || err);
         }
-      } catch (err) {
-        console.error('Upload error:', err.message || err);
+
+        attempt++;
       }
     }
 
@@ -267,7 +294,7 @@ export const initiatePaymentForRenew = async (
   email,
   data,
   navigate,
-  setRenewListing
+  setRenewListing,
 ) => {
   const toastId = toast.loading('Loading...');
 
@@ -328,7 +355,7 @@ export const initiatePaymentForRenew = async (
 };
 
 export const renewListing = async (data, navigate, setRenewListing) => {
-  const toastId = toast.loading('listing extending...')
+  const toastId = toast.loading('listing extending...');
   try {
     const res = await instance.put(`/v1/listing/renew/${data.id}`, data);
 
@@ -336,16 +363,16 @@ export const renewListing = async (data, navigate, setRenewListing) => {
       toast.success('listing extended...');
       setTimeout(() => {
         setRenewListing(null);
-        navigate('/ads')
-      }, [2000])
+        navigate('/ads');
+      }, [2000]);
     }
   } catch (error) {
     console.log(error);
-    toast.error('listing not extended!')
+    toast.error('listing not extended!');
   }
 
   toast.dismiss(toastId);
-}
+};
 
 async function verifyPayment(bodyData) {
   const toastId = toast.loading('Verifying payment...');
