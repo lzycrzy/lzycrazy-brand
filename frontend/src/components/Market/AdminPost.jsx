@@ -21,6 +21,7 @@ function AdminPost() {
   async function fetchMarketPlacePost() {
     try {
       const response = await instance.get('/v1/admin/market-post');
+      console.log(response.data.data)
       if (response?.data?.data) {
         
         const sorted = response.data.data.sort((a, b) => a.position - b.position);
@@ -28,6 +29,7 @@ function AdminPost() {
         const leftImgs = sorted.filter(
           (item) => item.type === 'image' && item.position % 2 === 1,
         );
+
         const rightImgs = sorted.filter(
           (item) => item.type === 'image' && item.position % 2 === 0,
         );

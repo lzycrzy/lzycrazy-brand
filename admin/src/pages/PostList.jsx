@@ -105,9 +105,9 @@ export default function PostList() {
                 >
                   <td className="flex gap-3 px-4 py-4">
                     {item.type === 'video' && 
-                    <video src={item.postUrl} className='h-32 w-full bg-center object-contain'></video>}
+                    <video src={item.postUrl} className='h-20 w-30 bg-center object-contain' controls></video>}
                     {item.type === 'image' && 
-                    <img src={item.postUrl || "/missing.png"} alt={item.title || "Post Image"} className='w-full bg-center object-contain' />}
+                    <img src={item.postUrl || "/missing.png"} alt={item.title || "Post Image"} className='w-30 h-20 bg-center object-contain' />}
                   </td>
                   <td className="px-4 py-4 text-sm font-medium text-gray-900">
                     {item.name}
