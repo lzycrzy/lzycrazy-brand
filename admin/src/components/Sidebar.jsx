@@ -212,9 +212,12 @@ export function Sidebar() {
   };
 
   function handleToggle() {
-
+    setSidebarOpen(prev => !prev);
   }
 
+  function handleClose() {
+    setSidebarOpen(false);
+  }
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
     {
