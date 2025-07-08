@@ -4,11 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import ForgotPassword from '../components/Auth/ForgotPassword';
 import instance from '../utils/axios';
-<<<<<<< HEAD
-//import lzylogo from '../assets/Logo.jpg';
-=======
 import { useAsset } from '../context/useAsset';
->>>>>>> refs/remotes/origin/deploy
+
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -69,13 +66,7 @@ export default function Auth() {
         {/* ------------ brand / illustration (left) ------------ */}
         <div className="mx-auto mt-12 hidden shrink-0 select-none lg:block">
           <img
-<<<<<<< HEAD
-              src="https://res.cloudinary.com/dci4f6wuc/image/upload/v1751867930/Logo_z1lmdd.jpg"
-          // src="/Logo.jpg"
-	    //src={lzylogo}
-=======
             src={getAssetUrl('Logo.jpg') || "/missing.png"}
->>>>>>> refs/remotes/origin/deploy
             alt="Lzycrazy logo"
             className="h-80 w-100 bg-transparent"
           />
