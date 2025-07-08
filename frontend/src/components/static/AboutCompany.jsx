@@ -21,7 +21,7 @@ const sections = [
   {
     title: 'Our Team',
     subtitle: 'Who we are',
-    text: 'LzyCrazy is a team comprised of dedicated and experienced professionals with relevant experience in their respective fields. We ensure the delivery of our best and most efficient services to consumers that can make their lives more effortless, gracious, and elated. LzyCrazy believes in providing the best platform for people to connect, sell their products, share ideas, promote business, develop websites, and so on. We also tend to provide a source of income to people for their better lifestyle. Our motive is to emerge as one of the best leading brands in the global world. Keeping up with the latest technology, we endeavor to keep our consumers at the center of our business universe. Infused with our creativity, LzyCrazy's distinct aim is to provide the world a better future.',
+    text: 'LzyCrazy is a team comprised of dedicated and experienced professionals with relevant experience in their respective fields. We ensure the delivery of our best and most efficient services to consumers that can make their lives more effortless, gracious, and elated. LzyCrazy believes in providing the best platform for people to connect, sell their products, share ideas, promote business, develop websites, and so on. We also tend to provide a source of income to people for their better lifestyle. Our motive is to emerge as one of the best leading brands in the global world. Keeping up with the latest technology, we endeavor to keep our consumers at the center of our business universe. Infused with our creativity, LzyCrazy\'s distinct aim is to provide the world a better future.',
     image: '/assets/2.png',
   },
   {
