@@ -68,8 +68,8 @@ const Header = () => {
           <HeaderIcon image={loaded ? getAssetUrl('home.png') : '/missing.png'} to="/" user={user} alt="Home" />
           <HeaderIcon image={loaded ? getAssetUrl('store.png') : '/missing.png'} to="/market" user={user} alt="Store" />
           <HeaderIcon image={loaded ? getAssetUrl('add.png') : '/missing.png'} user={user} alt="Add" />
-          <HeaderIcon image={loaded ? getAssetUrl('movie-reel.png') : '/missing.png'} to="/" user={user} alt="Movie Reel" />
-          <HeaderIcon image={loaded ? getAssetUrl('play-button-arrowhead.png') : '/missing.png'} to="/" user={user} alt="Play Button" />
+          {/* <HeaderIcon image={loaded ? getAssetUrl('movie-reel.png') : '/missing.png'} to="/" user={user} alt="Movie Reel" /> */}
+          {/* <HeaderIcon image={loaded ? getAssetUrl('play-button-arrowhead.png') : '/missing.png'} to="/" user={user} alt="Play Button" /> */}
         </div>
 
         {/* Right - Search + Icons */}
