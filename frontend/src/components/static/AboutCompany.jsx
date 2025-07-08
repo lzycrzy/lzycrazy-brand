@@ -16,25 +16,25 @@ const sections = [
     title: 'About the Company',
     subtitle: 'What drives us',
     text: 'LzyCrazy is an Indian Multi-National Technology company based in Noida, India. It was incorporated on 18th June 2021 in Noida, Uttar Pradesh. We aim at providing all the luxury brands under a single platform. We are developing our brand as a protagonist and also aim at reaching consumer satisfaction by providing outstanding services. We have the best social media platform to connect people all over the world, which is a great benefit for advertisement as well as brand promotion. We help in business development by focusing on consumers needs and ensuring them a great variety of products in a truly unique way. With our new features, users can share new photos, videos, etc.',
-    image: '/assets/1.png',
+    image: '1.png',
   },
   {
     title: 'Our Team',
     subtitle: 'Who we are',
-    text: 'LzyCrazy is a team comprised of dedicated and experienced professionals with relevant experience in their respective fields. We ensure the delivery of our best and most efficient services to consumers that can make their lives more effortless, gracious, and elated. LzyCrazy believes in providing the best platform for people to connect, sell their products, share ideas, promote business, develop websites, and so on. We also tend to provide a source of income to people for their better lifestyle. Our motive is to emerge as one of the best leading brands in the global world. Keeping up with the latest technology, we endeavor to keep our consumers at the center of our business universe. Infused with our creativity, LzyCrazy's distinct aim is to provide the world a better future.',
-    image: '/assets/2.png',
+    text: 'LzyCrazy is a team comprised of dedicated and experienced professionals with relevant experience in their respective fields. We ensure the delivery of our best and most efficient services to consumers that can make their lives more effortless, gracious, and elated. LzyCrazy believes in providing the best platform for people to connect, sell their products, share ideas, promote business, develop websites, and so on. We also tend to provide a source of income to people for their better lifestyle. Our motive is to emerge as one of the best leading brands in the global world. Keeping up with the latest technology, we endeavor to keep our consumers at the center of our business universe. Infused with our creativity, LzyCrazy\'s distinct aim is to provide the world a better future.',
+    image: '2.png',
   },
   {
     title: 'Our Vision',
     subtitle: 'Looking ahead',
     text: 'The vision is to emerge as the largest networking site in the global world by empowering people with convenient access and the greatest platform to connect them extensively.',
-    image: '/assets/3.png',
+    image: '3.png',
   },
   {
     title: 'Our Values',
     subtitle: 'What we believe',
     text: 'LzyCrazy has acquired 29 members from each state of India to provide efficient services to people.',
-    image: '/assets/4.png',
+    image: '4.png',
   },
 ];
 
@@ -81,7 +81,7 @@ const AboutUs = () => {
               }`}
             >
               <img
-                src={section.image}
+                src={loaded ? getAssetUrl(section.image) : 'misisng.png'}
                 alt={section.title}
                 className="max-w-full h-[350px] object-contain rounded-lg "
               />
