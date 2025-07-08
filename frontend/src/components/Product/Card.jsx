@@ -23,8 +23,8 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
   } = useForm({
     defaultValues: {
       brand: '',
-      title: '',
-      description: '',
+      title:  '',
+      description:  '',
       price: '',
       photos: [],
       state: '',
@@ -79,6 +79,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
   };
 
   const onSubmit = async (data) => {
+    console.log(data);
     setConfirmListing(null);
     if (data.photos[0] === 'empty') {
       toast.error('Please choose at least 2 images.');
@@ -178,26 +179,6 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
             <h2 className="font-semibold uppercase lg:text-xl">
               Include Some Details
             </h2>
-
-            <div className="flex flex-col gap-1">
-              <label htmlFor="brand">
-                Brand <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="brand"
-                {...register('brand', { required: true })}
-                className={`rounded-md border-2 ${errors.brand ? 'border-red-600' : 'border-gray-400'} p-2`}
-              >
-                <option value="">Select Brand</option>
-                <option value="Option1">Option1</option>
-                <option value="Option2">Option2</option>
-                <option value="Option3">Option3</option>
-                <option value="Option4">Option4</option>
-              </select>
-              {errors.brand && (
-                <p className="mt-1 text-sm text-red-600">brand is required</p>
-              )}
-            </div>
 
             <div className="flex flex-col gap-1">
               <label htmlFor="title">
@@ -457,6 +438,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
             watch={watch}
             register={register}
             setValue={setValue}
+            reset={reset}
             errors={errors}
             getValues={getValues}
           />

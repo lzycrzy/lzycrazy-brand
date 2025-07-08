@@ -1,129 +1,152 @@
-import { Play } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Upload, Calendar, User, Eye, Play, X, Camera } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import UpdateMarketPostList from '../components/UpdateMarketPostList';
 import instance from '../utils/axios';
-import Loader from '../components/Loader';
+import { toast } from 'react-toastify';
+import { formatDate } from '../utils/formateDate';
 
 export default function PostList() {
   const [isEditing, setIsEditing] = useState(false);
   const [editPostData, setEditPostData] = useState(null);
-  const [newsData, setNewsData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [temp, setTemp] = useState([]);
+  
+  const [temp, setTemp] = useState(null);
+  const [filterable, setFilterable] = useState(null);
 
   function filterHandler(event) {
     let filterType = event.target.value;
-    if (filterType === 'All') {
-      setNewsData([...temp]);
-    } else {
-      setNewsData(temp.filter(item => item.type === filterType));
+
+    if (filterType === 'all') {
+      setTemp(filterable);
+      return;
     }
+    setTemp(filterable.filter((item) => item.type == filterType));
   }
 
-  function postEditHandler(editingData) {
-    setIsEditing(true);
-    setEditPostData(editingData);
-  }
-
-  async function deletePost(_id, postUrl) {
-    const confirm = window.confirm('Are you sure you want to delete this post?');
-    if (confirm) {
-      const response = await instance.delete(`/admin/deletePost/${_id}`, postUrl);
-      if (response.data?.message) {
-        setNewsData(prev => prev.filter(item => item._id !== _id));
+  const deleteMarketPost = async (id) => {
+    const toastId = toast.loading('post deleting')
+    try {
+      const res = await instance.delete(`/admin/market-post/delete/${id}`);
+      if (res?.success) {
+        toast.success('post deleted successfully!')
       }
-    }
-  }
 
-  async function postListHandler() {
-    setIsLoading(true);
-    const response = await instance.get('/admin/marketPost');
-    if (response.data?.message) {
-      setNewsData([...response.data.message]);
-      setTemp([...response.data.message]);
+      console.log(res.data.data);
+      setTemp(res.data.data)
+      setFilterable(res.data.data);
+    } catch (error) {
+      console.log(error);
+      toast.error('post not deleted');
     }
-    setIsLoading(false);
-  }
+
+    toast.dismiss(toastId);
+  };
 
   useEffect(() => {
-    postListHandler();
-  }, []);
+    async function getPostList() {
+      try {
+        const res = await instance.get('/admin/market-post');
+        console.log(res.data);
+        setTemp(res.data.data);
+        setFilterable(res.data.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    getPostList();
+  }, [isEditing, editPostData])
 
   return (
-    <div className="w-full flex justify-center py-4">
-      <div className="w-full max-w-screen-xl bg-white rounded-lg shadow-sm overflow-hidden px-4">
-        <div className="mb-4 flex items-center gap-2">
-          <label htmlFor="filter-post" className="text-lg font-semibold">Filter</label>
-          <select onChange={filterHandler} className="border border-gray-300 rounded-lg px-3 py-1" id="filter-post">
-            <option value="All">Select</option>
-            <option value="image">Image</option>
-            <option value="video">Video</option>
-          </select>
-        </div>
-
-        {isLoading ? (
-          <Loader />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-full table-auto">
-              <thead className="bg-gray-600">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">Video</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">User Name</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">URL</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">Post Date</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">Edit</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">Delete</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {newsData.map((item, index) => (
-                  <tr key={item._id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-4 py-4">
-                      <div className="relative w-16 h-12 bg-gray-200 rounded overflow-hidden">
-                        <div className="w-full h-full bg-blue-900 flex items-center justify-center">
-                          <Play className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="absolute top-0 left-0 bg-red-600 text-white text-xs px-1 py-0.5 rounded-br">
-                          LIVE
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-900 font-medium">{item.userName}</td>
-                    <td className="px-4 py-4 text-sm text-gray-900 font-medium break-words max-w-[200px]">{item.url}</td>
-                    <td className="px-4 py-4 text-sm text-gray-700">{item.postDate?.split('T')[0]}</td>
-                    <td className="px-4 py-4 text-sm text-gray-700">
-                      <button
-                        onClick={() => postEditHandler(item)}
-                        className="bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-sm"
-                      >
-                        Edit
-                      </button>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-700">
-                      <button
-                        onClick={() => deletePost(item._id, item.postUrl)}
-                        className="bg-red-600 hover:bg-red-700 py-1 px-3 rounded-lg text-white text-sm"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {isEditing && (
-              <UpdateMarketPostList
-                key={editPostData._id}
-                isEditing={isEditing}
-                setNewsData={setNewsData}
-                setIsEditing={setIsEditing}
-                data={editPostData}
-              />
-            )}
+    <div>
+      <div className="scrollbar-hide flex w-full justify-center overflow-y-hidden rounded-lg py-2 shadow-sm lg:max-w-[90vw]">
+        <div className="space-y-3 w-full overflow-auto">
+          <div className="space-x-2 font-semibold p-2">
+            <label className="text-lg" htmlFor="filter-post">
+              Filter:
+            </label>
+            <select
+              onChange={filterHandler}
+              className="rounded-lg border px-5 outline-none"
+              id="filter-post"
+            >
+              <option value="" disabled>Select</option>
+              <option value="all">All</option>
+              <option value="image">Image</option>
+              <option value="video">Video</option>
+            </select>
           </div>
-        )}
+          <table className='w-full'>
+            <thead className="bg-gray-600">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium text-white">
+                  Media
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-white">
+                  User Name
+                </th>
+                <th className="flex justify-center px-4 py-3 text-left text-sm font-medium text-white">
+                  Url
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-white">
+                  Post Date
+                </th>
+                <th colSpan={2} className="text-center px-4 py-3 text-sm font-medium text-white">
+                  <h4>Action</h4>
+                </th>
+                {/* <th className="flex gap-24 px-4 py-3 text-left text-sm font-medium text-white"><h4>Edit</h4> <h4>Delete</h4></th>              */}
+              </tr>
+            </thead>
+            <tbody className="space-y-2 divide-y divide-gray-200">
+              {temp?.map((item, index) => (
+                <tr
+                
+                  key={item._id}
+                  className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                >
+                  <td className="flex gap-3 px-4 py-4">
+                    {item.type === 'video' && 
+                    <video src={item.postUrl} className='h-20 w-30 bg-center object-contain' controls></video>}
+                    {item.type === 'image' && 
+                    <img src={item.postUrl || "/missing.png"} alt={item.title || "Post Image"} className='w-30 h-20 bg-center object-contain' />}
+                  </td>
+                  <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                    {item.name}
+                  </td>
+                  <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                    {item.url}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-700">
+                    {formatDate(item.postDate)}
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-700 flex justify-center gap-2">
+                    <button  onClick={() => {
+                    setIsEditing(true);
+                    setEditPostData(item);
+                  }} className="rounded-lg bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700">
+                      Edit
+                    </button>
+                    <button  onClick={() => deleteMarketPost(item._id)} className="rounded-lg bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700">
+                      Delete
+                    </button>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-700">
+                  </td>
+                  {/* <td className="px-4 py-4 space-x-12 text-sm text-gray-700">
+                    <button className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Edit</button>
+                    <button className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Delete</button>
+                    </td> */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {isEditing && (
+            <UpdateMarketPostList
+              setEditData={setEditPostData}
+              setIsEditing={setIsEditing}
+              data={editPostData}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

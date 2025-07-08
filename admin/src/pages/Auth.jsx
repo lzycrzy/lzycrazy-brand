@@ -4,15 +4,21 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import ForgotPassword from '../components/Auth/ForgotPassword';
 import instance from '../utils/axios';
+<<<<<<< HEAD
 //import lzylogo from '../assets/Logo.jpg';
+=======
+import { useAsset } from '../context/useAsset';
+>>>>>>> refs/remotes/origin/deploy
 
 export default function Auth() {
   const navigate = useNavigate();
+  const { getAssetUrl, loaded } = useAsset();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [stage, setStage] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
-   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -63,9 +69,13 @@ export default function Auth() {
         {/* ------------ brand / illustration (left) ------------ */}
         <div className="mx-auto mt-12 hidden shrink-0 select-none lg:block">
           <img
+<<<<<<< HEAD
               src="https://res.cloudinary.com/dci4f6wuc/image/upload/v1751867930/Logo_z1lmdd.jpg"
           // src="/Logo.jpg"
 	    //src={lzylogo}
+=======
+            src={getAssetUrl('Logo.jpg') || "/missing.png"}
+>>>>>>> refs/remotes/origin/deploy
             alt="Lzycrazy logo"
             className="h-80 w-100 bg-transparent"
           />

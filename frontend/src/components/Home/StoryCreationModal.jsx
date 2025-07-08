@@ -1,16 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import PhotoStoryUploader from './PhotoStoryUploader';
 import TextStoryEditor from './TextStoryEditor';
-import axios from '../../lib/axios/axiosInstance';
+import { useUser } from '../../context/UserContext';
 import instance from '../../lib/axios/axiosInstance';
 
-const StoryCreationModal = ({ onClose, onSubmit, user }) => {
-  const [mode, setMode] = useState(null);
+const StoryCreationModal = ({ onClose, onSubmit }) => {
+  const { user } = useUser();
   const fileInputRef = useRef(null);
   const photoUploaderRef = useRef(null);
 
   const [profileImage, setProfileImage] = useState(
-    user?.profileImage || 'https://i.pravatar.cc/150?u=you',
+    user?.profile?.photoURL || 'https://i.pravatar.cc/150?u=you'
   );
   const [fontStyle, setFontStyle] = useState('sans-serif');
   const [bgColor, setBgColor] = useState('#ffb6c1');
@@ -19,6 +19,7 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
   const [showFontDropdown, setShowFontDropdown] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
   const [videoPreview, setVideoPreview] = useState(null);
+  const [mode, setMode] = useState(null);
 
   const fontOptions = [
     { label: 'Clean', value: 'sans-serif' },
@@ -40,9 +41,6 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
     '#ffffff',
   ];
 
-  const getFontLabel = (value) =>
-    fontOptions.find((f) => f.value === value)?.label || value;
-
   useEffect(() => {
     setOverlayText('');
     setTextStoryContent('');
@@ -56,6 +54,9 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
       document.body.style.overflow = 'auto';
     };
   }, []);
+
+  const getFontLabel = (value) =>
+    fontOptions.find((f) => f.value === value)?.label || value;
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -74,50 +75,38 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
 
   const handleShare = async () => {
     const formData = new FormData();
-  
+
     if (mode === 'photo') {
       const blob = await photoUploaderRef.current?.getFinalCroppedStory();
       if (!blob) {
-        alert("No photo selected");
+        alert('No photo selected');
         return;
       }
-  
       const file = new File([blob], `${Date.now()}-cropped.jpg`, { type: blob.type });
-      formData.append("image", file);
-      formData.append("overlayText", overlayText);
-      formData.append("fontStyle", fontStyle);
+      formData.append('image', file);
+      formData.append('overlayText', overlayText);
+      formData.append('fontStyle', fontStyle);
     } else if (mode === 'video') {
       if (!videoFile) {
-        alert("No video selected");
+        alert('No video selected');
         return;
       }
-  
-      formData.append("media", videoFile);
-      formData.append("overlayText", overlayText);
-      formData.append("fontStyle", fontStyle);
+      formData.append('media', videoFile);
+      formData.append('overlayText', overlayText);
+      formData.append('fontStyle', fontStyle);
     } else if (mode === 'text') {
       if (!textStoryContent.trim()) {
-        alert("Please enter text for your story");
+        alert('Please enter text for your story');
         return;
       }
-  
-      formData.append("textContent", textStoryContent);
-      formData.append("fontStyle", fontStyle);
-      formData.append("backgroundColor", bgColor);
+      formData.append('textContent', textStoryContent);
+      formData.append('fontStyle', fontStyle);
+      formData.append('backgroundColor', bgColor);
     }
-  
-    // Debug
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
-    }
-  
-    // Send formData to parent for upload
+
     onSubmit(formData);
-  
-    // Close modal and reset
     setMode(null);
   };
-  
 
   const handleDiscard = () => {
     setMode(null);
@@ -134,10 +123,7 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
         <div>
           {/* Header */}
           <div className="flex items-center gap-2 border-b p-4">
-            <button
-              onClick={onClose}
-              className="text-2xl text-gray-600 hover:text-black"
-            >
+            <button onClick={onClose} className="text-2xl text-gray-600 hover:text-black">
               ✕
             </button>
             <h2 className="text-lg font-semibold">Add to Story</h2>
@@ -160,16 +146,14 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
                 onChange={handleImageChange}
               />
             </div>
-            <span className="text-md font-medium">{user?.name || 'You'}</span>
+            <span className="text-md font-medium">{user?.profile?.name || 'You'}</span>
           </div>
 
           {/* Controls */}
           {(mode === 'photo' || mode === 'video') && (
             <div className="space-y-4 border-b p-4">
               <div>
-                <label className="mb-1 block text-sm font-medium">
-                  Add Text
-                </label>
+                <label className="mb-1 block text-sm font-medium">Add Text</label>
                 <input
                   type="text"
                   value={overlayText}
@@ -187,9 +171,7 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
                     className="flex w-full items-center justify-between rounded border px-3 py-2 text-left"
                     style={{ fontFamily: fontStyle }}
                   >
-                    <span className="text-base">
-                      Aa {getFontLabel(fontStyle)}
-                    </span>
+                    <span className="text-base">Aa {getFontLabel(fontStyle)}</span>
                     <span>▼</span>
                   </button>
                   {showFontDropdown && (
@@ -224,9 +206,7 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
                     className="flex w-full items-center justify-between rounded border px-3 py-2 text-left"
                     style={{ fontFamily: fontStyle }}
                   >
-                    <span className="text-base">
-                      Aa {getFontLabel(fontStyle)}
-                    </span>
+                    <span className="text-base">Aa {getFontLabel(fontStyle)}</span>
                     <span>▼</span>
                   </button>
                   {showFontDropdown && (
@@ -300,8 +280,8 @@ const StoryCreationModal = ({ onClose, onSubmit, user }) => {
                   type === 'photo'
                     ? 'bg-gradient-to-br from-blue-500 to-blue-300'
                     : type === 'text'
-                      ? 'bg-gradient-to-br from-pink-500 to-purple-500'
-                      : 'bg-gradient-to-br from-gray-700 to-gray-500'
+                    ? 'bg-gradient-to-br from-pink-500 to-purple-500'
+                    : 'bg-gradient-to-br from-gray-700 to-gray-500'
                 }`}
               >
                 <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white text-xl text-black">

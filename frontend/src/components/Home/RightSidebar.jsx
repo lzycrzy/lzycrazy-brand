@@ -72,6 +72,7 @@ const RightSidebar = () => {
                         .then(fetchUsers)
                     }
                   >
+                    
                     Accept
                   </button>
                   <button

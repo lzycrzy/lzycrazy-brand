@@ -1,6 +1,5 @@
 // import React from 'react';
 // import { Link } from 'react-router-dom';
-// import logo from '../../assets/logo.png';
 
 // const Header = () => {
 //   return (
@@ -39,22 +38,25 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../../assets/logo.png';
 import { Menu, X } from 'lucide-react'; // optional icon library
+import { useAsset } from '../../store/useAsset';
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { getAssetUrl, loaded } = useAsset();
 
   return (
     <header className="fixed top-0 left-0  w-full bg-white z-50 border-b border-gray-200 shadow-sm">
       <div className="flex items-center justify-between px-4 sm:px-6 lg:px-12 py-3">
         {/* Left: Logo */}
         <Link to="/">
-          <img
-            src={logo}
-            alt="Logo"
-            className="h-10 w-auto object-contain"
-          />
+          {loaded && (
+            <img
+              src={getAssetUrl('logo.png') || "/missing.png"}
+              alt="Logo"
+              className="h-10 w-auto object-contain"
+            />
+          )}
         </Link>
 
         {/* Desktop Nav */}
