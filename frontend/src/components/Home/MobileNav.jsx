@@ -13,8 +13,8 @@ const MobileNav = () => {
   const mobileLinks = [
     { image: loaded ? getAssetUrl('store.png') : '/missing.png', label: 'Market', path: '/market' },
     { image: loaded ? getAssetUrl('movie-reel.png') : '/missing.png', label: 'Movies', path: '/movies' },
-    { image: loaded ? getAssetUrl('play-button-arrowhead.png') : '/missing.png', label: 'Play', path: '/play' },
-    { image: loaded ? getAssetUrl('hand.png') : '/missing.png', label: 'Saved', path: '/saved' },
+    // { image: loaded ? getAssetUrl('play-button-arrowhead.png') : '/missing.png', label: 'Play', path: '/play' },
+    // { image: loaded ? getAssetUrl('hand.png') : '/missing.png', label: 'Saved', path: '/saved' },
   ];
 
   const handleNavigation = (path) => {
@@ -38,7 +38,7 @@ const MobileNav = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around h-14 bg-white border-t shadow-md lg:hidden">
       {/* First two nav items */}
-      {mobileLinks.slice(0, 2).map((item, i) => (
+      {mobileLinks.slice(0, mobileLinks.length/2).map((item, i) => (
         <button
           key={i}
           onClick={() => handleNavigation(item.path)}
@@ -70,7 +70,7 @@ const MobileNav = () => {
       </button>
 
       {/* Last two nav items */}
-      {mobileLinks.slice(2).map((item, i) => (
+      {mobileLinks.slice(mobileLinks.length/2).map((item, i) => (
         <button
           key={i}
           onClick={() => handleNavigation(item.path)}

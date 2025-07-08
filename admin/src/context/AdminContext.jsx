@@ -17,7 +17,7 @@ export const AdminProvider = ({ children }) => {
       setAdmin(null);
 
      
-      navigate('/auth');
+      navigate('/');
     }
   };
 
@@ -35,7 +35,7 @@ export const AdminProvider = ({ children }) => {
 
    
     setAdmin(null);   
-      navigate('/auth'); // redirect after logout
+      navigate('/'); // redirect after logout
     }
   };
 

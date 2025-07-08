@@ -93,11 +93,11 @@ const MarketplaceHome = () => {
 
       <div className="flex relative">
        {!openMenu && <GrMenu
-          className="absolute top-3 left-3 z-50 cursor-pointer lg:hidden"
+          className="fixed top-15 left-1 z-50 cursor-pointer lg:hidden"
           onClick={openSidebar}
         />}
        {openMenu && <GrClose 
-          className="absolute top-3 left-3 z-50 cursor-pointer lg:hidden"
+          className="fixed top-15 left-3 z-50 cursor-pointer lg:hidden"
           onClick={() => setOpenMenu(false)}
         />}
 
