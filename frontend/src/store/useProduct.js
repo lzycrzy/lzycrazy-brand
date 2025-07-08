@@ -4,6 +4,7 @@ export const useProduct = create((set, get) => ({
     isAddProductModal: false,
     isEditing: false,
     editData: [],
+    renewLisitng: null,
 
     setIsAddProductModal: (value) => {
         set({isAddProductModal: value})
@@ -15,6 +16,10 @@ export const useProduct = create((set, get) => ({
 
     setEditData: (val) => {
         set({editData: val})
+    },
+    
+    setRenewListing: (val) => {
+        set({renewListing: val})
     }
 }))
 

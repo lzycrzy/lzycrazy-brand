@@ -10,7 +10,7 @@ const Sidebar = ({ compact = false }) => {
 
   const links = [
     {
-      icon: () => <img src={profilePic || 'https://i.ibb.co/2kR5zq0/default-avatar.png'} alt="Profile" className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover" />,
+      icon: () => <img src={profilePic || "/missing.png"} alt={displayName || "Profile"} className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover" loading="lazy" />,
       label: displayName || 'User',
       path: '/'
     },
@@ -57,11 +57,11 @@ const SidebarLink = ({ icon: Icon, label, compact, isActive }) => (
     } ${isActive ? 'text-blue-600 font-semibold' : ''}`}
   >
     <span className="text-xl">
-      {typeof Icon === 'function' ? (
-        <Icon />
-      ) : (
-        <Icon className={`text-blue-500 ${isActive ? 'text-blue-600' : ''}`} />
-      )}
+      {Icon
+        ? typeof Icon === 'function'
+          ? <Icon />
+          : <Icon className={`text-blue-500 ${isActive ? 'text-blue-600' : ''}`} />
+        : null}
     </span>
     {!compact && <span className="text-sm font-medium text-gray-800">{label}</span>}
     {compact && <span className="text-[10px] text-gray-600">{label}</span>}

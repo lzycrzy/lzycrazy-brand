@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import instance from '../utils/axios';
+import { useAsset } from '../context/useAsset';
 
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
@@ -28,6 +29,8 @@ const SuperAdminDashboard = () => {
   const [usersData, setUsersData] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const { getAssetUrl, loaded } = useAsset();
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -83,7 +86,7 @@ const SuperAdminDashboard = () => {
 
 
   return (
-    <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+    <div className="container mx-auto py-6 lg:px-10 lg:py-10">
       <h2 className="mb-5 text-xl font-bold">Dashboard</h2>
 
       {/* Top Section */}
@@ -118,11 +121,13 @@ const SuperAdminDashboard = () => {
         </div>
         <div className="flex items-center gap-2 rounded-md bg-blue-100 p-4">
           <div className="rounded-full bg-green-100 p-3">
-            <img
-              src="./Banner-Logo.png"
-              className="h-5 w-5"
-              alt="Banner Logo"
-            />
+            {loaded && (
+              <img
+                src={loaded ? getAssetUrl('Banner-Logo.png') : "/missing.png"}
+                className="h-5 w-5"
+                alt="Banner Logo"
+              />
+            )}
           </div>
           <div>
             <p className="text-sm">Banners</p>
