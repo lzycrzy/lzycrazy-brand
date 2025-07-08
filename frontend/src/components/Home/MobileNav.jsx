@@ -2,17 +2,19 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
 import { useProduct } from '../../store/useProduct';
 import { toast } from 'react-toastify';
+import { useAsset } from '../../store/useAsset';
 
 const MobileNav = () => {
   const navigate = useNavigate();
   const { user } = useUser();
   const { setIsAddProductModal } = useProduct();
+  const { getAssetUrl, loaded } = useAsset();
 
   const mobileLinks = [
-    { image: '/assets/store.png', label: 'Market', path: '/market' },
-    { image: '/assets/movie-reel.png', label: 'Movies', path: '/movies' },
-    { image: '/assets/play-button-arrowhead.png', label: 'Play', path: '/play' },
-    { image: '/assets/hand.png', label: 'Saved', path: '/saved' },
+    { image: loaded ? getAssetUrl('store.png') : '/missing.png', label: 'Market', path: '/market' },
+    { image: loaded ? getAssetUrl('movie-reel.png') : '/missing.png', label: 'Movies', path: '/movies' },
+    { image: loaded ? getAssetUrl('play-button-arrowhead.png') : '/missing.png', label: 'Play', path: '/play' },
+    { image: loaded ? getAssetUrl('hand.png') : '/missing.png', label: 'Saved', path: '/saved' },
   ];
 
   const handleNavigation = (path) => {
@@ -58,11 +60,13 @@ const MobileNav = () => {
         onClick={handleAddClick}
         className="relative -mt-6 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md border"
       >
-        <img
-          src="/assets/add.png"
-          alt="Add"
-          className="h-8 w-8 object-contain group-hover:brightness-110"
-        />
+        {loaded && (
+          <img
+            src={getAssetUrl('add.png')}
+            alt="Add"
+            className="h-8 w-8 object-contain group-hover:brightness-110"
+          />
+        )}
       </button>
 
       {/* Last two nav items */}

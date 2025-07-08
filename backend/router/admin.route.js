@@ -13,15 +13,16 @@ import {
   deleteSingleUser,
   getAllApplications,
   deleteApplication,
-  createMarketPost,
-  updateMarketPost,
-  deleteMarketPost,
   marketPost,
   publishPost,
   updatePost,
   deletePost,
   getOneApplications,
+  createMarketPost,
+  updateMarketPost,
+  deleteMarketPost,
   getMarketPost
+  
 } from '../controllers/admin.controller.js';
 import {
   isAuthenticatedAdmin,

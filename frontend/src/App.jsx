@@ -42,7 +42,7 @@
 //           draggable
 //           pauseOnHover
 //           theme="colored"
-         
+
 //         />
 
 //         <Routes>
@@ -64,21 +64,21 @@
 //               </AuthRedirect>
 //             }
 //           />
-        
+
 //           <Route path="/terms" element={<TermPage />} />
-          
+
 //             <Route path="/news" element={<NewsFeed />} />
 //             <Route path="/privacy" element={<PrivacyPolicyPage />} />
 //             <Route path="/services" element={<Services />} />
 //             <Route path="/market" element={ <MarketplaceHome />} />
 //             <Route path="/property" element={  <PropertyListing />} />
 
-            
+
 
 //           {/* Password recovery flow (publicly accessible) */}
 //           <Route path="/password/forgot" element={<ForgotPassword />} />
 //           <Route path="/password/reset/:token" element={<ResetPassword />} />
-         
+
 //           {/* Authenticated routes */}
 //           <Route
 //             path="/dashboard"
@@ -129,20 +129,20 @@
 
 // const App = () => (
 //   <Provider store={store} >
-     
+
 //     <UserProvider>
-    
+
 //         {/* <ToastContainer
 //           position="top-right"
 //           autoClose={3000}
 //           theme="colored"
 //           style={{ zIndex: 9999 }}
-        
-        
+
+
 //           pauseOnHover
 //         /> */}
 //         <AppRoutes />
-      
+
 //     </UserProvider>
 //   </Provider>
 // );
@@ -161,36 +161,47 @@ import React, { Suspense } from 'react';
 import { useProduct } from './store/useProduct';
 
 import 'react-toastify/dist/ReactToastify.css';
+import { useAsset } from './store/useAsset';
 const LazyAddProduct = React.lazy(() => import('./pages/AddProduct'));
 
 const App = () => {
 
-  const {isAddProductModal} = useProduct();
+  const { isAddProductModal } = useProduct();
+  const { fetchAssets } = useAsset();
+  useEffect(() => {
+    fetchAssets();
+  }, [])
+
   return (
-  <Provider store={store}>
-     {isAddProductModal && (
-       <Suspense fallback={<div>Loading...</div>}>
-         <LazyAddProduct />
-       </Suspense>
-     )}
-    <UserProvider>
-    
+    <Provider store={store}>
+
+      <UserProvider>
+
         {/* <ToastContainer
           position="top-right"
           autoClose={3000}
           theme="colored"
           style={{ zIndex: 9999 }}
+
+          
         
         
           pauseOnHover
         /> */}
+
+        {isAddProductModal && (
+          <Suspense fallback={<div>Loading...</div>}>
+            <LazyAddProduct />
+          </Suspense>
+        )}
+
         <AppRoutes />
 
-      
-    </UserProvider>
-  </Provider>
-  
-)
+
+      </UserProvider>
+    </Provider>
+
+  )
 }
 
 export default App;

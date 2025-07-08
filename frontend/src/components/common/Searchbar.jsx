@@ -149,6 +149,7 @@ import HiringFormModal from '../HiringFormModal';
 import HiringTaskModal from '../HiringTaskModal';
 import SuccessPopup from '../SuccessPopup';
 import NewsFeed from '../News/NewsFeed';
+import { useAsset } from '../../store/useAsset';
 
 const Searchbar = () => {
   const [query, setQuery] = useState('');
@@ -160,6 +161,7 @@ const Searchbar = () => {
   const [showComingSoon, setShowComingSoon] = useState(false);
 
   const navigate = useNavigate();
+  const { getAssetUrl, loaded } = useAsset();
 
   const tabs = [
     { name: 'About Us', path: '/about' },
@@ -195,11 +197,13 @@ const Searchbar = () => {
     <div className="w-full flex flex-col items-center justify-start bg-[#ebf3fe] pt-4 px-3">
       {/* Logo */}
       <div className="mb-4">
-        <img
-          src="/assets/lzy logo.jpg"
-          alt="LzyCrazy Logo"
-          className="w-24 sm:w-32 md:w-40 lg:w-52 opacity-90 mix-blend-multiply"
-        />
+        {loaded && (
+          <img
+            src={getAssetUrl('lzy logo.jpg') || "/missing.png"}
+            alt="LzyCrazy Logo"
+            className="w-24 sm:w-32 md:w-40 lg:w-52 opacity-90 mix-blend-multiply"
+          />
+        )}
       </div>
 
       {/* Search Box */}

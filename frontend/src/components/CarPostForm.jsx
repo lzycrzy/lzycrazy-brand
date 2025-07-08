@@ -82,7 +82,7 @@ const CarPostForm = ({ isOpen, onClose }) => {
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {images.map((src, index) => (
                   <div key={index} className="w-full aspect-square bg-gray-100 overflow-hidden rounded">
-                    <img src={src} alt={`car-${index}`} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={src || "/missing.png"} alt={`car-${index}`} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                 ))}
               </div>

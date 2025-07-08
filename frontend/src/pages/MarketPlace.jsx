@@ -130,7 +130,7 @@ const MarketplaceHome = () => {
                   }`}
                 >
                   <div className="flex gap-2 items-center">
-                    <img src={category.imageData.url} width={15} loading="lazy" />
+                    <img src={category.imageData.url ? category.imageData.url : "/missing.png"} alt={category.name || "Category"} width={15} loading="lazy" />
                     <span className="font-medium">{category.name}</span>
                   </div>
                   <svg
@@ -180,12 +180,12 @@ const MarketplaceHome = () => {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 space-y-8 overflow-auto p-9">
+        <main className="flex-1 overflow-auto p-2">
           {(!selectedCategory || !selectedSubcategory) && <AdminPost />}
 
           {selectedCategory && selectedSubcategory ? (
             <>
-              <div className="mt-6">
+              <div className="">
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                   {selectedListings.map((post, index) => (
                     <button key={index} onClick={() => handleCardClick(post)}>
@@ -196,7 +196,7 @@ const MarketplaceHome = () => {
               </div>
 
               {subcategoryDetails?.length > 0 ? (
-                <div className="mt-6">
+                <div className="mt-2">
                   <h2 className="mb-4 text-xs">
                     {subcategoryDetails[0]?.category?.name} / {selectedSubcategory}
                   </h2>

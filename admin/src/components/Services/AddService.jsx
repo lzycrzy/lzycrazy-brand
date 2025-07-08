@@ -140,7 +140,7 @@ function AddServiceCard() {
       <div className="flex flex-col items-center justify-center w-32 h-32 rounded-lg bg-gray-100 border relative overflow-hidden shadow-md mx-auto md:mx-0">
         <label htmlFor="cameraInput" className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
           {previewSrc ? (
-            <img src={previewSrc} alt="Preview" className="w-full h-full object-cover" />
+            <img src={previewSrc || "/missing.png"} alt="Preview" className="w-full h-full object-cover" />
           ) : (
             <FaCameraRetro />
           )}

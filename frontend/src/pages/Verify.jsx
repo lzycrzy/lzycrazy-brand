@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAsset } from '../store/useAsset';
 
 const VerifiedPage = () => {
   const [flyAway, setFlyAway] = useState(false);
   const navigate = useNavigate();
+  const { getAssetUrl, loaded } = useAsset();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -19,7 +21,9 @@ const VerifiedPage = () => {
           flyAway ? "animate-rocketFly" : "animate-fadeIn"
         }`}
       >
-        <img src="/assets/remove-logo.png" alt="Rocket" className="w-[200px]" loading="lazy" />
+        {loaded && (
+          <img src={getAssetUrl('remove-logo.png') || "/missing.png"} alt="Remove Logo" className="w-[200px]" loading="lazy" />
+        )}
       </div>
 
       <div className="text-center bg-white/10 p-6 px-10 rounded-2xl backdrop-blur-sm shadow-lg w-[300px] animate-fadeIn">

@@ -94,7 +94,7 @@ const StoryBar = ({ stories, onAddStory, onStoryClick }) => {
         stories.map((story, index) =>
           story ? (
             <StoryItem
-              key={story.id || index}
+              key={story._id || index}
               story={story}
               onClick={() => onStoryClick(story)}
             />
@@ -106,19 +106,23 @@ const StoryBar = ({ stories, onAddStory, onStoryClick }) => {
 
 const StoryItem = ({ story, onClick }) => {
   const baseClasses =
-    'w-24 h-40 rounded-lg overflow-hidden shadow cursor-pointer relative'; // relative for positioning profile image
-    console.log("User:", story.user);
+    'w-24 h-40 rounded-lg overflow-hidden shadow cursor-pointer relative';
+    console.log("Story User:", story.user);
 
-  const renderProfileImage = () => {
-    const img = story.user?.image;
-    return img ? (
-      <img
-        src={img}
-        alt="User"
-        className="absolute bottom-1 left-1 w-6 h-6 rounded-full border-2 border-white object-cover z-10"
-      />
-    ) : null;
-  };
+    const renderProfileImage = () => {
+      const img =
+        
+        story.user?.profile?.photoURL ||
+        story.user?.image || '';
+    
+      return img ? (
+        <img
+          src={img}
+          alt={`${story.user?.fullName || 'User'}'s profile`}
+          className="absolute bottom-1 left-1 w-6 h-6 rounded-full border-2 border-white object-cover z-10"
+        />
+      ) : null;
+    };
 
   if (story.type === 'text') {
     return (
@@ -155,7 +159,7 @@ const StoryItem = ({ story, onClick }) => {
     <div onClick={onClick} className={baseClasses} title="View Photo Story">
       <img
         src={story.image}
-        alt={`${story.user?.name || 'User'}'s story`}
+        alt={`${story.user?.fullName || 'User'}'s story`}
         className="h-full w-full object-cover"
       />
       {renderProfileImage()}

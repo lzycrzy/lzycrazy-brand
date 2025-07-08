@@ -93,7 +93,6 @@ export default function PostList() {
                 <th colSpan={2} className="text-center px-4 py-3 text-sm font-medium text-white">
                   <h4>Action</h4>
                 </th>
-                
                 {/* <th className="flex gap-24 px-4 py-3 text-left text-sm font-medium text-white"><h4>Edit</h4> <h4>Delete</h4></th>              */}
               </tr>
             </thead>
@@ -105,14 +104,10 @@ export default function PostList() {
                   className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                 >
                   <td className="flex gap-3 px-4 py-4">
-                    <div className="relative h-12 w-16 overflow-hidden rounded bg-gray-200">
-                      <div className="flex h-full w-full items-center justify-center bg-blue-900">
-                        <Play className="h-4 w-4 text-white" />
-                      </div>
-                      <div className="absolute top-0 left-0 rounded-br bg-red-600 px-1 py-0.5 text-xs text-white">
-                        LIVE
-                      </div>
-                    </div>
+                    {item.type === 'video' && 
+                    <video src={item.postUrl} className='h-32 w-full bg-center object-contain'></video>}
+                    {item.type === 'image' && 
+                    <img src={item.postUrl || "/missing.png"} alt={item.title || "Post Image"} className='w-full bg-center object-contain' />}
                   </td>
                   <td className="px-4 py-4 text-sm font-medium text-gray-900">
                     {item.name}

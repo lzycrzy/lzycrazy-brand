@@ -20,6 +20,7 @@ import Loader from '../components/common/Spinner';
 import { useTranslation } from 'react-i18next'; // Add this at the top
 import { toast } from 'react-toastify';
 import { useUser } from '../context/UserContext';
+import { useAsset } from '../store/useAsset';
 
 const LazyForgotPassword = React.lazy(() => import('../components/Auth/ForgotPassword'));
 
@@ -244,6 +245,8 @@ const Auth = () => {
   const inputClass =
     'w-full rounded border border-gray-300 py-3 pr-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400';
 
+  const { getAssetUrl, loaded } = useAsset();
+
   if (loading) return <Loader />;
 
   return (
@@ -267,7 +270,7 @@ const Auth = () => {
                 {activeTab === 'login' && (
                   <form onSubmit={handleLoginSubmit} className="flex flex-col">
                     <div className="relative mb-3">
-                      <img src="/assets/mail.png" className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" loading="lazy" />
+                      {loaded && (<img src={getAssetUrl('mail.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" loading="lazy" />)}
                       <input
                         type="email"
                         name="email"
@@ -280,7 +283,7 @@ const Auth = () => {
                     </div>
   
                     <div className="relative mb-3">
-                      <img src="/assets/lock.png" className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" loading="lazy" />
+                      {loaded && (<img src={getAssetUrl('lock.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" loading="lazy" />)}
                       <input
                         type="password"
                         name="password"
@@ -326,7 +329,7 @@ const Auth = () => {
                         onClick={handleGoogleLogin}
                         className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 bg-white py-2 font-medium text-black shadow-sm shadow-gray-300"
                       >
-                        <img src="/assets/image3.png" alt="Google" className="h-5 w-5 rounded-full bg-white p-0.5" loading="lazy" />
+                        <img src={loaded ? getAssetUrl('image3.png') : "/missing.png"} alt="Google" className="h-5 w-5 rounded-full bg-white p-0.5" loading="lazy" />
                         Google
                       </button>
                       <button
@@ -334,7 +337,7 @@ const Auth = () => {
                         onClick={handleFacebookLogin}
                         className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 py-2 font-medium text-black shadow-sm shadow-gray-300 hover:bg-[#155DC0]"
                       >
-                        <img src="/assets/image5.png" alt="Facebook" className="h-5 w-5" loading="lazy" />
+                        <img src={loaded ? getAssetUrl('image5.png') : "/missing.png"} alt="Facebook" className="h-5 w-5" loading="lazy" />
                         Facebook
                       </button>
                     </div>
@@ -363,7 +366,7 @@ const Auth = () => {
                 {activeTab === 'register' && (
                   <form onSubmit={handleRegisterSubmit} className="flex flex-col">
                     <div className="relative mb-3">
-                      <img src="/assets/identity.png" className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="user" loading="lazy" />
+                      {loaded && (<img src={getAssetUrl('identity.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="user" loading="lazy" />)}
                       <input
                         type="text"
                         name="fullName"
@@ -401,7 +404,7 @@ const Auth = () => {
                     </div>
   
                     <div className="relative mb-3">
-                      <img src="/assets/mail.png" className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" loading="lazy" />
+                      {loaded && (<img src={getAssetUrl('mail.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" loading="lazy" />)}
                       <input
                         type="email"
                         name="email"
@@ -414,7 +417,7 @@ const Auth = () => {
                     </div>
   
                     <div className="relative mb-3">
-                      <img src="/assets/lock.png" className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" loading="lazy" />
+                      {loaded && (<img src={getAssetUrl('lock.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" loading="lazy" />)}
                       <input
                         type="password"
                         name="password"

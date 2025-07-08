@@ -76,7 +76,7 @@ const TermsPage = () => {
             {sections.map((sec) => (
               <li key={sec.id}>
                 <a href={`#${sec.id}`} className="flex items-center text-gray-700 hover:text-blue-600">
-                  <img src={sec.image} alt="" className="w-5 h-5 mr-2 rounded object-cover" loading="lazy" />
+                  <img src={sec.image || "/missing.png"} alt={sec.title || "Section Icon"} className="w-5 h-5 mr-2 rounded object-cover" loading="lazy" />
                   <span className="text-sm font-medium">{sec.title.replace(/^[0-9]+\. /, '')}</span>
                 </a>
               </li>
@@ -92,7 +92,7 @@ const TermsPage = () => {
               {sections.map((item, idx) => (
                 <div id={item.id} key={idx} className="scroll-mt-20">
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                    <img src={item.image} alt={item.title} className="w-32 h-32 object-contain rounded-md shadow-md" loading="lazy" />
+                    <img src={item.image || "/missing.png"} alt={item.title || "Item Image"} className="w-32 h-32 object-contain rounded-md shadow-md" loading="lazy" />
                     <div>
                       <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
                         <item.icon className="w-6 h-6 mr-2 text-blue-600" />

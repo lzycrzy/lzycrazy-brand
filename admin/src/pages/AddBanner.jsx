@@ -95,7 +95,7 @@ export default function AddBanner() {
                 {filePreview.type === 'video' ? (
                   <video src={filePreview.url} className="h-full w-full object-cover" controls />
                 ) : (
-                  <img src={filePreview.url} className="h-full w-full object-cover" alt="preview" />
+                  <img src={filePreview.url || "/missing.png"} className="h-full w-full object-cover" alt="Banner Preview" />
                 )}
                 <div className="absolute top-2 left-2 rounded bg-red-600 px-2 py-1 text-xs font-bold text-white">
                   BREAKING NEWS

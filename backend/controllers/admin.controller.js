@@ -7,9 +7,10 @@ import { generateTokenAdmin } from '../utils/jwtToken.admin.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import { deleteFromCloudinary, generateVideoThumbnail, uploadToCloudinary } from '../utils/cloudinary.js';
 import Applicant from '../models/Applicant.js';
-import Hiring from '../models/hiring.model.js'
+import Hiring from '../models/hiring.model.js';
+import adminMarketPost from '../models/adminMarketPost.js'
+import getVideoThumbnailUrl from '../middlewares/getVideoThumbnailUrl.js'
 import bannerModel from '../models/banner.model.js';
-
 // REGISTER ADMIN
 export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
   const { fullName, email, phone, password, role } = req.body;

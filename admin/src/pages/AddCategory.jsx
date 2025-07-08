@@ -392,6 +392,7 @@ const AddCategory = () => {
                         src={categoryData.imageData.url} 
                         alt={categoryData.imageData.name}
                         className="w-full h-full object-cover"
+                        onError={e => { e.target.src = ""; }}
                       />
                     </div>
                     <button
@@ -472,6 +473,7 @@ const AddCategory = () => {
                                 src={subcategory?.imageData.url} 
                                 alt={subcategory?.imageData.name}
                                 className="w-full h-full object-cover"
+                                onError={e => { e.target.src = ""; }}
                               />
                             </div>
                             <button
@@ -672,6 +674,7 @@ const AddCategory = () => {
                           src={category?.imageData?.url} 
                           alt={category?.imageData?.name}
                           className="w-full h-full object-cover"
+                          onError={e => { e.target.src = ""; }}
                         />
                       </div>
                     </div>
@@ -720,6 +723,7 @@ const AddCategory = () => {
                               src={subcategory?.imageData?.url} 
                               alt={subcategory?.imageData?.name}
                               className="w-full h-full object-cover"
+                              onError={e => { e.target.src = ""; }}
                             />
                           </div>
                           <span className="text-gray-700 font-medium">{subcategory.name}</span>

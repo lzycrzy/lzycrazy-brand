@@ -42,7 +42,7 @@ const LeftSideDeatil = ({ data,images }) => {
             }`}
             onClick={() => setCurrentImage(index)}
           >
-            <img src={image} alt={`Property ${index + 1}`} className="w-full h-full object-cover" loading="lazy" />
+            <img src={image || "/missing.png"} alt={`Property ${index + 1}`} className="w-full h-full object-cover" loading="lazy" />
           </div>
         ))}
       </div>
