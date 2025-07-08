@@ -33,7 +33,6 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
     },
   });
 
-  console.log(editData);
   useEffect(() => {
     if (isEditing && editData && selectedCategory) {
       setValue('title', editData.title);
@@ -103,7 +102,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
       }
     });
 
-    console.log(getValues('photos'));
+    // console.log(getValues('photos'));
 
     data.photos.forEach((photo) => {
       formData.append('file', photo.file);
@@ -124,13 +123,13 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
       formData.append('listingId', editData._id);
     }
 
-    formData.forEach((value, key) => {
-      if (value instanceof File) {
-        console.log(`${key}: File name = ${value.name}, size = ${value.size}`);
-      } else {
-        console.log(`${key}:`, value);
-      }
-    });
+    // formData.forEach((value, key) => {
+    //   if (value instanceof File) {
+    //     console.log(`${key}: File name = ${value.name}, size = ${value.size}`);
+    //   } else {
+    //     console.log(`${key}:`, value);
+    //   }
+    // });
 
     setConfirmListing(formData);
     // reset();
