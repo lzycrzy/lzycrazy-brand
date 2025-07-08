@@ -33,6 +33,7 @@ import Logo from './components/Business/Logo';
 import HiringApplicationsTable from './components/Applications/Hiring';
 import AddBanner from './pages/AddBanner';
 import PostList from './pages/PostList';
+import { useAsset } from './context/useAsset';
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -49,6 +50,12 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const App = () => {
+
+const {fetchAssets} = useAsset();
+  useEffect(() => {
+    fetchAssets();
+  }, [])
+  
   return (
     <Provider store={store}>
       <Routes>
