@@ -3,27 +3,38 @@ import { Upload, Play, X } from 'lucide-react';
 import instance from '../utils/axios';
 import { toast } from 'react-toastify';
 
-export default function UpdateMarketPostList({ data, setIsEditing, setEditData }) {
+export default function UpdateMarketPostList({
+  data,
+  setIsEditing,
+  setEditData,
+}) {
   const [formData, setFormData] = useState({
     name: '',
     url: '',
     date: new Date().toISOString().split('T')[0],
-    position: '1', // default position
+    position: '',
   });
 
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
-  console.log(data);
+  const [updating, setUpdating] = useState(false);
 
+  // Determine allowed file type from position string
+  const getAcceptType = (positionValue) => {
+    return positionValue?.startsWith('video') ? 'video/*' : 'image/*';
+  };
+
+  // Load initial data
   useEffect(() => {
     if (data) {
+      const positionType = data.type || 'image';
+      const pos = `${positionType}/* ${data.position || 1}`;
+
       setFormData({
         name: data.name || '',
         url: data.url || '',
-        date:
-          data.postDate?.split('T')[0] ||
-          new Date().toISOString().split('T')[0],
-        position: data.position?.toString() || '1',
+        date: data.postDate?.split('T')[0] || new Date().toISOString().split('T')[0],
+        position: pos,
       });
 
       if (data.postUrl) {
@@ -35,26 +46,46 @@ export default function UpdateMarketPostList({ data, setIsEditing, setEditData }
     }
   }, [data]);
 
+  // Handle text/date input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle file selection
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFile(file);
-      const url = URL.createObjectURL(file);
-      setFilePreview({
-        url,
-        type: file.type.split('/')[0],
-      });
-    }
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    const url = URL.createObjectURL(selectedFile);
+    setFile(selectedFile);
+    setFilePreview({
+      url,
+      type: selectedFile.type.split('/')[0], // image or video
+    });
   };
 
+  // Handle position select + reset preview
+  const handlePositionChange = (e) => {
+    handleInputChange(e);
+    setFile(null);
+    setFilePreview(null);
+  };
+
+  // Handle form submission
   const handleSubmit = async () => {
-    if (!formData.name.trim() || !formData.url.trim()) {
-      toast.error('Please fill in all required fields.');
+    if (!formData.name.trim()) {
+      toast.error('Name is required.');
+      return;
+    }
+
+    if (!formData.url.trim()) {
+      toast.error('URL is required.');
+      return;
+    }
+
+    if (!file && !filePreview?.url) {
+      toast.error('A banner (image/video) is required.');
       return;
     }
 
@@ -63,13 +94,14 @@ export default function UpdateMarketPostList({ data, setIsEditing, setEditData }
     payload.append('url', formData.url);
     payload.append('date', formData.date);
     payload.append('type', filePreview?.type || 'video');
-    payload.append('position', formData.position);
+    payload.append('position', formData.position.split(' ')[1]);
 
     if (file) {
       payload.append('file', file);
     }
 
     let toastId;
+    setUpdating(true);
     try {
       toastId = toast.loading('Updating post...');
       await instance.put(`/admin/market-post/update/${data._id}`, payload, {
@@ -78,25 +110,31 @@ export default function UpdateMarketPostList({ data, setIsEditing, setEditData }
       toast.success('Post updated successfully!');
       setEditData(null);
       setIsEditing(false);
-      toast.dismiss(toastId);
     } catch (error) {
       console.error(error);
-      toast.error('Something went wrong while submitting.');
+      toast.error('Failed to update post.');
+    } finally {
       toast.dismiss(toastId);
+      setUpdating(false);
     }
   };
 
   return (
-    <div className="fixed top-0 right-0 flex h-[100vh] w-[100vw] items-center justify-center bg-white/70 p-6">
+    <div className="fixed top-0 right-0 flex h-[100vh] w-[100vw] items-center justify-center bg-white/70 p-6 z-50">
       <div className="relative grid w-full max-w-[50vw] grid-cols-1 gap-6 rounded-2xl bg-white p-6 shadow-2xl lg:grid-cols-3">
-        {/* Video Upload Section */}
-        <div className="absolute top-4 border-b-2 border-gray-200 pb-2 w-full flex justify-end pr-5">
-          <X className='cursor-pointer' onClick={() => {
-            setIsEditing(false);
-            setEditData(null);
-          }} />
+        {/* Close Button */}
+        <div className="absolute top-4 flex w-full justify-end border-b-2 border-gray-200 pr-5 pb-2">
+          <X
+            className="cursor-pointer"
+            onClick={() => {
+              setIsEditing(false);
+              setEditData(null);
+            }}
+          />
         </div>
-        <div className="lg:col-span-1 mt-8">
+
+        {/* File Preview + Upload */}
+        <div className="mt-8 lg:col-span-1">
           <h3 className="mb-4 text-lg font-semibold text-gray-800">
             Video/Image
           </h3>
@@ -121,10 +159,7 @@ export default function UpdateMarketPostList({ data, setIsEditing, setEditData }
               <div className="relative flex h-48 w-full items-center justify-center overflow-hidden rounded-lg bg-blue-900">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-800 to-blue-900 opacity-20"></div>
                 <div className="absolute top-4 left-4 rounded bg-red-600 px-3 py-1 text-sm font-bold text-white">
-                  BREAKING NEWS
-                </div>
-                <div className="absolute right-4 bottom-4 text-xs text-white opacity-75">
-                  gettyimages
+                  Banner
                 </div>
                 <Play className="h-12 w-12 text-white opacity-75" />
               </div>
@@ -132,7 +167,7 @@ export default function UpdateMarketPostList({ data, setIsEditing, setEditData }
 
             <input
               type="file"
-              accept="image/*,video/*"
+              accept={getAcceptType(formData.position)}
               onChange={handleFileUpload}
               className="hidden"
               id="video-upload"
@@ -147,8 +182,8 @@ export default function UpdateMarketPostList({ data, setIsEditing, setEditData }
           </div>
         </div>
 
-        {/* Form Fields Section */}
-        <div className="space-y-6 lg:col-span-2 mt-8">
+        {/* Form Fields */}
+        <div className="mt-8 space-y-6 lg:col-span-2">
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -195,22 +230,26 @@ export default function UpdateMarketPostList({ data, setIsEditing, setEditData }
               <select
                 name="position"
                 value={formData.position}
-                onChange={handleInputChange}
+                onChange={handlePositionChange}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2"
               >
-                <option value="1">Position 1</option>
-                <option value="2">Position 2</option>
-                <option value="3">Position 3</option>
-                <option value="4">Position 4</option>
+                <option value="image/* 1">Image - Position 1</option>
+                <option value="image/* 2">Image - Position 2</option>
+                <option value="video/* 3">Video - Position 3</option>
+                <option value="video/* 4">Video - Position 4</option>
               </select>
             </div>
           </div>
+
           <div className="flex justify-end">
             <button
               onClick={handleSubmit}
-              className="rounded-lg bg-blue-600 px-8 py-3 font-semibold text-white hover:bg-blue-700"
+              disabled={updating}
+              className={`rounded-lg px-8 py-3 font-semibold text-white ${
+                updating ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
-              Submit
+              {updating ? 'Updating...' : 'Update'}
             </button>
           </div>
         </div>
