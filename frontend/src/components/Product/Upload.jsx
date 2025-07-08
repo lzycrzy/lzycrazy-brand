@@ -1,8 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-<<<<<<< HEAD
-// import CameraPlus from '../../assets/Camera.png';
-=======
->>>>>>> master
 import { toast } from 'react-toastify';
 import { useProduct } from '../../store/useProduct';
 import { useAsset } from '../../store/useAsset';
@@ -144,11 +140,7 @@ const handleChange = (e, index) => {
           >
             {!images[index] && (
               <span className="text-gray-400 text-2xl font-bold flex flex-col items-center justify-center">
-<<<<<<< HEAD
-                {/* <img src={CameraPlus} width={20} /> */}
-=======
                 {loaded && <img src={getAssetUrl('camera.png') || "/missing.png"} alt="Camera" width={20} />}
->>>>>>> master
                 <span className='text-[12px] text-center'>
                   {images[index - 1] || index === 0 ? 'Add Photo' : ""}
                 </span>
@@ -191,3 +183,4 @@ const handleChange = (e, index) => {
 };
 
 export default Upload;
+	
