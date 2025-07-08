@@ -84,26 +84,6 @@ export const initiatePayment = async (
   toast.dismiss(toastId);
 };
 
-async function verifyPayment(bodyData) {
-  const toastId = toast.loading('Verifying payment...');
-
-  try {
-    const response = await instance.post('/v1/payment/verify', bodyData);
-
-    if (!response.data.success) {
-      throw new Error(response.data.message);
-    }
-
-    toast.success('Payment verification success');
-    console.log('Payment verified', response.data);
-  } catch (error) {
-    console.log('PAYMENT VERIFY ERROR....', error);
-    toast.error('Payment verification Failed');
-  }
-
-  toast.dismiss(toastId);
-}
-
 export async function createListing(formData, navigate, setIsAddProductModal) {
   const toastId = toast.loading('product listing in progress');
 
@@ -172,7 +152,7 @@ export async function createListing(formData, navigate, setIsAddProductModal) {
 
     if (res.data?.success) {
       toast.success('product successfully listed.');
-      localStorage.setItem('user', JSON.stringify(res.data?.userDetails));
+      localStorage.setItem('user', JSON.stringify(res.data?.user));
       setIsAddProductModal(false);
       navigate('/ads');
     } else {
@@ -270,7 +250,6 @@ export async function updateListing(formData, navigate, setIsAddProductModal) {
 
     if (res.data?.success) {
       toast.success('product successfully updated.');
-      // localStorage.setItem('user', JSON.stringify(res.data?.userDetails));
       setIsAddProductModal(false);
       navigate('/ads');
     } else {
@@ -278,6 +257,111 @@ export async function updateListing(formData, navigate, setIsAddProductModal) {
     }
   } catch (err) {
     console.error('update failed:', err);
+  }
+
+  toast.dismiss(toastId);
+}
+
+export const initiatePaymentForRenew = async (
+  fullName,
+  email,
+  data,
+  navigate,
+  setRenewListing
+) => {
+  const toastId = toast.loading('Loading...');
+
+  try {
+    // load the script of checkout page
+
+    const res = await loadScript(
+      'https://checkout.razorpay.com/v1/checkout.js',
+    );
+
+    if (!res) {
+      toast.error('Razorpay SDK failed to load');
+      return;
+    }
+
+    // initiate the order
+    const orderResponse = await instance.post('/v1/payment/capture', data);
+
+    if (!orderResponse.data.success) {
+      throw new Error(orderResponse?.data.message);
+    }
+    // create options object for modal
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY,
+      currency: orderResponse?.data.data.currency,
+      amount: orderResponse?.data.data.amount,
+      order_id: orderResponse?.data.data.id,
+      name: 'LzyCrazy',
+      description: 'Thank you for listing the product',
+      prefill: {
+        name: `${fullName}`,
+        email: email,
+      },
+      handler: function (response) {
+        verifyPayment({ ...response });
+        console.log(response);
+        renewListing(data, navigate, setRenewListing);
+      },
+    };
+
+    const paymentObject = new Razorpay(options);
+    paymentObject.open();
+
+    paymentObject.on('payment.failed', function (response) {
+      toast.error('oops!, payment failed');
+      console.log(error);
+    });
+
+    console.log('Modal opened');
+  } catch (error) {
+    console.log('PAYMENT API ERROR.....', error);
+    if (!error.response?.data.allowed) {
+      toast.error("You can't do this action.");
+    }
+  }
+
+  toast.dismiss(toastId);
+};
+
+export const renewListing = async (data, navigate, setRenewListing) => {
+  const toastId = toast.loading('listing extending...')
+  try {
+    const res = await instance.put(`/v1/listing/renew/${data.id}`, data);
+
+    if (res?.data.success) {
+      toast.success('listing extended...');
+      setTimeout(() => {
+        setRenewListing(null);
+        navigate('/ads')
+      }, [2000])
+    }
+  } catch (error) {
+    console.log(error);
+    toast.error('listing not extended!')
+  }
+
+  toast.dismiss(toastId);
+}
+
+async function verifyPayment(bodyData) {
+  const toastId = toast.loading('Verifying payment...');
+
+  try {
+    const response = await instance.post('/v1/payment/verify', bodyData);
+
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+
+    toast.success('Payment verification success');
+    console.log('Payment verified', response.data);
+  } catch (error) {
+    console.log('PAYMENT VERIFY ERROR....', error);
+    toast.error('Payment verification Failed');
   }
 
   toast.dismiss(toastId);

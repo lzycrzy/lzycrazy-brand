@@ -1,27 +1,29 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import RequireAuth from '../components/protected/RequireAuth';
-import AuthRedirect from '../components/routes/AuthRedirect';
+import React, { Suspense } from 'react';
 
-import Auth from '../pages/Auth';
-import Home from '../pages/Home';
-import Profile from '../pages/Profile';
-import ForgotPassword from '../components/Auth/ForgotPassword';
-import ResetPassword from '../components/Auth/ResetPassword';
-import AboutUs from '../components/static/AboutCompany';
-import Services from '../components/Services/Services';
-import NewsFeed from '../components/News/NewsFeed';
-import TermPage from '../components/static/TermPage';
-import PrivacyPolicyPage from '../components/static/PrivacyPolicyPage';
-import PropertyListing from '../components/ProductDetail/ProductListing';
-import PropertyViewPage from '../pages/PropertyViewPage';
-import AddProduct from '../pages/AddProduct';
-import MarketplaceHome from '../pages/MarketPlace';
-import EnquiryForm from '../components/EnquiryForm';
-import AddAdvertisement from '../pages/AddAdvertisement';
-import VerifiedPage from '../pages/Verify';
-import AddPage from '../pages/AddPage';
-import WorkInProgress from '../components/workInProgress/WorkInProgress';
-import ImageDetail from '../components/Posts/ImageDetail';
+const RequireAuth = React.lazy(() => import('../components/protected/RequireAuth'));
+const AuthRedirect = React.lazy(() => import('../components/routes/AuthRedirect'));
+const Auth = React.lazy(() => import('../pages/Auth'));
+const Home = React.lazy(() => import('../pages/Home'));
+const Profile = React.lazy(() => import('../pages/Profile'));
+const ForgotPassword = React.lazy(() => import('../components/Auth/ForgotPassword'));
+const ResetPassword = React.lazy(() => import('../components/Auth/ResetPassword'));
+const AboutUs = React.lazy(() => import('../components/static/AboutCompany'));
+const Services = React.lazy(() => import('../components/Services/Services'));
+const NewsFeed = React.lazy(() => import('../components/News/NewsFeed'));
+const TermPage = React.lazy(() => import('../components/static/TermPage'));
+const PrivacyPolicyPage = React.lazy(() => import('../components/static/PrivacyPolicyPage'));
+const PropertyListing = React.lazy(() => import('../components/ProductDetail/ProductListing'));
+const PropertyViewPage = React.lazy(() => import('../pages/PropertyViewPage'));
+const AddProduct = React.lazy(() => import('../pages/AddProduct'));
+const MarketplaceHome = React.lazy(() => import('../pages/MarketPlace'));
+const EnquiryForm = React.lazy(() => import('../components/EnquiryForm'));
+const AddAdvertisement = React.lazy(() => import('../pages/AddAdvertisement'));
+const VerifiedPage = React.lazy(() => import('../pages/Verify'));
+const AddPage = React.lazy(() => import('../pages/AddPage'));
+const WorkInProgress = React.lazy(() => import('../components/workInProgress/WorkInProgress'));
+const ImageDetail = React.lazy(() => import('../components/Posts/ImageDetail'));
+const Temp = React.lazy(() => import('../pages/temp'));
 
 const AppRoutes = () => (
   <Routes>
@@ -47,6 +49,7 @@ const AppRoutes = () => (
     <Route path="/property" element={<PropertyListing />} />
     <Route path="/property-view" element={<PropertyViewPage />} />
     <Route path="/verify" element={<VerifiedPage />} /> */}
+    <Route path="/temp" element={<Temp />} />
          
     <Route path="/onBoarding" element={<WorkInProgress />} /> // Work in Progress Page
     <Route path="/progress" element={<WorkInProgress />} /> // Work in Progress Page
@@ -64,20 +67,21 @@ const AppRoutes = () => (
     <Route path="/property-view" element={<PropertyViewPage />} />
     <Route path="/verify" element={<VerifiedPage />} />
 
-    {/* Private Routes */}
-    <Route element={<RequireAuth />}>
-      <Route path="/dashboard" element={<Home />} />
-      <Route path="/image-detail" element={<ImageDetail />} />
+      {/* Private Routes */}
+      <Route element={<RequireAuth />}>
+        <Route path="/dashboard" element={<Home />} />
+        <Route path="/image-detail" element={<ImageDetail />} />
 
-      <Route path="/profile" element={<Profile />} />
-      
-      <Route path="/product" element={<AddProduct />} />
-      <Route path="/ads" element={< AddPage/>} />
-    </Route>
+        <Route path="/profile" element={<Profile />} />
+        
+        <Route path="/product" element={<AddProduct />} />
+        <Route path="/ads" element={< AddPage/>} />
+      </Route>
 
-    {/* Fallback Routes */}
-    <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes>
+      {/* Fallback Routes */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  // </Suspense>
 );
 
 export default AppRoutes;

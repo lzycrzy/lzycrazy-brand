@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import instance from '../../lib/axios/axiosInstance';
@@ -8,10 +7,10 @@ import StoryViewer from '../Home/StoryViewer';
 import PostCreateBox from '../Posts/PostCreateBox';
 import PostCard from '../Posts/PostCard';
 import Loader from '../../components/common/Spinner';
-import { useUser } from '../../context/UserContext'; // ✅ Added
+import { useUser } from '../../context/UserContext';
 
 const MainFeed = ({ posts, onPostCreated }) => {
-  const { user, loading } = useUser(); // ✅ Fetched from context
+  const { user, loading } = useUser();
   const [stories, setStories] = useState([]);
   const [uniqueUserStories, setUniqueUserStories] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -23,14 +22,14 @@ const MainFeed = ({ posts, onPostCreated }) => {
   const buildUniqueUserStories = (storyList) => {
     const seen = new Set();
     const unique = [];
-    for (const s of [...storyList].reverse()) {
+    for (const s of storyList) {
       const uid = typeof s.user === 'object' ? s.user._id : s.user;
       if (!seen.has(uid)) {
         unique.push(s);
         seen.add(uid);
       }
     }
-    return unique.reverse();
+    return unique;
   };
 
   const fetchStories = async () => {
@@ -40,9 +39,14 @@ const MainFeed = ({ posts, onPostCreated }) => {
       });
 
       const allStories = res.data.map((story) => {
+        const userId = story.user?._id || story.user;
+        const img = story.user?.image;
+        const normalizedUser = { _id: userId, image: img };
+
         if (story.text?.content) {
           return {
             ...story,
+            user: normalizedUser,
             type: 'text',
             text: {
               content: story.text.content,
@@ -51,9 +55,10 @@ const MainFeed = ({ posts, onPostCreated }) => {
             },
           };
         } else if (story.video) {
-          return { ...story, type: 'video' };
+          return { ...story, user: normalizedUser, type: 'video' };
         }
-        return { ...story, type: 'photo' };
+
+        return { ...story, user: normalizedUser, type: 'photo' };
       });
 
       setStories(allStories);
@@ -71,8 +76,8 @@ const MainFeed = ({ posts, onPostCreated }) => {
     try {
       setIsUploading(true);
 
-      if (!user || !user._id) {
-        throw new Error("User info not available.");
+      if (!user || !user.profile || !user.profile.id) {
+        throw new Error('User info not available.');
       }
 
       const res = await instance.post('/v1/users/story', formData, {
@@ -82,12 +87,19 @@ const MainFeed = ({ posts, onPostCreated }) => {
 
       const savedStory = res.data.story;
 
+      const fullUser = {
+        _id: user._id,
+        fullName: user.profile?.name || '',
+        email: user.email,
+        image: user.profile?.photoURL || '',
+      };
+
       let newStory;
       if (savedStory.text?.content) {
         newStory = {
           ...savedStory,
           type: 'text',
-          user: { _id: user._id },
+          user: fullUser,
           text: {
             content: savedStory.text.content,
             backgroundColor: savedStory.text.backgroundColor || '#000',
@@ -95,17 +107,29 @@ const MainFeed = ({ posts, onPostCreated }) => {
           },
         };
       } else if (savedStory.video) {
-        newStory = { ...savedStory, type: 'video', user: { _id: user._id } };
+        newStory = { ...savedStory, type: 'video', user: fullUser };
       } else {
-        newStory = { ...savedStory, type: 'photo', user: { _id: user._id } };
+        newStory = { ...savedStory, type: 'photo', user: fullUser };
       }
 
-      const updatedStories = [newStory, ...stories];
-      setStories(updatedStories);
-      setUniqueUserStories(buildUniqueUserStories(updatedStories));
+      //  Fix: Remove existing user stories and add only the latest
+      const otherStories = stories.filter((s) => {
+        const sUserId = typeof s.user === 'object' ? s.user._id : s.user;
+        return sUserId !== user._id;
+      });
 
-      setShowCreateModal(false);
-      setIsUploading(false);
+      const combinedStories = [newStory, ...otherStories];
+
+      setStories(combinedStories);
+      setUniqueUserStories(buildUniqueUserStories(combinedStories));
+
+      
+     
+    window.location.reload();
+    setShowCreateModal(false);
+    
+     
+      navigate('/dashboard');
     } catch (err) {
       console.error('Story upload failed:', err.message || err);
       alert('Failed to share story. Make sure you are logged in.');
@@ -171,7 +195,7 @@ const MainFeed = ({ posts, onPostCreated }) => {
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       {isUploading && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center">
+        <div >
           <Loader />
         </div>
       )}

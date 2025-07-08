@@ -713,40 +713,16 @@ export const uploadStory = async (req, res) => {
 // Get all recent stories
 export const getStories = async (req, res) => {
   try {
-    // Fetch all non-expired stories grouped by user
-    const stories = await Story.aggregate([
-      { $match: { expiresAt: { $gt: new Date() } } },
-      { $sort: { createdAt: -1 } },
-      {
-        $group: {
-          _id: "$user",
-          story: { $first: "$$ROOT" }, // get most recent story per user
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "_id",
-          foreignField: "_id",
-          as: "user"
-        }
-      },
-      { $unwind: "$user" },
-      {
-        $project: {
-          _id: "$story._id",
-          user: "$user",
-          image: "$story.image",
-          createdAt: "$story.createdAt",
-          expiresAt: "$story.expiresAt",
-          storyCount: "$count"
-        }
-      }
-    ]);
+    // Fetch all non-expired stories
+    const stories = await Story.find({
+      expiresAt: { $gt: new Date() }
+    })
+      .sort({ createdAt: -1 })
+      .populate('user', 'fullName image email');
+
     res.json(stories);
   } catch (err) {
-    console.error("Error fetching stories for slider:", err);
+    console.error("Error fetching stories:", err);
     res.status(500).json({ message: "Failed to fetch stories" });
   }
 };

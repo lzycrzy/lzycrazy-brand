@@ -16,7 +16,7 @@ function ConfirmModal({deleteModal, setDeleteModal, setCategories}) {
   return (
     <div 
     style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-    className='fixed inset-0 flex justify-center items-center  z-9'>
+    className='fixed inset-0 flex justify-center items-center  z-20'>
         <div className='bg-white min-w-[350px] rounded p-5  flex flex-col gap-10 shadow-lg opacity-100 z-1000'>
             <div className='text-[18px] flex flex-col justify-start'><span>Are you sure ! </span> <span>Do you want this actions?</span></div>
             <div className='flex flex-row justify-end gap-3'>

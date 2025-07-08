@@ -1,14 +1,21 @@
 import { useNavigate } from "react-router";
 import { useProduct } from "../../store/useProduct";
 import { initiatePayment } from "../../services/Payment";
+import { toast } from "react-toastify";
 
 function PaymentModal({ data, setPaymentModal }) {
   const user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
   const { setIsAddProductModal } = useProduct();
 
-  function makePayment() {
-    initiatePayment(user.fullName, user.email, data, navigate, setIsAddProductModal);
+  async function makePayment() {
+
+    if (!user) {
+      toast.error('login first!');
+      return;
+    }
+    
+    await initiatePayment(user.fullName, user.email, data, navigate, setIsAddProductModal);
     setPaymentModal(null);
   }
 
@@ -32,7 +39,7 @@ function PaymentModal({ data, setPaymentModal }) {
             Cancel
           </button>
           <button
-            onClick={makePayment}
+            onClick={() => makePayment()}
             className="cursor-pointer p-1 px-2 bg-blue-500 text-white rounded"
           >
             Proceed to Payment

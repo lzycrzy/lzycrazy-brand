@@ -7,18 +7,13 @@ import {
   FaSignOutAlt,
   FaSearch,
 } from 'react-icons/fa';
-import store from '../../assets/store.png'; // Replace with your actual path
-import logo from '../../assets/logo.png';
-import home from '../../assets/home.png';
-import movie from '../../assets/movie-reel.png';
-import play from '../../assets/play-button-arrowhead.png';
-import add from '../../assets/add.png';
 import { auth } from '../../lib/firebase/firebase';
 import { signOut } from 'firebase/auth';
 import { logout } from '../../lib/redux/authSlice';
 import { useUser } from '../../context/UserContext'
 import { useProduct } from '../../store/useProduct';
 import { toast } from 'react-toastify';
+import { useAsset } from '../../store/useAsset';
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -26,6 +21,7 @@ const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, profilePic, displayName, setUser, logout1 } = useUser();
+  const { getAssetUrl, loaded } = useAsset();
 
   const handleLogout = async () => {
     try {
@@ -59,21 +55,21 @@ const Header = () => {
         {/* Left - Logo */}
         <div className="flex-shrink-0">
           <Link to="/">
-            <img
-              src={logo}
-              alt="Logo"
-              className="h-[40px] w-[100px] cursor-pointer object-contain"
-            />
+              <img
+                src={loaded ? getAssetUrl('logo.png') : "/missing.png"}
+                alt="Logo"
+                className="h-[40px] w-[100px] cursor-pointer object-contain"
+              />
           </Link>
         </div>
 
         {/* Center - Tabs */}
         <div className="absolute left-1/2 hidden -translate-x-1/2 transform items-center gap-4 lg:flex">
-          <HeaderIcon image={home} to="/" user={user} />
-          <HeaderIcon image={store} to="/market" user={user} />
-          <HeaderIcon image={add} user={user} />
-          <HeaderIcon image={movie} to="/" user={user} />
-          <HeaderIcon image={play} to="/" user={user} />
+          <HeaderIcon image={loaded ? getAssetUrl('home.png') : '/missing.png'} to="/" user={user} alt="Home" />
+          <HeaderIcon image={loaded ? getAssetUrl('store.png') : '/missing.png'} to="/market" user={user} alt="Store" />
+          <HeaderIcon image={loaded ? getAssetUrl('add.png') : '/missing.png'} user={user} alt="Add" />
+          {/* <HeaderIcon image={loaded ? getAssetUrl('movie-reel.png') : '/missing.png'} to="/" user={user} alt="Movie Reel" /> */}
+          {/* <HeaderIcon image={loaded ? getAssetUrl('play-button-arrowhead.png') : '/missing.png'} to="/" user={user} alt="Play Button" /> */}
         </div>
 
         {/* Right - Search + Icons */}
@@ -97,14 +93,8 @@ const Header = () => {
                 className="relative h-9 w-9 overflow-hidden rounded-full border border-gray-300"
               >
                 <img
-                  src={
-                    profilePic || 'https://i.ibb.co/2kR5zq0/default-avatar.png'
-                  }
+                  src={profilePic || "/missing.png"}
                   alt="Profile"
-                  onError={(e) => {
-                    e.target.src =
-                      'https://i.ibb.co/2kR5zq0/default-avatar.png';
-                  }}
                   className="h-full w-full object-cover"
                 />
               </button>
@@ -154,7 +144,7 @@ const Header = () => {
   );
 };
 
-const HeaderIcon = ({ icon: Icon, to, user, image }) => {
+const HeaderIcon = ({ icon: Icon, to, user, image, alt }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -188,13 +178,13 @@ const HeaderIcon = ({ icon: Icon, to, user, image }) => {
     >
       {image ? (
         <img
-          src={image}
-          alt="custom icon"
+          src={image || "/missing.png"}
+          alt={alt || "icon"}
           className="h-[22px] w-[22px] object-contain group-hover:brightness-110"
         />
-      ) : (
+      ) : Icon && typeof Icon === 'function' ? (
         <Icon className="text-[22px] group-hover:text-blue-600" />
-      )}
+      ) : null}
     </div>
   );
 };

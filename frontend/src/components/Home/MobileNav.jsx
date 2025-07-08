@@ -1,24 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
 import { useProduct } from '../../store/useProduct';
-
-// Same image imports used in Header
-import store from '../../assets/store.png';
-import movie from '../../assets/movie-reel.png';
-import play from '../../assets/play-button-arrowhead.png';
-import add from '../../assets/add.png';
-import hand from '../../assets/hand.png';
+import { toast } from 'react-toastify';
+import { useAsset } from '../../store/useAsset';
 
 const MobileNav = () => {
   const navigate = useNavigate();
   const { user } = useUser();
-  const { setIsAddProductMadal } = useProduct();
+  const { setIsAddProductModal } = useProduct();
+  const { getAssetUrl, loaded } = useAsset();
 
   const mobileLinks = [
-    { image: store, label: 'Market', path: '/market' },
-    { image: movie, label: 'Movies', path: '/movies' },
-    { image: play, label: 'Play', path: '/play' },
-    { image: hand, label: 'Saved', path: '/saved' },
+    { image: loaded ? getAssetUrl('store.png') : '/missing.png', label: 'Market', path: '/market' },
+    { image: loaded ? getAssetUrl('movie-reel.png') : '/missing.png', label: 'Movies', path: '/movies' },
+    { image: loaded ? getAssetUrl('play-button-arrowhead.png') : '/missing.png', label: 'Play', path: '/play' },
+    { image: loaded ? getAssetUrl('hand.png') : '/missing.png', label: 'Saved', path: '/saved' },
   ];
 
   const handleNavigation = (path) => {
@@ -32,10 +28,10 @@ const MobileNav = () => {
 
   const handleAddClick = () => {
     if (!user) {
-      alert('Please login first');
+      toast.error('Please login first');
       navigate('/');
     } else {
-      setIsAddProductMadal(true);
+      setIsAddProductModal(true);
     }
   };
 
@@ -64,11 +60,13 @@ const MobileNav = () => {
         onClick={handleAddClick}
         className="relative -mt-6 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md border"
       >
-        <img
-          src={add}
-          alt="Add"
-          className="h-8 w-8 object-contain group-hover:brightness-110"
-        />
+        {loaded && (
+          <img
+            src={getAssetUrl('add.png')}
+            alt="Add"
+            className="h-8 w-8 object-contain group-hover:brightness-110"
+          />
+        )}
       </button>
 
       {/* Last two nav items */}

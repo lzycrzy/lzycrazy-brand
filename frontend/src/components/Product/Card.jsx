@@ -23,8 +23,8 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
   } = useForm({
     defaultValues: {
       brand: '',
-      title: '',
-      description: '',
+      title:  '',
+      description:  '',
       price: '',
       photos: [],
       state: '',
@@ -79,6 +79,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
   };
 
   const onSubmit = async (data) => {
+    console.log(data);
     setConfirmListing(null);
     if (data.photos[0] === 'empty') {
       toast.error('Please choose at least 2 images.');
@@ -437,6 +438,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
             watch={watch}
             register={register}
             setValue={setValue}
+            reset={reset}
             errors={errors}
             getValues={getValues}
           />

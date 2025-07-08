@@ -68,17 +68,18 @@ const RightSidebar = () => {
                     className="rounded-full bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700"
                     onClick={() =>
                       axios
-                        .post(`/api/friends/accept/${p._id}`)
+                        .post(`/v1/users/friends/accept/${p._id}`)
                         .then(fetchUsers)
                     }
                   >
+                    
                     Accept
                   </button>
                   <button
                     className="rounded-full bg-gray-200 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-300"
                     onClick={() =>
                       axios
-                        .post(`/api/friends/reject/${p._id}`)
+                        .post(`/v1/users/friends/reject/${p._id}`)
                         .then(fetchUsers)
                     }
                   >
