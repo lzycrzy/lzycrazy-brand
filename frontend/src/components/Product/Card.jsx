@@ -137,6 +137,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
 
   const [confirmListing, setConfirmListing] = useState(null);
   const [paymentModal, setPaymentModal] = useState(null);
+  const [warning, setWarning] = useState(false);
 
   return (
     <div className="relative">
@@ -152,12 +153,12 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
         <PaymentModal data={paymentModal} setPaymentModal={setPaymentModal} />
       )}
 
-      <div className="mx-auto mb-20 flex w-full items-center justify-center px-2">
+      <div className="mx-auto mb-20 flex w-full items-center justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mt-10 w-full rounded-md border-2 border-gray-400"
+          className="w-full rounded-md"
         >
-          <div className="w-full border-b-2 border-b-gray-400 p-4 lg:px-10">
+          <div className="w-full border-b-2 border-b-gray-400 py-4 ">
             <h1 className="font-semibold uppercase lg:text-xl">
               Add Product Details
             </h1>
@@ -167,19 +168,27 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
               </span>
               <span
                 className="cursor-pointer text-blue-700 underline"
-                onClick={() => setSubCategory('')}
+                onClick={() => {
+                  if (isEditing) {
+                    setWarning(true);
+                    return;
+                  }
+                  setSubCategory('')
+                }}
               >
                 change
+
               </span>
+                {warning && <span className='text-red-500 text-sm'>You can't change category</span>}
             </div>
           </div>
 
-          <div className="flex w-full flex-col gap-4 border-b-2 border-b-gray-400 p-4 lg:px-10">
+          <div className="flex w-full flex-col py-2">
             <h2 className="font-semibold uppercase lg:text-xl">
               Include Some Details
             </h2>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 mb-2">
               <label htmlFor="title">
                 Title <span className="text-red-500">*</span>
               </label>
@@ -211,7 +220,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
                 className={`rounded-md border-2 ${errors.description ? 'border-red-600' : 'border-gray-400'} resize-none p-2`}
               />
               <div className="flex w-full justify-between text-xs">
-                <span>Tell about the product</span>
+                <span>Tell about this ad.</span>
                 <span>({watchAll.description?.length || 0}/1000)</span>
               </div>
               {errors.description && (
@@ -222,7 +231,7 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
             </div>
 
             {selectedSubcategory.formStructure.map((field, index) => (
-              <div key={index} className="mb-4 flex flex-col gap-1">
+              <div key={index} className="mb-4 flex flex-col gap-1 mt-2">
                 <label htmlFor={field.fieldName} className="flex">
                   {field.label}
                   {field.required && (
@@ -382,8 +391,8 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
             ))}
           </div>
 
-          <div className="flex w-full flex-col gap-4 border-b-2 border-b-gray-400 p-4 lg:px-10">
-            <h2 className="font-semibold uppercase lg:text-xl">Set A Price</h2>
+          <div className="flex w-full flex-col  py-2 mb-5">
+            <h2 className="font-semibold uppercase lg:text-xl">Set Price</h2>
             <div className="flex flex-col gap-2">
               <label htmlFor="price">
                 Price <span className="text-red-500">*</span>
@@ -413,9 +422,9 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
                 />
               </div>
               <span
-                className={`${Number(watchAll.price) > 700000 ? 'block' : 'hidden'} text-pink-700`}
+                className={`${Number(watchAll.price) > 10000000000 ? 'block' : 'hidden'} text-pink-700`}
               >
-                The price should be less than 700000
+                The price should be less than {formatToINR('10000000000')}
               </span>
             </div>
             {errors.price && (
@@ -423,9 +432,9 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
             )}
           </div>
 
-          <div className="flex w-full flex-col gap-4 border-b-2 border-b-gray-400 p-4 lg:px-10">
+          <div className="flex w-full flex-col gap-4  py-2 mb-5">
             <h2 className="font-semibold uppercase lg:text-xl">
-              Upload Photo upto 8 Photos
+              Upload Images
             </h2>
             <Upload
               photos={watchAll.photos}
@@ -442,10 +451,10 @@ function Card({ setSubCategory, selectedCategory, selectedSubcategory }) {
             getValues={getValues}
           />
 
-          <div className="mb-5 flex justify-center">
+          <div className="mb-5 flex justify-center mt-10">
             <button
               type="submit"
-              className="cursor-pointer rounded-md border-2 border-gray-400 p-2 px-5 transition-all duration-200 hover:bg-gray-400"
+              className="cursor-pointer rounded-md border-2 border-gray-400 p-2 px-20 transition-all duration-200 hover:bg-gray-400"
             >
               {!isEditing ? 'Submit' : 'Update'}
             </button>

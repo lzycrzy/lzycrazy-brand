@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
     minlength: [2, 'Full Name must contain at least 2 characters'],
     trim: true,
   },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', "Not Specified"]
+  },
   email: {
     type: String,
     unique: true,

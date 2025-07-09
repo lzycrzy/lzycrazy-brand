@@ -86,11 +86,11 @@ function ConfirmLocation({ register, setValue, watch, errors, getValues }) {
   }, [isEditing, editData, cities, setValue]);
 
   return (
-    <div className="flex w-full flex-col gap-4 p-4 lg:px-10">
-      <h2 className="text-xl font-semibold uppercase">Confirm Your Location</h2>
+    <div className="flex w-full flex-col gap-4">
+      <h2 className="text-xl font-semibold uppercase -mb-4">Confirm Your Location</h2>
 
       {/* State */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <label htmlFor="state">
           State <span className="text-red-500">*</span>
         </label>
