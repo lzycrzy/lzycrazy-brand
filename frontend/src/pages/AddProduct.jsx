@@ -48,7 +48,7 @@ const AddProduct = () => {
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
       className="fixed inset-0 z-[999] flex items-center justify-center overflow-auto p-4"
     >
-      <div className="relative w-full max-w-xl max-h-[90vh] overflow-hidden rounded-md border border-gray-200 bg-white shadow-md">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-md border border-gray-200 bg-white shadow-md">
         
         {/* Sticky Header for Close & Back */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white p-3">
@@ -65,7 +65,8 @@ const AddProduct = () => {
             </button>
           </div>
 
-          <div className="ml-auto">
+          <div className="w-full flex justify-between">
+            <span className='text-2xl'>Post your add</span>
             <button
               className="flex items-center justify-center rounded-full border bg-gray-300 p-1"
               onClick={() => {
@@ -89,7 +90,7 @@ const AddProduct = () => {
             <div className="flex flex-col lg:flex-row gap-4">
               {/* Categories */}
               <aside className="w-full lg:w-1/2">
-                <h2 className="mb-2 text-base font-semibold text-gray-800">Choose a Category</h2>
+                <h2 className="mb-2 text-2xl font-semibold text-gray-800 ">Choose a Category</h2>
                 <ul className={`${selectedCategory ? 'lg:block hidden' : 'block w-full'} space-y-1`}>
                   {categories?.map((category, index) => (
                     <li key={index}>
@@ -98,7 +99,7 @@ const AddProduct = () => {
                           setExpandedCategory(category.subcategories);
                           setSelectedCategory(category);
                         }}
-                        className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-all ${
+                        className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left ${
                           selectedCategory?.name === category.name
                             ? 'bg-blue-50 text-blue-700'
                             : 'text-gray-700 hover:bg-gray-100'
@@ -106,7 +107,7 @@ const AddProduct = () => {
                       >
                         <div className='flex gap-2 items-center '>
                           <img src={category.imageData?.url ? category.imageData?.url : "/missing.png"} alt={category.name || "Category"} width={15} className='rounded-full' loading="lazy" />
-                          <span className="font-medium">{category.name}</span>
+                          <span className="font-medium text-lg">{category.name}</span>
                         </div>
                         <svg
                           className="h-4 w-4 transform transition-transform duration-200"
@@ -136,10 +137,10 @@ const AddProduct = () => {
                           }
                           setSelectedSubcategory(sub);
                         }}
-                        className="flex gap-2 w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-black hover:bg-gray-100"
+                        className="flex gap-2 w-full rounded-md px-3 py-2 text-left text-lg font-semibold text-black hover:bg-gray-200"
                       >
                         <img src={sub.imageData.url ? sub.imageData.url : "/missing.png"} alt={sub.name || "Subcategory"} width={15} height={15} className='bg-center object-contain rounded-full' loading="lazy" />
-                        {sub.name}
+                        <span>{sub.name}</span>
                       </button>
                     </li>
                   ))}

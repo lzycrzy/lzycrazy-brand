@@ -118,7 +118,7 @@ const handleChange = (e, index) => {
 
   return (
     <>
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-8 gap-4">
         {Array.from({ length: totalImages }).map((_, index) => (
           <div
             key={index}

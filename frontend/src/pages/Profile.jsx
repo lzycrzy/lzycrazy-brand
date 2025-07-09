@@ -16,8 +16,9 @@ import Footer from '../components/static/Footer1';
 import { HiOutlineDotsVertical } from 'react-icons/hi'; // at the top
 import Modal from '../components/common/Modal'; // adjust the path if needed
 
-
 import Loader from '../components/common/Spinner';
+import Listings from '../components/AdPage/Listings';
+import ShowImage from '../components/profile/ShowImage';
 
 const Profile = () => {
   const { user, profilePic, displayName, fetchUser, updateUser } = useUser();
@@ -30,6 +31,7 @@ const Profile = () => {
   const [imagePreview, setImagePreview] = useState(profilePic);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [showManageFriendsModal, setShowManageFriendsModal] = useState(false);
+  const [showImage, setShowImage] = useState(null);
 
   const fetchProfile = async () => {
     try {
@@ -64,8 +66,10 @@ const Profile = () => {
   if (!user) return <Loader />;
 
   return (
-    <div className="min-h-screen w-full bg-gray-50">
+    <div className="relative min-h-screen w-full bg-gray-50">
       <Header />
+
+      {showImage && <ShowImage img={showImage} setShowImage={setShowImage} />}
 
       {/* Profile Header */}
       <div className="h-80 w-full bg-blue-900 text-white shadow-md">
@@ -74,6 +78,7 @@ const Profile = () => {
             <div className="flex items-center space-x-4">
               <div className="relative h-24 w-24">
                 <img
+                  onClick={() => setShowImage((newImage && URL.createObjectURL(newImage)) || 'https://i.ibb.co/2kR5zq0/default-avatar.png')}
                   src={
                     newImage
                       ? URL.createObjectURL(newImage)
@@ -103,30 +108,32 @@ const Profile = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-semibold">{displayName}</h2>
-                <p className="text-sm text-gray-200">Full Stack Developer</p>
+                {/* <p className="text-sm text-gray-200">Full Stack Developer</p>
                 <p className="mt-1 text-sm">
-                  Total Friends: {user.friendsCount || 120}
-                </p>
+                  Total Friends: {user.friendsCount || ''}
+                </p> */}
               </div>
             </div>
 
             {/* For large screens: show buttons normally */}
             <div className="hidden space-x-3 sm:flex">
-  <button className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100">
-    Edit Story
-  </button>
-  <button
-    onClick={() => setIsEditing(true)}
-    className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100"
-  >
-    Edit Profile
-  </button>
-  <SettingMenu
-    activeTab={activeTab1}
-    setActiveTab={setActiveTab1}
-    onManageFriendsClick={() => setShowManageFriendsModal(true)} // ✅ Add this!
-  />
-</div>
+              {/* <button className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100">
+                Edit Story
+              </button> */}
+              <button
+                onClick={() => {
+                  setActiveTab('about');
+                }}
+                className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100"
+              >
+                Edit Profile
+              </button>
+              {/* <SettingMenu
+                activeTab={activeTab1}
+                setActiveTab={setActiveTab1}
+                onManageFriendsClick={() => setShowManageFriendsModal(true)} // ✅ Add this!
+              /> */}
+            </div>
 
             {/* For small screens: dropdown menu */}
             <div className="relative sm:hidden">
@@ -162,10 +169,10 @@ const Profile = () => {
                     Edit Profile
                   </button>
                   <SettingMenu
-  activeTab={activeTab1}
-  setActiveTab={setActiveTab1}
-  onManageFriendsClick={() => setShowManageFriendsModal(true)}
-/>
+                    activeTab={activeTab1}
+                    setActiveTab={setActiveTab1}
+                    onManageFriendsClick={() => setShowManageFriendsModal(true)}
+                  />
                 </div>
               )}
             </div>
@@ -176,13 +183,12 @@ const Profile = () => {
             {/* Tabs for large screens */}
             <div className="hidden space-x-2 overflow-x-auto whitespace-nowrap sm:flex">
               {[
-                'posts',
+                // 'posts',
                 'about',
-                'friends',
-                'photos',
-                'videos',
+                // 'friends',
+                // 'photos',
+                // 'videos',
                 'my Ads',
-                'more',
               ].map((tab) => (
                 <button
                   key={tab}
@@ -206,13 +212,12 @@ const Profile = () => {
                 className="w-full rounded bg-white p-2 text-blue-900"
               >
                 {[
-                  'posts',
+                  // 'posts',
                   'about',
-                  'friends',
-                  'photos',
-                  'videos',
+                  // 'friends',
+                  // 'photos',
+                  // 'videos',
                   'my Ads',
-                  'more',
                 ].map((tab) => (
                   <option key={tab} value={tab}>
                     {tab}
@@ -220,6 +225,8 @@ const Profile = () => {
                 ))}
               </select>
             </div>
+
+            <button className='rounded-md px-4 py-2 text-sm capitalize transition bg-amber-400 text-black cursor-pointer'>Request For Business Profile</button>
 
             {/* <div className="flex gap-6">
               <SettingMenu
@@ -230,8 +237,8 @@ const Profile = () => {
               <div className="flex-1">
                 {activeTab1 === 'manageFriends' && <ManageFriends />}
                 {/* You can conditionally render other tabs here */}
-              {/* </div>
-            </div> */} 
+            {/* </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -258,15 +265,17 @@ const Profile = () => {
                 posts.map((post) => <PostCard key={post._id} post={post} />)
               )}
             </div>
-            <div className="w-full lg:w-1/3">
+            {/* <div className="w-full lg:w-1/3">
               <Intro />
               <Friends friends={user.friends || []} />
-            </div>
+            </div> */}
           </div>
         )}
 
+        {activeTab === 'my Ads' && <Listings />}
+
         {activeTab === 'about' && <About user={user} />}
-        {activeTab === 'friends' && <FriendsTab />}
+        {/* {activeTab === 'friends' && <FriendsTab />} */}
         {activeTab === 'photos' && (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {posts
@@ -339,10 +348,10 @@ const Profile = () => {
         />
       )}
       {showManageFriendsModal && (
-  <Modal onClose={() => setShowManageFriendsModal(false)}>
-    <ManageFriends />
-  </Modal>
-)}
+        <Modal onClose={() => setShowManageFriendsModal(false)}>
+          <ManageFriends />
+        </Modal>
+      )}
       <Footer />
     </div>
   );

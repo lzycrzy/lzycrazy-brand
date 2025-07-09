@@ -40,6 +40,14 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const updateUser = async () => {
+    try {
+      const res = await axios.put()
+    } catch (error) {
+      
+    }
+  }
+
   // useEffect(() => {
   //   fetchUser();
   // }, []);

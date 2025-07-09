@@ -22,15 +22,18 @@ const ProductCard = ({ post }) => {
           <h3 className="mt-2 text-lg font-semibold">{post.title}</h3>
           <p className="text-green-700 font-bold">₹ {formatToINR(post.price)}</p>
         </div>
+        
+        <div className='flex items-center justify-between'>
+          <div className='flex mt-2 gap-2 items-center'>
+          {loaded && <img src={getAssetUrl('identity.png') || "/missing.png"} alt="Identity" width={20} loading="lazy" />}
+          <p>{post.postedBy.name}</p>
+        </div>
         <div className='flex gap-2 items-center'>
           {loaded && <img src={getAssetUrl('location.png') || "/missing.png"} alt="Location" width={15} loading="lazy" />}
           <p className="text-gray-500 text-sm">{post.location?.state}</p>
         </div>
-
-        <div className='flex mt-2 gap-2 items-center'>
-          {loaded && <img src={getAssetUrl('identity.png') || "/missing.png"} alt="Identity" width={20} loading="lazy" />}
-          <p>{post.postedBy.name}</p>
         </div>
+
       </div>
     );
   };

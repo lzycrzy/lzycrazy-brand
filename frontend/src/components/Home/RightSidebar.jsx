@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../lib/axios/axiosInstance';
 import { useSelector } from 'react-redux';
 import { FaUserPlus, FaUserCheck } from 'react-icons/fa';
+import { Navigate } from 'react-router';
 
 const RightSidebar = () => {
   const [people, setPeople] = useState([]);
@@ -119,20 +120,27 @@ const RightSidebar = () => {
       <div className="rounded-lg bg-white p-5 text-xs text-gray-500 shadow-md">
         <div>© 2025 LzyCrazy</div>
         <div className="mt-2 flex flex-wrap gap-3">
-          <a href="#" className="hover:underline">
+          <a 
+           href="/about" className="hover:underline">
             About
           </a>
-          <a href="#" className="hover:underline">
-            Blog
+          <a href="/services" className="hover:underline">
+            Services
           </a>
-          <a href="#" className="hover:underline">
-            Contact
+          <a href="/news" className="hover:underline">
+            News
           </a>
-          <a href="#" className="hover:underline">
-            More
+          <a href="/" className="hover:underline">
+            Careers
           </a>
         </div>
-        <div className="mt-2">Languages</div>
+        <span className="mt-2">Help Center</span>
+        <select name="" id="">
+          <option value="" defaultChecked disabled>Language</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Hindi">English</option>
+          <option value="Hindi">Bengali</option>
+        </select>
       </div>
     </div>
   );
