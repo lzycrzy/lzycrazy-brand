@@ -5,27 +5,33 @@ import { useUser } from '../../context/UserContext';
 
 const PostCard = ({ post }) => {
   const {
-    user,          // user object like { _id, fullName, email, image }
-    createdAt,
+    user = {},             // default to empty object if undefined
+    createdAt = null,      // fallback if missing
     text,
     mediaUrl,
     likesCount,
     commentsCount,
     sharesCount,
   } = post;
-  const {  profilePic, displayName, fetchUser, updateUser } = useUser();
+
+  const { profilePic, displayName } = useUser();
+
   const userImage = user?.image || 'https://flowbite.com/docs/images/people/profile-picture-5.jpg';
   const userName = user?.fullName || 'Unknown User';
 
   // Helper to detect if media is video
   const isVideo = mediaUrl && /\.(mp4|webm|ogg)$/i.test(mediaUrl);
 
+  const formattedDate = createdAt && !isNaN(new Date(createdAt))
+    ? formatDistanceToNow(new Date(createdAt), { addSuffix: true })
+    : 'Unknown time';
+
   return (
     <div className="mb-6 w-full rounded-xl bg-white p-5 shadow-md">
       {/* Header */}
       <div className="mb-3 flex items-center">
         <img
-          src={profilePic|| 'https://i.ibb.co/2kR5zq0/default-avatar.png'}
+          src={profilePic || userImage}
           alt={userName}
           onError={(e) => {
             e.target.src = 'https://i.ibb.co/2kR5zq0/default-avatar.png';
@@ -34,9 +40,7 @@ const PostCard = ({ post }) => {
         />
         <div>
           <div className="font-semibold text-gray-900">{userName}</div>
-          <div className="text-xs text-gray-500">
-            {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
-          </div>
+          <div className="text-xs text-gray-500">{formattedDate}</div>
         </div>
         <div className="ml-auto cursor-pointer text-gray-400 hover:text-gray-700">...</div>
       </div>
