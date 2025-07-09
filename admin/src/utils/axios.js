@@ -18,7 +18,7 @@ export const multiInstance= axios.create({
 
 instance.interceptors.request.use(
   (config) => {
-    // ⛔ Skip auth for public routes
+    //  Skip auth for public routes
     if (
       config.url?.includes('/auth') ||
       config.url?.includes('/password/forgot') ||

@@ -29,7 +29,7 @@ import AddServices1 from './pages/AddServices';
 import Banner from './components/Business/Banner';
 import Category from './components/Business/Category';
 import Logo from './components/Business/Logo';
-import Card from './components/Business/Card';
+// import Card from './components/Business/Card';
 import HiringApplicationsTable from './components/Applications/Hiring';
 import AddBanner from './pages/AddBanner';
 import PostList from './pages/PostList';
@@ -38,7 +38,6 @@ import { useAsset } from './context/useAsset';
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
   
   const token = localStorage.getItem('adminToken');
   useEffect(() => {
@@ -52,11 +51,11 @@ const ProtectedRoute = ({ children }) => {
 
 const App = () => {
 
-  const {fetchAssets} = useAsset();
+const {fetchAssets} = useAsset();
   useEffect(() => {
     fetchAssets();
   }, [])
-
+  
   return (
     <Provider store={store}>
       <Routes>
@@ -101,14 +100,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/shop/card"
             element={
               <ProtectedRoute>
                 <Card />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="/services/add"
             element={

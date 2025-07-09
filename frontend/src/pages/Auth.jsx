@@ -290,7 +290,10 @@ const Auth = () => {
                     </div>
   
                     <div className="relative mb-3">
+
+
                       {loaded && (<img src={getAssetUrl('lock.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" loading="lazy" />)}
+
                       <input
                         type={showPassword ? 'text' : 'password'}
                         name="password"
