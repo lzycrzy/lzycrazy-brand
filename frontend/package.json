@@ -66,7 +66,10 @@
     "globals": "^16.0.0",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.12",
-    "rollup": "^4.41.1",
+    "rollup": "^3.29.5",
     "vite": "^5.2.10"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.44.2"
   }
 }

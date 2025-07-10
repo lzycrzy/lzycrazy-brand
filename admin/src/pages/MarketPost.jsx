@@ -248,60 +248,55 @@ const NewsDashboard = () => {
         </div>
 
         {/* Data Table Section */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-600">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">Video</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">Title</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">Post Date</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">Views</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">User Profile</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-white">User Name</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {newsData.map((item, index) => (
-                  <tr key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-4 py-4">
-                      <div className="relative w-16 h-12 bg-gray-200 rounded overflow-hidden">
-                        <div className="w-full h-full bg-blue-900 flex items-center justify-center">
-                          <Play className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="absolute top-0 left-0 bg-red-600 text-white text-xs px-1 py-0.5 rounded-br">
-                          LIVE
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs lg:max-w-md">
-                        {item.title}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-700">
-                      {item.postDate}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-700 font-medium">
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4 text-gray-400" />
-                        {item.views}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                        <User className="w-4 h-4 text-gray-600" />
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-900 font-medium">
-                      {item.userName}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+       <div className="w-full max-w-[1600px] mx-auto bg-white rounded-lg shadow-sm overflow-hidden">
+  <div className="overflow-x-auto">
+    <table className="min-w-full table-auto">
+      <thead className="bg-gray-600">
+        <tr>
+          <th className="px-4 py-3 text-left text-sm font-medium text-white">Video</th>
+          <th className="px-4 py-3 text-left text-sm font-medium text-white">Title</th>
+          <th className="px-4 py-3 text-left text-sm font-medium text-white">Post Date</th>
+          <th className="px-4 py-3 text-left text-sm font-medium text-white">Views</th>
+          <th className="px-4 py-3 text-left text-sm font-medium text-white">User Profile</th>
+          <th className="px-4 py-3 text-left text-sm font-medium text-white">User Name</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200">
+        {newsData.map((item, index) => (
+          <tr key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+            <td className="px-4 py-4">
+              <div className="relative w-16 h-12 bg-gray-200 rounded overflow-hidden">
+                <div className="w-full h-full bg-blue-900 flex items-center justify-center">
+                  <Play className="w-4 h-4 text-white" />
+                </div>
+                <div className="absolute top-0 left-0 bg-red-600 text-white text-xs px-1 py-0.5 rounded-br">
+                  LIVE
+                </div>
+              </div>
+            </td>
+            <td className="px-4 py-4">
+              <div className="text-sm text-gray-900 max-w-xs lg:max-w-md">{item.title}</div>
+            </td>
+            <td className="px-4 py-4 text-sm text-gray-700">{item.postDate}</td>
+            <td className="px-4 py-4 text-sm text-gray-700 font-medium">
+              <div className="flex items-center gap-1">
+                <Eye className="w-4 h-4 text-gray-400" />
+                {item.views}
+              </div>
+            </td>
+            <td className="px-4 py-4">
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-gray-600" />
+              </div>
+            </td>
+            <td className="px-4 py-4 text-sm text-gray-900 font-medium">{item.userName}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
       </div>
     </div>
   );
