@@ -24,7 +24,9 @@ import { useAsset } from '../store/useAsset';
 import Navbar from '../components/common/Navbar';
 import { Eye, EyeOff } from 'lucide-react';
 
-const LazyForgotPassword = React.lazy(() => import('../components/Auth/ForgotPassword'));
+const LazyForgotPassword = React.lazy(
+  () => import('../components/Auth/ForgotPassword'),
+);
 
 const Auth = () => {
   const [activeTab, setActiveTab] = useState('login');
@@ -43,7 +45,6 @@ const Auth = () => {
     role: 'user',
   });
 
-  
   googleProvider.setCustomParameters({
     prompt: 'select_account',
   });
@@ -52,7 +53,7 @@ const Auth = () => {
   const dispatch = useDispatch();
   const { fetchUser } = useUser();
   const handleLoginChange = (e) =>
-  setLoginData({ ...loginData, [e.target.name]: e.target.value });
+    setLoginData({ ...loginData, [e.target.name]: e.target.value });
   const handleRegisterChange = (e) =>
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
 
@@ -100,12 +101,10 @@ const Auth = () => {
       setTimeout(() => {
         navigate('/dashboard', { replace: true, state: { welcome: true } });
       }, 300);
-
     } catch (error) {
       const msg = error?.response?.data?.message || 'Login failed. Try again.';
       toast.error(msg);
       console.error('Login error:', msg);
-
     } finally {
       setLoading(false);
     }
@@ -131,7 +130,9 @@ const Auth = () => {
     // Name validation: only letters and spaces, min 3 characters
     const nameRegex = /^[A-Za-z\s.]{2,}$/;
     if (!nameRegex.test(fullName)) {
-      toast.error('Name must be at least 2 characters and only contain letters/spaces');
+      toast.error(
+        'Name must be at least 2 characters and only contain letters/spaces',
+      );
       setLoading(false);
       return;
     }
@@ -145,8 +146,12 @@ const Auth = () => {
     }
 
     // Optional: block temporary email domains
-    const blockedDomains = ['tempmail.com', '10minutemail.com', 'mailinator.com'];
-    if (blockedDomains.some(domain => email.endsWith(`@${domain}`))) {
+    const blockedDomains = [
+      'tempmail.com',
+      '10minutemail.com',
+      'mailinator.com',
+    ];
+    if (blockedDomains.some((domain) => email.endsWith(`@${domain}`))) {
       toast.error('Temporary email addresses are not allowed');
       setLoading(false);
       return;
@@ -154,7 +159,7 @@ const Auth = () => {
 
     // Phone validation (India)
     const rawPhone = registerData.phone?.trim();
-    const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10);  // keep last 10 digits
+    const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10); // keep last 10 digits
 
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(phone1)) {
@@ -167,7 +172,9 @@ const Auth = () => {
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).{8,}$/;
     if (!passwordRegex.test(password)) {
-      toast.error('Password must be 8+ characters and include uppercase, lowercase, number, and special character');
+      toast.error(
+        'Password must be 8+ characters and include uppercase, lowercase, number, and special character',
+      );
       setLoading(false);
       return;
     }
@@ -183,7 +190,13 @@ const Auth = () => {
     }
 
     // Optional: prevent common weak passwords
-    const weakPasswords = ['12345678', 'password', 'welcome123', 'admin123', 'qwerty'];
+    const weakPasswords = [
+      '12345678',
+      'password',
+      'welcome123',
+      'admin123',
+      'qwerty',
+    ];
     if (weakPasswords.includes(password.toLowerCase())) {
       toast.error('Choose a stronger, less common password');
       setLoading(false);
@@ -216,34 +229,6 @@ const Auth = () => {
     }
   };
 
-  //google login
-  const handleGoogleLogin = async () => {
-    navigate('/progress');
-  }
-
-  // const handleFacebookLogin = async () => {
-  //   try {
-  //     facebookProvider.addScope('email');
-  //     const result = await signInWithPopup(auth, facebookProvider);
-  //     const user = result.user;
-  //     const idToken = await user.getIdToken();
-  //     const response = await axios.post('/v1/users/facebook-login', {
-  //       idToken,
-  //     });
-  //     const { token, user: backendUser } = response.data;
-  //     localStorage.setItem('token', token);
-  //     localStorage.setItem('user', JSON.stringify(backendUser));
-  //     dispatch(login({ success: true, data: backendUser, token }));
-  //     navigate('/dashboard',{ replace: true, state: { welcome: true } });
-  //   } catch (error) {
-  //     alert(error.response?.data?.message || 'Facebook login failed');
-  //     console.error('Facebook login error:', error);
-  //   }
-  // };
-  const handleFacebookLogin = async () => {
-    navigate('/progress');
-  }
-
   const inputClass =
     'w-full rounded border border-gray-300 py-3 pr-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400';
 
@@ -252,33 +237,37 @@ const Auth = () => {
 
   if (loading) return <Loader />;
 
-  
-
   return (
     <>
-      <div className="min-h-screen flex flex-col bg-[#ebf3fe] overflow-hidden">
+      <div className="flex min-h-screen flex-col overflow-hidden bg-[#ebf3fe]">
         {/* Main content container */}
 
-
         {/* <Navbar /> */}
-        <div className="flex-1 flex flex-col items-center justify-center px-4 pb-8 md:pb-12">
-          <div className="flex w-full max-w-7xl flex-col md:flex-row md:items-center md:justify-center gap-6">
+        <div className="flex flex-1 flex-col items-center justify-center px-4 pb-8 md:pb-12">
+          <div className="flex w-full max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-center">
             {/* Left - Branding */}
-            <div className="flex w-full justify-start bg-[#ebf3fe] p-4 md:p-8 md:w-3/4">
+            <div className="flex w-full justify-start bg-[#ebf3fe] p-4 md:w-3/4 md:p-8">
               <div className="w-full max-w-xl">
                 <Searchbar />
               </div>
             </div>
-  
+
             {/* Right - Auth Card */}
-            <div className="flex w-full max-w-[452px] flex-col items-center justify-center bg-white p-6 md:p-8 shadow-lg rounded-lg">
-              <div className="w-full max-w-md flex flex-col justify-between">
+            <div className="flex w-full max-w-[452px] flex-col items-center justify-center rounded-lg bg-white p-6 shadow-lg md:p-8">
+              <div className="flex w-full max-w-md flex-col justify-between">
                 <h2 className="mb-4 text-center text-xl font-semibold text-gray-800"></h2>
-  
+
                 {activeTab === 'login' && (
                   <form onSubmit={handleLoginSubmit} className="flex flex-col">
                     <div className="relative mb-3">
-                      {loaded && (<img src={getAssetUrl('mail.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" loading="lazy" />)}
+                      {loaded && (
+                        <img
+                          src={getAssetUrl('mail.png')}
+                          className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                          alt="email"
+                          loading="lazy"
+                        />
+                      )}
                       <input
                         type="email"
                         name="email"
@@ -289,9 +278,16 @@ const Auth = () => {
                         className={inputClass}
                       />
                     </div>
-  
+
                     <div className="relative mb-3">
-                      {loaded && (<img src={getAssetUrl('lock.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" loading="lazy" />)}
+                      {loaded && (
+                        <img
+                          src={getAssetUrl('lock.png')}
+                          className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                          alt="lock"
+                          loading="lazy"
+                        />
+                      )}
                       <input
                         type={showPassword ? 'text' : 'password'}
                         name="password"
@@ -301,11 +297,21 @@ const Auth = () => {
                         required
                         className={inputClass}
                       />
-                      <div className='absolute top-1/2 -translate-y-1/2 right-2 opacity-70'>
-                        {showPassword ? <Eye width={20} onClick={() => setShowPassword(prev => !prev)} /> : <EyeOff width={20} onClick={() => setShowPassword(prev => !prev)} />}
+                      <div className="absolute top-1/2 right-2 -translate-y-1/2 opacity-70">
+                        {showPassword ? (
+                          <Eye
+                            width={20}
+                            onClick={() => setShowPassword((prev) => !prev)}
+                          />
+                        ) : (
+                          <EyeOff
+                            width={20}
+                            onClick={() => setShowPassword((prev) => !prev)}
+                          />
+                        )}
                       </div>
                     </div>
-  
+
                     <div className="mb-3 text-right">
                       <button
                         type="button"
@@ -316,54 +322,37 @@ const Auth = () => {
                       </button>
                       {showForgotModal && (
                         <Suspense fallback={<div>Loading...</div>}>
-                          <LazyForgotPassword onClose={() => setShowForgotModal(false)} />
+                          <LazyForgotPassword
+                            onClose={() => setShowForgotModal(false)}
+                          />
                         </Suspense>
                       )}
                     </div>
-  
+
                     <button
                       type="submit"
                       className="mt-3.5 w-full rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white"
                     >
                       Login
                     </button>
-  
-                    <div className="my-4 flex items-center gap-4 py-3 text-sm text-gray-500">
-                      <div className="h-px flex-1 bg-gray-300" />
-                      <span className="whitespace-nowrap">or continue with</span>
-                      <div className="h-px flex-1 bg-gray-300" />
+
+                    {/* Divider Line */}
+                    <div className="my-4 flex items-center">
+                      <div className="flex-grow border-t border-gray-300"></div>
+                      <span className="mx-2 text-sm text-gray-400">or</span>
+                      <div className="flex-grow border-t border-gray-300"></div>
                     </div>
-  
-                    <div className="flex gap-4">
+
+                    <p className="text-center text-sm text-gray-600">
                       <button
                         type="button"
-                        onClick={handleGoogleLogin}
-                        className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 bg-white py-2 font-medium text-black shadow-sm shadow-gray-300"
-                      >
-                        <img src={loaded ? getAssetUrl('image3.png') : "/missing.png"} alt="Google" className="h-5 w-5 rounded-full bg-white p-0.5" loading="lazy" />
-                        Google
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleFacebookLogin}
-                        className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 py-2 font-medium text-black shadow-sm shadow-gray-300 hover:bg-[#155DC0]"
-                      >
-                        <img src={loaded ? getAssetUrl('image5.png') : "/missing.png"} alt="Facebook" className="h-5 w-5" loading="lazy" />
-                        Facebook
-                      </button>
-                    </div>
-  
-                    <p className="mt-4 text-center text-sm text-gray-600">
-                      <button
-                        type="button"
-                        className={`mt-3.5 w-1/2 rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white ${
+                        className={`w-1/2 rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white ${
                           activeTab === 'register'
                             ? 'bg-gradient-to-r from-purple-600 to-pink-400 text-white'
                             : 'bg-gray-100'
                         }`}
                         onClick={() => {
-                          // navigate('/progress');
-                          setActiveTab('register')
+                          setActiveTab('register');
                         }}
                       >
                         Create New Account
@@ -371,11 +360,21 @@ const Auth = () => {
                     </p>
                   </form>
                 )}
-  
+
                 {activeTab === 'register' && (
-                  <form onSubmit={handleRegisterSubmit} className="flex flex-col">
+                  <form
+                    onSubmit={handleRegisterSubmit}
+                    className="flex flex-col"
+                  >
                     <div className="relative mb-3">
-                      {loaded && (<img src={getAssetUrl('identity.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="user" loading="lazy" />)}
+                      {loaded && (
+                        <img
+                          src={getAssetUrl('identity.png')}
+                          className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                          alt="user"
+                          loading="lazy"
+                        />
+                      )}
                       <input
                         type="text"
                         name="fullName"
@@ -386,12 +385,14 @@ const Auth = () => {
                         className={inputClass}
                       />
                     </div>
-  
+
                     <div className="relative mb-3">
                       <PhoneInput
                         country={'in'}
                         value={registerData.phone}
-                        onChange={(phone) => setRegisterData((prev) => ({ ...prev, phone }))}
+                        onChange={(phone) =>
+                          setRegisterData((prev) => ({ ...prev, phone }))
+                        }
                         placeholder="Phone Number"
                         enableSearch
                         inputStyle={{
@@ -411,9 +412,16 @@ const Auth = () => {
                         containerStyle={{ width: '100%' }}
                       />
                     </div>
-  
+
                     <div className="relative mb-3">
-                      {loaded && (<img src={getAssetUrl('mail.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" loading="lazy" />)}
+                      {loaded && (
+                        <img
+                          src={getAssetUrl('mail.png')}
+                          className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                          alt="email"
+                          loading="lazy"
+                        />
+                      )}
                       <input
                         type="email"
                         name="email"
@@ -424,9 +432,16 @@ const Auth = () => {
                         className={inputClass}
                       />
                     </div>
-  
+
                     <div className="relative mb-3">
-                      {loaded && (<img src={getAssetUrl('lock.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" loading="lazy" />)}
+                      {loaded && (
+                        <img
+                          src={getAssetUrl('lock.png')}
+                          className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                          alt="lock"
+                          loading="lazy"
+                        />
+                      )}
                       <input
                         type="password"
                         name="password"
@@ -437,7 +452,7 @@ const Auth = () => {
                         className={inputClass}
                       />
                     </div>
-  
+
                     <div className="mb-4 flex flex-col gap-2 text-xs text-gray-700">
                       {/* <span>
                         We may use your contact information to improve your experience.{' '}
@@ -445,12 +460,23 @@ const Auth = () => {
                       </span> */}
                       <span>
                         By clicking Sign Up, you agree to our{' '}
-                        <a href='/terms' className="cursor-pointer text-blue-600">Terms of Service</a>,{' '}
-                        <a href='/privacy' className="cursor-pointer text-blue-600">Privacy Policy</a>
+                        <a
+                          href="/terms"
+                          className="cursor-pointer text-blue-600"
+                        >
+                          Terms of Service
+                        </a>
+                        ,{' '}
+                        <a
+                          href="/privacy"
+                          className="cursor-pointer text-blue-600"
+                        >
+                          Privacy Policy
+                        </a>
                         {/* <span className="cursor-pointer text-blue-600">Cookies Policy</span> */}
                       </span>
                     </div>
-  
+
                     <button
                       type="submit"
                       className="w-full rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white"
@@ -472,35 +498,63 @@ const Auth = () => {
             </div>
           </div>
         </div>
-  
+
         {/* Footer - Always at the bottom */}
         <footer className="w-full border-t border-gray-200 bg-[#ebf3fe] py-4 text-sm text-gray-600">
-      <div className="flex flex-col sm:flex-row flex-wrap items-center justify-between px-4 sm:px-20 gap-4">
-        <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
-          <div className='flex gap-2 items-center'>
-            <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" alt="Flag" width={20} />
-            <span>India</span>
-          </div>
-          <span className="mx-2">|</span>
-          <span>LzyCrazy offered in:</span>
-          <button onClick={() => i18n.changeLanguage('hi')} className="ml-2 text-blue-600 hover:underline">हिन्दी</button>
-          <button onClick={() => i18n.changeLanguage('en')} className="ml-2 text-blue-600 hover:underline">English</button>
-          <button onClick={() => i18n.changeLanguage('bn')} className="ml-2 text-blue-600 hover:underline">বাংলা</button>
-          <button onClick={() => i18n.changeLanguage('ar')} className="ml-2 text-blue-600 hover:underline">العربية</button>
-        </div>
+          <div className="flex flex-col flex-wrap items-center justify-between gap-4 px-4 sm:flex-row sm:px-20">
+            <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
+              <div className="flex items-center gap-2">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg"
+                  alt="Flag"
+                  width={20}
+                />
+                <span>India</span>
+              </div>
+              <span className="mx-2">|</span>
+              <span>LzyCrazy offered in:</span>
+              <button
+                onClick={() => i18n.changeLanguage('hi')}
+                className="ml-2 text-blue-600 hover:underline"
+              >
+                हिन्दी
+              </button>
+              <button
+                onClick={() => i18n.changeLanguage('en')}
+                className="ml-2 text-blue-600 hover:underline"
+              >
+                English
+              </button>
+              <button
+                onClick={() => i18n.changeLanguage('bn')}
+                className="ml-2 text-blue-600 hover:underline"
+              >
+                বাংলা
+              </button>
+              <button
+                onClick={() => i18n.changeLanguage('ar')}
+                className="ml-2 text-blue-600 hover:underline"
+              >
+                العربية
+              </button>
+            </div>
 
-        <div>
-          <span>@LzyCrazy Pvt Ltd, All right reserved.</span>
-        </div>
-        <div className="flex gap-6 justify-center sm:justify-end">
-          <Link to="/privacy" className="hover:underline">Privacy</Link>
-          <Link to="/terms" className="hover:underline">Terms</Link>
-        </div>
-      </div>
-    </footer>
+            <div>
+              <span>@LzyCrazy Pvt Ltd, All right reserved.</span>
+            </div>
+            <div className="flex justify-center gap-6 sm:justify-end">
+              <Link to="/privacy" className="hover:underline">
+                Privacy
+              </Link>
+              <Link to="/terms" className="hover:underline">
+                Terms
+              </Link>
+            </div>
+          </div>
+        </footer>
       </div>
     </>
-  )};
+  );
+};
 
 export default Auth;
-
