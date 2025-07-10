@@ -1,3 +1,5 @@
+import { formatPrice } from "../../utils/formatPrice";
+
 const RightSideDeatil = ({ data }) => {
   const hasConfig =
     data.configuration &&
@@ -36,7 +38,7 @@ const RightSideDeatil = ({ data }) => {
                 Price
               </span>
               <p className="text-lg font-bold text-slate-900">
-                ₹ {formatToINR(data.price)}
+                ₹ {data.price < 100000? formatToINR(data.price): formatPrice(data.price)}
               </p>
             </div>
           </div>

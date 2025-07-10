@@ -93,6 +93,9 @@ export default function PostList() {
                 <th colSpan={2} className="text-center px-4 py-3 text-sm font-medium text-white">
                   <h4>Action</h4>
                 </th>
+                {/* <th colSpan={2} className="text-center px-4 py-3 text-sm font-medium text-white">
+                  <h4>Position</h4>
+                </th> */}
                 {/* <th className="flex gap-24 px-4 py-3 text-left text-sm font-medium text-white"><h4>Edit</h4> <h4>Delete</h4></th>              */}
               </tr>
             </thead>
@@ -129,12 +132,9 @@ export default function PostList() {
                       Delete
                     </button>
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-700">
-                  </td>
-                  {/* <td className="px-4 py-4 space-x-12 text-sm text-gray-700">
-                    <button className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Edit</button>
-                    <button className='bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg text-white text-lg'>Delete</button>
-                    </td> */}
+                  {/* <td className="px-4 py-2 text-sm text-gray-700">
+                    {item.position} - {item.type}
+                  </td> */}
                 </tr>
               ))}
             </tbody>

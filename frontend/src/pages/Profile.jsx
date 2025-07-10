@@ -78,7 +78,7 @@ const Profile = () => {
             <div className="flex items-center space-x-4">
               <div className="relative h-24 w-24">
                 <img
-                  onClick={() => setShowImage((newImage && URL.createObjectURL(newImage)) || 'https://i.ibb.co/2kR5zq0/default-avatar.png')}
+                  onClick={() => setShowImage(profilePic || (newImage && URL.createObjectURL(newImage)) || 'https://i.ibb.co/2kR5zq0/default-avatar.png')}
                   src={
                     newImage
                       ? URL.createObjectURL(newImage)
@@ -93,11 +93,11 @@ const Profile = () => {
                   }}
                   className="h-full w-full rounded-full border-4 border-white object-cover"
                 />
-                <label htmlFor="profileUpload">
+                {/* <label htmlFor="profileUpload">
                   <div className="absolute right-0 bottom-16 cursor-pointer rounded-full bg-white p-1 shadow">
                     <FaCamera className="text-xs text-blue-700" />
                   </div>
-                </label>
+                </label> */}
                 <input
                   type="file"
                   id="profileUpload"
@@ -122,7 +122,7 @@ const Profile = () => {
               </button> */}
               <button
                 onClick={() => {
-                  setActiveTab('about');
+                  setIsEditing(true)
                 }}
                 className="rounded-md bg-white px-4 py-2 text-sm text-blue-900 hover:bg-gray-100"
               >

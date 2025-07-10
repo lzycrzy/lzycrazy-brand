@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Loader from '../components/common/Spinner';
 import { useUser } from '../context/UserContext';
 import { useProduct } from '../store/useProduct';
+import WorkInProgress from '../components/workInProgress/WorkInProgress';
 
 const LazyAddProduct = React.lazy(() => import('./AddProduct'));
 
@@ -109,15 +110,16 @@ const Home = () => {
         </div>
 
         {/* Main Feed (always visible) */}
-        <div className="scrollbar-hide flex-1 overflow-y-auto px-2 sm:px-4 lg:px-6">
-        <MainFeed posts={posts} onPostCreated={handlePostCreated} user={user} />
+        <div className="scrollbar-hide h-fit flex-1 overflow-y-auto px-2 sm:px-4 lg:px-6">
+        {/* <MainFeed posts={posts} onPostCreated={handlePostCreated} user={user} /> */}
+        <WorkInProgress />
 
         </div>
 
         {/* Right Sidebar (hide on md and below) */}
-        <div className="hidden w-[300px] border-l border-gray-200 xl:block">
+        {/* <div className="hidden w-[300px] border-l border-gray-200 xl:block">
           <RightSidebar people={people} />
-        </div>
+        </div> */}
       </div>
 
       {/* Floating Chat Button or Sidebar */}

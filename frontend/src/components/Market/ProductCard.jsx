@@ -1,4 +1,5 @@
 import { useAsset } from '../../store/useAsset';
+import { formatPrice } from '../../utils/formatPrice';
 
 const ProductCard = ({ post }) => {
     if (!post) return null; // Safety check
@@ -19,8 +20,8 @@ const ProductCard = ({ post }) => {
           className="w-full h-48 object-cover rounded border"
         />
         <div className='flex justify-between items-center mb-2'>
-          <h3 className="mt-2 text-lg font-semibold">{post.title}</h3>
-          <p className="text-green-700 font-bold">₹ {formatToINR(post.price)}</p>
+          <h3 className="mt-2 text-lg" title={post.title}>{post.title.length > 25 ? post.title.slice(0, 25)+'...' : post.title}</h3>
+          <p className="font-bold">₹ {post.price < 100000 ? formatToINR(post.price) : formatPrice(post.price)}</p>
         </div>
         
         <div className='flex items-center justify-between'>
