@@ -21,26 +21,26 @@ function AdminPost() {
   async function fetchMarketPlacePost() {
     try {
       const response = await instance.get('/v1/admin/market-post');
-      console.log(response.data.data)
       if (response?.data?.data) {
-        
         const sorted = response.data.data.sort((a, b) => a.position - b.position);
 
         const leftImgs = sorted.filter(
-          (item) => item.type === 'image' && item.position % 2 === 1,
+          (item) => item.type === 'image' && item.position === 1,
         );
 
         const rightImgs = sorted.filter(
-          (item) => item.type === 'image' && item.position % 2 === 0,
+          (item) => item.type === 'image' && item.position === 2,
         );
 
         const leftVids = sorted.filter(
-          (item) => item.type === 'video' && item.position % 2 === 1,
+          (item) => item.type === 'video' && item.position === 3,
         );
 
         const rightVids = sorted.filter(
-          (item) => item.type === 'video' && item.position % 2 === 0,
+          (item) => item.type === 'video' && item.position === 4,
         );
+
+        console.log(sorted);
 
         setBanners(sorted);
         setLeftImages(leftImgs);
@@ -48,7 +48,7 @@ function AdminPost() {
         setLeftVideos(leftVids);
         setRightVideos(rightVids);
 
-        // reseting indices
+        // reset indices
         setLeftImageIndex(0);
         setRightImageIndex(0);
         setLeftVideoIndex(0);
@@ -63,9 +63,42 @@ function AdminPost() {
     fetchMarketPlacePost();
   }, []);
 
-  const prevIndex = (index, arr) => (index > 0 ? index - 1 : index);
-  const nextIndex = (index, arr) => (index <= arr.length - 1 ? (index + 1)%arr.length : index);
+  // Auto slide intervals
+  useEffect(() => {
+    const intervals = [];
 
+    if (leftImages.length > 1) {
+      const interval = setInterval(() => {
+        setLeftImageIndex((prev) => (prev + 1) % leftImages.length);
+      }, 5000);
+      intervals.push(interval);
+    }
+
+    if (rightImages.length > 1) {
+      const interval = setInterval(() => {
+        setRightImageIndex((prev) => (prev + 1) % rightImages.length);
+      }, 5000);
+      intervals.push(interval);
+    }
+
+    if (leftVideos.length > 1) {
+      const interval = setInterval(() => {
+        setLeftVideoIndex((prev) => (prev + 1) % leftVideos.length);
+      }, 7000);
+      intervals.push(interval);
+    }
+
+    if (rightVideos.length > 1) {
+      const interval = setInterval(() => {
+        setRightVideoIndex((prev) => (prev + 1) % rightVideos.length);
+      }, 7000);
+      intervals.push(interval);
+    }
+
+    return () => intervals.forEach(clearInterval);
+  }, [leftImages, rightImages, leftVideos, rightVideos]);
+
+  // Render image or video banner
   const renderBanner = (item) => {
     if (!item) return null;
     if (item.type === 'video') {
@@ -89,118 +122,169 @@ function AdminPost() {
     );
   };
 
+  // Helper prev/next index logic
+  const prevIndex = (index, arr) => (index === 0 ? arr.length - 1 : index - 1);
+  const nextIndex = (index, arr) => (index + 1) % arr.length;
+
   return (
     <div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mt-3">
-        {leftImages?.length > 0 && (
-          <div
-            key={leftImages[leftImageIndex]._id}
-            className="group relative overflow-hidden rounded-lg bg-white shadow"
-          >
-            
-              {renderBanner(leftImages[leftImageIndex])}
-            {leftImages?.length > 1 && <GrPrevious
-              onClick={() => setLeftImageIndex((i) => prevIndex(i, leftImages))}
-              className="absolute top-[45%] left-4 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-400 cursor-pointer"
-            />}
-            {leftImages.length > 1 && <GrNext
-              onClick={() => setLeftImageIndex((i) => nextIndex(i, leftImages))}
-              className="absolute top-[45%] right-4 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-400 cursor-pointer"
-            />}
-
-            <div className='hidden group-hover:flex absolute top-2 right-2 w-8 h-8 bg-white rounded-full justify-center items-center'>
-              <a
-              href={leftImages[leftImageIndex].url}
-              target="_blank"
-              rel="noopener noreferrer"
+      {/* Images Row */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mt-1">
+        {/* Left Images */}
+        {leftImages.length > 0 && (
+          <div className="relative overflow-hidden rounded-lg bg-white shadow h-80 group">
+            <div
+              className="flex transition-transform duration-700 ease-in-out h-full"
+              style={{ transform: `translateX(-${leftImageIndex * 100}%)` }}
             >
-              <FaLink />
-            </a>
+              {leftImages.map((item) => (
+                <div key={item._id} className="flex-shrink-0 w-full h-full">
+                  {renderBanner(item)}
+                </div>
+              ))}
+            </div>
+
+            {leftImages.length > 1 && (
+              <>
+                <GrPrevious
+                  onClick={() => setLeftImageIndex((i) => prevIndex(i, leftImages))}
+                  className="absolute top-[45%] left-4 rounded-full  p-2 text-4xl hover:bg-slate-400 cursor-pointer select-none"
+                />
+                <GrNext
+                  onClick={() => setLeftImageIndex((i) => nextIndex(i, leftImages))}
+                  className="absolute top-[45%] right-4 rounded-full  p-2 text-4xl hover:bg-slate-400 cursor-pointer select-none"
+                />
+              </>
+            )}
+
+            <div className="hidden group-hover:flex absolute top-2 right-2 w-8 h-8 bg-white rounded-full justify-center items-center">
+              <a
+                href={leftImages[leftImageIndex].url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaLink />
+              </a>
             </div>
           </div>
         )}
 
-        {rightImages?.length > 0 && (
-          <div
-            key={rightImages[rightImageIndex]._id}
-            className="group relative overflow-hidden rounded-lg bg-white shadow-2xs"
-          >
-              {renderBanner(rightImages[rightImageIndex])}
-            {rightImages.length > 1 && <GrPrevious
-              onClick={() => setRightImageIndex((i) => prevIndex(i, rightImages))}
-              className="absolute top-[45%] left-4 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-400 cursor-pointer"
-            />}
-
-            {rightImages.length > 1 && <GrNext
-              onClick={() => setRightImageIndex((i) => nextIndex(i, rightImages))}
-              className="absolute top-[45%] right-4 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-400 cursor-pointer"
-            />}
-
-            <div className='hidden group-hover:flex absolute top-2 right-2 w-8 h-8 bg-white rounded-full justify-center items-center'>
-              <a
-              href={rightImages[rightImageIndex].url}
-              target="_blank"
-              rel="noopener noreferrer"
+        {/* Right Images */}
+        {rightImages.length > 0 && (
+          <div className="relative overflow-hidden rounded-lg bg-white shadow h-80 group">
+            <div
+              className="flex transition-transform duration-700 ease-in-out h-full"
+              style={{ transform: `translateX(-${rightImageIndex * 100}%)` }}
             >
-              <FaLink />
-            </a>
+              {rightImages.map((item) => (
+                <div key={item._id} className="flex-shrink-0 w-full h-full">
+                  {renderBanner(item)}
+                </div>
+              ))}
+            </div>
+
+            {rightImages.length > 1 && (
+              <>
+                <GrPrevious
+                  onClick={() => setRightImageIndex((i) => prevIndex(i, rightImages))}
+                  className="absolute top-[45%] left-4 rounded-full  p-2 text-4xl hover:bg-slate-400 cursor-pointer select-none"
+                />
+                <GrNext
+                  onClick={() => setRightImageIndex((i) => nextIndex(i, rightImages))}
+                  className="absolute top-[45%] right-4 rounded-full  p-2 text-4xl hover:bg-slate-400 cursor-pointer select-none"
+                />
+              </>
+            )}
+
+            <div className="hidden group-hover:flex absolute top-2 right-2 w-8 h-8 bg-white rounded-full justify-center items-center">
+              <a
+                href={rightImages[rightImageIndex].url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaLink />
+              </a>
             </div>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mt-3 mb-16 md:mb-0">
+      {/* Videos Row */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mt-2 mb-16 md:mb-0">
         {/* Left Videos */}
-        {leftVideos?.length > 0 && (
-          <div
-            key={leftVideos[leftVideoIndex]._id}
-            className="group relative overflow-hidden rounded-lg bg-white shadow"
-          >
-              {renderBanner(leftVideos[leftVideoIndex])}
-            {leftVideos?.length > 1 &&<GrPrevious
-              onClick={() => setLeftVideoIndex((i) => prevIndex(i, leftVideos))}
-              className="absolute top-[45%] left-4 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-300 cursor-pointer"
-            />}
-            {leftVideos.length > 1 && <GrNext
-              onClick={() => setLeftVideoIndex((i) => nextIndex(i, leftVideos))}
-              className="absolute top-[45%] right-4 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-300 cursor-pointer"
-            />}
-
-            <div className='hidden group-hover:flex absolute top-2 right-2 w-8 h-8 bg-white rounded-full justify-center items-center'>
-              <a
-              href={leftVideos[leftVideoIndex].url}
-              target="_blank"
-              rel="noopener noreferrer"
+        {leftVideos.length > 0 && (
+          <div className="relative overflow-hidden rounded-lg bg-white shadow h-80 group">
+            <div
+              className="flex transition-transform duration-700 ease-in-out h-full"
+              style={{ transform: `translateX(-${leftVideoIndex * 100}%)` }}
             >
-              <FaLink />
-            </a>
+              {leftVideos.map((item) => (
+                <div key={item._id} className="flex-shrink-0 w-full h-full">
+                  {renderBanner(item)}
+                </div>
+              ))}
+            </div>
+
+            {leftVideos.length > 1 && (
+              <>
+                <GrPrevious
+                  onClick={() => setLeftVideoIndex((i) => prevIndex(i, leftVideos))}
+                  className="absolute top-[45%] left-4 rounded-full  p-2 text-4xl hover:bg-slate-300 cursor-pointer select-none"
+                />
+                <GrNext
+                  onClick={() => setLeftVideoIndex((i) => nextIndex(i, leftVideos))}
+                  className="absolute top-[45%] right-4 rounded-full  p-2 text-4xl hover:bg-slate-300 cursor-pointer select-none"
+                />
+              </>
+            )}
+
+            <div className="hidden group-hover:flex absolute top-2 right-2 w-8 h-8 bg-white rounded-full justify-center items-center">
+              <a
+                href={leftVideos[leftVideoIndex].url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaLink />
+              </a>
             </div>
           </div>
         )}
 
-        {rightVideos?.length > 0 && (
-          <div
-            key={rightVideos[rightVideoIndex]._id}
-            className="group relative overflow-hidden rounded-lg bg-white shadow-lg"
-          >
-              {renderBanner(rightVideos[rightVideoIndex])}
-            {rightVideos.length > 1 && <GrPrevious
-              onClick={() => setRightVideoIndex((i) => prevIndex(i, rightVideos))}
-              className="absolute top-[45%] left-4 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-300 cursor-pointer"
-            />}
-            {rightVideos.length > 1 &&<GrNext
-              onClick={() => setRightVideoIndex((i) => nextIndex(i, rightVideos))}
-              className="absolute top-[45%] right-4 rounded-full bg-slate-100 p-2 text-4xl hover:bg-slate-300 cursor-pointer"
-            />}
-
-            <div className='hidden group-hover:flex bg-white absolute top-2 right-2 w-8 h-8 rounded-full justify-center items-center'>
-              <a
-              href={rightVideos[rightVideoIndex].url}
-              target="_blank"
-              rel="noopener noreferrer"
+        {/* Right Videos */}
+        {rightVideos.length > 0 && (
+          <div className="relative overflow-hidden rounded-lg bg-white shadow-lg h-80 group">
+            <div
+              className="flex transition-transform duration-700 ease-in-out h-full"
+              style={{ transform: `translateX(-${rightVideoIndex * 100}%)` }}
             >
-              <FaLink />
-            </a>
+              {rightVideos.map((item) => (
+                <div key={item._id} className="flex-shrink-0 w-full h-full">
+                  {renderBanner(item)}
+                </div>
+              ))}
+            </div>
+
+            {rightVideos.length > 1 && (
+              <>
+                <GrPrevious
+                  onClick={() => setRightVideoIndex((i) => prevIndex(i, rightVideos))}
+                  className="absolute top-[45%] left-4 rounded-full  p-2 text-4xl hover:bg-slate-300 cursor-pointer select-none"
+                />
+                <GrNext
+                  onClick={() => setRightVideoIndex((i) => nextIndex(i, rightVideos))}
+                  className="absolute top-[45%] right-4 rounded-full  p-2 text-4xl hover:bg-slate-300 cursor-pointer select-none"
+                />
+              </>
+            )}
+
+            <div className="hidden group-hover:flex bg-white absolute top-2 right-2 w-8 h-8 rounded-full justify-center items-center">
+              <a
+                href={rightVideos[rightVideoIndex].url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaLink />
+              </a>
             </div>
           </div>
         )}

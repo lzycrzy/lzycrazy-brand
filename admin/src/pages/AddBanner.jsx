@@ -31,23 +31,9 @@ export default function AddBanner() {
     }
   };
 
-  const isValidUrl = (url) => {
-    const pattern = new RegExp(
-      '^(https?:\\/\\/)' +
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,})' +
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-        '(\\?[;&a-z\\d%_.~+=-]*)?' +
-        '(\\#[-a-z\\d_]*)?$',
-      'i'
-    );
-    return pattern.test(url);
-  };
-
   const handleSubmit = async () => {
     const { name, url, date, bannerFeature } = formData;
     if (!name.trim()) return toast.error('Name is required.');
-    if (!url.trim()) return toast.error('URL is required.');
-    if (!isValidUrl(url)) return toast.error('Invalid URL.');
     if (!date) return toast.error('Date is required.');
     if (!bannerFeature) return toast.error('Please select a file type.');
     if (!file) return toast.error('Please upload a file.');
@@ -112,7 +98,7 @@ export default function AddBanner() {
 
             <input
               type="file"
-              accept={formData.bannerFeature.split(' ')[0] || 'image/*'}
+              accept={formData.bannerFeature.split(' ')[0]}
               name="file"
               onChange={handleFileUpload}
               className="hidden"

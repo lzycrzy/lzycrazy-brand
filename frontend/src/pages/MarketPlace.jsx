@@ -133,7 +133,7 @@ const MarketplaceHome = () => {
                 >
                   <div className="flex gap-2 items-center">
                     <img src={category.imageData.url ? category.imageData.url : "/missing.png"} alt={category.name || "Category"} width={15} loading="lazy" />
-                    <span className="font-medium text-xl">{category.name}</span>
+                    <span className="font-medium text-[16px]">{category.name}</span>
                   </div>
                   <svg
                     className={`h-4 w-4 transform transition-transform duration-200 ${
@@ -162,7 +162,7 @@ const MarketplaceHome = () => {
                             setOpenMenu(false); // close sidebar on mobile
                             setSelectedSubcategory(sub.name);
                           }}
-                          className="flex text-lg gap-2 w-full px-2 py-1 text-left text-gray-600 hover:text-blue-700 hover:bg-gray-100 rounded"
+                          className="flex text-[14px] gap-2 w-full px-2 py-1 text-left text-gray-600 hover:text-blue-700 hover:bg-gray-100 rounded"
                         >
                           <img
                             src={sub.imageData.url}
@@ -199,43 +199,7 @@ const MarketplaceHome = () => {
 
               {subcategoryDetails?.length > 0 ? (
                 <div className="mt-2">
-                  
-
-                  {/* <div className='w-full flex justify-center gap-5 overflow-hidden px-5'>
-                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
-                      <FaUser size={30} />
-                      <span className='text-xl'>Chhatish</span>
-                    </span>
-                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
-                      <FaUser size={30} />
-                      <span className='text-xl'>Chhatish</span>
-                    </span>
-                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
-                      <FaUser size={30} />
-                      <span className='text-xl'>Chhatish</span>
-                    </span>
-                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
-                      <FaUser size={30} />
-                      <span className='text-xl'>Chhatish</span>
-                    </span>
-                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
-                      <FaUser size={30} />
-                      <span className='text-xl'>Chhatish</span>
-                    </span>
-                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
-                      <FaUser size={30} />
-                      <span className='text-xl'>Chhatish</span>
-                    </span>
-                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
-                      <FaUser size={30} />
-                      <span className='text-xl'>Chhatish</span>
-                    </span>
-                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
-                      <FaUser size={30} />
-                      <span className='text-xl'>Chhatish</span>
-                    </span>
-
-                  </div> */}
+                
                   <Partner />
 
                   <div className='w-full flex justify-between items-center mt-5'>

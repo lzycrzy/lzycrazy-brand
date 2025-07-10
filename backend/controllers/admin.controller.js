@@ -44,8 +44,6 @@ export const getMarketPost = async(req, res) => {
       })
     }
 
-    console.log(posts);
-
     return res.status(200).json({
       success: true,
       data: posts
@@ -68,7 +66,7 @@ export const createMarketPost = async (req, res) => {
     const file = req.file;
 
     // Validation
-    if (!name || !type || !url || !date || !file || !position) {
+    if (!name || !type || !date || !file || !position) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 

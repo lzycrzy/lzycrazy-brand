@@ -19,15 +19,6 @@ import { toast } from 'react-toastify';
 
 
 
-// country: '',
-// relationshipStatus: '',
-// website: '',
-// bloodGroup: '',
-// hobbies: '',
-// location: '',
-// dateOfBirth: '',
-// profession: '',
-
 const iconMap = {
   bio: <FaUser className="inline mr-2 text-gray-600" />,
   email: <FaEnvelope className="inline mr-2 text-gray-600" />,
@@ -47,11 +38,11 @@ const iconMap = {
 const AboutPage = ({user}) => {
 
   const initialUserData = {
-  bio: '',
-  email: '',
-  phone: '',
-  gender: '',
-};
+    bio: '',
+    email: '',
+    phone: '',
+    gender: '',
+  };
   
   const [userData, setUserData] = useState(initialUserData);
   const [isEditing, setIsEditing] = useState(false);
@@ -60,28 +51,28 @@ const AboutPage = ({user}) => {
   const [error, setError] = useState(null);
 
   // Fetch user about data on mount
-  // useEffect(() => {
-  //   const fetchUserAbout = async () => {
-  //     try {
-  //       const res = await axios.get('/v1/users/about',
-  //           {withCredentials: true,}
-  //       );
-  //       // Format dateOfBirth to yyyy-MM-dd for input[type=date]
-  //       if (res.data.dateOfBirth) {
-  //         res.data.dateOfBirth = new Date(res.data.dateOfBirth)
-  //           .toISOString()
-  //           .split('T')[0];
-  //       }
-  //       setUserData(res.data);
-  //     } catch (err) {
-  //       setError(err.response?.data?.message || err.message);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchUserAbout = async () => {
+      try {
+        const res = await axios.get('/v1/users/about',
+            {withCredentials: true,}
+        );
+        // Format dateOfBirth to yyyy-MM-dd for input[type=date]
+        if (res.data.dateOfBirth) {
+          res.data.dateOfBirth = new Date(res.data.dateOfBirth)
+            .toISOString()
+            .split('T')[0];
+        }
+        setUserData(res.data);
+      } catch (err) {
+        setError(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   fetchUserAbout();
-  // }, []);
+    fetchUserAbout();
+  }, []);
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
@@ -224,7 +215,7 @@ const AboutPage = ({user}) => {
                 />
               ) : (
                 key === 'gender' ? (
-                  <select className='flex-grow border border-gray-300 rounded px-3 py-1 text-gray-800'>
+                  <select name='gender' onChange={handleChange} className='flex-grow border border-gray-300 rounded px-3 py-1 text-gray-800'>
                     {user.profile[key] && <option value="" defaultValue={user.profile[key]}>{user.profile[key]}</option>}
                     <option value="" disabled>Select Gender</option>
                     <option value="Male">Male</option>
@@ -237,7 +228,6 @@ const AboutPage = ({user}) => {
                   id={key}
                   name={key}
                   value={value || ''}
-                  onChange={handleChange}
                   placeholder={`Enter your ${key.replace(/([A-Z])/g, ' $1')}`}
                   className="flex-grow border border-gray-300 rounded px-3 py-1 text-gray-800"
                 />

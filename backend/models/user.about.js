@@ -13,15 +13,13 @@ const userAboutSchema = new mongoose.Schema({
   gender: { 
     type: String, 
     default: '', 
-    enum: ['', 'Male', 'Female', 'Other'],
+    enum: ['', 'Male', 'Female', 'Not Specified'],
   }
-
 });
 
 const UserAbout = mongoose.model('UserAbout', userAboutSchema);
 
 export default UserAbout;
-
 
   // country: { type: String, default: '', maxlength: 100 },
   // relationshipStatus: { 
