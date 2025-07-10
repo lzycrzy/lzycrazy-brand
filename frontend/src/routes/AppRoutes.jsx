@@ -21,7 +21,7 @@ import AddAdvertisement from '../pages/AddAdvertisement';
 import VerifiedPage from '../pages/Verify';
 import AddPage from '../pages/AddPage';
 import WorkInProgress from '../components/workInProgress/WorkInProgress';
-import ImageDetail from '../components/Posts/ImageDetail';
+import ImageDetail from '../components/Posts/ImageDetail.jsx';
 
 const AppRoutes = () => (
   <Routes>

@@ -337,43 +337,54 @@ export const getPosts = catchAsyncErrors(async (req, res) => {
 
 
 // Function to handle post creation
-export const createPost = async (req, res) => {
+// export const createPost = async (req, res) => {
+//   try {
+//     const { text } = req.body; // Text content for the post
+//     let mediaUrl = null;
+//     let mediaType = null;
+
+//     // Check if a media file is uploaded (either image or video)
+//     if (req.file) {
+//       console.log('File uploaded:', req.file);
+
+//       // Upload to Cloudinary
+//       const result = await uploadToCloudinary(req.file.path);
+//       console.log('Cloudinary result:', result);
+
+//       mediaUrl = result.secure_url; // The URL of the uploaded file
+//       mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video'; // Determine media type
+//     }
+
+//     // Create a new post in the database
+//     const post = new Post({
+//       user: req.user._id, // Current logged-in user
+//       text,               // Post text content
+//       mediaUrl,           // Media URL (from Cloudinary)
+//       mediaType,          // Media type (image or video)
+//     });
+
+//     // Save the post in the database
+//     await post.save();
+
+//     // Send the success response with the created post
+//     res.status(201).json({
+//       success: true,
+//       message: 'Post created successfully!',
+//       post,
+//     });
+//   } catch (error) {
+//     console.error('Create Post Error:', error);
+//     res.status(500).json({ success: false, message: 'Failed to create post' });
+//   }
+// };
+// uploadEditedImage
+export const uploadEditedImage = async (req, res) => {
   try {
-    const { text } = req.body; // Text content for the post
-    let mediaUrl = null;
-    let mediaType = null;
-
-    // Check if a media file is uploaded
-    if (req.file) {
-      // Log the uploaded file
-      console.log('File uploaded:', req.file);
-
-      // Upload the file to Cloudinary
-      const result = await uploadToCloudinary(req.file.path);
-      console.log('Cloudinary result:', result);
-
-      mediaUrl = result.secure_url; // The URL of the uploaded file
-      mediaType = req.file.mimetype.startsWith('image') ? 'image' : 'video'; // Determine file type
-    }
-
-    // Create a new post in the database
-    const post = new Post({
-      user: req.user._id, // Assuming `req.user` holds the authenticated user info
-      text,               // The text content
-      mediaUrl,           // URL for the media (image or video)
-      mediaType,          // The type of media (image or video)
-    });
-
-    await post.save(); // Save the post to the database
-
-    res.status(201).json({
-      success: true,
-      message: 'Post created successfully!',
-      post,
-    });
-  } catch (error) {
-    console.error('Create Post Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to create post' });
+    const result = await uploadToCloudinary(req.file.path);
+    res.status(200).json({ imageUrl: result.secure_url });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Upload failed" });
   }
 };
 
@@ -435,15 +446,15 @@ export const updatePost = async (req, res) => {
       post.text = text;
     }
 
-    // Update media if new file is uploaded
-    if (req.file) {
-      const result = await uploadToCloudinary(filePath);
-      post.mediaUrl = result;
-      post.mediaType = req.file.mimetype.startsWith("image/") ? "image" : "video";
+    // // Update media if new file is uploaded
+    // if (req.file) {
+    //   const result = await uploadToCloudinary(filePath);
+    //   post.mediaUrl = result;
+    //   post.mediaType = req.file.mimetype.startsWith("image/") ? "image" : "video";
 
-      // Clean up local file
-      if (filePath) fs.unlinkSync(filePath);
-    }
+    //   // Clean up local file
+    //   if (filePath) fs.unlinkSync(filePath);
+    // }
 
     await post.save();
 
@@ -455,53 +466,53 @@ export const updatePost = async (req, res) => {
 };
 
 
-//comment bu user
-export const addComment = async (req, res) => {
-  try {
-    const { text } = req.body;
-    const postId = req.params.id;
-    const userId = req.user._id;
+// //comment bu user
+// export const addComment = async (req, res) => {
+//   try {
+//     const { text } = req.body;
+//     const postId = req.params.id;
+//     const userId = req.user._id;
 
-    if (!text) return res.status(400).json({ message: 'Comment text is required' });
+//     if (!text) return res.status(400).json({ message: 'Comment text is required' });
 
-    const post = await Post.findById(postId);
-    if (!post) return res.status(404).json({ message: 'Post not found' });
+//     const post = await Post.findById(postId);
+//     if (!post) return res.status(404).json({ message: 'Post not found' });
 
-    post.comments.push({ user: userId, text });
-    await post.save();
+//     post.comments.push({ user: userId, text });
+//     await post.save();
 
-    // Populate user in comment
-    const updatedPost = await Post.findById(postId)
-      .populate('comments.user', 'fullName image');
+//     // Populate user in comment
+//     const updatedPost = await Post.findById(postId)
+//       .populate('comments.user', 'fullName image');
 
-    res.status(201).json({ success: true, comments: updatedPost.comments });
-  } catch (error) {
-    console.error('Add Comment Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+//     res.status(201).json({ success: true, comments: updatedPost.comments });
+//   } catch (error) {
+//     console.error('Add Comment Error:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
 
-// share by user
-export const sharePost = async (req, res) => {
-  try {
-    const postId = req.params.postId;
-    const userId = req.user._id;
+// // share by user
+// export const sharePost = async (req, res) => {
+//   try {
+//     const postId = req.params.postId;
+//     const userId = req.user._id;
 
-    const post = await postModel.findById(postId);
-    if (!post) return res.status(404).json({ message: 'Post not found' });
+//     const post = await Post.findById(postId);  // <-- FIXED here
+//     if (!post) return res.status(404).json({ message: 'Post not found' });
 
-    if (!post.shares.includes(userId)) {
-      post.shares.push(userId);
-      post.shareCount += 1;
-      await post.save();
-    }
+//     if (!post.shares.includes(userId)) {
+//       post.shares.push(userId);
+//       post.shareCount += 1;
+//       await post.save();
+//     }
 
-    res.status(200).json({ success: true, shareCount: post.shareCount });
-  } catch (error) {
-    console.error('Share Post Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+//     res.status(200).json({ success: true, shareCount: post.shareCount });
+//   } catch (error) {
+//     console.error('Share Post Error:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
 
 
 // Get All Users

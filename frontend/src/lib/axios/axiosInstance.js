@@ -33,7 +33,14 @@ const instance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
 });
-
+export const multiInstance = axios.create({
+  baseURL:"http://localhost:4000/api",
+  //  import.meta.env.VITE_API_BASE_URL,
+  withCredentials: true, // to handle cookie/token if required
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+});
 // Track current pathname globally (set from App/Layout)
 let currentPathname = '/';
 

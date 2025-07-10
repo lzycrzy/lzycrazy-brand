@@ -125,7 +125,8 @@ import StoryViewer from '../Home/StoryViewer';
 // import PostCard from '../Posts/PostCard';
 import CreatePost from '../Posts/CreatePost';
 import ImageDetail from '../Posts/ImageDetail';
-import VideoOptions from '../Posts/VideoOptions';
+import CreatePostBox from '../Posts/createPostBox';
+// import VideoOptions from '../Posts/';
 
 const MainFeed = ({ posts, onPostCreated, user }) => {
   const [stories, setStories] = useState([]);
@@ -133,6 +134,8 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [viewerStories, setViewerStories] = useState([]);
   const [viewerVisible, setViewerVisible] = useState(false);
+    const [savedImage, setSavedImage] = useState(null);
+    const [showPostModal, setShowPostModal] = useState(false);
 
   // Fetch stories
   useEffect(() => {
@@ -224,8 +227,34 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
     setViewerStories([]);
   };
 
+  // Handle save image from ImageDetail component
+  const handleSaveImage = (imageUrl) => {
+    setSavedImage(imageUrl); // Save the image URL after cropping or modifying
+  };
+  async function post(){
+            const dell= await instance.get("/v1/Post/")
+            console.log("dell",dell);
+            
+  }
+useEffect(()=>{
+post()
+
+},[])
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
+        {/* Post Creation */}
+         <CreatePostBox
+      user={user}
+      onOpenModal={() => setShowPostModal(true)} 
+    />
+      {showPostModal && (
+      <CreatePost
+        user={user}
+        onClose={() => setShowPostModal(false)} // Add this prop in CreatePost
+        // onPostCreated={handlePostCreated} // Refresh posts on submit
+      />
+    )}
+       {/* <CreatePost savedImage={savedImage} onPostCreated={onPostCreated} /> */}
       {/* Story Bar with one story per user */}
       <StoryBar
         stories={uniqueUserStories}
@@ -262,14 +291,19 @@ const MainFeed = ({ posts, onPostCreated, user }) => {
       ) : (
         <div className="text-center text-gray-500 mt-10">No posts to display</div>
       )}  */}
-         {/* Routes for other components */}
-      <div className="min-h-screen bg-gray-100 p-4 flex items-center justify-center">
-    <Routes>
-      <Route path="/" element={<CreatePost />} />
-      <Route path="/image-detail" element={<ImageDetail />} />
-       <Route path="/video" element={<VideoOptions />} />
+     
+  
+     
+
+      {/* Routes for other components */}
+      <Routes>
+        <Route
+          path="/image-detail"
+          element={<ImageDetail onSaveImage={handleSaveImage} />}
+        />
+         {/* <Route path="/video-options" element={<VideoOptions />} /> */}
       </Routes>
-   </div>
+    
     </div>
   );
 };

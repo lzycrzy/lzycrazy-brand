@@ -1,5 +1,7 @@
 import express from 'express';
-import { updatePost } from '../controllers/user.controller.js';
+// import { updatePost } from '../controllers/user.controller.js';
+// import { uploadEditedImage } from '../controllers/user.controller.js';
+// import {createPost, posts, comments,likes, likePost, commentPost} from '../controllers/postController.js';
 import {
   registerUser, 
   loginUser, 
@@ -11,7 +13,7 @@ import {
   updatePassword,
   forgotPassword,
   updateMe,
-  createPost,
+  // createPost,
   getPosts,
   getStories,
   uploadStory,
@@ -28,8 +30,8 @@ import {
   getStoryViews,
   submitApplication,
   getMe,
-  likePost,
-  addComment,
+  // likePost,
+  // addComment,
   checkEmail
   // getAdminDashboard,
   // getSuperAdminDashboard,
@@ -46,7 +48,14 @@ import upload from '../middlewares/multer.middleware.js';
 // multer setup (example: storing files in 'uploads/' folder with original name)
 
 const router = express.Router();
-
+//Post Routes
+// router
+// .post("/createPost", createPost)
+// .post("/post", posts)
+// .post("/comments/:post_id", isAuthenticated, comments)
+// .post("/likes/:post_id", isAuthenticated, likes)
+// .post("/likePost/:post_id", isAuthenticated, likePost)
+// .post("/commentPost/:post_id", isAuthenticated, commentPost)
 //friends
 router.post('/friends/send/:targetId',  isAuthenticated, sendFriendRequest);
 router.post('/friends/accept/:targetId',  isAuthenticated, acceptFriendRequest);
@@ -65,19 +74,21 @@ router.post(
 
 // Login routes
 router.post('/login', loginUser);
-router.post('/post', isAuthenticated, upload.single('media'), createPost);
-router.put('/post/:postId', isAuthenticated, upload.single('media'), updatePost);
+// router.put('/post/:postId', isAuthenticated, upload.single('media'), updatePost);
 
 router.post('/logout', logoutUser);
 // Social login routes
 router.post('/google-login', loginWithGoogle);
 router.post('/facebook-login',isAuthenticated, loginWithFacebook);
 
+// Post routes
+// router.post('/post', isAuthenticated, upload.array('media'), createPost);
 
-//get posts
+// router.post("/", upload.single("file"), isAuthenticated, createPost);
+
+// router.put('/post/:postId', isAuthenticated, upload.single('media'), updatePost);
 router.get('/posts', isAuthenticated, getPosts);
-
-
+// router.post('/upload-edited-image', isAuthenticated, upload.single('image'), uploadEditedImage);
 
 // Protected routes (any logged in user)
 router.get('/me', isAuthenticated, getMyProfile);

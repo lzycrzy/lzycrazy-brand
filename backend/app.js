@@ -75,7 +75,7 @@ dbConnection();
 //   console.error("🔥 Uncaught error:", err);
 //   res.status(500).json({ message: "Unexpected server error" });
 // });
-
+app.use('/temp', express.static('temp'));
 app.use(errorMiddleware); //--error handling middleware
 
 export default app;
