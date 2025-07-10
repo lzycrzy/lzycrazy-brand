@@ -43,7 +43,7 @@ const Auth = () => {
     role: 'user',
   });
 
-  const googleProvider = new GoogleAuthProvider();
+  
   googleProvider.setCustomParameters({
     prompt: 'select_account',
   });
