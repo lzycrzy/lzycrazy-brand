@@ -1,4 +1,5 @@
 import React, { useState, Suspense } from 'react';
+import { useTranslation } from 'react-i18next'; // Add this at the top
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { login } from '../lib/redux/authSlice';
@@ -17,10 +18,11 @@ import Searchbar from '../components/common/Searchbar';
 import countryList from '../data/countries.json';
 import CountryCodes from '../data/CountryCodes.json';
 import Loader from '../components/common/Spinner';
-import { useTranslation } from 'react-i18next'; // Add this at the top
 import { toast } from 'react-toastify';
 import { useUser } from '../context/UserContext';
 import { useAsset } from '../store/useAsset';
+import Navbar from '../components/common/Navbar';
+import { Eye, EyeOff } from 'lucide-react';
 
 const LazyForgotPassword = React.lazy(() => import('../components/Auth/ForgotPassword'));
 
@@ -41,7 +43,7 @@ const Auth = () => {
     role: 'user',
   });
 
-  const googleProvider = new GoogleAuthProvider();
+  
   googleProvider.setCustomParameters({
     prompt: 'select_account',
   });
@@ -246,13 +248,19 @@ const Auth = () => {
     'w-full rounded border border-gray-300 py-3 pr-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400';
 
   const { getAssetUrl, loaded } = useAsset();
+  const [showPassword, setShowPassword] = useState(false);
 
   if (loading) return <Loader />;
+
+  
 
   return (
     <>
       <div className="min-h-screen flex flex-col bg-[#ebf3fe] overflow-hidden">
         {/* Main content container */}
+
+
+        {/* <Navbar /> */}
         <div className="flex-1 flex flex-col items-center justify-center px-4 pb-8 md:pb-12">
           <div className="flex w-full max-w-7xl flex-col md:flex-row md:items-center md:justify-center gap-6">
             {/* Left - Branding */}
@@ -285,7 +293,7 @@ const Auth = () => {
                     <div className="relative mb-3">
                       {loaded && (<img src={getAssetUrl('lock.png')} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" loading="lazy" />)}
                       <input
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         name="password"
                         value={loginData.password}
                         onChange={handleLoginChange}
@@ -293,6 +301,9 @@ const Auth = () => {
                         required
                         className={inputClass}
                       />
+                      <div className='absolute top-1/2 -translate-y-1/2 right-2 opacity-70'>
+                        {showPassword ? <Eye width={20} onClick={() => setShowPassword(prev => !prev)} /> : <EyeOff width={20} onClick={() => setShowPassword(prev => !prev)} />}
+                      </div>
                     </div>
   
                     <div className="mb-3 text-right">
@@ -353,8 +364,6 @@ const Auth = () => {
                         onClick={() => {
                           // navigate('/progress');
                           setActiveTab('register')
-
-
                         }}
                       >
                         Create New Account
@@ -430,15 +439,15 @@ const Auth = () => {
                     </div>
   
                     <div className="mb-4 flex flex-col gap-2 text-xs text-gray-700">
-                      <span>
+                      {/* <span>
                         We may use your contact information to improve your experience.{' '}
                         <span className="cursor-pointer text-blue-600">Learn more</span>
-                      </span>
+                      </span> */}
                       <span>
                         By clicking Sign Up, you agree to our{' '}
-                        <span className="cursor-pointer text-blue-600">Terms of Service</span>,{' '}
-                        <span className="cursor-pointer text-blue-600">Privacy Policy</span>, and{' '}
-                        <span className="cursor-pointer text-blue-600">Cookies Policy</span>
+                        <a href='/terms' className="cursor-pointer text-blue-600">Terms of Service</a>,{' '}
+                        <a href='/privacy' className="cursor-pointer text-blue-600">Privacy Policy</a>
+                        {/* <span className="cursor-pointer text-blue-600">Cookies Policy</span> */}
                       </span>
                     </div>
   
@@ -468,13 +477,20 @@ const Auth = () => {
         <footer className="w-full border-t border-gray-200 bg-[#ebf3fe] py-4 text-sm text-gray-600">
       <div className="flex flex-col sm:flex-row flex-wrap items-center justify-between px-4 sm:px-20 gap-4">
         <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
-          <span>India</span>
+          <div className='flex gap-2 items-center'>
+            <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" alt="Flag" width={20} />
+            <span>India</span>
+          </div>
           <span className="mx-2">|</span>
           <span>LzyCrazy offered in:</span>
           <button onClick={() => i18n.changeLanguage('hi')} className="ml-2 text-blue-600 hover:underline">हिन्दी</button>
           <button onClick={() => i18n.changeLanguage('en')} className="ml-2 text-blue-600 hover:underline">English</button>
           <button onClick={() => i18n.changeLanguage('bn')} className="ml-2 text-blue-600 hover:underline">বাংলা</button>
           <button onClick={() => i18n.changeLanguage('ar')} className="ml-2 text-blue-600 hover:underline">العربية</button>
+        </div>
+
+        <div>
+          <span>@LzyCrazy Pvt Ltd, All right reserved.</span>
         </div>
         <div className="flex gap-6 justify-center sm:justify-end">
           <Link to="/privacy" className="hover:underline">Privacy</Link>

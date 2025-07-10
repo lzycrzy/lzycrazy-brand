@@ -121,9 +121,9 @@ const Home = () => {
       </div>
 
       {/* Floating Chat Button or Sidebar */}
-      <div className="fixed right-4 bottom-4 xl:relative xl:right-0 xl:bottom-0 xl:block">
+      {/* <div className="fixed right-4 bottom-4 xl:relative xl:right-0 xl:bottom-0 xl:block">
         <ChatSidebar />
-      </div>
+      </div> */}
 
     </div>
   );

@@ -56,7 +56,7 @@ const PropertyMap = ({ coordinates }) => {
       <h3 className="text-base font-semibold text-slate-900">Location</h3>
       <div
         ref={mapRef}
-        className="h-72 w-full overflow-hidden rounded-lg border border-slate-200 lg:h-80"
+        className="h-72 w-full overflow-hidden rounded-lg border border-slate-200 lg:h-60"
       />
       <div className="flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between">
         <p className="text-slate-500">

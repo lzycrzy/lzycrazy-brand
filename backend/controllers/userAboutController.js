@@ -11,7 +11,7 @@ export const getUserAbout = async (req, res) => {
   
       // Convert Mongoose document to plain JS object
       const aboutObj = about.toObject();
-  
+      
       // Remove MongoDB internal fields you don't want to expose
       delete aboutObj._id;
       delete aboutObj.userId;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import axios from '../../lib/axios/axiosInstance';
 import {
@@ -50,7 +50,7 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="sticky top-0 left-0 z-[100] w-full bg-white px-4 py-2 shadow-sm">
+    <div className="sticky top-0 left-0 z-[100] w-full bg-white px-4 py-4 shadow-sm">
       <div className="relative mx-auto flex items-center justify-between">
         {/* Left - Logo */}
         <div className="flex-shrink-0">
@@ -65,11 +65,11 @@ const Header = () => {
 
         {/* Center - Tabs */}
         <div className="absolute left-1/2 hidden -translate-x-1/2 transform items-center gap-4 lg:flex">
-          <HeaderIcon image={loaded ? getAssetUrl('home.png') : '/missing.png'} to="/" user={user} alt="Home" />
-          <HeaderIcon image={loaded ? getAssetUrl('store.png') : '/missing.png'} to="/market" user={user} alt="Store" />
-          <HeaderIcon image={loaded ? getAssetUrl('add.png') : '/missing.png'} user={user} alt="Add" />
-          {/* <HeaderIcon image={loaded ? getAssetUrl('movie-reel.png') : '/missing.png'} to="/" user={user} alt="Movie Reel" /> */}
-          {/* <HeaderIcon image={loaded ? getAssetUrl('play-button-arrowhead.png') : '/missing.png'} to="/" user={user} alt="Play Button" /> */}
+          <HeaderIcon image={loaded ? getAssetUrl('home.png') : '/missing.png'} to="/dashboard" user={user} alt="Home"  name="Home"/>
+          <HeaderIcon image={loaded ? getAssetUrl('store.png') : '/missing.png'} to="/market" user={user} name="Marketplace" alt="Store" />
+          <HeaderIcon image={loaded ? getAssetUrl('add.png') : '/missing.png'} user={user} name="Add Post" alt="Add" />
+          {/* <HeaderIcon image={loaded ? getAssetUrl('movie-reel.png') : '/missing.png'} to="/" user={user} name="Movie" alt="Movie Reel" /> */}
+          {/* <HeaderIcon image={loaded ? getAssetUrl('play-button-arrowhead.png') : '/missing.png'} to="/" name="Play" user={user} alt="Play Button" /> */}
         </div>
 
         {/* Right - Search + Icons */}
@@ -83,7 +83,7 @@ const Header = () => {
             />
           </div>
 
-          <HeaderIcon icon={FaBell} to="/" user={user} />
+          <HeaderIcon icon={FaBell} user={user} />
 
           {/* Profile Button & Dropdown - Only show if user is logged in */}
           {user && (
@@ -144,8 +144,9 @@ const Header = () => {
   );
 };
 
-const HeaderIcon = ({ icon: Icon, to, user, image, alt }) => {
+const HeaderIcon = ({ icon: Icon, to, user, image, alt, name }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleClick = () => {
     if (!user) {
@@ -173,8 +174,8 @@ const HeaderIcon = ({ icon: Icon, to, user, image, alt }) => {
 
   return (
     <div
-      onClick={to ? handleClick : openProductModal}
-      className="group cursor-pointer rounded-full p-2 text-gray-700 transition hover:bg-gray-100"
+      onClick={name !== 'Add Post' ? handleClick : openProductModal}
+      className={`relative group cursor-pointer flex flex-col items-center rounded-full p-2 text-gray-700 transition`}
     >
       {image ? (
         <img
@@ -185,6 +186,8 @@ const HeaderIcon = ({ icon: Icon, to, user, image, alt }) => {
       ) : Icon && typeof Icon === 'function' ? (
         <Icon className="text-[22px] group-hover:text-blue-600" />
       ) : null}
+      <span>{name}</span>
+      <div className={`absolute bottom-0 ${location.pathname.includes(to) ? 'block' : 'hidden'} group-hover:block w-full rounded bg-blue-400 h-1`}></div>
     </div>
   );
 };

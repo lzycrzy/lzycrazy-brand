@@ -21,6 +21,7 @@ function AdminPost() {
   async function fetchMarketPlacePost() {
     try {
       const response = await instance.get('/v1/admin/market-post');
+      console.log(response.data.data)
       if (response?.data?.data) {
         
         const sorted = response.data.data.sort((a, b) => a.position - b.position);
@@ -28,6 +29,7 @@ function AdminPost() {
         const leftImgs = sorted.filter(
           (item) => item.type === 'image' && item.position % 2 === 1,
         );
+
         const rightImgs = sorted.filter(
           (item) => item.type === 'image' && item.position % 2 === 0,
         );
@@ -35,6 +37,7 @@ function AdminPost() {
         const leftVids = sorted.filter(
           (item) => item.type === 'video' && item.position % 2 === 1,
         );
+
         const rightVids = sorted.filter(
           (item) => item.type === 'video' && item.position % 2 === 0,
         );
@@ -69,7 +72,7 @@ function AdminPost() {
       return (
         <video
           controls
-          className="h-72 w-full object-cover border-2 border-gray-200 rounded"
+          className="h-80 w-full object-cover border-2 border-gray-200 rounded"
           src={item.postUrl}
           alt={`Video Banner ${item.position}`}
         >
@@ -81,14 +84,14 @@ function AdminPost() {
       <img
         src={item.postUrl}
         alt={`Image Banner ${item.position}`}
-        className="h-72 w-full object-contain bg-center border-2 border-gray-200 overflow-hidden"
+        className="h-80 w-full object-contain bg-center border-2 border-gray-200 overflow-hidden"
       />
     );
   };
 
   return (
     <div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mt-3">
         {leftImages?.length > 0 && (
           <div
             key={leftImages[leftImageIndex]._id}
@@ -146,7 +149,7 @@ function AdminPost() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mt-3">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mt-3 mb-16 md:mb-0">
         {/* Left Videos */}
         {leftVideos?.length > 0 && (
           <div

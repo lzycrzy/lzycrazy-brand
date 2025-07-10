@@ -13,6 +13,7 @@ export default function AddBanner() {
 
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
+  const [creating, setCreating] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -61,6 +62,8 @@ export default function AddBanner() {
     payload.append('position', position);
     payload.append('file', file);
 
+    setCreating(true)
+
     try {
       const toastId = toast.loading('Creating post...');
       await instance.post('/admin/market-post/create', payload, {
@@ -82,6 +85,8 @@ export default function AddBanner() {
       console.error(err);
       toast.error('Something went wrong.');
     }
+
+    setCreating(false);
   };
 
   return (
@@ -97,18 +102,11 @@ export default function AddBanner() {
                 ) : (
                   <img src={filePreview.url || "/missing.png"} className="h-full w-full object-cover" alt="Banner Preview" />
                 )}
-                <div className="absolute top-2 left-2 rounded bg-red-600 px-2 py-1 text-xs font-bold text-white">
-                  BREAKING NEWS
-                </div>
+
               </div>
             ) : (
-              <div className="relative flex h-48 w-full items-center justify-center rounded-lg bg-blue-900">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-800 to-blue-900 opacity-20" />
-                <div className="absolute top-4 left-4 rounded bg-red-600 px-3 py-1 text-sm font-bold text-white">
-                  BREAKING NEWS
-                </div>
-                <div className="absolute right-4 bottom-4 text-xs text-white opacity-75">gettyimages</div>
-                <Play className="h-12 w-12 text-white opacity-75" />
+              <div className="relative flex h-48 w-full items-center justify-center rounded-lg bg-gray-400">
+                <Upload />
               </div>
             )}
 
@@ -189,7 +187,7 @@ export default function AddBanner() {
               onClick={handleSubmit}
               className="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
             >
-              Submit
+              {creating ? 'Creating...' : 'Create Post'}
             </button>
           </div>
         </div>

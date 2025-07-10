@@ -44,6 +44,8 @@ export const getMarketPost = async(req, res) => {
       })
     }
 
+    console.log(posts);
+
     return res.status(200).json({
       success: true,
       data: posts

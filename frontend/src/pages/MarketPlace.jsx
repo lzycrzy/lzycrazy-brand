@@ -7,6 +7,8 @@ import instance from '../lib/axios/axiosInstance';
 import AdminPost from '../components/Market/AdminPost';
 import { GrClose, GrMenu } from 'react-icons/gr';
 import MobileNav from '../components/Home/MobileNav';
+import { FaChevronDown, FaUser } from 'react-icons/fa';
+import Partner from '../components/Market/Partner';
 
 const MarketplaceHome = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
@@ -79,7 +81,7 @@ const MarketplaceHome = () => {
   }, [selectedCategory, selectedSubcategory]);
 
   return (
-    <div className="relative min-h-screen w-full bg-gray-100">
+    <div className="relative min-h-screen scrollbar-hide w-full bg-gray-100">
       <Header />
 
       {/* Overlay for mobile */}
@@ -93,21 +95,21 @@ const MarketplaceHome = () => {
 
       <div className="flex relative">
        {!openMenu && <GrMenu
-          className="absolute top-3 left-3 z-50 cursor-pointer lg:hidden"
+          className="fixed top-15 left-1 z-50 cursor-pointer lg:hidden"
           onClick={openSidebar}
         />}
        {openMenu && <GrClose 
-          className="absolute top-3 left-3 z-50 cursor-pointer lg:hidden"
+          className="fixed top-15 left-3 z-50 cursor-pointer lg:hidden"
           onClick={() => setOpenMenu(false)}
         />}
 
         <aside
           ref={menuModalRef}
-          className={`z-40 fixed lg:sticky top-[58px] h-[calc(100vh-4rem)] w-64 bg-white px-6 py-8 shadow-sm transform transition-transform duration-300 ease-in-out
+          className={`z-40 fixed lg:sticky top-[58px] h-[calc(100vh-4.7rem)] w-64 bg-white px-6 py-8 shadow-sm transform transition-transform duration-300 ease-in-out
             ${openMenu ? 'translate-x-0' : '-translate-x-full'} 
             lg:translate-x-0 lg:block`}
         >
-          <h2 className="mb-6 text-lg font-semibold text-gray-800">Categories</h2>
+          <h2 className="mb-6 text-2xl font-semibold text-gray-800">Categories</h2>
           <ul className="space-y-1">
             {categories?.map((category) => (
               <li key={category._id}>
@@ -131,7 +133,7 @@ const MarketplaceHome = () => {
                 >
                   <div className="flex gap-2 items-center">
                     <img src={category.imageData.url ? category.imageData.url : "/missing.png"} alt={category.name || "Category"} width={15} loading="lazy" />
-                    <span className="font-medium">{category.name}</span>
+                    <span className="font-medium text-xl">{category.name}</span>
                   </div>
                   <svg
                     className={`h-4 w-4 transform transition-transform duration-200 ${
@@ -160,7 +162,7 @@ const MarketplaceHome = () => {
                             setOpenMenu(false); // close sidebar on mobile
                             setSelectedSubcategory(sub.name);
                           }}
-                          className="flex gap-2 w-full px-2 py-1 text-left text-sm text-gray-600 hover:text-blue-700 hover:bg-gray-100 rounded"
+                          className="flex text-lg gap-2 w-full px-2 py-1 text-left text-gray-600 hover:text-blue-700 hover:bg-gray-100 rounded"
                         >
                           <img
                             src={sub.imageData.url}
@@ -197,9 +199,55 @@ const MarketplaceHome = () => {
 
               {subcategoryDetails?.length > 0 ? (
                 <div className="mt-2">
-                  <h2 className="mb-4 text-xs">
-                    {subcategoryDetails[0]?.category?.name} / {selectedSubcategory}
-                  </h2>
+                  
+
+                  {/* <div className='w-full flex justify-center gap-5 overflow-hidden px-5'>
+                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
+                      <FaUser size={30} />
+                      <span className='text-xl'>Chhatish</span>
+                    </span>
+                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
+                      <FaUser size={30} />
+                      <span className='text-xl'>Chhatish</span>
+                    </span>
+                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
+                      <FaUser size={30} />
+                      <span className='text-xl'>Chhatish</span>
+                    </span>
+                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
+                      <FaUser size={30} />
+                      <span className='text-xl'>Chhatish</span>
+                    </span>
+                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
+                      <FaUser size={30} />
+                      <span className='text-xl'>Chhatish</span>
+                    </span>
+                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
+                      <FaUser size={30} />
+                      <span className='text-xl'>Chhatish</span>
+                    </span>
+                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
+                      <FaUser size={30} />
+                      <span className='text-xl'>Chhatish</span>
+                    </span>
+                    <span className='p-4 cursor-pointer rounded border  flex items-center justify-center gap-2 w-48'>
+                      <FaUser size={30} />
+                      <span className='text-xl'>Chhatish</span>
+                    </span>
+
+                  </div> */}
+                  <Partner />
+
+                  <div className='w-full flex justify-between items-center mt-5'>
+                    <h2 className="mb-4 text-lg">
+                      {subcategoryDetails[0]?.category?.name} / {selectedSubcategory}
+                    </h2>
+                    <select className='w-20 -mt-3 text-lg'>
+                      <option value="Dealer">Dealer</option>
+                      <option value="Owner">Owner</option>
+                      <option value="Recent">Recent</option>
+                    </select>
+                  </div>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                     {subcategoryDetails.map((post, index) => (
                       <button key={index} onClick={() => handleCardClick(post)}>
