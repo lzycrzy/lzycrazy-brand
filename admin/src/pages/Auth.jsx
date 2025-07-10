@@ -6,6 +6,7 @@ import ForgotPassword from '../components/Auth/ForgotPassword';
 import instance from '../utils/axios';
 import { useAsset } from '../context/useAsset';
 
+
 export default function Auth() {
   const navigate = useNavigate();
   const { getAssetUrl, loaded } = useAsset();

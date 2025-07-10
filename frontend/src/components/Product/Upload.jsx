@@ -183,3 +183,4 @@ const handleChange = (e, index) => {
 };
 
 export default Upload;
+	

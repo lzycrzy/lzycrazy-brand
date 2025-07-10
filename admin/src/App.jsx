@@ -38,7 +38,6 @@ import { useAsset } from './context/useAsset';
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
   
   const token = localStorage.getItem('adminToken');
   useEffect(() => {
@@ -52,11 +51,11 @@ const ProtectedRoute = ({ children }) => {
 
 const App = () => {
 
-  const {fetchAssets} = useAsset();
+const {fetchAssets} = useAsset();
   useEffect(() => {
     fetchAssets();
   }, [])
-
+  
   return (
     <Provider store={store}>
       <Routes>

@@ -139,33 +139,30 @@ const StoryViewer = ({ stories = [], initialIndex = 0, onClose }) => {
 
         {/* VIDEO STORY */}
         {story.type === "video" && (
-  <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden bg-black z-0">
-    {/* Video container */}
-    <video
-      key={story._id}
-      src={story.video}
-      autoPlay
-      muted
-      playsInline
-      controls={false}
-      className="absolute inset-0 w-full h-full object-cover"
-    />
-
-    {/* Overlay text on top */}
-    {story.overlayText && (
-      <div
-        className="absolute inset-0 flex items-center justify-center px-4 text-white text-3xl font-bold text-center z-20 pointer-events-none"
-        style={{
-          fontFamily: story.fontStyle || "sans-serif",
-          textShadow: "0 0 8px rgba(0,0,0,0.7)",
-        }}
-      >
-        {story.overlayText}
-      </div>
-    )}
-  </div>
-)}
-
+          <div className="relative w-[360px] h-[640px] rounded-xl overflow-hidden bg-black flex items-center justify-center z-0">
+            <video
+              key={story._id}
+              src={story.video}
+              autoPlay
+              muted
+              playsInline
+              controls={false}
+              className="w-full h-full object-contain"
+            />
+            {story.overlayText && (
+              <div
+                className="absolute top-1/2 left-1/2 text-white text-3xl font-bold text-center px-2"
+                style={{
+                  transform: "translate(-50%, -50%)",
+                  fontFamily: story.fontStyle || "sans-serif",
+                  pointerEvents: "none",
+                }}
+              >
+                {story.overlayText}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

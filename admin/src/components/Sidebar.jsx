@@ -268,7 +268,7 @@ export function Sidebar() {
         { label: 'Logo', path: '/shop/logo', icon: Camera },
         { label: 'Banner', path: '/shop/banner', icon: Camera },
         { label: 'Category', path: '/shop/category', icon: Grid3X3 },
-        // { label: 'Card', path: '/shop/card', icon: Boxes }
+        { label: 'Card', path: '/shop/card', icon: Boxes }
       ]
     },
     {
