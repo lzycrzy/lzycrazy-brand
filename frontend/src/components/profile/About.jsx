@@ -5,19 +5,9 @@ import {
   FaEnvelope,
   FaPhone,
   FaVenusMars,
-  FaGlobe,
-  FaHeart,
-  FaLink,
-  FaTint,
-  FaMusic,
-  FaMapMarkerAlt,
-  FaBirthdayCake,
-  FaBriefcase,
   FaEdit,
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-
-
 
 const iconMap = {
   bio: <FaUser className="inline mr-2 text-gray-600" />,
@@ -26,44 +16,35 @@ const iconMap = {
   gender: <FaVenusMars className="inline mr-2 text-gray-600" />,
 };
 
-// country: <FaGlobe className="inline mr-2 text-gray-600" />,
-// relationshipStatus: <FaHeart className="inline mr-2 text-gray-600" />,
-// website: <FaLink className="inline mr-2 text-gray-600" />,
-// bloodGroup: <FaTint className="inline mr-2 text-gray-600" />,
-// hobbies: <FaMusic className="inline mr-2 text-gray-600" />,
-// location: <FaMapMarkerAlt className="inline mr-2 text-gray-600" />,
-// dateOfBirth: <FaBirthdayCake className="inline mr-2 text-gray-600" />,
-// profession: <FaBriefcase className="inline mr-2 text-gray-600" />,
-
-const AboutPage = ({user}) => {
-
+const AboutPage = ({ user }) => {
   const initialUserData = {
     bio: '',
     email: '',
     phone: '',
     gender: '',
   };
-  
+
   const [userData, setUserData] = useState(initialUserData);
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch user about data on mount
   useEffect(() => {
     const fetchUserAbout = async () => {
       try {
-        const res = await axios.get('/v1/users/about',
-            {withCredentials: true,}
-        );
-        // Format dateOfBirth to yyyy-MM-dd for input[type=date]
-        if (res.data.dateOfBirth) {
-          res.data.dateOfBirth = new Date(res.data.dateOfBirth)
-            .toISOString()
-            .split('T')[0];
+        const res = await axios.get('/v1/users/about', {
+          withCredentials: true,
+        });
+
+        const data = res.data;
+
+        // Format date
+        if (data.dateOfBirth) {
+          data.dateOfBirth = new Date(data.dateOfBirth).toISOString().split('T')[0];
         }
-        setUserData(res.data);
+
+        setUserData(data);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
       } finally {
@@ -81,10 +62,9 @@ const AboutPage = ({user}) => {
   const validate = () => {
     if (userData.bio.length > 500) return "Bio can't be longer than 500 characters.";
     if (userData.email && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(userData.email))
-      return "Please enter a valid email address.";
+      return 'Please enter a valid email address.';
     if (userData.phone && userData.phone.length > 15)
-      return "Phone number is too long.";
-    // Add more validation as needed
+      return 'Phone number is too long.';
     return null;
   };
 
@@ -97,61 +77,30 @@ const AboutPage = ({user}) => {
 
     setSaving(true);
     try {
-      // Trim all string fields before sending
       const trimmedData = {};
       Object.entries(userData).forEach(([key, value]) => {
         trimmedData[key] = typeof value === 'string' ? value.trim() : value;
       });
 
-      const res = await axios.put(
-        '/v1/users/about',
-        trimmedData,
-        {withCredentials: true,},
-        
-      );
-
-      const savedData = res.data;
-
-      // Format dateOfBirth for comparison
-      const normalizeDate = (d) =>
-        d ? new Date(d).toISOString().split('T')[0] : '';
-
-      const isDataMatching = Object.keys(trimmedData).every((key) => {
-        if (key === 'dateOfBirth') {
-          return normalizeDate(trimmedData[key]) === normalizeDate(savedData[key]);
-        }
-        return trimmedData[key] === (savedData[key] ?? '');
+      const res = await axios.put('/v1/users/about', trimmedData, {
+        withCredentials: true,
       });
 
-      if (isDataMatching) {
-        console.log('Save verified: User About data saved successfully.');
-        setUserData(res.data);
-        setIsEditing(false);
-      } else {
-        console.warn('Warning: Saved data does not match current data.');
-      }
+      setUserData(res.data);
+      setIsEditing(false);
+      toast.success('Profile updated successfully!');
     } catch (err) {
-      alert(`Error saving data: ${err.response?.data?.message || err.message}`);
+      toast.error(`Error saving data: ${err.response?.data?.message || err.message}`);
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
-    return <div className="text-center p-6">Loading user info...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="text-center p-6 text-red-600">
-        Error: {error}
-      </div>
-    );
-  }
+  if (loading) return <div className="p-6 text-center">Loading...</div>;
+  if (error) return <div className="p-6 text-red-500">Error: {error}</div>;
 
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-md rounded-xl">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6 px-4 py-3 rounded-t-md bg-gray-100">
         <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
           About
@@ -187,7 +136,6 @@ const AboutPage = ({user}) => {
         )}
       </div>
 
-      {/* Data fields */}
       <div className="px-6 pb-6 space-y-4">
         {Object.entries(userData).map(([key, value]) => (
           <div
@@ -204,38 +152,35 @@ const AboutPage = ({user}) => {
             </label>
 
             {isEditing ? (
-              key === 'dateOfBirth' ? (
-                <input
-                  type="date"
-                  id={key}
-                  name={key}
-                  value={ value || ''}
+              key === 'gender' ? (
+                <select
+                  id="gender"
+                  name="gender"
+                  value={userData.gender || ''}
                   onChange={handleChange}
                   className="flex-grow border border-gray-300 rounded px-3 py-1 text-gray-800"
-                />
+                >
+                  <option value="" disabled>
+                    Select Gender
+                  </option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Not Specified">Not Specified</option>
+                </select>
               ) : (
-                key === 'gender' ? (
-                  <select name='gender' onChange={handleChange} className='flex-grow border border-gray-300 rounded px-3 py-1 text-gray-800'>
-                    {user.profile[key] && <option value="" defaultValue={user.profile[key]}>{user.profile[key]}</option>}
-                    <option value="" disabled>Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Not Specified">Not Specified</option>
-                  </select>
-                ): (
-                  <input
+                <input
                   type="text"
                   id={key}
                   name={key}
                   value={value || ''}
-                  placeholder={`Enter your ${key.replace(/([A-Z])/g, ' $1')}`}
+                  onChange={handleChange}
                   className="flex-grow border border-gray-300 rounded px-3 py-1 text-gray-800"
+                  placeholder={`Enter your ${key}`}
                 />
-                )
               )
             ) : (
               <p className="text-gray-800 flex-grow text-right">
-                {user.profile[key] || value || <span className="text-gray-400">N/A</span>}
+                {user?.profile?.[key] || value || <span className="text-gray-400">N/A</span>}
               </p>
             )}
           </div>
