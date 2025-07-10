@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import './MyComponent.css';
+
 
 const Card=()=> {
   const [title, setTitle] = useState("");
