@@ -248,10 +248,11 @@ const Auth = () => {
     'w-full rounded border border-gray-300 py-3 pr-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400';
 
   const { getAssetUrl, loaded } = useAsset();
+  const [showPassword, setShowPassword] = useState(false);
 
   if (loading) return <Loader />;
 
-  const [showPassword, setShowPassword] = useState(false);
+  
 
   return (
     <>
