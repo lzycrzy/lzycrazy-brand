@@ -505,3 +505,4 @@ function RecordingModal({ setVideoFile, setRecordingMode, recordingMode, setReco
 }
 
 export default RecordingModal;
+

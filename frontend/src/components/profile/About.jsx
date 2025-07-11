@@ -15,41 +15,38 @@ import {
   FaBriefcase,
   FaEdit,
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
-const initialUserData = {
-  bio: '',
-  email: '',
-  phone: '',
-  gender: '',
-  country: '',
-  relationshipStatus: '',
-  website: '',
-  bloodGroup: '',
-  hobbies: '',
-  location: '',
-  dateOfBirth: '',
-  profession: '',
-};
+
 
 const iconMap = {
   bio: <FaUser className="inline mr-2 text-gray-600" />,
   email: <FaEnvelope className="inline mr-2 text-gray-600" />,
   phone: <FaPhone className="inline mr-2 text-gray-600" />,
   gender: <FaVenusMars className="inline mr-2 text-gray-600" />,
-  country: <FaGlobe className="inline mr-2 text-gray-600" />,
-  relationshipStatus: <FaHeart className="inline mr-2 text-gray-600" />,
-  website: <FaLink className="inline mr-2 text-gray-600" />,
-  bloodGroup: <FaTint className="inline mr-2 text-gray-600" />,
-  hobbies: <FaMusic className="inline mr-2 text-gray-600" />,
-  location: <FaMapMarkerAlt className="inline mr-2 text-gray-600" />,
-  dateOfBirth: <FaBirthdayCake className="inline mr-2 text-gray-600" />,
-  profession: <FaBriefcase className="inline mr-2 text-gray-600" />,
 };
 
-const AboutPage = () => {
+// country: <FaGlobe className="inline mr-2 text-gray-600" />,
+// relationshipStatus: <FaHeart className="inline mr-2 text-gray-600" />,
+// website: <FaLink className="inline mr-2 text-gray-600" />,
+// bloodGroup: <FaTint className="inline mr-2 text-gray-600" />,
+// hobbies: <FaMusic className="inline mr-2 text-gray-600" />,
+// location: <FaMapMarkerAlt className="inline mr-2 text-gray-600" />,
+// dateOfBirth: <FaBirthdayCake className="inline mr-2 text-gray-600" />,
+// profession: <FaBriefcase className="inline mr-2 text-gray-600" />,
+
+const AboutPage = ({user}) => {
+
+  const initialUserData = {
+    bio: '',
+    email: '',
+    phone: '',
+    gender: '',
+  };
+  
   const [userData, setUserData] = useState(initialUserData);
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -94,7 +91,7 @@ const AboutPage = () => {
   const handleSave = async () => {
     const validationError = validate();
     if (validationError) {
-      alert(validationError);
+      toast.error(validationError);
       return;
     }
 
@@ -212,24 +209,33 @@ const AboutPage = () => {
                   type="date"
                   id={key}
                   name={key}
-                  value={value || ''}
+                  value={ value || ''}
                   onChange={handleChange}
                   className="flex-grow border border-gray-300 rounded px-3 py-1 text-gray-800"
                 />
               ) : (
-                <input
+                key === 'gender' ? (
+                  <select name='gender' onChange={handleChange} className='flex-grow border border-gray-300 rounded px-3 py-1 text-gray-800'>
+                    {user.profile[key] && <option value="" defaultValue={user.profile[key]}>{user.profile[key]}</option>}
+                    <option value="" disabled>Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Not Specified">Not Specified</option>
+                  </select>
+                ): (
+                  <input
                   type="text"
                   id={key}
                   name={key}
                   value={value || ''}
-                  onChange={handleChange}
                   placeholder={`Enter your ${key.replace(/([A-Z])/g, ' $1')}`}
                   className="flex-grow border border-gray-300 rounded px-3 py-1 text-gray-800"
                 />
+                )
               )
             ) : (
               <p className="text-gray-800 flex-grow text-right">
-                {value || <span className="text-gray-400">N/A</span>}
+                {user.profile[key] || value || <span className="text-gray-400">N/A</span>}
               </p>
             )}
           </div>

@@ -71,7 +71,6 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-
 // POST /api/v1/hiring - Create new hiring form submission
 router.post('/', upload.single('video'), async (req, res) => {
   try {
@@ -84,15 +83,18 @@ router.post('/', upload.single('video'), async (req, res) => {
     }
 
     // Extract form data from request body
-    const {
+     const {
+      companyId,
+      phone,
       name,
       country,
       state,
       city,
-      education,
-      experienceLevel,
+      email,
+      education,     
       jobCategory,
-      introduction
+      experienceLevel,
+      introduction,
     } = req.body;
 
     // Validate required fields
@@ -119,6 +121,9 @@ router.post('/', upload.single('video'), async (req, res) => {
     // Create new hiring record
     const newHiring = new Hiring({
       name:name,
+      companyId: companyId.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
       country: country.trim(),
       state: state.trim(),
       city: city.trim(),
@@ -138,6 +143,10 @@ router.post('/', upload.single('video'), async (req, res) => {
       message: 'Hiring form submitted successfully',
       data: {
         id: savedHiring._id,
+        name: savedHiring.name,
+        companyId: savedHiring.companyId,
+        phone: savedHiring.phone,
+        email: savedHiring.email,
         country: savedHiring.country,
         state: savedHiring.state,
         city: savedHiring.city,
@@ -275,11 +284,64 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// // PUT /api/v1/hiring/:id/status - Update hiring submission status (for admin use)
+// router.put('/:id/status', async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { status } = req.body;
+
+//     // Validate MongoDB ObjectId format
+//     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid submission ID format'
+//       });
+//     }
+
+//     // Validate status
+//     const validStatuses = ['Pending', 'Reviewed', 'Shortlisted', 'Rejected'];
+//     if (!status || !validStatuses.includes(status)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid status. Must be one of: pending, reviewed, shortlisted, rejected'
+//       });
+//     }
+
+//     const updatedSubmission = await Hiring.findByIdAndUpdate(
+//       id,
+//       { status },
+//       { new: true, runValidators: true }
+//     ).select('-videoPublicId');
+
+//     if (!updatedSubmission) {
+//       return res.status(404).json({
+//         success: false,
+//         message: 'Hiring submission not found'
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: 'Status updated successfully',
+//       data: updatedSubmission
+//     });
+
+//   } catch (error) {
+//     console.error('Error updating hiring submission status:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Internal server error',
+//       error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+//     });
+//   }
+// });
+
+
 // PUT /api/v1/hiring/:id/status - Update hiring submission status (for admin use)
 router.put('/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    let { status } = req.body;
 
     // Validate MongoDB ObjectId format
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -289,12 +351,15 @@ router.put('/:id/status', async (req, res) => {
       });
     }
 
-    // Validate status
-    const validStatuses = ['pending', 'reviewed', 'shortlisted', 'rejected'];
+    // Normalize status to capitalize first letter
+    status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
+    // Allowed values
+    const validStatuses = ['Pending', 'Reviewed', 'Shortlisted', 'Rejected'];
     if (!status || !validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid status. Must be one of: pending, reviewed, shortlisted, rejected'
+        message: 'Invalid status. Must be one of: Pending, Reviewed, Shortlisted, Rejected'
       });
     }
 
@@ -326,5 +391,6 @@ router.put('/:id/status', async (req, res) => {
     });
   }
 });
+
 
 export default router;

@@ -251,6 +251,8 @@ const [formError, setFormError] = useState('');
         onLoginSuccess({
           name: data.name,
           companyId: data.companyId,
+          email: data.email,
+          phone: data.phone,
         });
       }, 800);
     } catch (error) {
@@ -330,3 +332,4 @@ const [formError, setFormError] = useState('');
 };
 
 export default LoginModal;
+

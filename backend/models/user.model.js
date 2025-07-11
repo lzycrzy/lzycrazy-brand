@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
     minlength: [2, 'Full Name must contain at least 2 characters'],
     trim: true,
   },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', "Not Specified"]
+  },
   email: {
     type: String,
     unique: true,
@@ -42,14 +46,22 @@ const userSchema = new mongoose.Schema({
     unique: true,
     sparse: true,
   },
+  
   resetPasswordToken: {
     type: String,
     select: false,
   },
+
   resetPasswordExpire: {
     type: Date,
     select: false,
   },
+
+  productListed: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Listing'
+  }],
+
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   friendRequestsSent: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   friendRequestsReceived: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
@@ -91,6 +103,7 @@ userSchema.pre('save', async function (next) {
     next(err);
   }
 });
+
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);

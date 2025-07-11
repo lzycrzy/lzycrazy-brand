@@ -3,7 +3,9 @@ import {
   Settings, Search, Plus, Edit, Trash2, Upload, X, Save, ChevronDown, ChevronUp
 } from 'lucide-react';
 
-import instance from '../lib/axios/axiosInstance';
+import instance from '../utils/axios';
+import {toast} from 'react-toastify';
+import ConfirmModal from '../components/Product/ConfirmModal';
 
 const AddCategory = () => {
   const [categories, setCategories] = useState([]);
@@ -92,6 +94,7 @@ const AddCategory = () => {
   };
 
   const handleNameChange = (value, type = 'category', subIndex = null) => {
+
     if (type === 'category') {
       setCategoryData(prev => ({ ...prev, name: value }));
     } else {
@@ -266,14 +269,17 @@ const AddCategory = () => {
 
   const handleCreateCategory = async () => {
     if (!categoryData.imageData || !categoryData.name) {
-      alert('Please upload an image and enter a category name!');
+      toast.error('Please upload an image and enter a category name!');
       return;
     }
+
+    console.log(categoryData)
+    // return;
 
     setIsSubmitting(true);
     try {
       const validSubcategories = categoryData.subcategories
-        .filter(sub => sub.imageData && sub.name)
+        .filter(sub => sub.name !== '')
         .map(sub => ({
           name: sub.name,
           imageData: sub.imageData,
@@ -282,6 +288,13 @@ const AddCategory = () => {
           )
         }));
 
+       const isImageAvailable = validSubcategories.every(sub => sub.imageData);
+
+        if (!isImageAvailable) {
+          toast.error("Image is required for all categories and subcategories.");
+          return;
+        }
+
       const payload = {
         name: categoryData.name,
         imageData: categoryData.imageData,
@@ -289,7 +302,11 @@ const AddCategory = () => {
         createdBy: null 
       };
 
-      const response = await instance.post('/categories', payload);
+      let response;
+      if (!editingId) 
+        response = await instance.post('/categories', payload)
+      else
+        response = await instance.put(`/categories/${editingId}`, payload);
 
       if (response.data.success) {
         const newCategory = {
@@ -302,10 +319,10 @@ const AddCategory = () => {
             cat.id === editingId ? { ...newCategory, id: editingId } : cat
           ));
           setEditingId(null);
-          alert('Category updated successfully!');
+          toast.success('Category Updated successfully')
         } else {
           setCategories(prev => [...prev, newCategory]);
-          alert('Category created successfully!');
+          toast.success('Category created successfully')
         }
 
         // Reset form
@@ -319,7 +336,7 @@ const AddCategory = () => {
       }
     } catch (error) {
       console.error('Error creating category:', error);
-      alert(error.message || 'Failed to create category');
+      toast.error(error.message || 'Failed to create category');
     } finally {
       setIsSubmitting(false);
     }
@@ -337,16 +354,7 @@ const AddCategory = () => {
     setEditingId(category.id);
   };
 
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this category?')) {
-      const response = await instance.delete(`/categories/${id}`);
-      if (response.data.success) {
-        console.log('Category deleted successfully');
-             setCategories(prev => prev.filter(cat => cat.id !== id));
-
-      }
-    }
-  };
+  const [deleteModal, setDeleteModal] = useState(null)
 
   const cancelEdit = () => {
     setEditingId(null);
@@ -358,14 +366,15 @@ const AddCategory = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-6">
+    <div className="relative min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-6">
+      {deleteModal && <ConfirmModal deleteModal={deleteModal} setDeleteModal={setDeleteModal} setCategories={setCategories} />}
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2">
+          <h1 className="md:text-4xl text-lg font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent md:mb-2">
             Category Manager
           </h1>
-          <p className="text-gray-600 text-lg">Create categories with custom forms</p>
+          <p className="text-gray-600 md:text-lg text-xs">Create categories with custom forms</p>
         </div>
 
         {/* Add Category Form */}
@@ -373,9 +382,9 @@ const AddCategory = () => {
           {/* Category Section */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Category Details</h3>
-            <div className="flex items-center gap-4">
+            <div className="flex lg:flex-row flex-col w-full md:w-auto items-center gap-4">
               {/* Category Image Upload */}
-              <div className="flex-shrink-0">
+              <div className="w-full lg:w-auto">
                 {categoryData.imageData ? (
                   <div className="relative group">
                     <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-200 shadow-lg">
@@ -383,6 +392,7 @@ const AddCategory = () => {
                         src={categoryData.imageData.url} 
                         alt={categoryData.imageData.name}
                         className="w-full h-full object-cover"
+                        onError={e => { e.target.src = ""; }}
                       />
                     </div>
                     <button
@@ -394,7 +404,7 @@ const AddCategory = () => {
                     </button>
                   </div>
                 ) : (
-                  <label className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all duration-200">
+                  <label className="lg:w-20 h-20 w-full border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all duration-200">
                     <Upload size={20} className="text-gray-400 mb-1" />
                     <span className="text-xs text-gray-500">Image</span>
                     <input
@@ -413,22 +423,23 @@ const AddCategory = () => {
                 placeholder="Enter category name"
                 value={categoryData.name}
                 onChange={(e) => handleNameChange(e.target.value)}
-                className="flex-1 px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:bg-white focus:outline-none transition-all duration-200"
+                className="flex-1 w-full lg:w-auto px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:bg-white focus:outline-none transition-all duration-200"
               />
               
               {/* Action Buttons */}
               <button
                 onClick={addSubcategory}
-                className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="flex items-center w-full justify-center lg:w-auto gap-2 p-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                 title="Add Subcategory"
               >
                 <Plus size={20} />
+                <span className='lg:hidden'>Add Fields</span>
               </button>
 
               <button
                 onClick={handleCreateCategory}
                 disabled={isSubmitting}
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 w-full lg:w-auto bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Saving...' : (editingId ? 'Update' : 'Create')}
               </button>
@@ -452,9 +463,9 @@ const AddCategory = () => {
                 {categoryData.subcategories.map((subcategory, index) => (
                   <div key={index} className="border border-gray-200 rounded-xl p-4 bg-gray-50/50">
                     {/* Subcategory Basic Info */}
-                    <div className="flex items-center gap-4 mb-4">
+                    <div className="flex lg:flex-row flex-col w-full items-center gap-4 mb-4">
                       {/* Subcategory Image Upload */}
-                      <div className="flex-shrink-0">
+                      <div className="w-full lg:w-auto">
                         {subcategory?.imageData ? (
                           <div className="relative group">
                             <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-200 shadow-md">
@@ -462,6 +473,7 @@ const AddCategory = () => {
                                 src={subcategory?.imageData.url} 
                                 alt={subcategory?.imageData.name}
                                 className="w-full h-full object-cover"
+                                onError={e => { e.target.src = ""; }}
                               />
                             </div>
                             <button
@@ -473,7 +485,7 @@ const AddCategory = () => {
                             </button>
                           </div>
                         ) : (
-                          <label className="w-16 h-16 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all duration-200">
+                          <label className="lg:w-16 h-16 w-full border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all duration-200">
                             <Upload size={16} className="text-gray-400 mb-1" />
                             <span className="text-xs text-gray-500">Image</span>
                             <input
@@ -492,27 +504,32 @@ const AddCategory = () => {
                         placeholder="Enter subcategory name"
                         value={subcategory.name}
                         onChange={(e) => handleNameChange(e.target.value, 'subcategory', index)}
-                        className="flex-1 px-4 py-2 bg-white/70 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:bg-white focus:outline-none transition-all duration-200"
+                        className="flex-1 w-full lg:w-auto px-4 py-2 bg-white/70 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:bg-white focus:outline-none transition-all duration-200"
                       />
                       
                       {/* Form Builder Toggle */}
-                      <button
-                        onClick={() => toggleFormBuilder(index)}
-                        className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 flex items-center gap-2"
-                        title="Form Builder"
-                      >
-                        <Settings size={16} />
-                        {subcategory.showFormBuilder ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                      </button>
-                      
-                      {/* Remove Subcategory */}
-                      <button
-                        onClick={() => removeSubcategory(index)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
-                        title="Remove Subcategory"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div className='flex w-full lg:w-auto'>
+                          <button
+                          onClick={() => toggleFormBuilder(index)}
+                          className="px-3 py-2 w-full lg:w-auto bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 flex items-center gap-2 justify-between lg:justify-start"
+                          title="Form Builder"
+                        >
+                          <div className='flex gap-2 items-center'>
+                            <Settings size={16} />
+                          <span className='lg:hidden'>Add Options</span>
+                          </div>
+                          {subcategory.showFormBuilder ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                        
+                        {/* Remove Subcategory */}
+                        <button
+                          onClick={() => removeSubcategory(index)}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
+                          title="Remove Subcategory"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
 
                     {/* Form Builder */}
@@ -522,7 +539,7 @@ const AddCategory = () => {
                           <h4 className="font-semibold text-gray-700">Custom Form Fields</h4>
                           <button
                             onClick={() => addFormField(index)}
-                            className="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all duration-200 flex items-center gap-2"
+                            className="px-3 lg:py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all duration-200 flex items-center gap-2"
                           >
                             <Plus size={16} />
                             Add Field
@@ -624,14 +641,14 @@ const AddCategory = () => {
 
         {/* Categories List */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
-          <div className="bg-gradient-to-r from-green-600 to-blue-600 px-8 py-6">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+          <div className="bg-gradient-to-r from-green-600 to-blue-600 lg:px-8 px-2 lg:py-6 py-2">
+            <h2 className="lg:text-2xl font-bold text-white flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg">
                 <Settings size={24} className="text-white" />
               </div>
               Categories Dashboard
             </h2>
-            <p className="text-green-100 mt-1">Manage all your categories and subcategories</p>
+            <p className="text-green-100 mt-1 text-xs lg:text-lg">Manage all your categories and subcategories</p>
           </div>
           
           {categories?.length === 0 ? (
@@ -647,24 +664,25 @@ const AddCategory = () => {
               {categories.map((category, index) => (
                 <div
                   key={category.id}
-                  className="px-8 py-6 hover:bg-gradient-to-r hover:from-green-50 hover:to-blue-50 transition-all duration-200"
+                  className="lg:px-8 px-2 py-6  hover:bg-gradient-to-r hover:from-green-50 hover:to-blue-50 transition-all duration-200"
                 >
                   {/* Main Category */}
-                  <div className="flex items-center gap-6 mb-4">
+                  <div className="flex items-center lg:gap-6 gap-3 mb-4">
                     <div className="flex-shrink-0">
                       <div className="w-14 h-14 rounded-xl overflow-hidden shadow-lg border-2 border-gray-200">
                         <img 
                           src={category?.imageData?.url} 
                           alt={category?.imageData?.name}
                           className="w-full h-full object-cover"
+                          onError={e => { e.target.src = ""; }}
                         />
                       </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-bold text-gray-800 mb-1">
+                    <div className="flex-1 min-w-0 ">
+                      <h3 className="lg:text-xl text-lg font-bold text-gray-800 mb-1">
                         {category.name}
                       </h3>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 text-[10px] lg:text-xl">
                         {category.subcategories.length} subcategories
                       </p>
                     </div>
@@ -677,7 +695,7 @@ const AddCategory = () => {
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDelete(category.id)}
+                        onClick={() => setDeleteModal(category.id)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
                         title="Delete Category"
                       >
@@ -693,20 +711,23 @@ const AddCategory = () => {
 
                   {/* Subcategories */}
                   {category?.subcategories.length > 0 && (
-                    <div className="ml-20 space-y-2">
+                    <div className="lg:ml-20 ml-6 space-y-2">
                       {category.subcategories.map((subcategory, subIndex) => (
                         <div
                           key={subIndex}
-                          className="flex items-center gap-4 p-3 bg-gray-50/50 rounded-lg"
+                          className="flex justify-between lg:justify-start items-center gap-4 lg:p-3 bg-gray-50/50 rounded-lg"
                         >
-                          <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-200">
+                          <div className='flex items-center gap-2'>
+                            <div className="lg:w-8 h-8 rounded-lg overflow-hidden border border-gray-200">
                             <img 
                               src={subcategory?.imageData?.url} 
                               alt={subcategory?.imageData?.name}
                               className="w-full h-full object-cover"
+                              onError={e => { e.target.src = ""; }}
                             />
                           </div>
                           <span className="text-gray-700 font-medium">{subcategory.name}</span>
+                          </div>
                           {subcategory.formStructure && subcategory.formStructure.length > 0 && (
                             <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
                               {subcategory.formStructure.length} form fields

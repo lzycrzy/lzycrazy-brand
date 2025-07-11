@@ -28,7 +28,7 @@ import {
   storyView,
   getUserStories,
   getStoryViews,
-  submitApplication,
+  // submitApplication,
   getMe,
   // likePost,
   // addComment,
@@ -130,7 +130,7 @@ router.get('/story/view/:userId', isAuthenticated,getUserStories )
 
 
 //aplicant
-router.post('/hiring', upload.single('video'), submitApplication);
+// router.post('/hiring', upload.single('video'), submitApplication);
 
 //enquiry
 router.post('/enquiry', createEnquiry);

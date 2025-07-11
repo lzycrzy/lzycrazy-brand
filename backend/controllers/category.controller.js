@@ -1,6 +1,8 @@
 import Category from '../models/Category.js';
 
 export const getAllCategories = async (req, res) => {
+  console.log("fetching all categories......")
+  
   try {
     const {
       page = 1,
@@ -61,8 +63,6 @@ export const getAllCategories = async (req, res) => {
     });
   }
 };
-
-
 
 export const getCategoryById = async (req, res) => {
   try {
@@ -158,31 +158,26 @@ export const createCategory = async (req, res) => {
   }
 };
 
-
-
-
 import mongoose from 'mongoose';
+import ListModel from '../models/Listing.js';
 
 export const updateCategory = async (req, res) => {
+  console.log('updating category')
   try {
     const { name, imageData, subcategories = [] } = req.body;
     const { id } = req.params;
-
     // Validate ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: 'Invalid category ID' });
     }
 
     // Check for name duplication
-    const existingCategory = await Category.findOne({
-      name: { $regex: new RegExp(`^${name}$`, 'i') },
-      _id: { $ne: id },
-    });
+    const existingCategory = await Category.findOne({_id: id});
 
-    if (existingCategory) {
+    if (!existingCategory) {
       return res.status(409).json({
         success: false,
-        message: 'Another category with this name already exists',
+        message: 'Category not found.',
       });
     }
 
@@ -252,7 +247,6 @@ export const updateCategory = async (req, res) => {
   }
 };
 
-
 export const deleteCategory = async (req, res) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);
@@ -307,3 +301,24 @@ export const getCategoryStats = async (req, res) => {
     res.status(500).json({ success: false, message: 'Error fetching stats', error: error.message });
   }
 };
+
+export const subCategoryDetails = async (req, res) => {
+  try {
+
+    const {subcategory, category} = req.query;
+    console.log(category, subcategory)
+
+    if (!category || !subcategory) {
+      return res.status(404).json({
+        message: "Category and Subcategory required."
+      })
+    }
+
+    const response = await ListModel.find({category: category, subcategory: subcategory}).populate('category');
+    console.log(response);
+
+    return res.status(200).json(response)
+  } catch (error) {
+    console.log(error);
+  }
+}

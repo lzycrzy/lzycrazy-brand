@@ -13,26 +13,27 @@ const userAboutSchema = new mongoose.Schema({
   gender: { 
     type: String, 
     default: '', 
-    enum: ['', 'Male', 'Female', 'Other'],
-  },
-  country: { type: String, default: '', maxlength: 100 },
-  relationshipStatus: { 
-    type: String, 
-    default: '', 
-    enum: ['', 'Single', 'Married', 'In a relationship', 'Divorced', 'Widowed'],
-  },
-  website: { type: String, default: '', maxlength: 200 },
-  bloodGroup: { 
-    type: String, 
-    default: '', 
-    enum: ['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-  },
-  hobbies: { type: String, default: '', maxlength: 300 },
-  location: { type: String, default: '', maxlength: 200 },
-  dateOfBirth: { type: Date, default: null },
-  profession: { type: String, default: '', maxlength: 100 },
+    enum: ['', 'Male', 'Female', 'Not Specified'],
+  }
 });
 
 const UserAbout = mongoose.model('UserAbout', userAboutSchema);
 
 export default UserAbout;
+
+  // country: { type: String, default: '', maxlength: 100 },
+  // relationshipStatus: { 
+  //   type: String, 
+  //   default: '', 
+  //   enum: ['', 'Single', 'Married', 'In a relationship', 'Divorced', 'Widowed'],
+  // },
+  // website: { type: String, default: '', maxlength: 200 },
+  // bloodGroup: { 
+  //   type: String, 
+  //   default: '', 
+  //   enum: ['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+  // },
+  // hobbies: { type: String, default: '', maxlength: 300 },
+  // location: { type: String, default: '', maxlength: 200 },
+  // dateOfBirth: { type: Date, default: null },
+  // profession: { type: String, default: '', maxlength: 100 },

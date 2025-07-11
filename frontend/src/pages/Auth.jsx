@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
+import { useTranslation } from 'react-i18next'; // Add this at the top
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { login } from '../lib/redux/authSlice';
@@ -13,22 +14,19 @@ import { Link } from 'react-router-dom';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
-import googleLogo from '../assets/image3.png';
-import fb from '../assets/image5.png';
-import email from '../assets/mail.png';
-import lock from '../assets/lock.png';
-import identity from '../assets/identity.png';
-import country from '../assets/cntry.png';
-import ForgotPassword from '../components/Auth/ForgotPassword';
-
 import Searchbar from '../components/common/Searchbar';
 import countryList from '../data/countries.json';
 import CountryCodes from '../data/CountryCodes.json';
 import Loader from '../components/common/Spinner';
-import { useTranslation } from 'react-i18next'; // Add this at the top
 import { toast } from 'react-toastify';
 import { useUser } from '../context/UserContext';
+import { useAsset } from '../store/useAsset';
+import Navbar from '../components/common/Navbar';
+import { Eye, EyeOff } from 'lucide-react';
 
+const LazyForgotPassword = React.lazy(
+  () => import('../components/Auth/ForgotPassword'),
+);
 
 const Auth = () => {
   const [activeTab, setActiveTab] = useState('login');
@@ -42,264 +40,234 @@ const Auth = () => {
   const [registerData, setRegisterData] = useState({
     fullName: '',
     phone: '',
-
     email: '',
     password: '',
     role: 'user',
   });
-  const googleProvider = new GoogleAuthProvider();
+
   googleProvider.setCustomParameters({
     prompt: 'select_account',
   });
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { fetchUser } = useUser();
   const handleLoginChange = (e) =>
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
-
   const handleRegisterChange = (e) =>
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    // navigate('/progress');
-    const { email, password } = loginData;
-  
-    // ✅ Basic validations before triggering loading or API call
+    setLoading(true);
+
+    // Trim inputs first
+    const email = loginData.email?.trim();
+    const password = loginData.password?.trim();
+
+    // Check all fields
     if (!email || !password) {
-      toast.error('Please enter both email and password');
+      toast.error('Email and password are required');
+      setLoading(false);
       return;
     }
-  
-    // ✅ Email validation
+
+    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.error('Please enter a valid email address');
       return;
     }
-  
+
     try {
       setLoading(true); // ✅ Only show loading during API call
-  
+
       const { data } = await axios.post('/v1/users/login', loginData);
-  
+
       // ✅ Save to local storage
       if (data?.token) localStorage.setItem('token', data.token);
       if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
-  
+
       // ✅ Update Redux store
       dispatch(login({ success: true, data: data.user, token: data.token }));
-  
+
       // ✅ Update context
       fetchUser();
-  
+
       // ✅ Success toast
       toast.success(`🎉 Welcome back, ${data.user.fullName || 'User'}!`);
-  
+
       // ✅ Delay navigation so toast appears
       setTimeout(() => {
         navigate('/dashboard', { replace: true, state: { welcome: true } });
       }, 300);
-  
     } catch (error) {
       const msg = error?.response?.data?.message || 'Login failed. Try again.';
       toast.error(msg);
       console.error('Login error:', msg);
-  
     } finally {
       setLoading(false);
     }
   };
- 
-  
 
-//   const handleRegisterSubmit = async (e) => {
-//     e.preventDefault();
-//     setLoading(true);
-  
-//     // Trim inputs first
-//     const fullName = registerData.fullName?.trim();
-//     const email = registerData.email?.trim();
-//     const phone = registerData.phone?.trim();
-//     const password = registerData.password?.trim();
-  
-//     // Check all fields
-//     if (!fullName || !email || !phone || !password) {
-//       toast.error('All fields are required');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     // Name validation: only letters and spaces, min 3 characters
-//     const nameRegex = /^[A-Za-z\s.]{2,}$/;
-//     if (!nameRegex.test(fullName)) {
-//       toast.error('Name must be at least 2 characters and only contain letters/spaces');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     // Email format validation
-//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//     if (!emailRegex.test(email)) {
-//       toast.error('Invalid email format');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     // Optional: block temporary email domains
-//     const blockedDomains = ['tempmail.com', '10minutemail.com', 'mailinator.com'];
-//     if (blockedDomains.some(domain => email.endsWith(`@${domain}`))) {
-//       toast.error('Temporary email addresses are not allowed');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     // Phone validation (India)
-//     const rawPhone = registerData.phone?.trim();
-// const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10);  // keep last 10 digits
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-// const phoneRegex = /^[6-9]\d{9}$/;
-// if (!phoneRegex.test(phone1)) {
-//   toast.error('Enter a valid 10-digit Indian mobile number');
-//   setLoading(false);
-//   return;
-// }
-  
-//     // Password validation
-//     const passwordRegex =
-//       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).{8,}$/;
-//     if (!passwordRegex.test(password)) {
-//       toast.error('Password must be 8+ characters and include uppercase, lowercase, number, and special character');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     // Prevent password that contains name or email
-//     if (
-//       password.toLowerCase().includes(fullName.toLowerCase()) ||
-//       password.includes(email)
-//     ) {
-//       toast.error('Password should not contain your name or email');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     // Optional: prevent common weak passwords
-//     const weakPasswords = ['12345678', 'password', 'welcome123', 'admin123', 'qwerty'];
-//     if (weakPasswords.includes(password.toLowerCase())) {
-//       toast.error('Choose a stronger, less common password');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     try {
-//       const response = await axios.post('/v1/users/register', {
-//         fullName,
-//         email,
-//         phone,
-//         password,
-//       });
-  
-//       const { user, token } = response.data;
-  
-//       localStorage.setItem('token', token);
-//       localStorage.setItem('user', JSON.stringify(user));
-//       dispatch(login({ success: true, data: user, token }));
-//       fetchUser();
-  
-//       toast.success('Registration successful!');
-//       navigate('/dashboard', { replace: true, state: { welcome: true } });
-//     } catch (error) {
-//       const msg = error?.response?.data?.message || 'Registration failed';
-//       toast.error(msg);
-//       console.error('Registration error:', msg);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-const handleRegisterSubmit = async (e) => {
-  e.preventDefault();
-navigate('/progress');
-}
-  
-//google login
-  // const handleGoogleLogin = async () => {
-  //   try {
-  //     const result = await signInWithPopup(auth, googleProvider);
-  //     const user = result.user;
-  //     const idToken = await user.getIdToken(true);
-  //     console.log("ID Token:", idToken); // add before axios.post
+    // Trim inputs first
+    const fullName = registerData.fullName?.trim();
+    const email = registerData.email?.trim();
+    const phone = registerData.phone?.trim();
+    const password = registerData.password?.trim();
 
-  //     const response = await axios.post('/v1/users/google-login', { idToken });
-  //     const { token, user: backendUser } = response.data;
-  //     localStorage.setItem('token', token);
-  //     localStorage.setItem('user', JSON.stringify(backendUser));
-  //     dispatch(login({ success: true, data: backendUser, token }));
-  //     await fetchUser(); 
-  //     toast.success(`🎉 Welcome back`);
-  //     navigate('/dashboard',{ replace: true, state: { welcome: true } });
-  //   } catch (error) {
-  //     alert(error.response?.data?.message || 'Google login failed');
-  //     console.error('Google login error:', error);
-  //   }
-  // };
-  const handleGoogleLogin = async () => {
-navigate('/progress');
+    // Check all fields
+    if (!fullName || !email || !phone || !password) {
+      toast.error('All fields are required');
+      setLoading(false);
+      return;
+    }
 
-  }
+    // Name validation: only letters and spaces, min 3 characters
+    const nameRegex = /^[A-Za-z\s.]{2,}$/;
+    if (!nameRegex.test(fullName)) {
+      toast.error(
+        'Name must be at least 2 characters and only contain letters/spaces',
+      );
+      setLoading(false);
+      return;
+    }
 
-  // const handleFacebookLogin = async () => {
-  //   try {
-  //     facebookProvider.addScope('email');
-  //     const result = await signInWithPopup(auth, facebookProvider);
-  //     const user = result.user;
-  //     const idToken = await user.getIdToken();
-  //     const response = await axios.post('/v1/users/facebook-login', {
-  //       idToken,
-  //     });
-  //     const { token, user: backendUser } = response.data;
-  //     localStorage.setItem('token', token);
-  //     localStorage.setItem('user', JSON.stringify(backendUser));
-  //     dispatch(login({ success: true, data: backendUser, token }));
-  //     navigate('/dashboard',{ replace: true, state: { welcome: true } });
-  //   } catch (error) {
-  //     alert(error.response?.data?.message || 'Facebook login failed');
-  //     console.error('Facebook login error:', error);
-  //   }
-  // };
-  const handleFacebookLogin = async () => {
-navigate('/progress');
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Invalid email format');
+      setLoading(false);
+      return;
+    }
 
-  }
+    // Optional: block temporary email domains
+    const blockedDomains = [
+      'tempmail.com',
+      '10minutemail.com',
+      'mailinator.com',
+    ];
+    if (blockedDomains.some((domain) => email.endsWith(`@${domain}`))) {
+      toast.error('Temporary email addresses are not allowed');
+      setLoading(false);
+      return;
+    }
 
+    // Phone validation (India)
+    const rawPhone = registerData.phone?.trim();
+    const phone1 = rawPhone.replace(/[^0-9]/g, '').slice(-10); // keep last 10 digits
+
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone1)) {
+      toast.error('Enter a valid 10-digit Indian mobile number');
+      setLoading(false);
+      return;
+    }
+
+    // Password validation
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      toast.error(
+        'Password must be 8+ characters and include uppercase, lowercase, number, and special character',
+      );
+      setLoading(false);
+      return;
+    }
+
+    // Prevent password that contains name or email
+    if (
+      password.toLowerCase().includes(fullName.toLowerCase()) ||
+      password.includes(email)
+    ) {
+      toast.error('Password should not contain your name or email');
+      setLoading(false);
+      return;
+    }
+
+    // Optional: prevent common weak passwords
+    const weakPasswords = [
+      '12345678',
+      'password',
+      'welcome123',
+      'admin123',
+      'qwerty',
+    ];
+    if (weakPasswords.includes(password.toLowerCase())) {
+      toast.error('Choose a stronger, less common password');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post('/v1/users/register', {
+        fullName,
+        email,
+        phone,
+        password,
+      });
+
+      const { user, token } = response.data;
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      dispatch(login({ success: true, data: user, token }));
+      fetchUser();
+
+      toast.success('Registration successful!');
+      navigate('/dashboard', { replace: true, state: { welcome: true } });
+    } catch (error) {
+      const msg = error?.response?.data?.message || 'Registration failed';
+      toast.error(msg);
+      console.error('Registration error:', msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const inputClass =
     'w-full rounded border border-gray-300 py-3 pr-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400';
+
+  const { getAssetUrl, loaded } = useAsset();
+  const [showPassword, setShowPassword] = useState(false);
 
   if (loading) return <Loader />;
 
   return (
     <>
-      <div className="min-h-screen flex flex-col bg-[#ebf3fe] overflow-hidden">
+      <div className="flex min-h-screen flex-col overflow-hidden bg-[#ebf3fe]">
         {/* Main content container */}
-        <div className="flex-1 flex flex-col items-center justify-center px-4 pb-8 md:pb-12">
-          <div className="flex w-full max-w-7xl flex-col md:flex-row md:items-center md:justify-center gap-6">
+
+        {/* <Navbar /> */}
+        <div className="flex flex-1 flex-col items-center justify-center px-4 pb-8 md:pb-12">
+          <div className="flex w-full max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-center">
             {/* Left - Branding */}
-            <div className="flex w-full justify-start bg-[#ebf3fe] p-4 md:p-8 md:w-3/4">
+            <div className="flex w-full justify-start bg-[#ebf3fe] p-4 md:w-3/4 md:p-8">
               <div className="w-full max-w-xl">
                 <Searchbar />
               </div>
             </div>
-  
+
             {/* Right - Auth Card */}
-            <div className="flex w-full max-w-[452px] flex-col items-center justify-center bg-white p-6 md:p-8 shadow-lg rounded-lg">
-              <div className="w-full max-w-md flex flex-col justify-between">
+            <div className="flex w-full max-w-[452px] flex-col items-center justify-center rounded-lg bg-white p-6 shadow-lg md:p-8">
+              <div className="flex w-full max-w-md flex-col justify-between">
                 <h2 className="mb-4 text-center text-xl font-semibold text-gray-800"></h2>
-  
+
                 {activeTab === 'login' && (
                   <form onSubmit={handleLoginSubmit} className="flex flex-col">
                     <div className="relative mb-3">
-                      <img src={email} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" />
+                      {loaded && (
+                        <img
+                          src={getAssetUrl('mail.png')}
+                          className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                          alt="email"
+                          loading="lazy"
+                        />
+                      )}
                       <input
                         type="email"
                         name="email"
@@ -310,11 +278,18 @@ navigate('/progress');
                         className={inputClass}
                       />
                     </div>
-  
+
                     <div className="relative mb-3">
-                      <img src={lock} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" />
+                      {loaded && (
+                        <img
+                          src={getAssetUrl('lock.png')}
+                          className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                          alt="lock"
+                          loading="lazy"
+                        />
+                      )}
                       <input
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         name="password"
                         value={loginData.password}
                         onChange={handleLoginChange}
@@ -322,8 +297,21 @@ navigate('/progress');
                         required
                         className={inputClass}
                       />
+                      <div className="absolute top-1/2 right-2 -translate-y-1/2 opacity-70">
+                        {showPassword ? (
+                          <Eye
+                            width={20}
+                            onClick={() => setShowPassword((prev) => !prev)}
+                          />
+                        ) : (
+                          <EyeOff
+                            width={20}
+                            onClick={() => setShowPassword((prev) => !prev)}
+                          />
+                        )}
+                      </div>
                     </div>
-  
+
                     <div className="mb-3 text-right">
                       <button
                         type="button"
@@ -333,55 +321,38 @@ navigate('/progress');
                         Forgot Password?
                       </button>
                       {showForgotModal && (
-                        <ForgotPassword onClose={() => setShowForgotModal(false)} />
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <LazyForgotPassword
+                            onClose={() => setShowForgotModal(false)}
+                          />
+                        </Suspense>
                       )}
                     </div>
-  
+
                     <button
                       type="submit"
                       className="mt-3.5 w-full rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white"
                     >
                       Login
                     </button>
-  
-                    <div className="my-4 flex items-center gap-4 py-3 text-sm text-gray-500">
-                      <div className="h-px flex-1 bg-gray-300" />
-                      <span className="whitespace-nowrap">or continue with</span>
-                      <div className="h-px flex-1 bg-gray-300" />
+
+                    {/* Divider Line */}
+                    <div className="my-4 flex items-center">
+                      <div className="flex-grow border-t border-gray-300"></div>
+                      <span className="mx-2 text-sm text-gray-400">or</span>
+                      <div className="flex-grow border-t border-gray-300"></div>
                     </div>
-  
-                    <div className="flex gap-4">
+
+                    <p className="text-center text-sm text-gray-600">
                       <button
                         type="button"
-                        onClick={handleGoogleLogin}
-                        className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 bg-white py-2 font-medium text-black shadow-sm shadow-gray-300"
-                      >
-                        <img src={googleLogo} alt="Google" className="h-5 w-5 rounded-full bg-white p-0.5" />
-                        Google
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleFacebookLogin}
-                        className="flex flex-1 items-center justify-center gap-2 rounded border border-gray-200 py-2 font-medium text-black shadow-sm shadow-gray-300 hover:bg-[#155DC0]"
-                      >
-                        <img src={fb} alt="Facebook" className="h-5 w-5" />
-                        Facebook
-                      </button>
-                    </div>
-  
-                    <p className="mt-4 text-center text-sm text-gray-600">
-                      <button
-                        type="button"
-                        className={`mt-3.5 w-1/2 rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white ${
+                        className={`w-1/2 rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white ${
                           activeTab === 'register'
                             ? 'bg-gradient-to-r from-purple-600 to-pink-400 text-white'
                             : 'bg-gray-100'
                         }`}
                         onClick={() => {
-                          navigate('/progress');
-                          // setActiveTab('register')
-
-
+                          setActiveTab('register');
                         }}
                       >
                         Create New Account
@@ -389,11 +360,21 @@ navigate('/progress');
                     </p>
                   </form>
                 )}
-  
+
                 {activeTab === 'register' && (
-                  <form onSubmit={handleRegisterSubmit} className="flex flex-col">
+                  <form
+                    onSubmit={handleRegisterSubmit}
+                    className="flex flex-col"
+                  >
                     <div className="relative mb-3">
-                      <img src={identity} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="user" />
+                      {loaded && (
+                        <img
+                          src={getAssetUrl('identity.png')}
+                          className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                          alt="user"
+                          loading="lazy"
+                        />
+                      )}
                       <input
                         type="text"
                         name="fullName"
@@ -404,12 +385,14 @@ navigate('/progress');
                         className={inputClass}
                       />
                     </div>
-  
+
                     <div className="relative mb-3">
                       <PhoneInput
                         country={'in'}
                         value={registerData.phone}
-                        onChange={(phone) => setRegisterData((prev) => ({ ...prev, phone }))}
+                        onChange={(phone) =>
+                          setRegisterData((prev) => ({ ...prev, phone }))
+                        }
                         placeholder="Phone Number"
                         enableSearch
                         inputStyle={{
@@ -429,9 +412,16 @@ navigate('/progress');
                         containerStyle={{ width: '100%' }}
                       />
                     </div>
-  
+
                     <div className="relative mb-3">
-                      <img src={email} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="email" />
+                      {loaded && (
+                        <img
+                          src={getAssetUrl('mail.png')}
+                          className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                          alt="email"
+                          loading="lazy"
+                        />
+                      )}
                       <input
                         type="email"
                         name="email"
@@ -442,9 +432,16 @@ navigate('/progress');
                         className={inputClass}
                       />
                     </div>
-  
+
                     <div className="relative mb-3">
-                      <img src={lock} className="absolute top-2.5 left-3 h-5 w-5 opacity-70" alt="lock" />
+                      {loaded && (
+                        <img
+                          src={getAssetUrl('lock.png')}
+                          className="absolute top-2.5 left-3 h-5 w-5 opacity-70"
+                          alt="lock"
+                          loading="lazy"
+                        />
+                      )}
                       <input
                         type="password"
                         name="password"
@@ -455,20 +452,31 @@ navigate('/progress');
                         className={inputClass}
                       />
                     </div>
-  
+
                     <div className="mb-4 flex flex-col gap-2 text-xs text-gray-700">
-                      <span>
+                      {/* <span>
                         We may use your contact information to improve your experience.{' '}
                         <span className="cursor-pointer text-blue-600">Learn more</span>
-                      </span>
+                      </span> */}
                       <span>
                         By clicking Sign Up, you agree to our{' '}
-                        <span className="cursor-pointer text-blue-600">Terms of Service</span>,{' '}
-                        <span className="cursor-pointer text-blue-600">Privacy Policy</span>, and{' '}
-                        <span className="cursor-pointer text-blue-600">Cookies Policy</span>
+                        <a
+                          href="/terms"
+                          className="cursor-pointer text-blue-600"
+                        >
+                          Terms of Service
+                        </a>
+                        ,{' '}
+                        <a
+                          href="/privacy"
+                          className="cursor-pointer text-blue-600"
+                        >
+                          Privacy Policy
+                        </a>
+                        {/* <span className="cursor-pointer text-blue-600">Cookies Policy</span> */}
                       </span>
                     </div>
-  
+
                     <button
                       type="submit"
                       className="w-full rounded bg-[linear-gradient(to_right,_#9758fe,_#ff6ec4)] py-2 font-semibold text-white"
@@ -490,28 +498,63 @@ navigate('/progress');
             </div>
           </div>
         </div>
-  
+
         {/* Footer - Always at the bottom */}
         <footer className="w-full border-t border-gray-200 bg-[#ebf3fe] py-4 text-sm text-gray-600">
-      <div className="flex flex-col sm:flex-row flex-wrap items-center justify-between px-4 sm:px-20 gap-4">
-        <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
-          <span>India</span>
-          <span className="mx-2">|</span>
-          <span>LzyCrazy offered in:</span>
-          <button onClick={() => i18n.changeLanguage('hi')} className="ml-2 text-blue-600 hover:underline">हिन्दी</button>
-          <button onClick={() => i18n.changeLanguage('en')} className="ml-2 text-blue-600 hover:underline">English</button>
-          <button onClick={() => i18n.changeLanguage('bn')} className="ml-2 text-blue-600 hover:underline">বাংলা</button>
-          <button onClick={() => i18n.changeLanguage('ar')} className="ml-2 text-blue-600 hover:underline">العربية</button>
-        </div>
-        <div className="flex gap-6 justify-center sm:justify-end">
-          <Link to="/privacy" className="hover:underline">Privacy</Link>
-          <Link to="/terms" className="hover:underline">Terms</Link>
-        </div>
-      </div>
-    </footer>
+          <div className="flex flex-col flex-wrap items-center justify-between gap-4 px-4 sm:flex-row sm:px-20">
+            <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
+              <div className="flex items-center gap-2">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg"
+                  alt="Flag"
+                  width={20}
+                />
+                <span>India</span>
+              </div>
+              <span className="mx-2">|</span>
+              <span>LzyCrazy offered in:</span>
+              <button
+                onClick={() => i18n.changeLanguage('hi')}
+                className="ml-2 text-blue-600 hover:underline"
+              >
+                हिन्दी
+              </button>
+              <button
+                onClick={() => i18n.changeLanguage('en')}
+                className="ml-2 text-blue-600 hover:underline"
+              >
+                English
+              </button>
+              <button
+                onClick={() => i18n.changeLanguage('bn')}
+                className="ml-2 text-blue-600 hover:underline"
+              >
+                বাংলা
+              </button>
+              <button
+                onClick={() => i18n.changeLanguage('ar')}
+                className="ml-2 text-blue-600 hover:underline"
+              >
+                العربية
+              </button>
+            </div>
+
+            <div>
+              <span>@LzyCrazy Pvt Ltd, All right reserved.</span>
+            </div>
+            <div className="flex justify-center gap-6 sm:justify-end">
+              <Link to="/privacy" className="hover:underline">
+                Privacy
+              </Link>
+              <Link to="/terms" className="hover:underline">
+                Terms
+              </Link>
+            </div>
+          </div>
+        </footer>
       </div>
     </>
-  )};
+  );
+};
 
 export default Auth;
-

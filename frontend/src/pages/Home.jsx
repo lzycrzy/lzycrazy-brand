@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from '../lib/axios/axiosInstance';
 import Header from '../components/static/Header';
@@ -7,10 +7,14 @@ import MainFeed from '../components/Home/MainFeed';
 import RightSidebar from '../components/Home/RightSidebar';
 import MobileNav from '../components/Home/MobileNav';
 import ChatSidebar from '../components/Home/ChatSidebar';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from '../components/common/Spinner';
 import { useUser } from '../context/UserContext';
+import { useProduct } from '../store/useProduct';
+import WorkInProgress from '../components/workInProgress/WorkInProgress';
+
+const LazyAddProduct = React.lazy(() => import('./AddProduct'));
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -73,6 +77,7 @@ const Home = () => {
   }, [location]);
 
   if (loading) return <Loader />;
+  const {isAddProductModal} = useProduct();
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden bg-gray-100">
@@ -84,6 +89,11 @@ const Home = () => {
         </div>
       )}
 
+      {isAddProductModal && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <LazyAddProduct />
+        </Suspense>
+      )}
       {/* Top Header */}
       <Header />
 
@@ -100,23 +110,23 @@ const Home = () => {
         </div>
 
         {/* Main Feed (always visible) */}
-        <div className="scrollbar-hide flex-1 overflow-y-auto px-2 sm:px-4 lg:px-6">
-        <MainFeed posts={posts} onPostCreated={handlePostCreated} />
+        <div className="scrollbar-hide h-fit flex-1 overflow-y-auto px-2 sm:px-4 lg:px-6">
+        {/* <MainFeed posts={posts} onPostCreated={handlePostCreated} user={user} /> */}
+        <WorkInProgress />
 
         </div>
 
         {/* Right Sidebar (hide on md and below) */}
-        <div className="hidden w-[300px] border-l border-gray-200 xl:block">
+        {/* <div className="hidden w-[300px] border-l border-gray-200 xl:block">
           <RightSidebar people={people} />
-        </div>
+        </div> */}
       </div>
 
       {/* Floating Chat Button or Sidebar */}
-      <div className="fixed right-4 bottom-4 xl:relative xl:right-0 xl:bottom-0 xl:block">
+      {/* <div className="fixed right-4 bottom-4 xl:relative xl:right-0 xl:bottom-0 xl:block">
         <ChatSidebar />
-      </div>
+      </div> */}
 
-      <ToastContainer />
     </div>
   );
 };

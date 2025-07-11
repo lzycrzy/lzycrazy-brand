@@ -35,7 +35,7 @@ function ImageUploader() {
   return (
     <div>
       <input type="file" accept="image/*" onChange={handleFileChange} />
-      {imageUrl && <img src={imageUrl} alt="Preview" style={{ width: 200 }} />}
+      {imageUrl && <img src={imageUrl || "/missing.png"} alt="Preview" style={{ width: 200 }} loading="lazy" />}
     </div>
   );
 }

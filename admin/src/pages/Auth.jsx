@@ -4,14 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import ForgotPassword from '../components/Auth/ForgotPassword';
 import instance from '../utils/axios';
+import { useAsset } from '../context/useAsset';
+
 
 export default function Auth() {
   const navigate = useNavigate();
+  const { getAssetUrl, loaded } = useAsset();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [stage, setStage] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
-   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -62,7 +66,7 @@ export default function Auth() {
         {/* ------------ brand / illustration (left) ------------ */}
         <div className="mx-auto mt-12 hidden shrink-0 select-none lg:block">
           <img
-            src="./Logo.jpg"
+            src={getAssetUrl('Logo.jpg') || "/missing.png"}
             alt="Lzycrazy logo"
             className="h-80 w-100 bg-transparent"
           />

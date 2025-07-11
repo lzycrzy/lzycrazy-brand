@@ -12,16 +12,35 @@ import {
   getAllUsersList,
   deleteSingleUser,
   getAllApplications,
-  deleteApplication
+  deleteApplication,
+  marketPost,
+  publishPost,
+  updatePost,
+  deletePost,
+  getOneApplications,
+  createMarketPost,
+  updateMarketPost,
+  deleteMarketPost,
+  getMarketPost
+  
 } from '../controllers/admin.controller.js';
 import {
   isAuthenticatedAdmin,
   authorizeRolesAdimin,
 } from '../middlewares/auth.middleware.admin.js';
 import upload from '../middlewares/multer.middleware.js';
-import { getAllEnquiries } from '../controllers/Enquiry.controller.js';
+import {
+  getAllEnquiries,
+  updateEnquiryStatus,
+  deleteEnquiry,
+} from '../controllers/Enquiry.controller.js';
 const router = express.Router();
-
+// Admin market post routes
+router
+.get('/marketPost',marketPost)
+.post('/publishPost',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),upload.single('file'),publishPost)
+.put('/updatePost/:_id',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),upload.single('file'),updatePost)
+.delete('/deletePost/:_id',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),deletePost)
 // Public routes
 // This route is for registering a new admin
 router.post(
@@ -30,9 +49,14 @@ router.post(
   registerAdmin,
 );
 
+router.get('/market-post', getMarketPost)
+router.post('/market-post/create', upload.single('file'), createMarketPost);
+router.put('/market-post/update/:id', upload.single('file'), updateMarketPost);
+router.delete('/market-post/delete/:id', deleteMarketPost);
+
 // Admin routes
 router.post('/login', loginAdmin);
-router.get('/logout', logoutAdmin);
+router.post('/logout', logoutAdmin);
 
 // Protected routes
 router.get('/me', isAuthenticatedAdmin, getAdminProfile);
@@ -66,9 +90,13 @@ router.delete(
   authorizeRolesAdimin('admin'),
   deleteSingleUser,
 );
-router.get('/enquiry', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), getAllEnquiries); 
+router.get('/enquiry', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), getAllEnquiries);
+router.put('/enquiry/:id/status', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), updateEnquiryStatus); // PUT /api/enquiry/:id/status
+router.delete('/enquiry/:id', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), deleteEnquiry);          // DELETE /api/enquiry/:id
 
 router.get('/applications', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), getAllApplications);
+
+router.get('/applications/:id', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), getOneApplications);
 
 router.delete('/applications/:id', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), deleteApplication);
 

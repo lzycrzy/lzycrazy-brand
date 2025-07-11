@@ -42,7 +42,7 @@
 //           draggable
 //           pauseOnHover
 //           theme="colored"
-         
+
 //         />
 
 //         <Routes>
@@ -64,21 +64,21 @@
 //               </AuthRedirect>
 //             }
 //           />
-        
+
 //           <Route path="/terms" element={<TermPage />} />
-          
+
 //             <Route path="/news" element={<NewsFeed />} />
 //             <Route path="/privacy" element={<PrivacyPolicyPage />} />
 //             <Route path="/services" element={<Services />} />
 //             <Route path="/market" element={ <MarketplaceHome />} />
 //             <Route path="/property" element={  <PropertyListing />} />
 
-            
+
 
 //           {/* Password recovery flow (publicly accessible) */}
 //           <Route path="/password/forgot" element={<ForgotPassword />} />
 //           <Route path="/password/reset/:token" element={<ResetPassword />} />
-         
+
 //           {/* Authenticated routes */}
 //           <Route
 //             path="/dashboard"
@@ -129,20 +129,20 @@
 
 // const App = () => (
 //   <Provider store={store} >
-     
+
 //     <UserProvider>
-    
+
 //         {/* <ToastContainer
 //           position="top-right"
 //           autoClose={3000}
 //           theme="colored"
 //           style={{ zIndex: 9999 }}
-        
-        
+
+
 //           pauseOnHover
 //         /> */}
 //         <AppRoutes />
-      
+
 //     </UserProvider>
 //   </Provider>
 // );
@@ -157,31 +157,51 @@ import store from './lib/redux/store';
 import { UserProvider } from './context/UserContext';
 import AppRoutes from './routes/AppRoutes';
 import { setCurrentPathname } from './lib/axios/axiosInstance';
+import React, { Suspense } from 'react';
+import { useProduct } from './store/useProduct';
 
 import 'react-toastify/dist/ReactToastify.css';
+import { useAsset } from './store/useAsset';
+const LazyAddProduct = React.lazy(() => import('./pages/AddProduct'));
 
-const AppWrapper = () => {
-  const location = useLocation();
+const App = () => {
 
-  // Sync the current path with axiosInstance for toast suppression
+  const { isAddProductModal } = useProduct();
+  const { fetchAssets } = useAsset();
   useEffect(() => {
-    setCurrentPathname(location.pathname);
-  }, [location.pathname]);
+    fetchAssets();
+  }, [])
 
   return (
-    <>
-     
-      <AppRoutes />
-    </>
-  );
-};
+    <Provider store={store}>
 
-const App = () => (
-  <Provider store={store}>
-    <UserProvider>
-      <AppWrapper />
-    </UserProvider>
-  </Provider>
-);
+      <UserProvider>
+
+        {/* <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          theme="colored"
+          style={{ zIndex: 9999 }}
+
+          
+        
+        
+          pauseOnHover
+        /> */}
+
+        {isAddProductModal && (
+          <Suspense fallback={<div>Loading...</div>}>
+            <LazyAddProduct />
+          </Suspense>
+        )}
+
+        <AppRoutes />
+
+
+      </UserProvider>
+    </Provider>
+
+  )
+}
 
 export default App;

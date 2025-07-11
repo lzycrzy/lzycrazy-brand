@@ -22,7 +22,7 @@
 //     { name: 'About Us', path: '/about' },
 //     { name: 'LzyCrazy Services', path: '/services' },
 //     { name: 'LzyCrazy Marketplace', path: '/market' },
-//     { name: 'We Are Hiring', path: '/careers' },
+//     { name: 'Careers', path: '/careers' },
 //     { name: 'LzyCrazy News', path: '/news' },
 //   ];
 
@@ -37,7 +37,7 @@
 
 //   const handleTabClick = (tab) => {
 //     setActiveTab(tab.name);
-//     if (tab.name === 'We Are Hiring') {
+//     if (tab.name === 'Careers') {
 //       setShowHiring(true);
 //     } else {
 //       navigate(tab.path);
@@ -139,17 +139,15 @@
 
 // export default Searchbar;
 
-
-
 // new code with responsiveness
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/lzy logo.jpg';
 import HiringFormModal from '../HiringFormModal';
 import HiringTaskModal from '../HiringTaskModal';
 import SuccessPopup from '../SuccessPopup';
 import NewsFeed from '../News/NewsFeed';
+import { useAsset } from '../../store/useAsset';
 
 const Searchbar = () => {
   const [query, setQuery] = useState('');
@@ -161,13 +159,14 @@ const Searchbar = () => {
   const [showComingSoon, setShowComingSoon] = useState(false);
 
   const navigate = useNavigate();
+  const { getAssetUrl, loaded } = useAsset();
 
   const tabs = [
     { name: 'About Us', path: '/about' },
     { name: 'LzyCrazy Services', path: '/services' },
     { name: 'LzyCrazy Marketplace', path: '/market' },
-    { name: 'We Are Hiring', path: '/careers' },
     { name: 'LzyCrazy News', path: '/news' },
+    { name: 'Careers', path: '/careers' },
   ];
 
   const handleSearch = (e) => {
@@ -181,11 +180,10 @@ const Searchbar = () => {
 
   const handleTabClick = (tab) => {
     setActiveTab(tab.name);
-    if (tab.name === 'We Are Hiring') {
+    if (tab.name === 'Careers') {
       setShowHiring(true);
       // navigate('/progress');
     } else if (tab.name === 'LzyCrazy News') {
-      
       navigate('/progress');
     } else {
       navigate(tab.path);
@@ -193,31 +191,33 @@ const Searchbar = () => {
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-start bg-[#ebf3fe] pt-4 px-3">
+    <div className="flex w-full flex-col items-center justify-start bg-[#ebf3fe] px-3 pt-4">
       {/* Logo */}
       <div className="mb-4">
-        <img
-          src={logo}
-          alt="LzyCrazy Logo"
-          className="w-24 sm:w-32 md:w-40 lg:w-52 opacity-90 mix-blend-multiply"
-        />
+        {loaded && (
+          <img
+            src={getAssetUrl('lzy logo.jpg') || '/missing.png'}
+            alt="LzyCrazy Logo"
+            className="w-24 opacity-90 mix-blend-multiply sm:w-32 md:w-40 lg:w-52"
+          />
+        )}
       </div>
 
       {/* Search Box */}
       <form
         onSubmit={handleSearch}
-        className="relative w-full max-w-sm sm:max-w-md md:max-w-xl px-1"
+        className="relative w-full max-w-sm px-1 sm:max-w-md md:max-w-xl"
       >
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search here..."
-          className="w-full rounded-full border border-gray-300 px-12 py-3 text-sm sm:text-base shadow-md focus:outline-none"
+          className="w-full rounded-full border border-gray-300 px-12 py-3 text-sm shadow-md focus:outline-none sm:text-base"
         />
         <button
           type="submit"
-          className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600"
+          className="absolute top-1/2 left-5 -translate-y-1/2 text-gray-600"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -238,7 +238,7 @@ const Searchbar = () => {
 
       {/* Coming Soon Text */}
       {showComingSoon && (
-        <div className="mt-4 animate-fadeInScale rounded-full bg-yellow-100 px-6 py-3 text-xs sm:text-sm font-semibold text-yellow-800 shadow-md text-center">
+        <div className="animate-fadeInScale mt-4 rounded-full bg-yellow-100 px-6 py-3 text-center text-xs font-semibold text-yellow-800 shadow-md sm:text-sm">
           🚧 This feature is coming next week — stay tuned!
         </div>
       )}
@@ -247,17 +247,34 @@ const Searchbar = () => {
       <div className="mt-5 w-full max-w-3xl px-2">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           {tabs.map((tab) => (
-            <button
-              key={tab.name}
-              onClick={() => handleTabClick(tab)}
-              className={`rounded-full px-3 py-2 text-xs sm:text-sm font-medium whitespace-nowrap shadow-md transition ${
-                activeTab === tab.name
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              {tab.name}
-            </button>
+            <>
+              {tab.name === 'Careers' ? (
+                <button
+                  key={tab.name}
+                  onClick={() => handleTabClick(tab)}
+                  className={`relative rounded-full px-6 py-2 text-xs font-medium whitespace-nowrap shadow-md transition sm:text-sm ${
+                    activeTab === tab.name
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <div>{tab.name}</div>
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-red-400 blink"></div>
+                </button>
+              ) : (
+                <button
+                  key={tab.name}
+                  onClick={() => handleTabClick(tab)}
+                  className={`rounded-full px-3 py-2 text-xs font-medium whitespace-nowrap shadow-md transition sm:text-sm ${
+                    activeTab === tab.name
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {tab.name}
+                </button>
+              )}
+            </>
           ))}
         </div>
       </div>
@@ -280,7 +297,10 @@ const Searchbar = () => {
         onClose={() => setShowTask(false)}
         onSubmitSuccess={() => setShowSuccess(true)}
       />
-      <SuccessPopup isOpen={showSuccess} onClose={() => setShowSuccess(false)} />
+      <SuccessPopup
+        isOpen={showSuccess}
+        onClose={() => setShowSuccess(false)}
+      />
     </div>
   );
 };

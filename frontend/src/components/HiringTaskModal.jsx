@@ -107,3 +107,4 @@ const HiringTasksModal = ({ isOpen, onClose, onSubmitSuccess }) => {
 };
 
 export default HiringTasksModal;
+
