@@ -52,7 +52,7 @@ const PropertyMap = ({ coordinates }) => {
 
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex z-50 flex-col gap-3">
       <h3 className="text-base font-semibold text-slate-900">Location</h3>
       <div
         ref={mapRef}

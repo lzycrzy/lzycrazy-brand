@@ -6,6 +6,7 @@ import { useUser } from "../../context/UserContext";
 import { toast } from "react-toastify";
 
 const RightSideDeatil = ({ data }) => {
+  const {user}=useUser();
 
   const hasConfig =
     data.configuration &&
@@ -113,6 +114,10 @@ const RightSideDeatil = ({ data }) => {
           </div>
 
             <button onClick={() => {
+              if (data.user === user?.profile.id) {
+                toast.error('You can\'t response yourself.');
+                return;
+              }
               setResponseConfirmation({user: data.user, listing: data._id});
             }}
             className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border-none bg-indigo-600 px-6 py-3 text-sm font-medium text-white transition-colors duration-300 hover:bg-indigo-700">
@@ -154,7 +159,7 @@ export function ConfirmResponse() {
   }
 
   return (
-      <div style={{backgroundColor: 'rgba(0,0,0,0.5)'}} className='fixed z-100 inset-0 h-screen w-screen grid place-items-center'>
+      <div style={{backgroundColor: 'rgba(0,0,0,0.5)'}} className='fixed z-600 inset-0 h-screen w-screen grid place-items-center'>
       <div className='p-5 flex flex-col rounded bg-white min-w-[350px] py-5'>
         <span className='text-lg text-gray-800'>Are you Confirm!</span>
         <span>After confirming this your resposne will saved to seller profile. They can see your details.</span>
