@@ -1,5 +1,5 @@
 import express from "express";
-import { createListing, getAllListing, getListingResponse, getUserListing, updateListing, updateViews, renewListing } from "../controllers/listing.controller.js";
+import { createListing, getAllListing, getListingResponse, getUserListing, updateListing, updateViews, renewListing, deleteListing, addResponseToListing } from "../controllers/listing.controller.js";
 import { isAuthenticated } from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
@@ -16,5 +16,9 @@ router.route('/listing-response').get(isAuthenticated, getListingResponse);
 router.route('/views/:id').post(isAuthenticated, updateViews);
 
 router.route('/renew/:id').put(isAuthenticated, renewListing);
+
+router.route('/delete/:listingId').delete(isAuthenticated, deleteListing)
+
+router.route('/response/:listingId').put(isAuthenticated, addResponseToListing);
 
 export default router;

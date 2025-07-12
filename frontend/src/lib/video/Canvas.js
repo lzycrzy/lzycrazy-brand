@@ -41,5 +41,5 @@ const detectFace = async () => {
         setInstruction('❗ Face not detected – Please center your face.');
       }
     }
-  };
+};
   

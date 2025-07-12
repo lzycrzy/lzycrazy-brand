@@ -7,7 +7,7 @@ import instance from '../lib/axios/axiosInstance';
 import AdminPost from '../components/Market/AdminPost';
 import { GrClose, GrMenu } from 'react-icons/gr';
 import MobileNav from '../components/Home/MobileNav';
-import { FaChevronDown, FaUser } from 'react-icons/fa';
+import { FaChevronCircleRight, FaChevronDown, FaChevronRight, FaUser } from 'react-icons/fa';
 import Partner from '../components/Market/Partner';
 
 const MarketplaceHome = () => {
@@ -94,22 +94,27 @@ const MarketplaceHome = () => {
       )}
 
       <div className="flex relative">
-       {!openMenu && <GrMenu
-          className="fixed top-15 left-1 z-50 cursor-pointer lg:hidden"
+       {!openMenu && <div className='fixed top-24 left-2 z-50 cursor-pointer lg:hidden bg-white rounded w-[40px] h-[40px] p-2 flex justify-center items-center'>
+        <FaChevronRight
+          className=""
           onClick={openSidebar}
-        />}
+        /></div>}
        {openMenu && <GrClose 
-          className="fixed top-15 left-3 z-50 cursor-pointer lg:hidden"
+          className="fixed top-16 left-3 z-50 cursor-pointer lg:hidden"
           onClick={() => setOpenMenu(false)}
         />}
 
         <aside
           ref={menuModalRef}
-          className={`z-40 fixed lg:sticky top-[58px] h-[calc(100vh-4.7rem)] w-64 bg-white px-6 py-8 shadow-sm transform transition-transform duration-300 ease-in-out
+          className={`z-40 fixed lg:sticky top-[90px] sm:top-[55px] h-[calc(100vh-6rem)] w-64 bg-white px-6 py-4 shadow-sm transform transition-transform duration-300 ease-in-out
             ${openMenu ? 'translate-x-0' : '-translate-x-full'} 
             lg:translate-x-0 lg:block`}
         >
-          <h2 className="mb-6 text-2xl font-semibold text-gray-800">Categories</h2>
+          <h2 className="mb-4 text-2xl font-semibold text-gray-800 flex justify-between items-center">
+            Categories <GrClose 
+            className=" cursor-pointer lg:hidden h-[20px]"
+            onClick={() => setOpenMenu(false)} />
+          </h2>
           <ul className="space-y-1">
             {categories?.map((category) => (
               <li key={category._id}>

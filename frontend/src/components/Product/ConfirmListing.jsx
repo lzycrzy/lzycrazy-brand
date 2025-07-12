@@ -18,7 +18,7 @@ function ConfirmListing({data, setPaymentModal, setConfirmListing}) {
       return;
     }
 
-    if (user.productListed.length > 0) {
+    if (user.role !== 'admin' && user.productListed.length > 0) {
       setConfirmListing(null);
       setPaymentModal(data)
     } else {

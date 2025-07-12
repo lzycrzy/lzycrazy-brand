@@ -53,7 +53,7 @@ export const generateTokenAdmin = (admin, message, statusCode, res) => {
   res
     .status(statusCode)
     .cookie('token', token, {
-      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
       httpOnly: true,
       sameSite: isDev ? 'Lax' : 'None',
       secure: !isDev,

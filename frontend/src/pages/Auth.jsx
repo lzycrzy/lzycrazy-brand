@@ -240,6 +240,7 @@ const Auth = () => {
   //     console.error('Facebook login error:', error);
   //   }
   // };
+
   const handleFacebookLogin = async () => {
     navigate('/progress');
   }
@@ -253,7 +254,6 @@ const Auth = () => {
   if (loading) return <Loader />;
 
   
-
   return (
     <>
       <div className="min-h-screen flex flex-col bg-[#ebf3fe] overflow-hidden">
