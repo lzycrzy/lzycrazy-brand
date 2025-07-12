@@ -47,6 +47,7 @@
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.3",
     "rsuite": "^5.82.0",
+    "socket.io-client": "^4.8.1",
     "tailwind-scrollbar-hide": "^4.0.0",
     "tailwindcss": "^4.1.7",
     "xlsx": "^0.18.5",

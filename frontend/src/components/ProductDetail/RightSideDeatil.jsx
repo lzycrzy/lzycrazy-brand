@@ -1,6 +1,12 @@
+import { Link, useNavigate } from "react-router";
 import { formatPrice } from "../../utils/formatPrice";
+import { useProduct } from "../../store/useProduct";
+import instance from "../../lib/axios/axiosInstance";
+import { useUser } from "../../context/UserContext";
+import { toast } from "react-toastify";
 
 const RightSideDeatil = ({ data }) => {
+
   const hasConfig =
     data.configuration &&
     (data.configuration.bedrooms ||
@@ -19,6 +25,8 @@ const RightSideDeatil = ({ data }) => {
     if (isNaN(number)) return '';
     return new Intl.NumberFormat('en-IN').format(number);
   };
+
+  const {setResponseConfirmation} = useProduct();
 
   return (
     <div className="flex flex-col gap-6">
@@ -104,7 +112,10 @@ const RightSideDeatil = ({ data }) => {
             )}
           </div>
 
-          <button className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border-none bg-indigo-600 px-6 py-3 text-sm font-medium text-white transition-colors duration-300 hover:bg-indigo-700">
+            <button onClick={() => {
+              setResponseConfirmation({user: data.user, listing: data._id});
+            }}
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border-none bg-indigo-600 px-6 py-3 text-sm font-medium text-white transition-colors duration-300 hover:bg-indigo-700">
             Chat with seller
           </button>
         </div>
@@ -121,3 +132,38 @@ const RightSideDeatil = ({ data }) => {
 };
 
 export default RightSideDeatil;
+
+
+export function ConfirmResponse() {
+
+  const {responseConfirmation, setResponseConfirmation} = useProduct();
+  const navigate = useNavigate();
+  
+
+  async function saveResponse(responseConfirmation) {
+    try {
+      const res = await instance.put(`/v1/listing/response/${responseConfirmation.listing}`)
+
+      if (res.data.success) {
+        toast.success('your response was saved!')
+        navigate(`/business-chat/${responseConfirmation.user}`)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  return (
+      <div style={{backgroundColor: 'rgba(0,0,0,0.5)'}} className='fixed z-100 inset-0 h-screen w-screen grid place-items-center'>
+      <div className='p-5 flex flex-col rounded bg-white min-w-[350px] py-5'>
+        <span className='text-lg text-gray-800'>Are you Confirm!</span>
+        <span>After confirming this your resposne will saved to seller profile. They can see your details.</span>
+        <span>You will be redirected to chat with the seller.</span>
+        <div className='flex mt-5 gap-2 items-center justify-end'>
+          <button className='cursor-pointer px-4 p-1 bg-gray-200 text-black rounded' onClick={() => setResponseConfirmation(null)}>No</button>
+          <button className='cursor-pointer px-4 p-1 bg-blue-600 text-white rounded' onClick={() => saveResponse(responseConfirmation)}>Yes</button>
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -2,11 +2,11 @@ import Header from '../components/static/Header';
 import Sidebar from '../components/Home/Sidebar1';
 import { useProduct } from '../store/useProduct';
 import RenewModal from '../components/Product/RenewModal';
-import Listings from '../components/AdPage/Listings';
+import Listings, { ConfirmListingDeletion } from '../components/AdPage/Listings';
 
 function AddPage() {
 
-  const {renewLisitng} = useProduct();
+  const {renewLisitng, deleteListing} = useProduct();
 
   return (
     <>
@@ -17,12 +17,12 @@ function AddPage() {
           <div className="hidden w-64 lg:block">
             <Sidebar />
           </div>
-
           <Listings />
         </div>
       </div>
 
       {renewLisitng && <RenewModal />}
+      {deleteListing && <ConfirmListingDeletion />}
     </>
   );
 }

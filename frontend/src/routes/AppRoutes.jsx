@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import React, { Suspense } from 'react';
+import BusinessTalk from '../pages/BusinessTalk';
 
 const RequireAuth = React.lazy(() => import('../components/protected/RequireAuth'));
 const AuthRedirect = React.lazy(() => import('../components/routes/AuthRedirect'));
@@ -71,6 +72,7 @@ const AppRoutes = () => (
       <Route element={<RequireAuth />}>
         <Route path="/dashboard" element={<Home />} />
         <Route path="/image-detail" element={<ImageDetail />} />
+        <Route path='/business-chat/:id?' element={<BusinessTalk />} /> 
 
         <Route path="/profile" element={<Profile />} />
         

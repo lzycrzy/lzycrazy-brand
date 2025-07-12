@@ -15,6 +15,7 @@ export const isAuthenticated = async (req, res, next) => {
       token,
       process.env.JWT_SECRET || 'defaultSecret',
     );
+    
     req.user = await userModel.findById(decoded.id).select('-password'); // password exclude kiya
 
     if (!req.user) {

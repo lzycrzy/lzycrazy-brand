@@ -73,7 +73,6 @@ export const getMe = catchAsyncErrors(async (req, res, next) => {
 // Login User
 export const loginUser = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(req.body); 
 
   if (!email || !password) {
     return next(new ErrorHandler('Please provide email and password', 400));
@@ -124,17 +123,16 @@ export const loginWithFacebook = async (req, res) => {
 
 // Login with Google
 export const loginWithGoogle = async (req, res) => {
-  console.log(req.body);
   try {
     const { idToken } = req.body;
 
     if (!idToken) {
       return res.status(400).json({ message: 'Firebase ID token required' });
     }
-    console.log("Received idToken:", idToken);
+
     // Verify Firebase ID token
     const decodedToken = await firebaseadmin.auth().verifyIdToken(idToken);
-    console.log("Decoded token:", decodedToken);
+
     const { uid, email, name, picture } = decodedToken;
 
     if (!email) {
@@ -204,8 +202,8 @@ export const updateMe = async (req, res) => {
   try {
     const updates = { fullName: req.body.name };
 
-    console.log(" Received name:", req.body.name);
-    console.log(" Received file:", req.file?.originalname);
+    // console.log(" Received name:", req.body.name);
+    // console.log(" Received file:", req.file?.originalname);
     const filePath=req.file.path;
 
     if (req.file) {
@@ -218,7 +216,7 @@ export const updateMe = async (req, res) => {
       runValidators: true,
     });
     await fs.remove(filePath);
-    console.log(" User updated:", updatedUser.fullName, updatedUser.image);
+    // console.log(" User updated:", updatedUser.fullName, updatedUser.image);
 
     res.status(200).json({
       status: 'success',
@@ -354,7 +352,7 @@ export const createPost = async (req, res) => {
 
     // Optional: Remove file only if it exists
    
-    console.log(mediaUrl)
+    // console.log(mediaUrl)
 
     const post = new Post({
       user: req.user._id,
@@ -490,7 +488,7 @@ export const updateUser = catchAsyncErrors(async (req, res, next) => {
     });
     updateData.image = uploaded.secure_url;
   }
-  console.log(req.body);
+  // console.log(req.body);
   const updatedUser = await userModel.findByIdAndUpdate(
     req.user.id,
     updateData,
@@ -663,8 +661,8 @@ export const uploadStory = async (req, res) => {
     const videoFile = req.files?.media?.[0];
     const textContent = req.body?.textContent?.trim();
 
-    console.log('📦 Incoming files:', req.files);
-    console.log('📨 Body:', req.body);
+    // console.log('📦 Incoming files:', req.files);
+    // console.log('📨 Body:', req.body);
 
     if (!imageFile && !videoFile && !textContent) {
       return res
