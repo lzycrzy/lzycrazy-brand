@@ -21,8 +21,9 @@ import {
   createMarketPost,
   updateMarketPost,
   deleteMarketPost,
-  getMarketPost
-  
+  getMarketPost,
+  updateUserRole
+
 } from '../controllers/admin.controller.js';
 import {
   isAuthenticatedAdmin,
@@ -37,10 +38,10 @@ import {
 const router = express.Router();
 // Admin market post routes
 router
-.get('/marketPost',marketPost)
-.post('/publishPost',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),upload.single('file'),publishPost)
-.put('/updatePost/:_id',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),upload.single('file'),updatePost)
-.delete('/deletePost/:_id',isAuthenticatedAdmin, authorizeRolesAdimin('admin'),deletePost)
+  .get('/marketPost', marketPost)
+  .post('/publishPost', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), upload.single('file'), publishPost)
+  .put('/updatePost/:_id', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), upload.single('file'), updatePost)
+  .delete('/deletePost/:_id', isAuthenticatedAdmin, authorizeRolesAdimin('admin'), deletePost)
 // Public routes
 // This route is for registering a new admin
 router.post(
@@ -83,6 +84,14 @@ router.get(
   authorizeRolesAdimin('admin'),
   getAllUsersList,
 );
+
+// PUT /admin/user/role/:id
+router.put('/user/role/:id',
+  isAuthenticatedAdmin,
+  authorizeRolesAdimin('admin'),
+  updateUserRole
+);
+
 
 router.delete(
   '/user/delete/:id',

@@ -33,7 +33,7 @@ export const registerAdmin = catchAsyncErrors(async (req, res, next) => {
 
 
 // GET MARKET POST FOR ADMIN
-export const getMarketPost = async(req, res) => {
+export const getMarketPost = async (req, res) => {
   try {
     const posts = await bannerModel.find();
 
@@ -49,12 +49,12 @@ export const getMarketPost = async(req, res) => {
       data: posts
     })
   } catch (error) {
-      console.log(error);
-      return res.status(500).json({
-        success: false,
-        message: "Internal Server error",
-        error: error.message
-      })
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server error",
+      error: error.message
+    })
   }
 }
 
@@ -478,6 +478,19 @@ export const getAllUsersList = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+// UPDATE USER ROLE
+export const updateUserRole = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    const user = await userModel.findByIdAndUpdate(req.params.id, { role }, { new: true });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    res.status(200).json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // DELETE SINGLE USER
 export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
   const user = await userModel.findById(req.params.id);
@@ -491,7 +504,7 @@ export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
 export const getAllApplications = async (req, res) => {
   try {
     const applications = await Hiring.find().sort({ createdAt: -1 }); // newest first
-    
+
     res.status(200).json(applications);
   } catch (error) {
     console.error(error);
@@ -504,7 +517,7 @@ export const getOneApplications = async (req, res) => {
   try {
     const { id } = req.params;
     const application = await Hiring.findById(id);
-    
+
     res.status(200).json(application);
   } catch (error) {
     console.error(error);
@@ -583,96 +596,101 @@ export const requestAdminPasswordReset = async (req, res) => {
 };
 
 // ADMIN MARKET POST
-export const marketPost=async(req,res)=>{
-    try {
-        const post=await adminMarketPost.find({})
-       return res.status(200).json({
-          message:post
-        })
-    } catch (error) {
-         return res.status(401).json({
-          message:"Something went wrong!"
-        })
-    }
+export const marketPost = async (req, res) => {
+  try {
+    const post = await adminMarketPost.find({})
+    return res.status(200).json({
+      message: post
+    })
+  } catch (error) {
+    return res.status(401).json({
+      message: "Something went wrong!"
+    })
+  }
 }
-export const publishPost=async(req,res)=>{
+
+// PUBLISH POST
+export const publishPost = async (req, res) => {
   console.log("hello")
-    try {
-        console.log(req.file,req.body);
-        const{userName,url,postDate}=req.body
-        const filePath=req.file?.path
-        if(req.file){
-                const postUrl = await uploadToCloudinary(filePath);
-               const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
-               if(type=="video"){
-                 const thumnail=getVideoThumbnailUrl(postUrl)
-                  const post=new adminMarketPost({userName,postUrl,url,thumnail,type,postDate}) 
-                  await post.save()
-                    return res.status(200).json({
-                   message:"Posted Successfully"
-                      })
-               }else{
-                   const post=new adminMarketPost({userName,postUrl,url,type,postDate}) 
-                  await post.save()
-                    return res.status(200).json({
-                   message:"Posted Successfully"
-                        })
-               }
-        }else{
-          return res.status(401).json({
-          message:"Please select at least one image/video !"
-        }) 
-        }
-    } catch (error){
-           return res.status(401).json({
-          message:"Something wrong !"
+  try {
+    console.log(req.file, req.body);
+    const { userName, url, postDate } = req.body
+    const filePath = req.file?.path
+    if (req.file) {
+      const postUrl = await uploadToCloudinary(filePath);
+      const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+      if (type == "video") {
+        const thumnail = getVideoThumbnailUrl(postUrl)
+        const post = new adminMarketPost({ userName, postUrl, url, thumnail, type, postDate })
+        await post.save()
+        return res.status(200).json({
+          message: "Posted Successfully"
         })
+      } else {
+        const post = new adminMarketPost({ userName, postUrl, url, type, postDate })
+        await post.save()
+        return res.status(200).json({
+          message: "Posted Successfully"
+        })
+      }
+    } else {
+      return res.status(401).json({
+        message: "Please select at least one image/video !"
+      })
     }
+  } catch (error) {
+    return res.status(401).json({
+      message: "Something wrong !"
+    })
+  }
 }
-export const updatePost=async(req,res)=>{
-    try {
-         const{_id}=req.params
-        const{url,postDate,prevPostUrl}=req.body
-        const filePath=req.file?.path
-        const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
-        if(req.file){
-                const postUrl = await uploadToCloudinary(filePath);
-                await deleteFromCloudinary(prevPostUrl)
-                 if(type=="video"){
-                  const thumnail=getVideoThumbnailUrl(postUrl)
-                   const post=await adminMarketPost.updateOne({_id},{$set:{postUrl,url,thumnail,type,postDate}}) 
-                    return res.status(200).json({
-                   message:"Posted Successfully"
+
+// UPDATE POST
+export const updatePost = async (req, res) => {
+  try {
+    const { _id } = req.params
+    const { url, postDate, prevPostUrl } = req.body
+    const filePath = req.file?.path
+    const type = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+    if (req.file) {
+      const postUrl = await uploadToCloudinary(filePath);
+      await deleteFromCloudinary(prevPostUrl)
+      if (type == "video") {
+        const thumnail = getVideoThumbnailUrl(postUrl)
+        const post = await adminMarketPost.updateOne({ _id }, { $set: { postUrl, url, thumnail, type, postDate } })
+        return res.status(200).json({
+          message: "Posted Successfully"
         })
-                 }
-                  const post=await adminMarketPost.updateOne({_id},{$set:{postUrl,url,type,postDate}}) 
-                    return res.status(200).json({
-                   message:"Posted Successfully"
-        })
-        }else{
-           return res.status(401).json({
-          message:"Something wrong please try again!"
-        })
-        }
-    } catch (error) {
-          return res.status(401).json({
-          message:"Something wrong please try again!"
-        }) 
+      }
+      const post = await adminMarketPost.updateOne({ _id }, { $set: { postUrl, url, type, postDate } })
+      return res.status(200).json({
+        message: "Posted Successfully"
+      })
+    } else {
+      return res.status(401).json({
+        message: "Something wrong please try again!"
+      })
     }
+  } catch (error) {
+    return res.status(401).json({
+      message: "Something wrong please try again!"
+    })
+  }
 }
-export const deletePost=async(req,res)=>{
-    try {
-    const{_id}=req.params
-    const{postUrl}=req.body
+export const deletePost = async (req, res) => {
+  try {
+    const { _id } = req.params
+    const { postUrl } = req.body
     await deleteFromCloudinary(postUrl)
-    await adminMarketPost.deleteOne({_id})
-     return res.status(200).json({
-                   message:"Post deleted Successfully"})
-    } catch (error) {
-        return res.status(401).json({
-          message:"Something wrong please try again!"
-        })  
-    }
+    await adminMarketPost.deleteOne({ _id })
+    return res.status(200).json({
+      message: "Post deleted Successfully"
+    })
+  } catch (error) {
+    return res.status(401).json({
+      message: "Something wrong please try again!"
+    })
+  }
 }
 
 // Step 2: Reset Password

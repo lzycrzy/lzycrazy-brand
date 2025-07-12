@@ -464,7 +464,6 @@ export const sharePost = async (req, res) => {
   }
 };
 
-
 // Get All Users
 export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
   const users = await userModel.find();
