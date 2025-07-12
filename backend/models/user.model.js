@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: [true, 'Role is required'],
-    enum: ['user', 'admin', 'superAdmin'],
+    enum: ['user', 'admin', 'superAdmin', 'lcEmp'],
     default: 'user',
   },
   image: {
@@ -60,6 +60,11 @@ const userSchema = new mongoose.Schema({
   productListed: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Listing'
+  }],
+
+  businessConnection: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
   }],
 
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

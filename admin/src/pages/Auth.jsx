@@ -66,7 +66,7 @@ export default function Auth() {
         {/* ------------ brand / illustration (left) ------------ */}
         <div className="mx-auto mt-12 hidden shrink-0 select-none lg:block">
           <img
-            src={getAssetUrl('Logo.jpg') || "/missing.png"}
+            src={loaded && getAssetUrl('Logo.jpg') || "/missing.png"}
             alt="Lzycrazy logo"
             className="h-80 w-100 bg-transparent"
           />

@@ -5,6 +5,8 @@ export const useProduct = create((set, get) => ({
     isEditing: false,
     editData: [],
     renewLisitng: null,
+    deleteListing: null,
+    responseConfirmation: null,
 
     setIsAddProductModal: (value) => {
         set({isAddProductModal: value})
@@ -20,6 +22,14 @@ export const useProduct = create((set, get) => ({
     
     setRenewListing: (val) => {
         set({renewListing: val})
+    },
+
+    setDeleteListing: (val) => {
+        set({deleteListing: val})
+    },
+
+    setResponseConfirmation: (val) => {
+        set({responseConfirmation: val})
     }
 }))
 

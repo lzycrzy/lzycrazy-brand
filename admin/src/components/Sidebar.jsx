@@ -315,13 +315,13 @@ export function Sidebar() {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 z-20 h-full w-64 bg-white shadow-md transform transition-transform duration-300 ease-in-out pointer-events-auto
+        className={`fixed top-0 left-0 z-20 h-full w-60 bg-white shadow-md transform transition-transform duration-300 ease-in-out pointer-events-auto
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
         md:translate-x-0 md:static md:shadow-none`}
       >
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="px-6 py-6 border-b">
+          <div className="px-6 pt-4 border-b">
             <h1 className="text-xl font-bold text-gray-900">
               <span className="text-blue-600">LZY</span> CRAZY
             </h1>
@@ -365,7 +365,7 @@ export function Sidebar() {
                         className={`w-full relative flex items-center px-6 py-3 text-sm font-medium transition-colors text-left ${
                           isActive
                             ? 'text-blue-600 bg-blue-50'
-                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
                         }`}
                       >
                         {isActive && <div className="absolute left-0 top-0 h-full w-1 bg-blue-600" />}
@@ -386,7 +386,7 @@ export function Sidebar() {
                                 onClick={() => setSidebarOpen(false)}
                                 className={`flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md ${
                                   subActive
-                                    ? 'text-blue-600 bg-blue-100'
+                                    ? 'text-blue-600 bg-blue-200'
                                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
@@ -409,7 +409,7 @@ export function Sidebar() {
                     className={`relative flex items-center px-6 py-3 text-sm font-medium transition-colors ${
                       isActive
                         ? 'text-blue-600 bg-blue-50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
                     }`}
                   >
                     {isActive && (

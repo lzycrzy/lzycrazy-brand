@@ -46,7 +46,7 @@ export const getListingResponse = async (req, res) => {
   try {
     const user = req.user;
 
-    console.log(user._id);
+    // console.log(user._id);
 
     const allListing = await ListModel.find({ user: user._id })
       .populate('response')
@@ -88,7 +88,7 @@ export const createListing = async (req, res) => {
 
     const parsedImages =
       typeof photos === 'string' ? JSON.parse(photos) : photos;
-    console.log(parsedImages);
+    // console.log(parsedImages);
 
     const coordinates = await getCoordinates(city, state);
 
@@ -210,7 +210,6 @@ export const updateListing = async (req, res) => {
     const listing = await ListModel.findById(listingId);
     const parsedImages =
       typeof photos === 'string' ? JSON.parse(photos) : photos;
-    console.log(parsedImages);
 
     const coordinates = await getCoordinates(city, state);
 
@@ -293,8 +292,6 @@ export const renewListing = async (req, res) => {
     listing.expiryDate = newExpiryDate;
     await listing.save();
 
-    console.log(listing);
-
     return res.status(200).json({success: true, message: 'Listing extended successfully.', expiryDate: newExpiryDate });
 
   } catch (error) {
@@ -304,5 +301,71 @@ export const renewListing = async (req, res) => {
       message: 'Internal server error',
       error: error.message,
     });
+  }
+};
+
+
+export const deleteListing = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const listingId = req.params.listingId;
+
+    if (!userId) {
+      return res.status(404).json({
+        message: 'User not authenticated',
+      });
+    }
+
+    if (!listingId) {
+      return res.status(404).json({
+        success: false,
+        message: 'Listing id required',
+      });
+    }
+
+    await ListModel.findByIdAndDelete(listingId)
+
+    const listings = await ListModel.find({user: userId});
+
+    return res.status(200).json({
+      success: true,
+      listings
+    })
+
+  } catch (error) {
+    console.error('Renew listing error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+}
+
+export const addResponseToListing = async (req, res) => {
+  try {
+    const senderId = req.user._id;
+    const listingId = req.params.listingId;
+
+    const updatedListing = await ListModel.findByIdAndUpdate(
+      listingId,
+      {
+        $addToSet: { response: senderId } 
+      },
+      { new: true }
+    )
+
+    if (!updatedListing) {
+      return res.status(404).json({ success:false, message: 'Listing not found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Response added successfully',
+      data: updatedListing
+    });
+  } catch (error) {
+    console.error('Error adding response:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

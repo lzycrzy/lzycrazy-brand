@@ -66,11 +66,15 @@
 
 // src/pages/property/PropertyListing.jsx
 import LeftSideDeatil from './LeftSideDeatil';
-import RightSideDeatil from './RightSideDeatil';
+import RightSideDeatil, { ConfirmResponse } from './RightSideDeatil';
 import PropertyMap from './ProductMap';
 import Header from '../static/Header';
+import { useProduct } from '../../store/useProduct';
 
 const PropertyListing = ({ data, images }) => {
+
+  const {responseConfirmation} = useProduct();
+
   return (
     <>
       <Header />
@@ -87,6 +91,8 @@ const PropertyListing = ({ data, images }) => {
           </div>
         </div>
       </div>
+
+      {responseConfirmation && <ConfirmResponse />}
     </>
   );
 };
